@@ -1,0 +1,1345 @@
+package msg.server_message;
+
+//版本号
+enum E_VERSION{
+	E_VERSION_NUMBER=1101;
+}
+
+/**************************** common message struct define ******************************/
+
+message LoginServerInfo {
+	optional int32 ServerId = 1; // 服务器Id
+	optional string ServerName = 2; // 服务器名称
+	optional string ListenMatchIP = 3; // 监听Match的IP地址
+	optional string ListenClientIP = 4; // 监听客户端的IP地址
+}
+
+message PlayerBaseInfo {
+	optional int32 Lvl = 1; // 我的等级
+	optional int32 Exp = 2; // 我的经验
+	optional int32 CurMaxStage = 3; // 最大关卡数目
+	optional string Name = 4; // 玩家名称
+	optional int32 Icon = 5; // 玩家图标
+	optional string CustomIcon = 6; // 玩家自定义图标
+}
+
+// 玩家某一个关卡的信息
+message PlayerStageInfo {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 Score = 2; // 我的积分
+	optional string Name = 3; // 玩家名称
+	optional int32 Lvl = 4; // 玩家等级
+	optional string Icon = 5; // 玩家图标
+	optional string CustomIcon = 6; // 玩家自定义图标
+}
+
+message PlayerCard {
+	optional int32 CardCfgId = 1; // 卡牌配置Id
+	optional int32 CardCount = 2; // 卡牌数目
+}
+
+message CardTeam {
+	optional int32 TeamId = 1; // 卡组Id
+	repeated int32 CardIds = 2; // 卡组里面卡牌Id
+}
+
+message FightAction {
+	optional int32 Frame = 1; // 场景帧
+	optional int32 CardId = 2; // 卡片Id
+	optional int32 Cardlvl = 3; // 卡片等级
+	optional float PosX = 4; // 放置的X位置
+	optional float PosY = 5; // 放置的Y位置
+	optional int32 PlayerIdx = 6; // 玩家的阵营
+}
+
+message SmallRankItem {
+	optional int32 Rank = 1; // 排行榜名次 从零开始
+	optional int32 Id = 2; // 对象Id
+	optional string Name = 3; // 对象描述，比如说名称
+	optional int32 Score = 4; // 对象值
+	optional int32 TongIcon = 5; // 帮会Icon
+	optional string TongName = 6; // 帮会名称
+}
+
+/// 匹配玩家信息
+message MatchPlayer {
+	optional int64 Id = 1; // 玩家Id
+	optional string Name = 2; // 玩家名称
+	optional int32 Lvl = 3; // 玩家等级
+	optional int32 TongIcon = 4; // 帮会图标
+	optional string TongName = 5; // 帮会名称
+	optional int32 Score = 6; // 玩家积分
+	optional int32 Token = 7; // 玩家Token
+	repeated int32 CardCfgIds = 8; // 玩家卡片
+	repeated int32 CardLvls = 9; // 玩家卡片等级
+	optional int32 HallId = 10; // 玩家大厅等级
+	optional int32 Camp = 12; // 玩家阵营
+}
+
+
+/*************************************** end ********************************************/
+
+/**************************** hall_server and center server ****************************/
+
+/// hall->center hallServer注册
+message H2CHallServerRegister {
+	optional int32 ServerId = 1; // 服务器Id
+	optional string ServerName = 2; // 服务器名称
+	optional string ListenRoomIP = 3; // 监听Room的IP
+	optional string ListenClientIP = 4; // 监听客户端的地址
+}
+
+/// hall->center hallServer注销
+message H2CHallServerUnRegister {
+	optional int32 ServerId = 1; // 服务器Id
+}
+
+// center->hall 同步服务器列表(仅仅会在收到注册消息的时候发这条消息)
+message C2HLoginServerList {
+	repeated LoginServerInfo ServerList = 1; // 登录服务器列表信息
+}
+
+// center->hall 新的得LoginServer增加
+message C2HNewLoginServerAdd {
+	optional LoginServerInfo Server = 1; // 登录服务器信息
+}
+
+// center->hall HallServer断开连接
+message C2HLoginServerRemove {
+	optional int32 ServerId = 1; // 登录服务器ID
+}
+
+/*************************************** end ********************************************/
+
+/**************************** hall_server and login server ******************************/
+
+/// hall->login hall注册
+message H2LHallServerRegister {
+	optional int32 ServerId = 1; // 服务器Id
+	optional string ServerName = 2; // 服务器名称
+	optional string ListenClientIP = 3; // 监听客户端的地址
+}
+
+/// hall->login hall注销
+message H2LHallServerUnRegister {
+	optional int32 ServerId = 1; // 服务器Id
+	optional int32 Reason = 2; // 断开原因
+}
+
+/// login->hall 强制断开
+message L2HDissconnectNotify {
+	optional int32 Reason = 1; // 断开原因
+}
+
+/// login->hall 同步账号临时密码
+message L2HSyncAccountToken {
+	optional string Account = 1; // 账号
+	optional string Token = 2; // 临时token
+	optional int64 PlayerId = 3; // 玩家Id
+}
+
+/*************************************** end ********************************************/
+
+/**************************** login_server and center server ****************************/
+
+/// Login->Center Login注册
+message L2CLoginServerRegister {
+	optional int32 ServerId = 1; // 服务器Id
+	optional string ServerName = 2; // 服务器名称
+	optional string ListenMatchIP = 3; // 监听MatchServer的IP
+	optional string ListenClientIP = 4; // 监听Client的IP
+}
+
+/// Login->Center Login注销
+message L2CLoginServerUnRegister {
+	optional int32 ServerId = 1; // 服务器Id
+	optional int32 Reason = 2; // 断开原因
+}
+
+/// Login->Center 获取玩家账号Id和所在大厅信息
+message L2CGetPlayerAccInfo {
+	optional string Account = 1; // 玩家账号
+}
+
+/// Center->Login 玩家账号信息回复
+message C2LPlayerAccInfo {
+	optional string Account = 1; // 玩家账号
+	optional int64 PlayerId = 2; // 玩家Id
+	optional int32 HallId = 3; // 大厅Id
+	optional string HallIP = 4; // 大厅IP地址
+	optional int32 IfForbidLogin = 5; // 是否被封了
+	optional string ForbidEndTime = 6; // 封号截至时间
+}
+
+/*************************************** end ********************************************/
+
+/************************************** 玩家相关 *****************************************/
+
+/// 玩家上线
+message SetPlayerOnOffline {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id
+	optional int32 OnOffLine = 3; // 1位上线 0为下线
+}
+
+/*************************************** end ********************************************/
+
+/************************************** 关卡相关 *****************************************/
+
+/// 玩家通关
+message PlayerStagePass {
+	optional int32 PlayerId = 1; // 通关玩家Id
+	optional int32 SessionId = 2; // 通关请求分配的Id
+	repeated int32 FriendIds = 3; // 好友Id
+	optional int32 StageId = 4; // 关卡Id
+	optional int32 TopScore = 5; // 大于零表示最高积分有变化
+	optional int32 Lvl = 6; // 玩家等级，TopScore大于零时有效
+	optional string Name = 7; // 玩家名称，TopScore大于零时有效
+	optional string Icon = 8; // 玩家图标，TopScore大于零时有效
+	optional string CustomIcon = 9; // 自定义图标，TopScore大于零时有效
+}
+
+message RetPlayerStagePass {
+	optional int32 PlayerId = 1; // 通关玩家Id
+	optional int32 SessionId = 2; // 通关请求分配的Id
+	optional int32 StageId = 3; // 关卡Id
+	repeated PlayerStageInfo FriendInfos = 4; // 好友的关卡信息 
+	repeated PlayerStageInfo TopPlayers = 5; // 该关卡的前几名玩家
+}
+
+message GetFriendStageInfo {
+	optional int32 FriendId = 1; // 玩家Id
+	optional int32 ReqPId = 2; // 请求玩家Id
+	optional int32 StageId = 3; // 关卡Id
+}
+
+message RetFriendStageInfo {
+	optional PlayerStageInfo Info = 1; // 玩家关卡信息
+	optional int32 ReqPId = 2; // 请求玩家的Id
+}
+
+message ChapterUnlockHelp {
+	optional int32 ReqPlayerId = 1; // 请求玩家Id
+	optional string ReqPlayerName = 2; // 请求玩家名称
+	optional int32 ChapterId = 3; // 章节Id
+	repeated int32 HelpPlayerIds = 4; // 章节解锁
+}
+
+message ChapterUnlockAgree {
+	optional int32 AgreePlayerId = 1; // 同意玩家Id
+	optional string AgreePlayerName = 2; // 同意玩家名称
+	optional int32 ChapterId = 3; // 章节Id
+	optional int32 ReqPlayerId = 4; // 请求玩家Id
+}
+
+/*************************************** end ********************************************/
+
+/************************************* 排行榜相关 *****************************************/
+
+/// 单个玩家普通积分变化
+message PlayerNScoreChg {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional int32 Score = 3; // 玩家积分
+	optional int32 TongIcon = 4; // 帮会图标
+	optional string TongName = 5; // 帮会名称
+	optional int32 Pos = 6; // 位置
+}
+
+/// 多个玩家普通积分变化
+message MultiPlayerNScoreChg {
+	repeated PlayerNScoreChg ChgList = 1; // 变化列表
+}
+
+/// 获取排行榜信息
+message GetRankInfo {
+	optional int32 IfLastRank = 1; // 是否获取上赛季信息
+	optional int32 PlayerId = 2; // 玩家Id
+	optional int32 RankType = 3; // 排行榜类型
+	optional int32 Pos = 4; // 玩家位置
+}
+
+/// 排行榜条目
+message RetRankItems {
+	optional int32 PlayerId = 1; // 玩家编号
+	optional int32 RankType = 2; // 排行榜类型
+	repeated SmallRankItem ItemList = 3; // 排行榜数据
+	optional int32 IfLocal = 4; // 是否本地排行榜
+	optional int32 IfGetLast = 5; // 是否上一期的榜
+}
+
+/// 获取玩家信息 
+message GetPlayerInfo {
+	optional int32 PlayerId = 1; // 发起玩家Id
+	optional int32 TgtPlayerId = 2; // 所请求的玩家Id
+}
+
+message OtherPlayerBaseInfo {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 MatchScore = 2; // 玩家基本
+	optional int32 Coins = 3; // 玩家金币
+	optional int32 Diamonds = 4; // 玩家钻石
+	optional int32 CurUseCardTeam = 5; // 当前上阵卡组
+	optional int32 MyLvl = 6; // 我的等级
+	optional int32 ArenaLvl = 7; // 竞技场等级
+	optional int32 CurLegBestScore = 8; // 当前传奇竞技场最佳分数
+	optional int32 LastLegBestScore = 9; // 上一次赛季传奇最佳分数
+	optional int32 CurLegScore = 10; // 传奇竞技场杯数
+	optional int32 WinCount = 11; // 胜利次数
+	optional int32 OfenCardCfgId = 12; // 近期常用卡片
+	optional int32 DonateCount = 13; // 捐赠总数
+	optional int32 CheModWinCount = 14; // 挑战模式胜利次数
+	optional int32 CheModeOfenCardCfg = 15; // 挑战模式常用卡片
+	optional int32 ThreeTowerCount = 16; // 获得三个皇冠的次数
+	optional int32 Camp = 17; // 玩家阵营
+	optional string TongName = 18; // 帮会名称
+	optional int32 TongIcon = 19; // 帮会图标，为零表示没有帮会
+	repeated int32 FightCardIds = 20; // 出战卡片Id
+	repeated int32 FightCardLvls = 21; // 出战卡片的等级
+	optional int32 CurCardGetNum = 22; // 目前已经获得的卡片数量
+	optional int32 IfCaptain =23; // 是否帮会首领
+}
+
+/// 返回玩家信息
+message RetPlayerInfo {
+	optional int32 PlayerId = 1; // 发起玩家Id
+	optional int32 TgtPlayerId = 2; // 所请求的玩家Id
+	optional OtherPlayerBaseInfo BaseInfo = 3; // 所请求玩家的基础信息
+}
+
+// 传奇赛季信息同步
+message LegendArenaSwitch {
+	optional int32 SwitchUnix = 1; // 切换天数
+	optional int32 IfNeedSwitch = 2; // 是否需要执行一次刷新
+}
+
+/// 单个帮会积分变化
+message TongScoreChg {
+	optional int32 TongId = 1; // 帮会Id
+	optional string TongName = 2; // 帮会名称
+	optional int32 Score = 3; // 帮会积分
+	optional int32 TongIcon = 4; // 帮会图标
+	optional int32 Pos = 5; // 位置
+}
+
+/// 多个帮会积分变化
+message MultiTongScoreChg {
+	repeated TongScoreChg ChgList = 1; // 变化列表
+}
+
+
+/*************************************** end ********************************************/
+
+/************************************** 帮会相关 *****************************************/
+
+// 创建帮会
+message CreateTong {
+	optional int32 CreatorId = 1; // 创建者id
+	optional string CreatorName = 2; // 创建者名称
+	optional int32 Score = 3; // 创建者积分
+	optional string TongName = 4; // 帮会名称
+	optional int32 Icon = 5; // 部落徽章
+	optional int32 JoinType = 6; // 加入类型
+	optional int32 JoinScore = 7; // 加入类型
+	optional int32 Pos = 8; // 位置信息
+	optional int32 TongId = 9; // 帮会Id
+	optional string TongPub = 10; // 帮会公告
+}
+
+// 创建帮会成功
+message CreateTongOk {
+	optional int32 CreatorId = 1; // 创建者id
+	optional string TongName = 2; // 帮会名称
+	optional int32 Icon = 3; // 部落徽章
+	optional int32 JoinType = 4; // 加入类型
+	optional int32 JoinScore = 5; // 加入类型
+	optional int32 Pos = 6; // 位置信息
+	optional int32 TongId = 7; // 帮会Id
+	optional string TongPub = 8; // 帮会公告
+}
+
+/// 帮会创建失败
+message CreateTongFailed {
+	optional int32 Reason = 1; // 失败原因
+	optional int32 CreatorId = 2; // 创建者Id
+}
+
+message TongMemberInfo {
+	optional int32 PlayerId = 1; // 成员PlayerId
+	optional string Name = 2; // 名称
+	optional int32 Title = 3; // 职位
+	optional int32 Score = 4; // 积分
+	optional int32 Donate = 5; // 捐赠
+	optional int32 IfOnline = 6; // 是否在线
+}
+
+message TongChatData {
+	optional int32 SenderId = 1; // 发言人
+	optional string SenderName = 2; // 发言人名称
+	optional string Content = 3; // 发言人名称
+	optional int32 SendUnix = 4; // 发送时间
+}
+
+message TongVodData {
+	repeated FightAction Actions = 1; // 录像数据
+}
+
+message TongRequestCard {
+	optional int32 ReqId = 1; // 请求Id
+	optional int32 PlayerId = 2; // 玩家Id
+	optional string PlayerName = 3; // 玩家名称
+	optional int32 CardCfgId = 4; // 卡片Id
+	optional int32 CurGetNum = 5; // 当前获得数量
+	optional int32 MaxGetNum = 6; // 最大获得数量
+	optional int32 SendUnix = 7; // 发送时间
+}
+
+message TongRequestJoin {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional int32 Score = 3; // 玩家积分
+	optional int32 JoinSec = 4; // 加入请求的时间
+}
+
+message TongSummaryInfo {
+	optional int32 TongId = 1; // 帮会ID
+	optional int32 Icon = 2; // 帮会图标
+	optional string Name = 3; // 帮会名称
+	optional int32 MemCount = 4; // 当前帮会人数
+	optional int32 TongScore  = 5; // 帮会积分
+}
+
+message TongFriendMatchItem {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string Name = 2; // 玩家名称
+}
+
+/// 获取帮会信息
+message GetTongInfo {
+	optional int32 TongId = 1; // 帮会Id
+	optional int32 PlayerId = 2; // 请求者Id
+	optional int32 IfOwnTong = 3; // 是否自己的帮会
+}
+
+/// 返回帮会信息
+message RetTongInfo {
+	optional int32 PlayerId = 1; // 玩家id
+	optional int32 TongId = 2; // 帮会Id
+	optional string TongName = 3; // 帮会名称
+	optional int32 TongScore = 4; // 帮会积分
+	optional int32 Icon = 5; // 部落徽章
+	optional int32 JoinType = 6; // 加入类型
+	optional int32 JoinScore = 7; // 加入积分
+	optional int32 Pos = 8; // 位置信息
+	repeated TongMemberInfo Members = 9; // 帮会成员
+	repeated TongRequestJoin JoinList = 10; // 加入请求
+	repeated TongChatData ChatRds = 11; // 聊天记录
+	repeated TongRequestCard CardReqs = 12; // 捐赠请求
+	optional int32 TongChestState = 13; // 帮会宝箱获得状态 0为关闭 1为开启 2为领奖
+	optional int32 TongChestScore = 14; // 帮会宝箱积分
+	optional int32 IfGetTongChest = 15; // 是否已经领奖
+	optional int32 TongChestLeftSec = 16; // 当前宝箱活动还剩多少秒
+	repeated TongFriendMatchItem FriendMatchs = 17; // 友谊战记录
+	optional int32 TotalDonate = 18; // 每周捐赠
+	optional string TongPub = 19; // 帮会公告
+	optional int32 IfEnter = 20; // 是否加入帮会
+	repeated NotifyTongFightRecord Frds = 21; // 帮会分享战斗记录
+}
+
+/// 获取推荐帮会
+message GetRecommendTong {
+	optional int32 PlayerId = 1; // 玩家Id
+}
+
+/// 返回推荐帮帮
+message RetRecommendTong {
+	optional int32 PlayerId = 1; // 玩家Id
+	repeated TongSummaryInfo Tongs = 2; // 帮会列表
+}
+
+/// 帮会搜索
+message TongSearch {
+	optional int32 PlayerId = 1; // 发起搜索的玩家Id
+	optional int32 Pos = 2; // 部落位置
+	optional int32 MinCount = 3; // 最小人数
+	optional int32 MaxCount = 4; // 最大人数
+	optional int32 MinScore = 5; // 最低部落奖杯
+	optional int32 OnlyCanJoin = 6; // 是否只搜索可加入的部落
+	optional string Name = 7; // 帮会名称
+}
+
+///  帮会搜索返回
+message RetTongSearch {
+	optional int32 PlayerId = 1; // 发起搜索的玩家Id
+	repeated TongSummaryInfo TongList = 2; // 搜索到的帮会结果
+}
+
+// hall->common 请求加入帮会
+message EnterTong {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional int32 Score = 3; // 玩家积分
+	optional int32 TongId = 4; // 请求加入的帮会Id
+}
+
+/// 加入帮会请求批准
+message EnterTongRequest {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional int32 PlayerScore = 3; // 玩家积分
+	optional int32 JoinSec = 4; // 加入时间
+	repeated int32 OnlinePlayers = 7; // 在线玩家
+}
+
+/// 同意入帮会
+message EnterTongAgree {
+	optional int32 TongId = 1; // 帮会Id
+	optional int32 PlayerId = 2; // 申请玩家Id
+	optional int32 OpPlayerId = 3; // 同意者Id
+}
+
+/// 玩家加入帮会通知
+message NotifyPlayerEnter {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 PlayerScore = 2; // 玩家积分
+	optional string PlayerName = 3; // 玩家名称
+	optional string OpPlayerName = 4; // 操作玩家的名称
+	repeated int32 OnlinePlayers = 5; // 在线玩家
+	optional int32 IfOnline = 6; // 是否在线
+}
+
+/// 拒绝入帮会
+message EnterTongRefuse {
+	optional int32 PlayerId = 1; // 被拒绝玩家ID
+	optional int32 OpPlayerId = 2; // 执行操作的玩家的ID
+	optional int32 TongId = 3; // 帮会Id
+}
+
+/// 拒绝加入帮会通知
+message NotifyPlayerRefuse {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string OpPlayerName = 2; // 操作玩家的名称
+	repeated int32 OnlinePlayers = 3; // 在线玩家
+}
+
+/// 设置玩家帮会信息
+message SetPlayerTongInfo {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id
+	optional string TongName = 3; // 帮会名称
+	optional int32 TongIcon = 4; // 帮会图标
+	optional int32 PrePos = 5; // 成员序号
+	optional int32 MemberType = 6; // 成员类型
+	optional int32 NotBack = 7; // 是否不需要回设
+}
+
+/// 设置玩家帮会信息成功 
+message SetPlayerTongInfoOk {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id
+	optional int32 PrePos = 3; // 成员序号
+	optional int32 IfOnline = 4; // 是否在线
+}
+
+/// 退出帮会
+message TongLeave {
+	optional int32 PlayerId = 1; // 离开帮会的玩家Id
+	optional int32 TongId = 2; // 离开的帮会Id
+}
+
+/// 清空玩家身上帮会信息
+message ClearPlayerTongInfo {
+	optional int32 PlayerId = 1; // 被清理玩家的Id
+	repeated int32 OnlinePlayers = 2; // 在线玩家
+}
+
+/// 如果有，帮会清空玩家
+message ClearTongPlayerById {
+	optional int32 PlayerId = 1; // 被清理的玩家的Id
+}
+
+/// 玩家上线
+message SetTongMemberOnOffline {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id
+	optional int32 OnOffLine = 3; // 1位上线 0为下线
+}
+
+/// 帮会玩家上线 通知
+message NotifyTongMemberOnOffline {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id
+	optional int32 OnOffLine = 3; // 1位上线 0为下线
+	repeated int32 OnlinePlayers = 4; // 在线玩家
+}
+
+/// 帮会设置修改
+message TongSetChg {
+	optional string TongName = 1; // 帮会名称
+	optional int32 Icon = 2; // 部落徽章
+	optional int32 JoinType = 3; // 加入类型
+	optional int32 JoinScore = 4; // 加入类型
+	optional int32 Pos = 5; // 位置信息
+	optional int32 TongId = 6; // 帮会Id
+}
+
+/// 帮会设置修改 通知
+message NotifyTongSetChg {
+	optional string TongName = 1; // 帮会名称
+	optional int32 Icon = 2; // 部落徽章
+	optional int32 JoinType = 3; // 加入类型
+	optional int32 JoinScore = 4; // 加入类型
+	optional int32 Pos = 5; // 位置信息
+	optional int32 TongId = 6; // 帮会Id
+	repeated int32 OnlinePlayers = 7; // 在线玩家
+}
+
+/// 帮会公告修改
+message TongPubChg {
+	optional string TongPub = 1; // 帮会公告
+	optional int32 TongId = 2; // 帮会Id
+}
+
+/// 帮会公告修改 通知
+message NotifyTongPubChg {
+	optional string TongPub = 1; // 帮会公告
+	optional int32 TongId = 2; // 帮会Id
+	repeated int32 OnlinePlayers = 3; // 在线玩家
+}
+
+/// 帮会聊天
+message TongChatSend {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional string Content = 3; // 聊天内容
+	optional int32 TongId = 4; // 帮会Id
+}
+
+/// 帮会聊天 通知
+message NotifyTongChatSend {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional string Content = 3; // 聊天内容
+	optional int32 TongId = 4; // 帮会Id
+	repeated int32 OnlinePlayers = 5; // 在线玩家
+	optional int32 SendUnix = 6; // 发送时间
+}
+
+/// 帮会请求卡片
+message TongCardReq {
+	optional int32 CardCfgId = 1; // 卡片Id
+	optional int32 TongId = 2; // 帮会Id
+	optional int32 PlayerId = 3; // 玩家Id
+	optional string PlayerName = 4; // 玩家名称
+	optional int32 MaxGetNum = 5; // 最大获取卡片数目
+}
+
+// 服务器通知帮会成员的卡片请求
+message NotifyTongCardReq {
+	optional int32 PlayerId = 1; // 卡片请求者Id
+	optional string PlayerName = 2; // 卡片请求者名称
+	optional int32 CardCfgId = 3; // 卡片配置Id
+	optional int32 CurGetNum = 4; // 卡片当前获得数目
+	optional int32 MaxGetNum = 5; // 最大获得数目
+	optional int32 ReqUnix = 6; // 卡片请求时间
+	repeated int32 OnlinePlayers = 7; // 在线玩家
+}
+
+// 帮会捐献卡片
+message TongDonateCard {
+	optional int32 PlayerId = 1; // 捐出者Id
+	optional string PlayerName = 2; // 捐出者名称
+	optional int32 TgtPlayerId = 3; // 被捐者Id
+	optional int32 CardCfgId = 4; // 卡片Id
+	optional int32 TongId = 5; // 帮会Id
+}
+
+// 服务器通知帮会成员捐卡成功
+message NotifyTongDonateCard {
+	optional int32 PlayerId = 1; // 捐出者Id
+	optional string PlayerName = 2; // 捐出者名称
+	optional int32 TgtPlayerId = 3; // 被捐者Id
+	optional int32 CardCfgId = 4; // 卡片Id
+	repeated int32 OnlinePlayers = 5; // 在线玩家
+}
+
+// 帮会捐卡失败
+message TongDonateCardFailed {
+	optional int32 PlayerId = 1; // 捐出者Id
+}
+
+// 帮会成员比赛
+message TongMemberFightEnd {
+	optional int32 Score = 1; // 赢得的积分
+	optional int32 CurScore = 2; // 当前积分
+	optional int32 PlayerId = 3; // 玩家Id
+	optional int32 TongId = 4; // 帮会Id
+}
+
+// 服务器通知帮会宝箱积分变化
+message NotifyTongChestScoreChg {
+	optional int32 CurScore = 1; // 当前积分
+	repeated int32 OnlinePlayers = 2; // 在线玩家
+}
+
+// 服务器通知帮会成员积分发生变化
+message NotifyTongMemberScoreChg {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 CurScore = 2; // 当前积分
+	repeated int32 OnlinePlayers = 3; // 在线玩家
+}
+
+// 打开帮会宝箱
+message TongChestOpen {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id	
+	optional int32 ArenaLvl = 3; // 玩家竞技场等级
+}
+
+// 打开帮会宝箱返回
+message RetTongChestOpen {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 ChestId = 2; // 宝箱Id
+}
+
+// 帮会友谊战请求
+message TongFriendMatch {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string Name = 2; // 玩家名称
+	optional int32 Lvl = 3; // 玩家等级
+	optional int32 TongId = 4; // 帮会Id
+	optional int32 Score = 5; // 玩家积分
+	repeated int32 CardIds = 6; // 卡片Id
+	repeated int32 CardLvls = 7; // 卡片等级
+	optional int32 HallId = 8; // 大厅Id
+	optional int32 Camp = 9; // 阵营
+}
+
+// 帮会友谊战通知
+message NotifyTongFriendMatch {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	repeated int32 OnlinePlayers = 3; // 在线玩家
+}
+
+// 帮会友谊战取消
+message TongFriendCancel {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id
+}
+
+// 通知删除帮会友谊战记录
+message NotifyTongFriendCancel {
+	optional int32 PlayerId = 1; // 玩家Id
+	repeated int32 OnlinePlayers = 2; // 在线玩家
+}
+
+// 加入友谊战
+message TongFriendEnter {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id
+	optional int32 Lvl = 3; // 等级
+	optional int32 TgtPlayerId = 4; // 加入的对象
+	repeated int32 CardIds = 5; // 卡片Id
+	repeated int32 CardLvls = 6; // 卡片等级
+	optional string PlayerName = 7; // 玩家名称
+	optional int32 Score = 8; // 玩家积分
+	optional int32 HallId = 9; // 大厅Id
+	optional int32 Camp = 10; // 阵营
+}
+
+// 分享战斗记录
+message TongFightRecord {
+	optional int32 ReqPlayerId = 1; // 玩家Id
+	optional int32 TongId = 2; // 帮会Id
+	optional string Content = 3; // 分享描述
+	optional int32 FightResult = 4; // 获胜者的Id
+	optional int32 MatchType = 5; // 匹配类型
+	optional int32 MyTowers = 6; // 我方摧毁塔数
+	optional int32 OpTowers = 7; // 敌方摧毁塔数
+	optional int32 MyScoreChg = 8; // 我的积分变化
+	repeated FightRecordPlayer MyPlayers = 9; // 我方玩家
+	repeated FightRecordPlayer OtherPlayers = 10; // 对方玩家
+	optional bytes VideoData = 11; // 录像数据
+}
+
+message FightRecordPlayer {
+	optional int32 PlayerId = 1; // 玩家编号
+	optional int32 Score =2; // 积分
+	optional int32 Lvl = 3; // 等级
+	optional string Name = 4; // 名称
+	optional int32 TongIcon = 5; // 部落图标
+	optional string TongName = 6; // 部落名称
+	repeated int32 CardCfgIds = 7; // 卡片
+	repeated int32 CardLvls = 8; // 卡片等级
+	optional int32 Camp = 9; // 阵营
+}
+
+// 通知战斗记录分享
+message NotifyTongFightRecord {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 RecordId = 2; // 战斗记录Id
+	optional string Content = 3; // 分享描述
+	optional int32 ReqPlayerId = 4; // 玩家Id
+	optional int32 TongId = 5; // 帮会Id
+	optional int32 FightResult = 6; // 获胜者的Id
+	optional int32 MatchType = 7; // 匹配类型
+	optional int32 MyTowers = 8; // 我方摧毁塔数
+	optional int32 OpTowers = 9; // 敌方摧毁塔数
+	optional int32 MyScoreChg = 10; // 我的积分变化
+	repeated FightRecordPlayer MyPlayers = 11; // 我方玩家
+	repeated FightRecordPlayer OtherPlayers = 12; // 对方玩家
+	optional bytes VideoData = 13; // 录像数据
+	optional int32 CreateUinx = 14; // 创建时间
+	repeated int32 OnlinePlayers = 15; // 在线玩家
+}
+
+/*************************************** end ********************************************/
+
+/************************************** 邮件相关 *****************************************/
+
+/// 邮件信息
+message MailAdd {
+	optional int32 PlayerId = 1; // 邮件接收者唯一Id
+	optional int32 MailType = 2;  // 邮件类型
+	optional string Title = 3; // 邮件标题
+	optional string Content = 4; // 邮件内容
+	optional int32 SenderId = 5; // 发送者Id
+	optional string SenderName = 6; // 发送者名称
+	optional int32 SendUnix = 7; // 发送时间
+	optional int32 OverUnix = 8; // 邮件的过期时间
+	repeated int32 ObjIds = 9; // 邮件对象的配置Id集合
+	repeated int32 ObjNums = 10; // 邮件对象的数目集合
+	repeated int32 ExtraDatas = 11; // 邮件的附加数据
+}
+
+/*************************************** end ********************************************/
+
+/************************************** 补偿相关 *****************************************/
+
+// 同步单个补偿数据
+message PayBackAdd {
+	optional int32 PayBackId = 1; // 补偿Id
+	repeated int32 ObjIds = 2; // 补偿对象Id
+	repeated int32 ObjNums = 3; // 补偿对象数目
+	optional int32 OverUnix = 4; // 补偿的过期时间
+	optional string MailTitle = 5; // 补偿邮件的标题
+	optional string MailContent = 6; // 补偿邮件的内容
+}
+
+/// 同步补偿列表
+message SyncPayBackDataList {
+	repeated PayBackAdd PayBackList = 1; // 补偿列表
+}
+
+/// 删除补偿
+message PayBackRemove {
+	optional int32 PbId = 1; // 补偿Id
+}
+
+/*************************************** end ********************************************/
+
+/************************************** 邮件相关 *****************************************/
+
+// 同步单个公共数据
+message NoticeAdd {
+	optional int32 NoticeId = 1; // 公告Id
+	optional int32 OverUnix = 2; // 公告过期时间
+	optional string Content = 3; // 公告的内容
+}
+
+/// 同步公告列表
+message SyncNoticeAddList {
+	repeated NoticeAdd NoticeList = 1; // 补偿列表
+}
+
+/// 删除公告
+message NoticeRemove {
+	optional int32 NoticeId = 1; // 补偿Id
+}
+
+/*************************************** end ********************************************/
+
+/************************************* 阵营战相关 *****************************************/
+
+// 获取阵营战状态
+message GetCampFightState {
+	
+}
+
+// 通知阵营战状态改变
+message NotifyCampFightState {
+	optional int32 State = 1; // 阵营战状态
+	optional int32 CurFightArena = 2; // 当前战斗区域
+	optional int32 LeftSec = 3; // 距离下一个节点的秒数
+	optional int32 CurYearWeek = 4; // 当前周数
+	optional int32 CurRewardISOWeek = 5; // 当前奖励周
+	optional int32 CurXScore = 6; // 当前X阵营积分
+	optional int32 CurTScore = 7; // 当前T阵营积分
+}
+
+// 玩家阵营战积分改变
+message CampFigthScoreChg {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional int32 CurScore = 3; // 玩家积分
+	optional int32 TongIcon = 4; // 帮会Icon
+	optional string TongName = 5; // 帮会名称
+	optional int32 PlayerCamp = 6; // 玩家阵营
+	optional int32 PlayerScoreChg = 7; // 玩家积分变化
+}
+
+// 获取阵营战排行榜
+message GetCampFightRank {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 RankType = 2; // 排行榜类型
+	optional int32 IfLastRank = 3; // 是否上一期榜 1 为是 0 为否
+}
+
+// 返回阵营战排行榜
+message RetCampFightRank {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 RankType = 2; // 排行榜类型
+	optional int32 IfLastRank = 4; // 是否上一期榜 1 为是 0 为否
+	repeated SmallRankItem Recoreds = 5; // 排行榜记录
+}
+
+// 阵营战斗记录数据
+message CampFightRecord {
+	optional int32 FightIdx = 1;
+	optional int32 XScore = 2;
+	optional int32 TScore = 3;
+}
+
+// 阵营战斗记录
+message GetCampFightRecord {
+	optional int32 PlayerId = 1;
+}
+
+// 返回阵营战斗记录
+message RetCampFightRecord {
+	repeated CampFightRecord Records = 1; // 战斗记录
+	optional int32 PlayerId = 2; // 玩家Id
+}
+
+// 阵营积分更新
+message CampFightScoreUpdate {
+	optional int32 XCampScore = 1; // x阵营积分
+	optional int32 TCampScore = 2; // t阵营积分
+}
+
+/*************************************** end ********************************************/
+
+/************************************** 好友相关 *****************************************/
+
+message FriendInfo {
+	optional int32 PlayerId = 2; // 申请的玩家Id
+	optional string PlayerName = 3; // 申请玩家名称
+}
+
+message FriendSearch {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string Key = 2; // 搜索关键字
+}
+
+message FriendSearchResult {
+	optional int32 PlayerId = 1; // 玩家Id
+	repeated FriendInfo Records = 2; // 搜索信息
+}
+
+message AddFriendByPId {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 ReqPlayerId = 2; // 申请的玩家Id
+	optional string ReqPlayerName = 3; // 申请玩家名称
+}
+
+message AddFriendByAcc {
+	optional string Account = 1; // 玩家账号
+	optional int32 ReqPlayerId = 2; // 申请的玩家Id
+	optional string ReqPlayerName = 3; // 申请玩家名称
+}
+
+message AgreeAddFriend {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string Name = 2; // 好友名称
+	optional int32 ReqPlayerId = 3; // 请求玩家Id
+}
+
+message RefuseFriendAdd {
+	optional int32 ReqPlayerId = 1; // 申请好友的玩家Id
+	optional string RefuseName = 2; // 做拒绝的玩家名称
+}
+
+message RemoveFriendById {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 ReqPlayerId = 2; // 请求玩家id
+}
+
+message AddFocusByPId {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 ReqPlayerId = 2; // 申请的玩家Id
+	optional string ReqPlayerName = 3; // 申请玩家名称
+}
+
+message AddFocusByAcc {
+	optional string Account = 1; // 玩家账号
+	optional int32 ReqPlayerId = 2; // 申请的玩家Id
+	optional string ReqPlayerName = 3; // 申请玩家名称
+}
+
+message GetFocusedPlayerInfo {
+	optional int32 PlayerId = 1; // 被请求玩家Id
+	optional int32 ReqPlayerId = 2; // 请求玩家Id
+	optional string ReqPlayerName = 3; // 申请玩家名称
+}
+
+message RetFocusedPlayerInfo {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string Name = 2; // 好友名称
+	optional int32 ReqPlayerId = 3; // 请求玩家Id
+}
+
+message RemoveFocusById {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 ReqPlayerId = 2; // 请求玩家id
+}
+
+message RemoveBeFocusById {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 ReqPlayerId = 2; // 请求玩家id
+}
+
+message FriendChat {
+	optional int32 PlayerId = 1; // 接受者玩家Id
+	optional string Content = 2; // 玩家账号
+	optional int32 SenderId = 3; // 发送者id
+}
+
+/// 
+message GetOnlineFriendIds {
+	optional int32 ReqPlayerId = 1; // 请求好友的Id
+	repeated int32 PlayerIds = 2; // Id列表
+	optional int32 Key = 3; //  好友类型 1好友 2是关注 3是粉丝
+}
+
+message RetOnlineFriendIds {
+	optional int32 ReqPlayerId = 1; // 请求好友的Id
+	repeated int32 PlayerIds = 2; // Id列表
+	optional int32 Key = 3; //  好友类型 1好友 2是关注 3是粉丝
+}
+
+/*************************************** end ********************************************/
+
+/************************************** 2v2相关 *****************************************/
+
+message Match2v2ParterInfo {
+	optional int32 Id = 1; // 玩家Id
+	optional string Name = 2; // 玩家名称
+	optional int32 Score = 3; // 玩家积分
+	optional int32 TongIcon = 4; // 玩家图标
+	optional string TongName = 5; // 玩家名称
+	repeated int32 CardCfgIds = 6; // 卡片配置Id
+	repeated int32 CardLvls = 7; // 卡片等级
+	optional int32 IfReady = 8; // 是否准备好
+}
+
+message Match2v2ParterEnter {
+	optional int32 MyId = 1; // 玩家Id
+	optional int32 ParterId = 2; // 玩家Id
+	optional string ParterName = 3; // 玩家名称
+	optional int32 ParterScore = 4; // 玩家积分
+	optional int32 ParterTongIcon = 5; // 玩家图标
+	optional string ParterTongName = 6; // 玩家名称
+	repeated int32 ParterCardCfgIds = 7; // 卡片配置Id
+	repeated int32 ParterCardLvls = 8; // 卡片等级
+	optional int32 LeftSec = 9; // 剩余时间
+}
+
+message Match2v2CardsChg {
+	optional int32 PlayerId = 1; // 玩家Id
+	repeated int32 CardCfgIds = 2; // 卡组配置Id
+	repeated int32 Cardlvls = 3; // 卡组等级
+	optional int32 ParterId = 4; // 队友Id
+}
+
+message Match2v2Chat {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional string Content = 2; // 聊天内容 
+}
+
+message Match2v2EnterRoom {
+	optional int32 MyPId = 1; // 我的玩家Id
+	optional int32 MatchRoomId = 2; // 2v2匹配房间Id
+	optional Match2v2ParterInfo Pater = 3; // 队友信息
+	optional int32 LeftSec = 4; // 当前状态剩余时间
+	optional int32 RoomState = 5; // 当前房间状态
+	optional int32 SelfReady = 6; // 自己是否准备好
+}
+
+message Match2V2Ready {
+	optional int32 MyId = 1; // 我的Id
+}
+
+message Match2V2ParterReady {
+	optional int32 MyId = 1; // 我的Id
+	optional int32 ParterId = 2; // 队友Id
+}
+
+/*************************************** end ********************************************/
+
+/************************************** 2v2相关 *****************************************/
+
+// 参赛玩家的信息
+message CustomMatchPlayer {
+	optional int32 Id = 1; // 玩家Id
+	optional string Name = 2; // 玩家名字
+	optional int32 Score = 3; // 玩家积分 比赛里面的
+	optional int32 TongIcon = 4; // 帮会图标
+	optional string TongName = 5; // 帮会名字
+	optional int32 LastRankChg = 6; // 之前的名次变化
+	optional int32 CurState = 7; // 0 表示未参赛 1表示匹配 2表示比赛中
+}
+
+// 获取锦标赛信息
+message GetCustomMatch {
+	optional int32 ReqPlayerId = 1; // 请求玩家的Id
+	optional int32 RoomId = 2; // 锦标赛信息
+}
+
+// 返回当前锦标赛信息
+message RetCustomMatchBaseInfo {
+	optional int32 ReqPlayerId = 1; // 请求玩家的Id
+	optional int32 MsgType = 2; // 0表示返回自己的信息或者加入成功  1表示查看 2表示创建
+	optional string MasterName = 3; // 房主名字
+	optional string RoomName = 4; // 房间名字
+	optional int32 MasterTongIcon = 5; // 房主帮会图标
+	optional string MasterTongName = 6; // 帮会名称
+	optional string Desc = 7; // 描述
+	optional int32 RoomType = 8; // 房间类型
+	optional int32 EnterType = 9; // 0无密码 1 有密码
+	optional int32 CurStep = 10; // 0表示准备阶段 1比赛开启阶段 2领奖阶段
+	optional int32 MasterId = 11; // 房主Id
+	optional int32 LeftSec = 12; // 剩余秒数
+}
+
+// 返回当前锦标赛玩家列表
+message RetCustomMatchPlayers {
+	optional int32 ReqPlayerId = 1; // 请求玩家的Id
+	optional int32 MsgType = 2; // 0表示返回自己的信息或者加入成功  1表示查看
+	repeated CustomMatchPlayer Players = 3; // 当前参赛玩家
+}
+
+// 搜索锦标赛
+message CustomMatchSearch {
+	optional int32 ReqPlayerId = 1; // 请求玩家的Id
+	optional string Key = 2; // 关键字
+}
+
+// 锦标赛摘要信息
+message CustomMatchSummary {
+	optional int32 ReqPlayerId = 1; // 请求玩家的Id
+	optional int32 RoomId = 2; // 房间Id
+	optional string RoomName = 3; // 房间名字
+	optional string MasterName = 4; // 房主名字
+	optional int32 RoomType = 5; // 房间类型
+	optional int32 EnterType = 6; // 加入类型 0 任何人加入 1 密码加入
+	optional int32 CurStep = 7; // 0表示准备阶段 1比赛开启阶段 2领奖阶段
+	optional int32 CurPlayerNum = 8; // 当前玩家数目
+	optional int32 LeftSec = 9; // 剩余时间
+}
+
+// 返回搜索结果
+message RetCustomMatchSearch {
+	optional int32 ReqPlayerId = 1; // 请求玩家的Id
+	repeated CustomMatchSummary Rooms = 2; // 房间列表
+}
+
+// 创建锦标赛 成功返回基本信息 msgtype为2
+message CreateCustomMatch {
+	optional int32 ReqPlayerId = 1; // 请求玩家Id
+	optional string ReqPlayerName = 2; // 请求玩家名称
+	optional int32 RoomType = 3; // 房间类型
+	optional string RoomName = 4; // 房间名字
+	optional string RoomDesc = 5; // 房间描述
+	optional string RoomPwd = 6; // 房间描述
+	optional int32 MasterTongIcon = 7; // 房主帮会图标
+	optional string MasterTongName = 8; // 房主帮会名称
+	optional int32 ArenaLvl = 9; // 竞技场等级
+	optional int32 Camp = 10; // 竞技场等级
+}
+
+// 创建锦标赛失败，退钱
+message CreateCustomMatchFailed {
+	optional int32 ReqPlayerId = 1; // 请求玩家Id
+	optional int32 RoomType = 2; // 房间类型
+}
+
+// 修改锦标赛描述
+message ChgCustomMatchDesc {
+	optional int32 ReqPlayerId = 1; // 请求玩家Id
+	optional int32 RoomId = 2; // 房间Id
+	optional string Desc = 3; // 房间描述
+}
+
+// 修改锦标赛密码
+message ChgCustomMatchPwd {
+	optional int32 ReqPlayerId = 1; // 请求玩家Id
+	optional int32 RoomId = 2; // 房间Id
+	optional string Pwd = 3; // 房间密码
+}
+
+// 加入锦标赛
+message EnterCustomMatch {
+	optional int32 ReqPlayerId = 1; // 请求玩家Id
+	optional int32 RoomId = 2; // 房间Id
+	optional string PlayerName = 3; // 请求玩家名称
+	optional string RoomPwd = 4; // 房间描述
+	optional int32 TongIcon = 5; // 房主帮会图标
+	optional string TongName = 6; // 房主帮会名称
+	optional int32 ArenaLvl = 7; // 竞技场等级
+	optional int32 Camp = 8; // 竞技场等级
+}
+
+// 通知有人加入锦标赛
+message NotifyEnterCustomMatch {
+	repeated int32 InPids = 1; // 当前需要通知的玩家
+	optional int32 ReqPlayerId = 2; // 请求玩家Id
+	optional string PlayerName = 3; // 请求玩家名称
+	optional int32 TongIcon = 4; // 房主帮会图标
+	optional string TongName = 5; // 房主帮会名称
+	optional int32 ArenaLvl = 6; // 竞技场等级
+	optional int32 Camp = 7; // 竞技场等级
+}
+
+// 开始锦标赛
+message StartCustomMatch {
+	optional int32 ReqPlayerId = 1; // 请求玩家Id
+}
+
+// 通知锦标赛开始
+message NotifyCustomMatchStart {
+	optional int32 NotifyPlayerId = 1; // 通知玩家Id
+}
+
+// 开始匹配
+message CustomMatchReq {
+	optional int32 PlayerId = 1; // 请求玩家Id
+	optional string PlayerName = 2; // 玩家名称
+	optional string Pwd = 3; // 密码
+	optional int32 Lvl = 4; // 玩家等级
+	repeated int32 CardCfgIds = 5; // 卡片Id
+	repeated int32 CardLvls = 6; // 卡片等级
+	optional int32 TongIcon = 7; // 帮会图标
+	optional string TongName = 8; // 帮会名称
+	optional int32 HallId = 9; // 大厅Id
+	optional int32 Camp = 10; // 阵营
+}
+
+// 取消匹配
+message CustomMatchCacel {
+	optional int32 PlayerId = 1; // 请求玩家Id
+}
+
+// 玩家状态改变
+message CustomPlayerStatechg {
+	optional int32 ChgPlayerId = 1; // 变化积分的玩家Id
+	optional int32 NotifyPlayerId = 2; // 通知的玩家Id
+	optional int32 State = 3; // 0 表示未参赛 1表示匹配 2表示比赛中
+}
+
+// 玩家积分改变
+message CustomPlayerScorechg {
+	optional int32 ChgPlayerId = 1; // 变化积分的玩家Id
+	optional int32 NotifyPlayerId = 2; // 通知的玩家Id
+	optional int32 CurScore = 3; // 当前积分
+}
+
+// 离开竞标赛界面
+message LeaveCustomMatchPage {
+	optional int32 PlayerId = 1; // 玩家Id
+}
+
+// 退出锦标赛
+message LeaveCustomMatch {
+	optional int32 PlayerId = 1; // 玩家Id
+}
+
+// 通知退出锦标赛
+message NotifyLeaveCustomMatch {
+	optional int32 LeavePlayerId = 1; // 离开的玩家Id
+	optional int32 PlayerId = 2; // 通知的玩家Id
+}
+
+// 通知锦标赛发奖
+message NotifyCustomReward {
+	optional int32 RewardPlayerId = 1; // 请求玩家的Id
+	optional int32 MsgType = 2; // 0表示返回自己的信息或者加入成功  1表示查看 2表示创建
+	optional string MasterName = 3; // 房主名字
+	optional string RoomName = 4; // 房间名字
+	optional int32 MasterTongIcon = 5; // 房主帮会图标
+	optional string MasterTongName = 6; // 帮会名称
+	optional string Desc = 7; // 描述
+	optional int32 RoomType = 8; // 房间类型
+	optional int32 ChestId = 9; // 宝箱Id
+	optional int32 MyRank = 10; // 我的排名
+	repeated CustomMatchPlayer Records = 11; // 排行榜靠前的玩家
+}
+
+// 通知锦标赛未获得宝箱
+message NotifyCustomNoReward {
+	optional int32 PlayerId = 1; // 通知的玩家Id
+}
+
+/*************************************** end ********************************************/
+
+/************************************** Gm相关 *****************************************/
+
+// center->hall gm命令
+message C2HGmCommand {
+	optional string Command = 1; // gm命令字串
+	optional int32 SessionId = 2; // 会话Id
+}
+
+// hall->center 返回执行结果
+message H2CGmResult {
+	optional int32 SessionId = 1; // 会话Id
+	optional string Result = 2; // 执行结果
+}
+
+// center->hall 查询物品某个玩家的物品
+message C2HItemQuery {
+	optional int32 PlayerId = 1; // 玩家Id
+	optional int32 SessionId = 2; // 会话Id
+}
+
+message IdNum {
+	optional int32 Id = 1; // 道具Id
+	optional int32 Num = 2; // 道具数目
+}
+
+// hall->center 回复物品查询结果
+message H2CItemQuery {
+	optional int32 SessionId = 1; // 会话Id
+	repeated IdNum Items = 2; // 道具列表
+}
+
+// hall->center 获取当前服务器奖励信息
+message H2CGetServerReward {
+	
+}
+
+// center->hall 增加全服奖励信息
+message C2HAddServerReward {
+	optional int32 RewardId = 1; // 奖励Id
+	optional string Channel = 2; // 奖励渠道
+	optional int32 EndUnix = 3; // 结束时间
+	repeated IdNum Items = 4; // 奖励物品信息
+	optional string Content = 5; // 奖励邮件内容
+}
+
+// center->hall 同步当前全服奖励信息
+message C2HSyncServerReward {
+	repeated C2HAddServerReward Rewards = 1; // 奖励
+}
+
+/*************************************** end ********************************************/

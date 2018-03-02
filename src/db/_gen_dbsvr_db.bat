@@ -1,0 +1,1 @@
+dbc.exe "go" "dbsvr_db_def.json" "proto_prefix.txt" "..\public_message\db_dbsvr.proto" "code_prefix_dbsvr.txt" "..\youma\db_server\a_db_tables.go"

@@ -1,0 +1,46 @@
+package db;
+
+
+message HeroDesireParam{
+	optional int32 TargetValue=1;
+	optional int32 Value1=2;
+	optional int32 Value2=3;
+}
+
+message SmallRankRecord{
+	optional int32 Rank=1;
+	optional int32 Id=2;
+	optional int32 Val=3;
+	optional string Name=4;
+	optional int32 Lvl=5;
+	optional int32 Icon=6;
+	optional string CustomIcon=7;
+}
+
+message CampFightRecord{
+	optional int32 FightIdx=1;
+	optional int32 XScore=2;
+	optional int32 TScore=3;
+}
+
+message IdNum{
+	optional int32 Id=1;
+	optional int32 Num=2;
+}
+
+message StageScoreRankRankRecords{
+	repeated SmallRankRecord Records=1;
+}
+
+message ServerRewardRewardInfo{
+	optional int32 RewardId=1;
+	repeated IdNum Items=2;
+	optional string Channel=3;
+	optional int32 EndUnix=4;
+	optional string Content=5;
+}
+
+message ServerRewardRewardInfoList{
+	repeated ServerRewardRewardInfo List=1;
+}
+

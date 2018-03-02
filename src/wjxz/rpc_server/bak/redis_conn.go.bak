@@ -1,0 +1,79 @@
+package main
+
+import (
+	"errors"
+	"libs/log"
+	"time"
+
+	"github.com/garyburd/redigo/redis"
+)
+
+type RedisClient struct {
+	conn redis.Conn
+}
+
+func (this *RedisClient) Connect(addr string) bool {
+	if this.conn != nil {
+		return true
+	}
+	var err error
+	this.conn, err = redis.Dial("tcp", addr)
+	if err != nil {
+		log.Error("连接redis[%v]失败", addr)
+		return false
+	}
+
+	log.Info("连接redis[%v]成功", addr)
+
+	return true
+}
+
+func (this *RedisClient) Close() {
+	if this.conn != nil {
+		this.conn.Close()
+		this.conn = nil
+	}
+	log.Info("关闭redis连接")
+}
+
+func (this *RedisClient) Flush() error {
+	if this.conn == nil {
+		return errors.New("未建立redis连接")
+	}
+	return this.conn.Flush()
+}
+
+func (this *RedisClient) Receive() (interface{}, error) {
+	if this.conn == nil {
+		return nil, errors.New("未建立redis连接")
+	}
+	return this.conn.Receive()
+}
+
+func (this *RedisClient) Send(cmd string, args ...interface{}) error {
+	if this.conn == nil {
+		return errors.New("未建立redis连接")
+	}
+	return this.conn.Send(cmd, args)
+}
+
+func (this *RedisClient) Do(cmd string, args ...interface{}) (interface{}, error) {
+	if this.conn == nil {
+		return nil, errors.New("未建立redis连接")
+	}
+	return this.conn.Do(cmd, args)
+}
+
+func (this *RedisClient) Run() {
+	var err error
+	for {
+		if this.conn != nil {
+			err = this.conn.Flush()
+			if err != nil {
+				log.Error("redis Flush错误[%v]", err.Error())
+				break
+			}
+		}
+		time.Sleep(time.Second * 5)
+	}
+}

@@ -1,0 +1,1 @@
+dbc.exe "go" "hallsvr_db_def.json" "proto_prefix.txt" "..\public_message\db_hallsvr.proto" "code_prefix_hallsvr.txt" "..\youma\hall_server\a_db_tables.go"
