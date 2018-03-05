@@ -8,10 +8,10 @@ import (
 	"libs/log"
 	"libs/rpc"
 	"libs/timer"
+	"main/rpc_common"
+	"main/table_config"
 	"sync"
 	"time"
-	"youma/rpc_common"
-	"youma/table_config"
 )
 
 type RpcServer struct {

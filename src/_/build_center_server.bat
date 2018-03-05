@@ -1,10 +1,12 @@
+set GOPATH=D:\work\wjxz_server
+
 call build_framework.bat
 if errorlevel 1 goto exit
 
-go build -o ../youma/center_server/center_server_server.exe youma/center_server
+go build -o ../main/center_server/center_server_server.exe main/center_server
 if errorlevel 1 goto exit
 
-go install youma/center_server
+go install main/center_server
 if errorlevel 1 goto exit
 
 if errorlevel 0 goto ok

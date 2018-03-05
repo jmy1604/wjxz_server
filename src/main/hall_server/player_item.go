@@ -2,11 +2,10 @@ package main
 
 import (
 	"libs/log"
-	//"libs/utils"
+	"main/table_config"
 	"public_message/gen_go/client_message"
 	"sync"
 	"time"
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -47,33 +46,12 @@ const (
 )
 
 type ItemCatBuildingChangeInfo struct {
-	items_update                map[int32]*msg_client_message.ItemInfo     // 物品变化
-	items_update_lock           *sync.RWMutex                              // 物品变化锁
-	cats_add                    map[int32]*msg_client_message.CatInfo      // 猫增加
-	cats_add_lock               *sync.RWMutex                              // 增加猫锁
-	cats_remove                 map[int32]int32                            // 猫减少
-	cats_remove_lock            *sync.RWMutex                              // 减少猫锁
-	cats_update                 map[int32]*msg_client_message.CatInfo      // 猫变化
-	cats_update_lock            *sync.RWMutex                              // 猫变化锁
-	buildings_add               map[int32]*msg_client_message.BuildingInfo // 建筑物增加
-	buildings_add_lock          *sync.RWMutex                              // 增减建筑物锁
-	buildings_remove            map[int32]int32                            // 建筑物减少
-	buildings_remove_lock       *sync.RWMutex                              // 减少建筑物锁
-	buildings_update            map[int32]*msg_client_message.BuildingInfo // 建筑物变化
-	buildings_update_lock       *sync.RWMutex                              // 建筑物变化锁
-	depot_buildings_update      map[int32]int32                            // 仓库建筑物变化
-	depot_buildings_update_lock *sync.RWMutex                              // 仓库建筑物变化锁
+	items_update      map[int32]*msg_client_message.ItemInfo // 物品变化
+	items_update_lock *sync.RWMutex                          // 物品变化锁
 }
 
 func (this *ItemCatBuildingChangeInfo) init() {
 	this.items_update_lock = &sync.RWMutex{}
-	this.cats_add_lock = &sync.RWMutex{}
-	this.cats_remove_lock = &sync.RWMutex{}
-	this.cats_update_lock = &sync.RWMutex{}
-	this.buildings_add_lock = &sync.RWMutex{}
-	this.buildings_remove_lock = &sync.RWMutex{}
-	this.buildings_update_lock = &sync.RWMutex{}
-	this.depot_buildings_update_lock = &sync.RWMutex{}
 }
 
 func (this *ItemCatBuildingChangeInfo) item_update(p *Player, item_id int32) {
@@ -99,166 +77,20 @@ func (this *ItemCatBuildingChangeInfo) item_update(p *Player, item_id int32) {
 	}
 }
 
-func cat_values_assign(p *Player, dst_info *msg_client_message.CatInfo, cat_id int32) {
-	if !p.db.Cats.HasIndex(cat_id) {
-		return
+// 计算计时物品剩余时间
+func get_time_item_remain_seconds(item *dbPlayerItemData) int32 {
+	if item.StartTimeUnix == 0 {
+		return 0
 	}
-	cfg_id, _ := p.db.Cats.GetCfgId(cat_id)
-	dst_info.CatCfgId = proto.Int32(cfg_id)
-	dst_info.Id = proto.Int32(cat_id)
-	exp, _ := p.db.Cats.GetExp(cat_id)
-	dst_info.Exp = proto.Int32(exp)
-	level, _ := p.db.Cats.GetLevel(cat_id)
-	dst_info.Level = proto.Int32(level)
-	star, _ := p.db.Cats.GetStar(cat_id)
-	dst_info.Star = proto.Int32(star)
-	nick, _ := p.db.Cats.GetNick(cat_id)
-	dst_info.Nick = proto.String(nick)
-	skill_level, _ := p.db.Cats.GetSkillLevel(cat_id)
-	dst_info.SkillLevel = proto.Int32(skill_level)
-	locked, _ := p.db.Cats.GetLocked(cat_id)
-	is_lock := false
-	if locked != 0 {
-		is_lock = true
-	}
-	dst_info.Locked = proto.Bool(is_lock)
-	coin_ability, _ := p.db.Cats.GetCoinAbility(cat_id)
-	dst_info.CoinAbility = proto.Int32(coin_ability)
-	explore_ability, _ := p.db.Cats.GetExploreAbility(cat_id)
-	dst_info.ExploreAbility = proto.Int32(explore_ability)
-	match_ability, _ := p.db.Cats.GetMatchAbility(cat_id)
-	dst_info.MatchAbility = proto.Int32(match_ability)
-	state := p.GetCatState(cat_id)
-	dst_info.State = proto.Int32(state)
-}
 
-func (this *ItemCatBuildingChangeInfo) cat_add(p *Player, cat_id int32) bool {
-	//this.cats_add_lock.Lock()
-	//defer this.cats_add_lock.Unlock()
-
-	if !p.db.Cats.HasIndex(cat_id) {
-		log.Error("玩家[%v]的猫[%v]不存在", p.Id, cat_id)
-		return false
+	now_time := int32(time.Now().Unix())
+	cost_seconds := now_time - item.StartTimeUnix
+	// 剩余时间小于等于3秒一律算到时
+	left_seconds := item.RemainSeconds - cost_seconds
+	if left_seconds <= 3 {
+		return 0
 	}
-	if this.cats_add == nil {
-		this.cats_add = make(map[int32]*msg_client_message.CatInfo)
-	}
-	if this.cats_add[cat_id] == nil {
-		this.cats_add[cat_id] = &msg_client_message.CatInfo{}
-	}
-	cat_values_assign(p, this.cats_add[cat_id], cat_id)
-	log.Info("!!!!!!! 增加的猫[%v], level[%v], star[%v], skill_level[%v]", cat_id, this.cats_add[cat_id].GetLevel(), this.cats_add[cat_id].GetStar(), this.cats_add[cat_id].GetSkillLevel())
-	return true
-}
-
-func (this *ItemCatBuildingChangeInfo) cat_remove(p *Player, cat_id int32) bool {
-	//this.cats_remove_lock.Lock()
-	//defer this.cats_remove_lock.Unlock()
-
-	if this.cats_remove == nil {
-		this.cats_remove = make(map[int32]int32)
-	}
-	if _, o := this.cats_remove[cat_id]; o {
-		log.Error("玩家[%v]的猫[%v]已删除", p.Id, cat_id)
-		return false
-	}
-	this.cats_remove[cat_id] = cat_id
-	return true
-}
-
-func (this *ItemCatBuildingChangeInfo) cat_update(p *Player, cat_id int32) bool {
-	//his.cats_update_lock.Lock()
-	//defer this.cats_update_lock.Unlock()
-
-	if !p.db.Cats.HasIndex(cat_id) {
-		log.Error("找不到玩家[%v]的猫[%v]", p.Id, cat_id)
-		return false
-	}
-	if this.cats_update == nil {
-		this.cats_update = make(map[int32]*msg_client_message.CatInfo)
-	}
-	if this.cats_update[cat_id] == nil {
-		this.cats_update[cat_id] = &msg_client_message.CatInfo{}
-	}
-	cat_values_assign(p, this.cats_update[cat_id], cat_id)
-	this.cats_update[cat_id].State = proto.Int32(p.GetCatState(cat_id))
-	return true
-}
-
-func building_values_assign(dst_info *msg_client_message.BuildingInfo, src_info *dbPlayerBuildingData) {
-	dst_info.CfgId = proto.Int32(src_info.CfgId)
-	dst_info.Id = proto.Int32(src_info.Id)
-	dst_info.X = proto.Int32(src_info.X)
-	dst_info.Y = proto.Int32(src_info.Y)
-	dst_info.Dir = proto.Int32(src_info.Dir)
-}
-
-func (this *ItemCatBuildingChangeInfo) building_add(p *Player, building_id int32) bool {
-	//this.buildings_add_lock.Lock()
-	//defer this.buildings_add_lock.Unlock()
-
-	building := p.db.Buildings.Get(building_id)
-	if building == nil {
-		log.Error("找不到玩家[%v]建筑物[%v]", p.Id, building_id)
-		return false
-	}
-	if this.buildings_add == nil {
-		this.buildings_add = make(map[int32]*msg_client_message.BuildingInfo)
-	}
-	if this.buildings_add[building_id] == nil {
-		this.buildings_add[building_id] = &msg_client_message.BuildingInfo{}
-	}
-	building_values_assign(this.buildings_add[building_id], building)
-	return true
-}
-
-func (this *ItemCatBuildingChangeInfo) building_remove(p *Player, building_id int32) bool {
-	//this.buildings_remove_lock.Lock()
-	//defer this.buildings_remove_lock.Unlock()
-
-	if this.buildings_remove == nil {
-		this.buildings_remove = make(map[int32]int32)
-	}
-	if _, o := this.buildings_remove[building_id]; o {
-		log.Error("玩家[%v]的猫[%v]已删除", p.Id, building_id)
-		return false
-	}
-	this.buildings_remove[building_id] = building_id
-	return true
-}
-
-func (this *ItemCatBuildingChangeInfo) building_update(p *Player, building_id int32) bool {
-	//this.buildings_update_lock.Lock()
-	//defer this.buildings_update_lock.Unlock()
-
-	building := p.db.Buildings.Get(building_id)
-	if building == nil {
-		log.Error("找不到玩家[%v]的猫[%v]", p.Id, building_id)
-		return false
-	}
-	if this.buildings_update == nil {
-		this.buildings_update = make(map[int32]*msg_client_message.BuildingInfo)
-	}
-	if this.buildings_update[building_id] == nil {
-		this.buildings_update[building_id] = &msg_client_message.BuildingInfo{}
-	}
-	building_values_assign(this.buildings_update[building_id], building)
-	return true
-}
-
-func (this *ItemCatBuildingChangeInfo) depot_building_update(p *Player, depot_building_id int32) {
-	//this.depot_buildings_update_lock.Lock()
-	//defer this.depot_buildings_update_lock.Unlock()
-
-	if this.depot_buildings_update == nil {
-		this.depot_buildings_update = make(map[int32]int32)
-	}
-	depot_building := p.db.BuildingDepots.Get(depot_building_id)
-	if depot_building == nil {
-		this.depot_buildings_update[depot_building_id] = 0
-	} else {
-		this.depot_buildings_update[depot_building_id] = depot_building.Num
-	}
+	return left_seconds
 }
 
 func (this *ItemCatBuildingChangeInfo) send_items_update(p *Player) bool {
@@ -284,187 +116,9 @@ func (this *ItemCatBuildingChangeInfo) send_items_update(p *Player) bool {
 	return true
 }
 
-func (this *ItemCatBuildingChangeInfo) send_buildings_update(p *Player) bool {
-	msg := &msg_client_message.S2CBuildingsInfoUpdate{}
-
-	// 增加的建筑物
-	//this.buildings_add_lock.Lock()
-	if this.buildings_add != nil && len(this.buildings_add) > 0 {
-		msg.AddBuildings = make([]*msg_client_message.BuildingInfo, len(this.buildings_add))
-		i := int32(0)
-		for _, v := range this.buildings_add {
-			msg.AddBuildings[i] = v
-			i += 1
-		}
-
-	}
-	//this.buildings_add_lock.Unlock()
-
-	// 删除的建筑物
-	//this.buildings_remove_lock.Lock()
-	if this.buildings_remove != nil && len(this.buildings_remove) > 0 {
-		msg.RemoveBuildings = make([]int32, len(this.buildings_remove))
-		i := int32(0)
-		for k, _ := range this.buildings_remove {
-			msg.RemoveBuildings[i] = k
-			i += 1
-		}
-
-	}
-	//this.buildings_remove_lock.Unlock()
-
-	// 更新的建筑物
-	//this.buildings_update_lock.Lock()
-	if this.buildings_update != nil && len(this.buildings_update) > 0 {
-		msg.UpdateBuildings = make([]*msg_client_message.BuildingInfo, len(this.buildings_update))
-		i := int32(0)
-		for _, v := range this.buildings_update {
-			msg.UpdateBuildings[i] = v
-			i += 1
-		}
-
-	}
-	//this.buildings_update_lock.Unlock()
-
-	if msg.AddBuildings == nil && msg.RemoveBuildings == nil && msg.UpdateBuildings == nil {
-		return false
-	}
-
-	p.Send(msg)
-
-	this.buildings_add = nil
-	this.buildings_remove = nil
-	this.buildings_update = nil
-
-	return true
-}
-
-func (this *ItemCatBuildingChangeInfo) send_cats_update(p *Player) bool {
-	msg := &msg_client_message.S2CCatsInfoUpdate{}
-
-	// 增加的猫
-	//this.cats_add_lock.Lock()
-	if this.cats_add != nil && len(this.cats_add) > 0 {
-		msg.AddCats = make([]*msg_client_message.CatInfo, len(this.cats_add))
-		i := int32(0)
-		for _, v := range this.cats_add {
-			msg.AddCats[i] = v
-			i += 1
-		}
-
-	}
-	//this.cats_add_lock.Unlock()
-
-	// 删除的猫
-	//this.cats_remove_lock.Lock()
-	if this.cats_remove != nil && len(this.cats_remove) > 0 {
-		msg.RemoveCats = make([]int32, len(this.cats_remove))
-		i := int32(0)
-		for k, _ := range this.cats_remove {
-			msg.RemoveCats[i] = k
-			i += 1
-		}
-
-	}
-	//this.cats_remove_lock.Unlock()
-
-	// 更新的猫
-	//this.cats_update_lock.Lock()
-	if this.cats_update != nil && len(this.cats_update) > 0 {
-		msg.UpdateCats = make([]*msg_client_message.CatInfo, len(this.cats_update))
-		i := int32(0)
-		for _, v := range this.cats_update {
-			msg.UpdateCats[i] = v
-			i += 1
-		}
-
-	}
-	//this.cats_update_lock.Unlock()
-
-	if msg.AddCats == nil && msg.RemoveCats == nil && msg.UpdateCats == nil {
-		return false
-	}
-
-	p.Send(msg)
-
-	this.cats_add = nil
-	this.cats_remove = nil
-	this.cats_update = nil
-
-	return true
-}
-
-func (this *ItemCatBuildingChangeInfo) send_depot_building_update(p *Player) bool {
-	//this.depot_buildings_update_lock.Lock()
-	//defer this.depot_buildings_update_lock.Unlock()
-
-	if this.depot_buildings_update == nil || len(this.depot_buildings_update) == 0 {
-		return false
-	}
-
-	msg := &msg_client_message.S2CDepotBuildingInfoUpdate{}
-	msg.Buildings = make([]*msg_client_message.DepotBuildingInfo, len(this.depot_buildings_update))
-	i := int32(0)
-	for k, v := range this.depot_buildings_update {
-		msg.Buildings[i] = &msg_client_message.DepotBuildingInfo{}
-		msg.Buildings[i].CfgId = proto.Int32(k)
-		msg.Buildings[i].Num = proto.Int32(v)
-		i += 1
-	}
-
-	p.Send(msg)
-
-	this.depot_buildings_update = nil
-
-	return true
-}
-
-// 计算计时物品剩余时间
-func get_time_item_remain_seconds(item *dbPlayerItemData) int32 {
-	if item.StartTimeUnix == 0 {
-		return 0
-	}
-
-	now_time := int32(time.Now().Unix())
-	cost_seconds := now_time - item.StartTimeUnix
-	// 剩余时间小于等于3秒一律算到时
-	left_seconds := item.RemainSeconds - cost_seconds
-	if left_seconds <= 3 {
-		return 0
-	}
-	return left_seconds
-}
-
 //////////////////////////////////////////////////////////////////////////////////
 func (this *Player) SendItemsUpdate() {
 	this.item_cat_building_change_info.send_items_update(this)
-}
-
-func (this *Player) SendCatsUpdate() {
-	this.item_cat_building_change_info.send_cats_update(this)
-}
-
-func (this *Player) SendCatUpdate(cat_id int32) {
-	this.item_cat_building_change_info.cat_update(this, cat_id)
-	this.item_cat_building_change_info.send_cats_update(this)
-}
-
-func (this *Player) SendCatAdd(cat_id int32) {
-	this.item_cat_building_change_info.cat_add(this, cat_id)
-	this.item_cat_building_change_info.send_cats_update(this)
-}
-
-func (this *Player) SendCatRemove(cat_id int32) {
-	this.item_cat_building_change_info.cat_remove(this, cat_id)
-	this.item_cat_building_change_info.send_cats_update(this)
-}
-
-func (this *Player) SendBuildingUpdate() {
-	this.item_cat_building_change_info.send_buildings_update(this)
-}
-
-func (this *Player) SendDepotBuildingUpdate() {
-	this.item_cat_building_change_info.send_depot_building_update(this)
 }
 
 // 体力增长计算
@@ -506,10 +160,6 @@ func (this *Player) GetItemResourceValue(other_id int32) int32 {
 		{
 			return this.db.Info.GetDiamond()
 		}
-	case ITEM_RESOURCE_ID_CAT_FOOD:
-		{
-			return this.db.Info.GetCatFood()
-		}
 	case ITEM_RESOURCE_ID_SPIRIT:
 		{
 			// 体力要即时计算
@@ -526,14 +176,6 @@ func (this *Player) GetItemResourceValue(other_id int32) int32 {
 	case ITEM_RESOURCE_ID_EXP_VALUE:
 		{
 			return this.db.Info.GetExp()
-		}
-	case ITEM_RESOURCE_ID_SOUL_STONE:
-		{
-			return this.db.Info.GetSoulStone()
-		}
-	case ITEM_RESOURCE_ID_CHARM_MEDAL:
-		{
-			return this.db.Info.GetCharmMedal()
 		}
 	default:
 		{
@@ -560,14 +202,6 @@ func (this *Player) AddItemResource(cid, num int32, reason, mod string) int32 {
 		{
 			return this.AddDiamond(num, reason, mod)
 		}
-	case ITEM_RESOURCE_ID_CAT_FOOD:
-		{
-			return this.AddCatFood(num, reason, mod)
-		}
-	case ITEM_RESOURCE_ID_CHARM_MEDAL:
-		{
-			return this.AddCharmMedal(num, reason, mod)
-		}
 	case ITEM_RESOURCE_ID_CHARM_VALUE:
 		{
 			return this.AddCharmVal(num, reason, mod)
@@ -579,10 +213,6 @@ func (this *Player) AddItemResource(cid, num int32, reason, mod string) int32 {
 	case ITEM_RESOURCE_ID_FRIEND_POINT:
 		{
 			return this.AddFriendPoints(num, reason, mod)
-		}
-	case ITEM_RESOURCE_ID_SOUL_STONE:
-		{
-			return this.AddSoulStone(num, reason, mod)
 		}
 	case ITEM_RESOURCE_ID_SPIRIT:
 		{
@@ -612,14 +242,6 @@ func (this *Player) RemoveItemResource(cid, num int32, reason, mod string) int32
 		{
 			return this.SubDiamond(num, reason, mod)
 		}
-	case ITEM_RESOURCE_ID_CAT_FOOD:
-		{
-			return this.SubCatFood(num, reason, mod)
-		}
-	case ITEM_RESOURCE_ID_CHARM_MEDAL:
-		{
-			return this.SubCharmMedal(num, reason, mod)
-		}
 	case ITEM_RESOURCE_ID_CHARM_VALUE:
 		{
 			return this.SubCharmVal(num, reason, mod)
@@ -631,10 +253,6 @@ func (this *Player) RemoveItemResource(cid, num int32, reason, mod string) int32
 	case ITEM_RESOURCE_ID_FRIEND_POINT:
 		{
 			return this.SubFriendPoints(num, reason, mod)
-		}
-	case ITEM_RESOURCE_ID_SOUL_STONE:
-		{
-			return this.SubSoulStone(num, reason, mod)
 		}
 	case ITEM_RESOURCE_ID_SPIRIT:
 		{
@@ -694,136 +312,7 @@ func (this *Player) AddObj(objcfgid, addnum int32, reason, mod string, bslience 
 		return new_num
 	}
 
-	cat_cfg := cat_table_mgr.Map[objcfgid]
-	if nil != cat_cfg {
-		if nil != this.AddCat(objcfgid, reason, mod, bslience) {
-			return 1
-		}
-		return 0
-	}
-
-	building_cfg := cfg_building_mgr.Map[objcfgid]
-	if nil != building_cfg {
-		this.AddDepotBuilding(objcfgid, addnum, reason, mod, bslience)
-		new_num, _ = this.db.BuildingDepots.GetNum(objcfgid)
-	}
-
 	return new_num
-}
-
-// 玩家猫
-func (this *Player) AddCat(catcfgid int32, reason, mod string, bslience bool) *msg_client_message.CatInfo {
-	return this.AddCatWithLevelStarSkill(catcfgid, 1, 1, 1, reason, mod, bslience)
-}
-
-func (this *Player) AddCatWithLevelStarSkill(cat_cid int32, level int32, star int32, skill_level int32, reason, mod string, bslience bool) *msg_client_message.CatInfo {
-	catcfg := cat_table_mgr.Map[cat_cid]
-	if nil == catcfg {
-		log.Error("Player Addcat failed to find catcfg [%d]", cat_cid)
-		return nil
-	}
-
-	next_cid := this.db.Info.IncbyNextCatId(1)
-	new_cat_db := &dbPlayerCatData{}
-	new_cat_db.CfgId = cat_cid
-	new_cat_db.Id = next_cid
-	new_cat_db.Exp = 0
-	new_cat_db.Level = level
-	new_cat_db.Star = star
-	new_cat_db.SkillLevel = skill_level
-	new_cat_db.Locked = 0
-
-	var o bool
-	// 总属性
-	var all_ability int32
-	o, all_ability = rand31n_from_range(catcfg.RangeMin, catcfg.RangeMax)
-	if !o {
-		log.Error("Player AddCat[%v] gen all_ability failed", cat_cid)
-		return nil
-	}
-
-	// 产金权重
-	var coin_ability_weight int32
-	o, coin_ability_weight = rand31n_from_range(catcfg.CoinAbilityRangeMin, catcfg.CoinAbilityRangeMax)
-	if !o {
-		log.Error("Player AddCat[%v] gen coin_ability_weight failed", cat_cid)
-		return nil
-	}
-
-	var explore_ability_weight int32
-	o, explore_ability_weight = rand31n_from_range(catcfg.ExploreAbilityRangeMin, catcfg.ExploreAbilityRangeMax)
-	if !o {
-		log.Error("Player AddCat[%v] gen explore_ability failed", cat_cid)
-		return nil
-	}
-
-	var match_ability_weight int32
-	o, match_ability_weight = rand31n_from_range(catcfg.MatchAbilityRangeMin, catcfg.MatchAbilityRangeMax)
-	if !o {
-		log.Error("Player AddCat[%v] gen match_ability failed", cat_cid)
-		return nil
-	}
-
-	total_weight := coin_ability_weight + explore_ability_weight + match_ability_weight
-	new_cat_db.CoinAbility = GetRoundValue(float32(all_ability * coin_ability_weight / total_weight))
-	new_cat_db.ExploreAbility = GetRoundValue(float32(all_ability * explore_ability_weight / total_weight))
-	new_cat_db.MatchAbility = all_ability - (new_cat_db.CoinAbility + new_cat_db.ExploreAbility)
-	this.db.Cats.Add(new_cat_db)
-
-	// 更新猫状态变化
-	if !this.item_cat_building_change_info.cat_add(this, next_cid) {
-		return nil
-	}
-
-	res2cli := &msg_client_message.CatInfo{}
-	res2cli.CatCfgId = proto.Int32(cat_cid)
-	res2cli.Id = proto.Int32(next_cid)
-	res2cli.Level = proto.Int32(level)
-	res2cli.Star = proto.Int32(star)
-	res2cli.SkillLevel = proto.Int32(skill_level)
-	res2cli.Exp = proto.Int32(0)
-	res2cli.Locked = proto.Bool(false)
-	res2cli.CoinAbility = proto.Int32(new_cat_db.CoinAbility)
-	res2cli.ExploreAbility = proto.Int32(new_cat_db.ExploreAbility)
-	res2cli.MatchAbility = proto.Int32(new_cat_db.MatchAbility)
-	res2cli.State = proto.Int32(CAT_STATE_NONE)
-
-	if !bslience {
-		this.Send(res2cli)
-	}
-
-	// task update
-	this.TaskUpdate(table_config.TASK_FINISH_COLLECT_SSR, false, catcfg.Rarity, 1)
-
-	// 图鉴
-	this.AddHandbookItem(cat_cid)
-
-	// 头像
-	this.AddHead(catcfg.AvatarId)
-
-	// update ranking list
-	this.update_ouqi(next_cid)
-
-	// 公告
-	if catcfg.Rarity >= 4 {
-		anouncement_mgr.PushNew(ANOUNCEMENT_TYPE_GET_SSR_CAT, true, this.Id, cat_cid, 0, 0, "")
-	}
-
-	return res2cli
-}
-
-func (this *Player) SubCat(cat_id int32, reason, mod string) bool {
-	this.db.Cats.Remove(cat_id)
-	// 更新猫状态变化
-	if !this.item_cat_building_change_info.cat_remove(this, cat_id) {
-		return false
-	}
-
-	// update ranking list
-	if this.rpc_delete_rank(4, cat_id) == nil {
-		log.Warn("Player[%v] delete cat[%v] to update ouqi ranking list failed")
-	}
-	return true
 }
 
 // 玩家经验
@@ -1044,60 +533,6 @@ func (this *Player) SubSpirit(spirit int32, reason, mod string) int32 {
 	return cur_spirit
 }
 
-// 玩家猫粮 =====================================
-func (this *Player) AddCatFood(food int32, reason, mod string) int32 {
-	if food < 0 {
-		log.Error("Player AddCatFood food(%v) < 0  reason(%v) mod(%v)", food, reason, mod)
-		return this.db.Info.GetCatFood()
-	}
-	if this.db.Info.GetCatFood()+food < 0 {
-		this.db.Info.SetCatFood(0x7fffffff)
-		return 0x7fffffff
-	}
-	curr_food := this.db.Info.IncbyCatFood(food)
-	this.b_base_prop_chg = true
-	return curr_food
-}
-
-func (this *Player) SubCatFood(food int32, reason, mod string) int32 {
-	if food < 0 {
-		log.Error("Player SubCatFood food(%v) < 0  reason(%v) mod(%v)", food, reason, mod)
-		return this.db.Info.GetCatFood()
-	}
-	if food > this.db.Info.GetCatFood() {
-		return this.db.Info.GetCatFood()
-	}
-	cur_food := this.db.Info.IncbyCatFood(-food)
-	this.b_base_prop_chg = true
-	return cur_food
-}
-
-// 玩家魂石 =====================================
-func (this *Player) AddSoulStone(stone int32, reason, mod string) int32 {
-	if stone < 0 {
-		log.Error("Player AddSoulStone stone(%v) < 0  reason(%v) mod(%v)", stone, reason, mod)
-		return this.db.Info.GetSoulStone()
-	}
-	if this.db.Info.GetSoulStone()+stone < 0 {
-		this.db.Info.SetSoulStone(0x7fffffff)
-		return 0x7fffffff
-	}
-	curr_stone := this.db.Info.IncbySoulStone(stone)
-	this.b_base_prop_chg = true
-	return curr_stone
-}
-
-func (this *Player) SubSoulStone(stone int32, reason, mod string) int32 {
-	if stone < 0 {
-		log.Error("Player SubSoulStone stone(%v) < 0  reason(%v) mod(%v)", stone, reason, mod)
-		return this.db.Info.GetSoulStone()
-	}
-
-	curr_stone := this.db.Info.IncbySoulStone(-stone)
-	this.b_base_prop_chg = true
-	return curr_stone
-}
-
 // 玩家星数
 func (this *Player) AddStar(star int32, reason, mod string) int32 {
 	if star < 0 {
@@ -1146,32 +581,6 @@ func (this *Player) SubZan(zan int32, reason, mod string) int32 {
 	cur_zan := this.db.Info.IncbyZan(-zan)
 	this.b_base_prop_chg = true
 	return cur_zan
-}
-
-// 玩家魅力勋章
-func (this *Player) AddCharmMedal(charm_medal int32, reason, mod string) int32 {
-	if charm_medal < 0 {
-		log.Error("Player AddCharmMedal charm_medal(%v) < 0  reason(%v) mod(%v)", charm_medal, reason, mod)
-		return this.db.Info.GetCharmMedal()
-	}
-	if this.db.Info.GetCharmMedal()+charm_medal < 0 {
-		this.db.Info.SetCharmMedal(0x7fffffff)
-		return 0x7fffffff
-	}
-	cur_medal := this.db.Info.IncbyCharmMedal(charm_medal)
-	this.b_base_prop_chg = true
-	return cur_medal
-}
-
-func (this *Player) SubCharmMedal(charm_medal int32, reason, mod string) int32 {
-	if charm_medal < 0 {
-		log.Error("Player SubCharmMedal charm_madal(%v) < 0  reason(%v) mod(%v)", charm_medal, reason, mod)
-		return this.db.Info.GetCharmMedal()
-	}
-
-	cur_medal := this.db.Info.IncbyCharmMedal(-charm_medal)
-	this.b_base_prop_chg = true
-	return cur_medal
 }
 
 // 玩家物品
@@ -1264,26 +673,6 @@ func (this *Player) AddHandbookItem(item_id int32) {
 	}
 
 	this.add_handbook_data(item_id)
-
-	// 是否为建筑
-	/*building := cfg_building_mgr.Map[item_id]
-	if building != nil {
-		if building.SuitId > 0 && suit_table_mgr.Map[building.SuitId] != nil {
-			suits := cfg_building_mgr.Suits[building.SuitId]
-			if suits != nil {
-				c := true
-				for _, v := range suits.Items {
-					if !this.db.HandbookItems.HasIndex(v) {
-						c = false
-						break
-					}
-				}
-				if c {
-					this.add_handbook_data(building.SuitId)
-				}
-			}
-		}
-	}*/
 }
 
 func (this *Player) AddHead(item_id int32) {
@@ -1401,47 +790,6 @@ func (this *Player) RemoveItems(itemidnums []int32, reason, mod string) {
 		this.RemoveItem(item_id, item_num, true)
 	}
 	return
-}
-
-func (this *Player) compose_cat(cat_id int32) int32 {
-	cat := cat_table_mgr.Map[cat_id]
-	if cat == nil {
-		log.Error("没有配置ID为[%v]的猫", cat_id)
-		return -1
-	}
-
-	piece_item := this.db.Items.Get(cat.PieceId)
-	if piece_item == nil {
-		log.Error("没有碎片物品[%v]", cat.PieceId)
-		return -1
-	}
-
-	if piece_item.ItemNum < cat.PieceNum {
-		log.Error("物品碎片[%v]数量[%v]不足，合成失败", cat.PieceId, cat.PieceNum)
-		return -1
-	}
-
-	this.RemoveItem(cat.PieceId, cat.PieceNum, true)
-	cat_add := this.AddCat(cat.Id, "compose", "item", true)
-	if cat_add == nil {
-		log.Error("合成添加猫[%v]失败", cat_id)
-		return -1
-	}
-
-	// 发送物品变化
-	this.item_cat_building_change_info.send_items_update(this)
-	// 发送猫变化
-	this.item_cat_building_change_info.send_cats_update(this)
-
-	response := &msg_client_message.S2CComposeCatResult{}
-	response.Cat = cat_add
-	response.UsedFragment = &msg_client_message.ItemInfo{}
-	response.UsedFragment.ItemCfgId = proto.Int32(cat.PieceId)
-	response.UsedFragment.ItemNum = proto.Int32(-cat.PieceNum)
-
-	this.Send(response)
-
-	return 1
 }
 
 func (this *Player) is_today_zan(player_id int32, now_time time.Time) bool {

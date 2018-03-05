@@ -50,38 +50,11 @@ func (this *RedisGlobalData) Init() bool {
 	if this.LoadCharmRankItems() < 0 {
 		return false
 	}
-	// 欧气值
-	if this.LoadCatOuqiRankItems() < 0 {
-		return false
-	}
 	// 被赞
 	if this.LoadZanedRankItems() < 0 {
 		return false
 	}
 	/*--------------------------------------*/
-
-	// 个人空间
-	ps_mgr.Init()
-	ps_leave_messages_mgr.Init()
-	ps_pic_mgr.Init()
-	ps_pic_leave_messages_mgr.Init()
-	ps_pic_zan_mgr.Init()
-
-	if this.LoadPersonalSpaceBaseData() < 0 {
-		return false
-	}
-	if this.LoadPersonalSpacePictures() < 0 {
-		return false
-	}
-	if this.LoadPersonalSpaceLeaveMessages() < 0 {
-		return false
-	}
-	if this.LoadPersonalSpacePicLeaveMessages() < 0 {
-		return false
-	}
-	if this.LoadPersonalSpacePicZan() < 0 {
-		return false
-	}
 
 	this.inited = true
 	log.Info("全局数据GlobalData载入完成")

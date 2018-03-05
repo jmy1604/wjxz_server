@@ -82,74 +82,6 @@ func (m *LimitShopItem) GetLeftNum() int32 {
 	return 0
 }
 
-type ExpeditionCon struct {
-	ConType          *int32  `protobuf:"varint,1,opt" json:"ConType,omitempty"`
-	ConVals          []int32 `protobuf:"varint,2,rep" json:"ConVals,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *ExpeditionCon) Reset()                { *m = ExpeditionCon{} }
-func (m *ExpeditionCon) String() string        { return proto.CompactTextString(m) }
-func (*ExpeditionCon) ProtoMessage()           {}
-func (*ExpeditionCon) MessageTypeId() uint16   { return 3 }
-func (*ExpeditionCon) MessageTypeName() string { return "ExpeditionCon" }
-
-func (m *ExpeditionCon) GetConType() int32 {
-	if m != nil && m.ConType != nil {
-		return *m.ConType
-	}
-	return 0
-}
-
-func (m *ExpeditionCon) GetConVals() []int32 {
-	if m != nil {
-		return m.ConVals
-	}
-	return nil
-}
-
-type ExpeditionEvent struct {
-	EventId          *int32  `protobuf:"varint,1,opt" json:"EventId,omitempty"`
-	ClientId         *int32  `protobuf:"varint,2,opt" json:"ClientId,omitempty"`
-	Sec              *int32  `protobuf:"varint,3,opt" json:"Sec,omitempty"`
-	DropIdNums       []int32 `protobuf:"varint,4,rep" json:"DropIdNums,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *ExpeditionEvent) Reset()                { *m = ExpeditionEvent{} }
-func (m *ExpeditionEvent) String() string        { return proto.CompactTextString(m) }
-func (*ExpeditionEvent) ProtoMessage()           {}
-func (*ExpeditionEvent) MessageTypeId() uint16   { return 4 }
-func (*ExpeditionEvent) MessageTypeName() string { return "ExpeditionEvent" }
-
-func (m *ExpeditionEvent) GetEventId() int32 {
-	if m != nil && m.EventId != nil {
-		return *m.EventId
-	}
-	return 0
-}
-
-func (m *ExpeditionEvent) GetClientId() int32 {
-	if m != nil && m.ClientId != nil {
-		return *m.ClientId
-	}
-	return 0
-}
-
-func (m *ExpeditionEvent) GetSec() int32 {
-	if m != nil && m.Sec != nil {
-		return *m.Sec
-	}
-	return 0
-}
-
-func (m *ExpeditionEvent) GetDropIdNums() []int32 {
-	if m != nil {
-		return m.DropIdNums
-	}
-	return nil
-}
-
 type PlayerInfo struct {
 	Coin                      *int32  `protobuf:"varint,1,opt" json:"Coin,omitempty"`
 	Diamond                   *int32  `protobuf:"varint,2,opt" json:"Diamond,omitempty"`
@@ -166,32 +98,20 @@ type PlayerInfo struct {
 	LastDialyTaskUpUinx       *int32  `protobuf:"varint,13,opt" json:"LastDialyTaskUpUinx,omitempty"`
 	Icon                      *string `protobuf:"bytes,14,opt" json:"Icon,omitempty"`
 	CustomIcon                *string `protobuf:"bytes,15,opt" json:"CustomIcon,omitempty"`
-	NextBuildingId            *int32  `protobuf:"varint,16,opt" json:"NextBuildingId,omitempty"`
-	NextCatId                 *int32  `protobuf:"varint,17,opt" json:"NextCatId,omitempty"`
 	CharmVal                  *int32  `protobuf:"varint,18,opt" json:"CharmVal,omitempty"`
 	LastLogin                 *int32  `protobuf:"varint,19,opt" json:"LastLogin,omitempty"`
 	Zan                       *int32  `protobuf:"varint,20,opt" json:"Zan,omitempty"`
-	CatFood                   *int32  `protobuf:"varint,21,opt" json:"CatFood,omitempty"`
 	Spirit                    *int32  `protobuf:"varint,22,opt" json:"Spirit,omitempty"`
 	FriendPoints              *int32  `protobuf:"varint,23,opt" json:"FriendPoints,omitempty"`
-	SoulStone                 *int32  `protobuf:"varint,24,opt" json:"SoulStone,omitempty"`
-	CharmMedal                *int32  `protobuf:"varint,25,opt" json:"CharmMedal,omitempty"`
 	SaveLastSpiritPointTime   *int32  `protobuf:"varint,26,opt" json:"SaveLastSpiritPointTime,omitempty"`
 	LastRefreshShopTime       *int32  `protobuf:"varint,27,opt" json:"LastRefreshShopTime,omitempty"`
-	DayChgExpeditionCount     *int32  `protobuf:"varint,28,opt" json:"DayChgExpeditionCount,omitempty"`
-	DayChgExpeditionUpDay     *int32  `protobuf:"varint,29,opt" json:"DayChgExpeditionUpDay,omitempty"`
 	LastMapChestUpUnix        *int32  `protobuf:"varint,30,opt" json:"LastMapChestUpUnix,omitempty"`
 	LastMapBlockUpUnix        *int32  `protobuf:"varint,31,opt" json:"LastMapBlockUpUnix,omitempty"`
 	VipLvl                    *int32  `protobuf:"varint,32,opt" json:"VipLvl,omitempty"`
-	MakingBuildingQueue       []int32 `protobuf:"varint,33,rep" json:"MakingBuildingQueue,omitempty"`
-	MakedBuildingQueue        []int32 `protobuf:"varint,34,rep" json:"MakedBuildingQueue,omitempty"`
 	DayHelpUnlockCount        *int32  `protobuf:"varint,35,opt" json:"DayHelpUnlockCount,omitempty"`
 	DayHelpUnlockUpDay        *int32  `protobuf:"varint,36,opt" json:"DayHelpUnlockUpDay,omitempty"`
 	FriendMessageUnreadCurrId *int32  `protobuf:"varint,37,opt" json:"FriendMessageUnreadCurrId,omitempty"`
 	VipCardEndDay             *int32  `protobuf:"varint,38,opt" json:"VipCardEndDay,omitempty"`
-	NextExpeditionId          *int32  `protobuf:"varint,39,opt" json:"NextExpeditionId,omitempty"`
-	DayExpeditionCount        *int32  `protobuf:"varint,40,opt" json:"DayExpeditionCount,omitempty"`
-	DayExpeditionUpDay        *int32  `protobuf:"varint,41,opt" json:"DayExpeditionUpDay,omitempty"`
 	Channel                   *string `protobuf:"bytes,42,opt" json:"Channel,omitempty"`
 	DayBuyTiLiCount           *int32  `protobuf:"varint,43,opt" json:"DayBuyTiLiCount,omitempty"`
 	DayBuyTiLiUpDay           *int32  `protobuf:"varint,44,opt" json:"DayBuyTiLiUpDay,omitempty"`
@@ -201,7 +121,7 @@ type PlayerInfo struct {
 func (m *PlayerInfo) Reset()                { *m = PlayerInfo{} }
 func (m *PlayerInfo) String() string        { return proto.CompactTextString(m) }
 func (*PlayerInfo) ProtoMessage()           {}
-func (*PlayerInfo) MessageTypeId() uint16   { return 5 }
+func (*PlayerInfo) MessageTypeId() uint16   { return 3 }
 func (*PlayerInfo) MessageTypeName() string { return "PlayerInfo" }
 
 func (m *PlayerInfo) GetCoin() int32 {
@@ -309,20 +229,6 @@ func (m *PlayerInfo) GetCustomIcon() string {
 	return ""
 }
 
-func (m *PlayerInfo) GetNextBuildingId() int32 {
-	if m != nil && m.NextBuildingId != nil {
-		return *m.NextBuildingId
-	}
-	return 0
-}
-
-func (m *PlayerInfo) GetNextCatId() int32 {
-	if m != nil && m.NextCatId != nil {
-		return *m.NextCatId
-	}
-	return 0
-}
-
 func (m *PlayerInfo) GetCharmVal() int32 {
 	if m != nil && m.CharmVal != nil {
 		return *m.CharmVal
@@ -344,13 +250,6 @@ func (m *PlayerInfo) GetZan() int32 {
 	return 0
 }
 
-func (m *PlayerInfo) GetCatFood() int32 {
-	if m != nil && m.CatFood != nil {
-		return *m.CatFood
-	}
-	return 0
-}
-
 func (m *PlayerInfo) GetSpirit() int32 {
 	if m != nil && m.Spirit != nil {
 		return *m.Spirit
@@ -365,20 +264,6 @@ func (m *PlayerInfo) GetFriendPoints() int32 {
 	return 0
 }
 
-func (m *PlayerInfo) GetSoulStone() int32 {
-	if m != nil && m.SoulStone != nil {
-		return *m.SoulStone
-	}
-	return 0
-}
-
-func (m *PlayerInfo) GetCharmMedal() int32 {
-	if m != nil && m.CharmMedal != nil {
-		return *m.CharmMedal
-	}
-	return 0
-}
-
 func (m *PlayerInfo) GetSaveLastSpiritPointTime() int32 {
 	if m != nil && m.SaveLastSpiritPointTime != nil {
 		return *m.SaveLastSpiritPointTime
@@ -389,20 +274,6 @@ func (m *PlayerInfo) GetSaveLastSpiritPointTime() int32 {
 func (m *PlayerInfo) GetLastRefreshShopTime() int32 {
 	if m != nil && m.LastRefreshShopTime != nil {
 		return *m.LastRefreshShopTime
-	}
-	return 0
-}
-
-func (m *PlayerInfo) GetDayChgExpeditionCount() int32 {
-	if m != nil && m.DayChgExpeditionCount != nil {
-		return *m.DayChgExpeditionCount
-	}
-	return 0
-}
-
-func (m *PlayerInfo) GetDayChgExpeditionUpDay() int32 {
-	if m != nil && m.DayChgExpeditionUpDay != nil {
-		return *m.DayChgExpeditionUpDay
 	}
 	return 0
 }
@@ -426,20 +297,6 @@ func (m *PlayerInfo) GetVipLvl() int32 {
 		return *m.VipLvl
 	}
 	return 0
-}
-
-func (m *PlayerInfo) GetMakingBuildingQueue() []int32 {
-	if m != nil {
-		return m.MakingBuildingQueue
-	}
-	return nil
-}
-
-func (m *PlayerInfo) GetMakedBuildingQueue() []int32 {
-	if m != nil {
-		return m.MakedBuildingQueue
-	}
-	return nil
 }
 
 func (m *PlayerInfo) GetDayHelpUnlockCount() int32 {
@@ -470,27 +327,6 @@ func (m *PlayerInfo) GetVipCardEndDay() int32 {
 	return 0
 }
 
-func (m *PlayerInfo) GetNextExpeditionId() int32 {
-	if m != nil && m.NextExpeditionId != nil {
-		return *m.NextExpeditionId
-	}
-	return 0
-}
-
-func (m *PlayerInfo) GetDayExpeditionCount() int32 {
-	if m != nil && m.DayExpeditionCount != nil {
-		return *m.DayExpeditionCount
-	}
-	return 0
-}
-
-func (m *PlayerInfo) GetDayExpeditionUpDay() int32 {
-	if m != nil && m.DayExpeditionUpDay != nil {
-		return *m.DayExpeditionUpDay
-	}
-	return 0
-}
-
 func (m *PlayerInfo) GetChannel() string {
 	if m != nil && m.Channel != nil {
 		return *m.Channel
@@ -510,6 +346,58 @@ func (m *PlayerInfo) GetDayBuyTiLiUpDay() int32 {
 		return *m.DayBuyTiLiUpDay
 	}
 	return 0
+}
+
+type PlayerRole struct {
+	Id               *int32 `protobuf:"varint,1,opt" json:"Id,omitempty"`
+	Jingjie          *int32 `protobuf:"varint,2,opt" json:"Jingjie,omitempty"`
+	Level            *int32 `protobuf:"varint,3,opt" json:"Level,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *PlayerRole) Reset()                { *m = PlayerRole{} }
+func (m *PlayerRole) String() string        { return proto.CompactTextString(m) }
+func (*PlayerRole) ProtoMessage()           {}
+func (*PlayerRole) MessageTypeId() uint16   { return 4 }
+func (*PlayerRole) MessageTypeName() string { return "PlayerRole" }
+
+func (m *PlayerRole) GetId() int32 {
+	if m != nil && m.Id != nil {
+		return *m.Id
+	}
+	return 0
+}
+
+func (m *PlayerRole) GetJingjie() int32 {
+	if m != nil && m.Jingjie != nil {
+		return *m.Jingjie
+	}
+	return 0
+}
+
+func (m *PlayerRole) GetLevel() int32 {
+	if m != nil && m.Level != nil {
+		return *m.Level
+	}
+	return 0
+}
+
+type PlayerRoleList struct {
+	List             []*PlayerRole `protobuf:"bytes,1,rep" json:"List,omitempty"`
+	XXX_unrecognized []byte        `json:"-"`
+}
+
+func (m *PlayerRoleList) Reset()                { *m = PlayerRoleList{} }
+func (m *PlayerRoleList) String() string        { return proto.CompactTextString(m) }
+func (*PlayerRoleList) ProtoMessage()           {}
+func (*PlayerRoleList) MessageTypeId() uint16   { return 5 }
+func (*PlayerRoleList) MessageTypeName() string { return "PlayerRoleList" }
+
+func (m *PlayerRoleList) GetList() []*PlayerRole {
+	if m != nil {
+		return m.List
+	}
+	return nil
 }
 
 type PlayerStage struct {
@@ -698,570 +586,6 @@ func (m *PlayerItemList) GetList() []*PlayerItem {
 	return nil
 }
 
-type PlayerArea struct {
-	CfgId            *int32 `protobuf:"varint,1,opt" json:"CfgId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerArea) Reset()                { *m = PlayerArea{} }
-func (m *PlayerArea) String() string        { return proto.CompactTextString(m) }
-func (*PlayerArea) ProtoMessage()           {}
-func (*PlayerArea) MessageTypeId() uint16   { return 11 }
-func (*PlayerArea) MessageTypeName() string { return "PlayerArea" }
-
-func (m *PlayerArea) GetCfgId() int32 {
-	if m != nil && m.CfgId != nil {
-		return *m.CfgId
-	}
-	return 0
-}
-
-type PlayerAreaList struct {
-	List             []*PlayerArea `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *PlayerAreaList) Reset()                { *m = PlayerAreaList{} }
-func (m *PlayerAreaList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerAreaList) ProtoMessage()           {}
-func (*PlayerAreaList) MessageTypeId() uint16   { return 12 }
-func (*PlayerAreaList) MessageTypeName() string { return "PlayerAreaList" }
-
-func (m *PlayerAreaList) GetList() []*PlayerArea {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerBuilding struct {
-	Id               *int32 `protobuf:"varint,1,opt" json:"Id,omitempty"`
-	CfgId            *int32 `protobuf:"varint,2,opt" json:"CfgId,omitempty"`
-	X                *int32 `protobuf:"varint,3,opt" json:"X,omitempty"`
-	Y                *int32 `protobuf:"varint,4,opt" json:"Y,omitempty"`
-	Dir              *int32 `protobuf:"varint,5,opt" json:"Dir,omitempty"`
-	CreateUnix       *int32 `protobuf:"varint,6,opt" json:"CreateUnix,omitempty"`
-	OverUnix         *int32 `protobuf:"varint,7,opt" json:"OverUnix,omitempty"`
-	IsDone           *int32 `protobuf:"varint,8,opt" json:"IsDone,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerBuilding) Reset()                { *m = PlayerBuilding{} }
-func (m *PlayerBuilding) String() string        { return proto.CompactTextString(m) }
-func (*PlayerBuilding) ProtoMessage()           {}
-func (*PlayerBuilding) MessageTypeId() uint16   { return 13 }
-func (*PlayerBuilding) MessageTypeName() string { return "PlayerBuilding" }
-
-func (m *PlayerBuilding) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *PlayerBuilding) GetCfgId() int32 {
-	if m != nil && m.CfgId != nil {
-		return *m.CfgId
-	}
-	return 0
-}
-
-func (m *PlayerBuilding) GetX() int32 {
-	if m != nil && m.X != nil {
-		return *m.X
-	}
-	return 0
-}
-
-func (m *PlayerBuilding) GetY() int32 {
-	if m != nil && m.Y != nil {
-		return *m.Y
-	}
-	return 0
-}
-
-func (m *PlayerBuilding) GetDir() int32 {
-	if m != nil && m.Dir != nil {
-		return *m.Dir
-	}
-	return 0
-}
-
-func (m *PlayerBuilding) GetCreateUnix() int32 {
-	if m != nil && m.CreateUnix != nil {
-		return *m.CreateUnix
-	}
-	return 0
-}
-
-func (m *PlayerBuilding) GetOverUnix() int32 {
-	if m != nil && m.OverUnix != nil {
-		return *m.OverUnix
-	}
-	return 0
-}
-
-func (m *PlayerBuilding) GetIsDone() int32 {
-	if m != nil && m.IsDone != nil {
-		return *m.IsDone
-	}
-	return 0
-}
-
-type PlayerBuildingList struct {
-	List             []*PlayerBuilding `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte            `json:"-"`
-}
-
-func (m *PlayerBuildingList) Reset()                { *m = PlayerBuildingList{} }
-func (m *PlayerBuildingList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerBuildingList) ProtoMessage()           {}
-func (*PlayerBuildingList) MessageTypeId() uint16   { return 14 }
-func (*PlayerBuildingList) MessageTypeName() string { return "PlayerBuildingList" }
-
-func (m *PlayerBuildingList) GetList() []*PlayerBuilding {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerBuildingDepot struct {
-	CfgId            *int32 `protobuf:"varint,1,opt" json:"CfgId,omitempty"`
-	Num              *int32 `protobuf:"varint,2,opt" json:"Num,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerBuildingDepot) Reset()                { *m = PlayerBuildingDepot{} }
-func (m *PlayerBuildingDepot) String() string        { return proto.CompactTextString(m) }
-func (*PlayerBuildingDepot) ProtoMessage()           {}
-func (*PlayerBuildingDepot) MessageTypeId() uint16   { return 15 }
-func (*PlayerBuildingDepot) MessageTypeName() string { return "PlayerBuildingDepot" }
-
-func (m *PlayerBuildingDepot) GetCfgId() int32 {
-	if m != nil && m.CfgId != nil {
-		return *m.CfgId
-	}
-	return 0
-}
-
-func (m *PlayerBuildingDepot) GetNum() int32 {
-	if m != nil && m.Num != nil {
-		return *m.Num
-	}
-	return 0
-}
-
-type PlayerBuildingDepotList struct {
-	List             []*PlayerBuildingDepot `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte                 `json:"-"`
-}
-
-func (m *PlayerBuildingDepotList) Reset()                { *m = PlayerBuildingDepotList{} }
-func (m *PlayerBuildingDepotList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerBuildingDepotList) ProtoMessage()           {}
-func (*PlayerBuildingDepotList) MessageTypeId() uint16   { return 16 }
-func (*PlayerBuildingDepotList) MessageTypeName() string { return "PlayerBuildingDepotList" }
-
-func (m *PlayerBuildingDepotList) GetList() []*PlayerBuildingDepot {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerDepotBuildingFormula struct {
-	Id               *int32 `protobuf:"varint,1,opt" json:"Id,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerDepotBuildingFormula) Reset()                { *m = PlayerDepotBuildingFormula{} }
-func (m *PlayerDepotBuildingFormula) String() string        { return proto.CompactTextString(m) }
-func (*PlayerDepotBuildingFormula) ProtoMessage()           {}
-func (*PlayerDepotBuildingFormula) MessageTypeId() uint16   { return 17 }
-func (*PlayerDepotBuildingFormula) MessageTypeName() string { return "PlayerDepotBuildingFormula" }
-
-func (m *PlayerDepotBuildingFormula) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-type PlayerDepotBuildingFormulaList struct {
-	List             []*PlayerDepotBuildingFormula `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte                        `json:"-"`
-}
-
-func (m *PlayerDepotBuildingFormulaList) Reset()              { *m = PlayerDepotBuildingFormulaList{} }
-func (m *PlayerDepotBuildingFormulaList) String() string      { return proto.CompactTextString(m) }
-func (*PlayerDepotBuildingFormulaList) ProtoMessage()         {}
-func (*PlayerDepotBuildingFormulaList) MessageTypeId() uint16 { return 18 }
-func (*PlayerDepotBuildingFormulaList) MessageTypeName() string {
-	return "PlayerDepotBuildingFormulaList"
-}
-
-func (m *PlayerDepotBuildingFormulaList) GetList() []*PlayerDepotBuildingFormula {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerMakingFormulaBuilding struct {
-	SlotId           *int32 `protobuf:"varint,1,opt" json:"SlotId,omitempty"`
-	CanUse           *int32 `protobuf:"varint,2,opt" json:"CanUse,omitempty"`
-	FormulaId        *int32 `protobuf:"varint,3,opt" json:"FormulaId,omitempty"`
-	StartTime        *int32 `protobuf:"varint,4,opt" json:"StartTime,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerMakingFormulaBuilding) Reset()                { *m = PlayerMakingFormulaBuilding{} }
-func (m *PlayerMakingFormulaBuilding) String() string        { return proto.CompactTextString(m) }
-func (*PlayerMakingFormulaBuilding) ProtoMessage()           {}
-func (*PlayerMakingFormulaBuilding) MessageTypeId() uint16   { return 19 }
-func (*PlayerMakingFormulaBuilding) MessageTypeName() string { return "PlayerMakingFormulaBuilding" }
-
-func (m *PlayerMakingFormulaBuilding) GetSlotId() int32 {
-	if m != nil && m.SlotId != nil {
-		return *m.SlotId
-	}
-	return 0
-}
-
-func (m *PlayerMakingFormulaBuilding) GetCanUse() int32 {
-	if m != nil && m.CanUse != nil {
-		return *m.CanUse
-	}
-	return 0
-}
-
-func (m *PlayerMakingFormulaBuilding) GetFormulaId() int32 {
-	if m != nil && m.FormulaId != nil {
-		return *m.FormulaId
-	}
-	return 0
-}
-
-func (m *PlayerMakingFormulaBuilding) GetStartTime() int32 {
-	if m != nil && m.StartTime != nil {
-		return *m.StartTime
-	}
-	return 0
-}
-
-type PlayerMakingFormulaBuildingList struct {
-	List             []*PlayerMakingFormulaBuilding `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte                         `json:"-"`
-}
-
-func (m *PlayerMakingFormulaBuildingList) Reset()              { *m = PlayerMakingFormulaBuildingList{} }
-func (m *PlayerMakingFormulaBuildingList) String() string      { return proto.CompactTextString(m) }
-func (*PlayerMakingFormulaBuildingList) ProtoMessage()         {}
-func (*PlayerMakingFormulaBuildingList) MessageTypeId() uint16 { return 20 }
-func (*PlayerMakingFormulaBuildingList) MessageTypeName() string {
-	return "PlayerMakingFormulaBuildingList"
-}
-
-func (m *PlayerMakingFormulaBuildingList) GetList() []*PlayerMakingFormulaBuilding {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerCrop struct {
-	BuildingId       *int32 `protobuf:"varint,1,opt" json:"BuildingId,omitempty"`
-	Id               *int32 `protobuf:"varint,2,opt" json:"Id,omitempty"`
-	PlantTime        *int32 `protobuf:"varint,3,opt" json:"PlantTime,omitempty"`
-	BuildingTableId  *int32 `protobuf:"varint,4,opt" json:"BuildingTableId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerCrop) Reset()                { *m = PlayerCrop{} }
-func (m *PlayerCrop) String() string        { return proto.CompactTextString(m) }
-func (*PlayerCrop) ProtoMessage()           {}
-func (*PlayerCrop) MessageTypeId() uint16   { return 21 }
-func (*PlayerCrop) MessageTypeName() string { return "PlayerCrop" }
-
-func (m *PlayerCrop) GetBuildingId() int32 {
-	if m != nil && m.BuildingId != nil {
-		return *m.BuildingId
-	}
-	return 0
-}
-
-func (m *PlayerCrop) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *PlayerCrop) GetPlantTime() int32 {
-	if m != nil && m.PlantTime != nil {
-		return *m.PlantTime
-	}
-	return 0
-}
-
-func (m *PlayerCrop) GetBuildingTableId() int32 {
-	if m != nil && m.BuildingTableId != nil {
-		return *m.BuildingTableId
-	}
-	return 0
-}
-
-type PlayerCropList struct {
-	List             []*PlayerCrop `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *PlayerCropList) Reset()                { *m = PlayerCropList{} }
-func (m *PlayerCropList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerCropList) ProtoMessage()           {}
-func (*PlayerCropList) MessageTypeId() uint16   { return 22 }
-func (*PlayerCropList) MessageTypeName() string { return "PlayerCropList" }
-
-func (m *PlayerCropList) GetList() []*PlayerCrop {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerCat struct {
-	Id               *int32  `protobuf:"varint,1,opt" json:"Id,omitempty"`
-	CfgId            *int32  `protobuf:"varint,2,opt" json:"CfgId,omitempty"`
-	Exp              *int32  `protobuf:"varint,3,opt" json:"Exp,omitempty"`
-	Level            *int32  `protobuf:"varint,4,opt" json:"Level,omitempty"`
-	Star             *int32  `protobuf:"varint,5,opt" json:"Star,omitempty"`
-	Nick             *string `protobuf:"bytes,6,opt" json:"Nick,omitempty"`
-	SkillLevel       *int32  `protobuf:"varint,7,opt" json:"SkillLevel,omitempty"`
-	Locked           *int32  `protobuf:"varint,8,opt" json:"Locked,omitempty"`
-	CoinAbility      *int32  `protobuf:"varint,9,opt" json:"CoinAbility,omitempty"`
-	ExploreAbility   *int32  `protobuf:"varint,10,opt" json:"ExploreAbility,omitempty"`
-	MatchAbility     *int32  `protobuf:"varint,11,opt" json:"MatchAbility,omitempty"`
-	CathouseId       *int32  `protobuf:"varint,12,opt" json:"CathouseId,omitempty"`
-	State            *int32  `protobuf:"varint,13,opt" json:"State,omitempty"`
-	StateValue       *int32  `protobuf:"varint,14,opt" json:"StateValue,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerCat) Reset()                { *m = PlayerCat{} }
-func (m *PlayerCat) String() string        { return proto.CompactTextString(m) }
-func (*PlayerCat) ProtoMessage()           {}
-func (*PlayerCat) MessageTypeId() uint16   { return 23 }
-func (*PlayerCat) MessageTypeName() string { return "PlayerCat" }
-
-func (m *PlayerCat) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetCfgId() int32 {
-	if m != nil && m.CfgId != nil {
-		return *m.CfgId
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetExp() int32 {
-	if m != nil && m.Exp != nil {
-		return *m.Exp
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetLevel() int32 {
-	if m != nil && m.Level != nil {
-		return *m.Level
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetStar() int32 {
-	if m != nil && m.Star != nil {
-		return *m.Star
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetNick() string {
-	if m != nil && m.Nick != nil {
-		return *m.Nick
-	}
-	return ""
-}
-
-func (m *PlayerCat) GetSkillLevel() int32 {
-	if m != nil && m.SkillLevel != nil {
-		return *m.SkillLevel
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetLocked() int32 {
-	if m != nil && m.Locked != nil {
-		return *m.Locked
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetCoinAbility() int32 {
-	if m != nil && m.CoinAbility != nil {
-		return *m.CoinAbility
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetExploreAbility() int32 {
-	if m != nil && m.ExploreAbility != nil {
-		return *m.ExploreAbility
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetMatchAbility() int32 {
-	if m != nil && m.MatchAbility != nil {
-		return *m.MatchAbility
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetCathouseId() int32 {
-	if m != nil && m.CathouseId != nil {
-		return *m.CathouseId
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetState() int32 {
-	if m != nil && m.State != nil {
-		return *m.State
-	}
-	return 0
-}
-
-func (m *PlayerCat) GetStateValue() int32 {
-	if m != nil && m.StateValue != nil {
-		return *m.StateValue
-	}
-	return 0
-}
-
-type PlayerCatList struct {
-	List             []*PlayerCat `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
-}
-
-func (m *PlayerCatList) Reset()                { *m = PlayerCatList{} }
-func (m *PlayerCatList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerCatList) ProtoMessage()           {}
-func (*PlayerCatList) MessageTypeId() uint16   { return 24 }
-func (*PlayerCatList) MessageTypeName() string { return "PlayerCatList" }
-
-func (m *PlayerCatList) GetList() []*PlayerCat {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerCatHouse struct {
-	BuildingId       *int32  `protobuf:"varint,1,opt" json:"BuildingId,omitempty"`
-	CfgId            *int32  `protobuf:"varint,2,opt" json:"CfgId,omitempty"`
-	Level            *int32  `protobuf:"varint,3,opt" json:"Level,omitempty"`
-	CatIds           []int32 `protobuf:"varint,4,rep" json:"CatIds,omitempty"`
-	LastGetGoldTime  *int32  `protobuf:"varint,5,opt" json:"LastGetGoldTime,omitempty"`
-	CurrGold         *int32  `protobuf:"varint,6,opt" json:"CurrGold,omitempty"`
-	LevelupStartTime *int32  `protobuf:"varint,7,opt" json:"LevelupStartTime,omitempty"`
-	IsDone           *int32  `protobuf:"varint,8,opt" json:"IsDone,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerCatHouse) Reset()                { *m = PlayerCatHouse{} }
-func (m *PlayerCatHouse) String() string        { return proto.CompactTextString(m) }
-func (*PlayerCatHouse) ProtoMessage()           {}
-func (*PlayerCatHouse) MessageTypeId() uint16   { return 25 }
-func (*PlayerCatHouse) MessageTypeName() string { return "PlayerCatHouse" }
-
-func (m *PlayerCatHouse) GetBuildingId() int32 {
-	if m != nil && m.BuildingId != nil {
-		return *m.BuildingId
-	}
-	return 0
-}
-
-func (m *PlayerCatHouse) GetCfgId() int32 {
-	if m != nil && m.CfgId != nil {
-		return *m.CfgId
-	}
-	return 0
-}
-
-func (m *PlayerCatHouse) GetLevel() int32 {
-	if m != nil && m.Level != nil {
-		return *m.Level
-	}
-	return 0
-}
-
-func (m *PlayerCatHouse) GetCatIds() []int32 {
-	if m != nil {
-		return m.CatIds
-	}
-	return nil
-}
-
-func (m *PlayerCatHouse) GetLastGetGoldTime() int32 {
-	if m != nil && m.LastGetGoldTime != nil {
-		return *m.LastGetGoldTime
-	}
-	return 0
-}
-
-func (m *PlayerCatHouse) GetCurrGold() int32 {
-	if m != nil && m.CurrGold != nil {
-		return *m.CurrGold
-	}
-	return 0
-}
-
-func (m *PlayerCatHouse) GetLevelupStartTime() int32 {
-	if m != nil && m.LevelupStartTime != nil {
-		return *m.LevelupStartTime
-	}
-	return 0
-}
-
-func (m *PlayerCatHouse) GetIsDone() int32 {
-	if m != nil && m.IsDone != nil {
-		return *m.IsDone
-	}
-	return 0
-}
-
-type PlayerCatHouseList struct {
-	List             []*PlayerCatHouse `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte            `json:"-"`
-}
-
-func (m *PlayerCatHouseList) Reset()                { *m = PlayerCatHouseList{} }
-func (m *PlayerCatHouseList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerCatHouseList) ProtoMessage()           {}
-func (*PlayerCatHouseList) MessageTypeId() uint16   { return 26 }
-func (*PlayerCatHouseList) MessageTypeName() string { return "PlayerCatHouseList" }
-
-func (m *PlayerCatHouseList) GetList() []*PlayerCatHouse {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
 type PlayerShopItem struct {
 	Id               *int32 `protobuf:"varint,1,opt" json:"Id,omitempty"`
 	LeftNum          *int32 `protobuf:"varint,2,opt" json:"LeftNum,omitempty"`
@@ -1271,7 +595,7 @@ type PlayerShopItem struct {
 func (m *PlayerShopItem) Reset()                { *m = PlayerShopItem{} }
 func (m *PlayerShopItem) String() string        { return proto.CompactTextString(m) }
 func (*PlayerShopItem) ProtoMessage()           {}
-func (*PlayerShopItem) MessageTypeId() uint16   { return 27 }
+func (*PlayerShopItem) MessageTypeId() uint16   { return 11 }
 func (*PlayerShopItem) MessageTypeName() string { return "PlayerShopItem" }
 
 func (m *PlayerShopItem) GetId() int32 {
@@ -1296,7 +620,7 @@ type PlayerShopItemList struct {
 func (m *PlayerShopItemList) Reset()                { *m = PlayerShopItemList{} }
 func (m *PlayerShopItemList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerShopItemList) ProtoMessage()           {}
-func (*PlayerShopItemList) MessageTypeId() uint16   { return 28 }
+func (*PlayerShopItemList) MessageTypeId() uint16   { return 12 }
 func (*PlayerShopItemList) MessageTypeName() string { return "PlayerShopItemList" }
 
 func (m *PlayerShopItemList) GetList() []*PlayerShopItem {
@@ -1315,7 +639,7 @@ type PlayerShopLimitedInfo struct {
 func (m *PlayerShopLimitedInfo) Reset()                { *m = PlayerShopLimitedInfo{} }
 func (m *PlayerShopLimitedInfo) String() string        { return proto.CompactTextString(m) }
 func (*PlayerShopLimitedInfo) ProtoMessage()           {}
-func (*PlayerShopLimitedInfo) MessageTypeId() uint16   { return 29 }
+func (*PlayerShopLimitedInfo) MessageTypeId() uint16   { return 13 }
 func (*PlayerShopLimitedInfo) MessageTypeName() string { return "PlayerShopLimitedInfo" }
 
 func (m *PlayerShopLimitedInfo) GetLimitedDays() int32 {
@@ -1340,7 +664,7 @@ type PlayerShopLimitedInfoList struct {
 func (m *PlayerShopLimitedInfoList) Reset()                { *m = PlayerShopLimitedInfoList{} }
 func (m *PlayerShopLimitedInfoList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerShopLimitedInfoList) ProtoMessage()           {}
-func (*PlayerShopLimitedInfoList) MessageTypeId() uint16   { return 30 }
+func (*PlayerShopLimitedInfoList) MessageTypeId() uint16   { return 14 }
 func (*PlayerShopLimitedInfoList) MessageTypeName() string { return "PlayerShopLimitedInfoList" }
 
 func (m *PlayerShopLimitedInfoList) GetList() []*PlayerShopLimitedInfo {
@@ -1360,7 +684,7 @@ type PlayerChest struct {
 func (m *PlayerChest) Reset()                { *m = PlayerChest{} }
 func (m *PlayerChest) String() string        { return proto.CompactTextString(m) }
 func (*PlayerChest) ProtoMessage()           {}
-func (*PlayerChest) MessageTypeId() uint16   { return 31 }
+func (*PlayerChest) MessageTypeId() uint16   { return 15 }
 func (*PlayerChest) MessageTypeName() string { return "PlayerChest" }
 
 func (m *PlayerChest) GetPos() int32 {
@@ -1392,7 +716,7 @@ type PlayerChestList struct {
 func (m *PlayerChestList) Reset()                { *m = PlayerChestList{} }
 func (m *PlayerChestList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerChestList) ProtoMessage()           {}
-func (*PlayerChestList) MessageTypeId() uint16   { return 32 }
+func (*PlayerChestList) MessageTypeId() uint16   { return 16 }
 func (*PlayerChestList) MessageTypeName() string { return "PlayerChestList" }
 
 func (m *PlayerChestList) GetList() []*PlayerChest {
@@ -1421,7 +745,7 @@ type PlayerMail struct {
 func (m *PlayerMail) Reset()                { *m = PlayerMail{} }
 func (m *PlayerMail) String() string        { return proto.CompactTextString(m) }
 func (*PlayerMail) ProtoMessage()           {}
-func (*PlayerMail) MessageTypeId() uint16   { return 33 }
+func (*PlayerMail) MessageTypeId() uint16   { return 17 }
 func (*PlayerMail) MessageTypeName() string { return "PlayerMail" }
 
 func (m *PlayerMail) GetMailId() int32 {
@@ -1516,7 +840,7 @@ type PlayerMailList struct {
 func (m *PlayerMailList) Reset()                { *m = PlayerMailList{} }
 func (m *PlayerMailList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerMailList) ProtoMessage()           {}
-func (*PlayerMailList) MessageTypeId() uint16   { return 34 }
+func (*PlayerMailList) MessageTypeId() uint16   { return 18 }
 func (*PlayerMailList) MessageTypeName() string { return "PlayerMailList" }
 
 func (m *PlayerMailList) GetList() []*PlayerMail {
@@ -1535,7 +859,7 @@ type PlayerPayBack struct {
 func (m *PlayerPayBack) Reset()                { *m = PlayerPayBack{} }
 func (m *PlayerPayBack) String() string        { return proto.CompactTextString(m) }
 func (*PlayerPayBack) ProtoMessage()           {}
-func (*PlayerPayBack) MessageTypeId() uint16   { return 35 }
+func (*PlayerPayBack) MessageTypeId() uint16   { return 19 }
 func (*PlayerPayBack) MessageTypeName() string { return "PlayerPayBack" }
 
 func (m *PlayerPayBack) GetPayBackId() int32 {
@@ -1560,7 +884,7 @@ type PlayerPayBackList struct {
 func (m *PlayerPayBackList) Reset()                { *m = PlayerPayBackList{} }
 func (m *PlayerPayBackList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerPayBackList) ProtoMessage()           {}
-func (*PlayerPayBackList) MessageTypeId() uint16   { return 36 }
+func (*PlayerPayBackList) MessageTypeId() uint16   { return 20 }
 func (*PlayerPayBackList) MessageTypeName() string { return "PlayerPayBackList" }
 
 func (m *PlayerPayBackList) GetList() []*PlayerPayBack {
@@ -1578,7 +902,7 @@ type PlayerOptions struct {
 func (m *PlayerOptions) Reset()                { *m = PlayerOptions{} }
 func (m *PlayerOptions) String() string        { return proto.CompactTextString(m) }
 func (*PlayerOptions) ProtoMessage()           {}
-func (*PlayerOptions) MessageTypeId() uint16   { return 37 }
+func (*PlayerOptions) MessageTypeId() uint16   { return 21 }
 func (*PlayerOptions) MessageTypeName() string { return "PlayerOptions" }
 
 func (m *PlayerOptions) GetValues() []int32 {
@@ -1598,7 +922,7 @@ type PlayerDialyTask struct {
 func (m *PlayerDialyTask) Reset()                { *m = PlayerDialyTask{} }
 func (m *PlayerDialyTask) String() string        { return proto.CompactTextString(m) }
 func (*PlayerDialyTask) ProtoMessage()           {}
-func (*PlayerDialyTask) MessageTypeId() uint16   { return 38 }
+func (*PlayerDialyTask) MessageTypeId() uint16   { return 22 }
 func (*PlayerDialyTask) MessageTypeName() string { return "PlayerDialyTask" }
 
 func (m *PlayerDialyTask) GetTaskId() int32 {
@@ -1630,7 +954,7 @@ type PlayerDialyTaskList struct {
 func (m *PlayerDialyTaskList) Reset()                { *m = PlayerDialyTaskList{} }
 func (m *PlayerDialyTaskList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerDialyTaskList) ProtoMessage()           {}
-func (*PlayerDialyTaskList) MessageTypeId() uint16   { return 39 }
+func (*PlayerDialyTaskList) MessageTypeId() uint16   { return 23 }
 func (*PlayerDialyTaskList) MessageTypeName() string { return "PlayerDialyTaskList" }
 
 func (m *PlayerDialyTaskList) GetList() []*PlayerDialyTask {
@@ -1650,7 +974,7 @@ type PlayerAchieve struct {
 func (m *PlayerAchieve) Reset()                { *m = PlayerAchieve{} }
 func (m *PlayerAchieve) String() string        { return proto.CompactTextString(m) }
 func (*PlayerAchieve) ProtoMessage()           {}
-func (*PlayerAchieve) MessageTypeId() uint16   { return 40 }
+func (*PlayerAchieve) MessageTypeId() uint16   { return 24 }
 func (*PlayerAchieve) MessageTypeName() string { return "PlayerAchieve" }
 
 func (m *PlayerAchieve) GetAchieveId() int32 {
@@ -1682,7 +1006,7 @@ type PlayerAchieveList struct {
 func (m *PlayerAchieveList) Reset()                { *m = PlayerAchieveList{} }
 func (m *PlayerAchieveList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerAchieveList) ProtoMessage()           {}
-func (*PlayerAchieveList) MessageTypeId() uint16   { return 41 }
+func (*PlayerAchieveList) MessageTypeId() uint16   { return 25 }
 func (*PlayerAchieveList) MessageTypeName() string { return "PlayerAchieveList" }
 
 func (m *PlayerAchieveList) GetList() []*PlayerAchieve {
@@ -1700,7 +1024,7 @@ type PlayerFinishedAchieve struct {
 func (m *PlayerFinishedAchieve) Reset()                { *m = PlayerFinishedAchieve{} }
 func (m *PlayerFinishedAchieve) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFinishedAchieve) ProtoMessage()           {}
-func (*PlayerFinishedAchieve) MessageTypeId() uint16   { return 42 }
+func (*PlayerFinishedAchieve) MessageTypeId() uint16   { return 26 }
 func (*PlayerFinishedAchieve) MessageTypeName() string { return "PlayerFinishedAchieve" }
 
 func (m *PlayerFinishedAchieve) GetAchieveId() int32 {
@@ -1718,7 +1042,7 @@ type PlayerFinishedAchieveList struct {
 func (m *PlayerFinishedAchieveList) Reset()                { *m = PlayerFinishedAchieveList{} }
 func (m *PlayerFinishedAchieveList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFinishedAchieveList) ProtoMessage()           {}
-func (*PlayerFinishedAchieveList) MessageTypeId() uint16   { return 43 }
+func (*PlayerFinishedAchieveList) MessageTypeId() uint16   { return 27 }
 func (*PlayerFinishedAchieveList) MessageTypeName() string { return "PlayerFinishedAchieveList" }
 
 func (m *PlayerFinishedAchieveList) GetList() []*PlayerFinishedAchieve {
@@ -1736,7 +1060,7 @@ type PlayerDailyTaskWholeDaily struct {
 func (m *PlayerDailyTaskWholeDaily) Reset()                { *m = PlayerDailyTaskWholeDaily{} }
 func (m *PlayerDailyTaskWholeDaily) String() string        { return proto.CompactTextString(m) }
 func (*PlayerDailyTaskWholeDaily) ProtoMessage()           {}
-func (*PlayerDailyTaskWholeDaily) MessageTypeId() uint16   { return 44 }
+func (*PlayerDailyTaskWholeDaily) MessageTypeId() uint16   { return 28 }
 func (*PlayerDailyTaskWholeDaily) MessageTypeName() string { return "PlayerDailyTaskWholeDaily" }
 
 func (m *PlayerDailyTaskWholeDaily) GetCompleteTaskId() int32 {
@@ -1754,7 +1078,7 @@ type PlayerDailyTaskWholeDailyList struct {
 func (m *PlayerDailyTaskWholeDailyList) Reset()                { *m = PlayerDailyTaskWholeDailyList{} }
 func (m *PlayerDailyTaskWholeDailyList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerDailyTaskWholeDailyList) ProtoMessage()           {}
-func (*PlayerDailyTaskWholeDailyList) MessageTypeId() uint16   { return 45 }
+func (*PlayerDailyTaskWholeDailyList) MessageTypeId() uint16   { return 29 }
 func (*PlayerDailyTaskWholeDailyList) MessageTypeName() string { return "PlayerDailyTaskWholeDailyList" }
 
 func (m *PlayerDailyTaskWholeDailyList) GetList() []*PlayerDailyTaskWholeDaily {
@@ -1774,7 +1098,7 @@ type PlayerSevenActivity struct {
 func (m *PlayerSevenActivity) Reset()                { *m = PlayerSevenActivity{} }
 func (m *PlayerSevenActivity) String() string        { return proto.CompactTextString(m) }
 func (*PlayerSevenActivity) ProtoMessage()           {}
-func (*PlayerSevenActivity) MessageTypeId() uint16   { return 46 }
+func (*PlayerSevenActivity) MessageTypeId() uint16   { return 30 }
 func (*PlayerSevenActivity) MessageTypeName() string { return "PlayerSevenActivity" }
 
 func (m *PlayerSevenActivity) GetActivityId() int32 {
@@ -1806,7 +1130,7 @@ type PlayerSevenActivityList struct {
 func (m *PlayerSevenActivityList) Reset()                { *m = PlayerSevenActivityList{} }
 func (m *PlayerSevenActivityList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerSevenActivityList) ProtoMessage()           {}
-func (*PlayerSevenActivityList) MessageTypeId() uint16   { return 47 }
+func (*PlayerSevenActivityList) MessageTypeId() uint16   { return 31 }
 func (*PlayerSevenActivityList) MessageTypeName() string { return "PlayerSevenActivityList" }
 
 func (m *PlayerSevenActivityList) GetList() []*PlayerSevenActivity {
@@ -1828,7 +1152,7 @@ type PlayerSignInfo struct {
 func (m *PlayerSignInfo) Reset()                { *m = PlayerSignInfo{} }
 func (m *PlayerSignInfo) String() string        { return proto.CompactTextString(m) }
 func (*PlayerSignInfo) ProtoMessage()           {}
-func (*PlayerSignInfo) MessageTypeId() uint16   { return 48 }
+func (*PlayerSignInfo) MessageTypeId() uint16   { return 32 }
 func (*PlayerSignInfo) MessageTypeName() string { return "PlayerSignInfo" }
 
 func (m *PlayerSignInfo) GetLastSignDay() int32 {
@@ -1875,7 +1199,7 @@ type PlayerGuides struct {
 func (m *PlayerGuides) Reset()                { *m = PlayerGuides{} }
 func (m *PlayerGuides) String() string        { return proto.CompactTextString(m) }
 func (*PlayerGuides) ProtoMessage()           {}
-func (*PlayerGuides) MessageTypeId() uint16   { return 49 }
+func (*PlayerGuides) MessageTypeId() uint16   { return 33 }
 func (*PlayerGuides) MessageTypeName() string { return "PlayerGuides" }
 
 func (m *PlayerGuides) GetGuideId() int32 {
@@ -1900,7 +1224,7 @@ type PlayerGuidesList struct {
 func (m *PlayerGuidesList) Reset()                { *m = PlayerGuidesList{} }
 func (m *PlayerGuidesList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerGuidesList) ProtoMessage()           {}
-func (*PlayerGuidesList) MessageTypeId() uint16   { return 50 }
+func (*PlayerGuidesList) MessageTypeId() uint16   { return 34 }
 func (*PlayerGuidesList) MessageTypeName() string { return "PlayerGuidesList" }
 
 func (m *PlayerGuidesList) GetList() []*PlayerGuides {
@@ -1920,7 +1244,7 @@ type PlayerFriendRelative struct {
 func (m *PlayerFriendRelative) Reset()                { *m = PlayerFriendRelative{} }
 func (m *PlayerFriendRelative) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendRelative) ProtoMessage()           {}
-func (*PlayerFriendRelative) MessageTypeId() uint16   { return 51 }
+func (*PlayerFriendRelative) MessageTypeId() uint16   { return 35 }
 func (*PlayerFriendRelative) MessageTypeName() string { return "PlayerFriendRelative" }
 
 func (m *PlayerFriendRelative) GetLastGiveFriendPointsTime() int32 {
@@ -1958,7 +1282,7 @@ type PlayerFriend struct {
 func (m *PlayerFriend) Reset()                { *m = PlayerFriend{} }
 func (m *PlayerFriend) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriend) ProtoMessage()           {}
-func (*PlayerFriend) MessageTypeId() uint16   { return 52 }
+func (*PlayerFriend) MessageTypeId() uint16   { return 36 }
 func (*PlayerFriend) MessageTypeName() string { return "PlayerFriend" }
 
 func (m *PlayerFriend) GetFriendId() int32 {
@@ -2018,7 +1342,7 @@ type PlayerFriendList struct {
 func (m *PlayerFriendList) Reset()                { *m = PlayerFriendList{} }
 func (m *PlayerFriendList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendList) ProtoMessage()           {}
-func (*PlayerFriendList) MessageTypeId() uint16   { return 53 }
+func (*PlayerFriendList) MessageTypeId() uint16   { return 37 }
 func (*PlayerFriendList) MessageTypeName() string { return "PlayerFriendList" }
 
 func (m *PlayerFriendList) GetList() []*PlayerFriend {
@@ -2038,7 +1362,7 @@ type PlayerFriendReq struct {
 func (m *PlayerFriendReq) Reset()                { *m = PlayerFriendReq{} }
 func (m *PlayerFriendReq) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendReq) ProtoMessage()           {}
-func (*PlayerFriendReq) MessageTypeId() uint16   { return 54 }
+func (*PlayerFriendReq) MessageTypeId() uint16   { return 38 }
 func (*PlayerFriendReq) MessageTypeName() string { return "PlayerFriendReq" }
 
 func (m *PlayerFriendReq) GetPlayerId() int32 {
@@ -2070,7 +1394,7 @@ type PlayerFriendReqList struct {
 func (m *PlayerFriendReqList) Reset()                { *m = PlayerFriendReqList{} }
 func (m *PlayerFriendReqList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendReqList) ProtoMessage()           {}
-func (*PlayerFriendReqList) MessageTypeId() uint16   { return 55 }
+func (*PlayerFriendReqList) MessageTypeId() uint16   { return 39 }
 func (*PlayerFriendReqList) MessageTypeName() string { return "PlayerFriendReqList" }
 
 func (m *PlayerFriendReqList) GetList() []*PlayerFriendReq {
@@ -2091,7 +1415,7 @@ type PlayerFriendPoint struct {
 func (m *PlayerFriendPoint) Reset()                { *m = PlayerFriendPoint{} }
 func (m *PlayerFriendPoint) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendPoint) ProtoMessage()           {}
-func (*PlayerFriendPoint) MessageTypeId() uint16   { return 56 }
+func (*PlayerFriendPoint) MessageTypeId() uint16   { return 40 }
 func (*PlayerFriendPoint) MessageTypeName() string { return "PlayerFriendPoint" }
 
 func (m *PlayerFriendPoint) GetFromPlayerId() int32 {
@@ -2130,7 +1454,7 @@ type PlayerFriendPointList struct {
 func (m *PlayerFriendPointList) Reset()                { *m = PlayerFriendPointList{} }
 func (m *PlayerFriendPointList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendPointList) ProtoMessage()           {}
-func (*PlayerFriendPointList) MessageTypeId() uint16   { return 57 }
+func (*PlayerFriendPointList) MessageTypeId() uint16   { return 41 }
 func (*PlayerFriendPointList) MessageTypeName() string { return "PlayerFriendPointList" }
 
 func (m *PlayerFriendPointList) GetList() []*PlayerFriendPoint {
@@ -2150,7 +1474,7 @@ type PlayerFriendChatUnreadId struct {
 func (m *PlayerFriendChatUnreadId) Reset()                { *m = PlayerFriendChatUnreadId{} }
 func (m *PlayerFriendChatUnreadId) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendChatUnreadId) ProtoMessage()           {}
-func (*PlayerFriendChatUnreadId) MessageTypeId() uint16   { return 58 }
+func (*PlayerFriendChatUnreadId) MessageTypeId() uint16   { return 42 }
 func (*PlayerFriendChatUnreadId) MessageTypeName() string { return "PlayerFriendChatUnreadId" }
 
 func (m *PlayerFriendChatUnreadId) GetFriendId() int32 {
@@ -2182,7 +1506,7 @@ type PlayerFriendChatUnreadIdList struct {
 func (m *PlayerFriendChatUnreadIdList) Reset()                { *m = PlayerFriendChatUnreadIdList{} }
 func (m *PlayerFriendChatUnreadIdList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendChatUnreadIdList) ProtoMessage()           {}
-func (*PlayerFriendChatUnreadIdList) MessageTypeId() uint16   { return 59 }
+func (*PlayerFriendChatUnreadIdList) MessageTypeId() uint16   { return 43 }
 func (*PlayerFriendChatUnreadIdList) MessageTypeName() string { return "PlayerFriendChatUnreadIdList" }
 
 func (m *PlayerFriendChatUnreadIdList) GetList() []*PlayerFriendChatUnreadId {
@@ -2203,7 +1527,7 @@ type PlayerFriendChatUnreadMessage struct {
 func (m *PlayerFriendChatUnreadMessage) Reset()                { *m = PlayerFriendChatUnreadMessage{} }
 func (m *PlayerFriendChatUnreadMessage) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFriendChatUnreadMessage) ProtoMessage()           {}
-func (*PlayerFriendChatUnreadMessage) MessageTypeId() uint16   { return 60 }
+func (*PlayerFriendChatUnreadMessage) MessageTypeId() uint16   { return 44 }
 func (*PlayerFriendChatUnreadMessage) MessageTypeName() string { return "PlayerFriendChatUnreadMessage" }
 
 func (m *PlayerFriendChatUnreadMessage) GetPlayerMessageId() int64 {
@@ -2242,100 +1566,12 @@ type PlayerFriendChatUnreadMessageList struct {
 func (m *PlayerFriendChatUnreadMessageList) Reset()              { *m = PlayerFriendChatUnreadMessageList{} }
 func (m *PlayerFriendChatUnreadMessageList) String() string      { return proto.CompactTextString(m) }
 func (*PlayerFriendChatUnreadMessageList) ProtoMessage()         {}
-func (*PlayerFriendChatUnreadMessageList) MessageTypeId() uint16 { return 61 }
+func (*PlayerFriendChatUnreadMessageList) MessageTypeId() uint16 { return 45 }
 func (*PlayerFriendChatUnreadMessageList) MessageTypeName() string {
 	return "PlayerFriendChatUnreadMessageList"
 }
 
 func (m *PlayerFriendChatUnreadMessageList) GetList() []*PlayerFriendChatUnreadMessage {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerFocusPlayer struct {
-	FriendId         *int32  `protobuf:"varint,1,opt" json:"FriendId,omitempty"`
-	FriendName       *string `protobuf:"bytes,2,opt" json:"FriendName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerFocusPlayer) Reset()                { *m = PlayerFocusPlayer{} }
-func (m *PlayerFocusPlayer) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFocusPlayer) ProtoMessage()           {}
-func (*PlayerFocusPlayer) MessageTypeId() uint16   { return 62 }
-func (*PlayerFocusPlayer) MessageTypeName() string { return "PlayerFocusPlayer" }
-
-func (m *PlayerFocusPlayer) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
-	}
-	return 0
-}
-
-func (m *PlayerFocusPlayer) GetFriendName() string {
-	if m != nil && m.FriendName != nil {
-		return *m.FriendName
-	}
-	return ""
-}
-
-type PlayerFocusPlayerList struct {
-	List             []*PlayerFocusPlayer `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte               `json:"-"`
-}
-
-func (m *PlayerFocusPlayerList) Reset()                { *m = PlayerFocusPlayerList{} }
-func (m *PlayerFocusPlayerList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFocusPlayerList) ProtoMessage()           {}
-func (*PlayerFocusPlayerList) MessageTypeId() uint16   { return 63 }
-func (*PlayerFocusPlayerList) MessageTypeName() string { return "PlayerFocusPlayerList" }
-
-func (m *PlayerFocusPlayerList) GetList() []*PlayerFocusPlayer {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerBeFocusPlayer struct {
-	FriendId         *int32  `protobuf:"varint,1,opt" json:"FriendId,omitempty"`
-	FriendName       *string `protobuf:"bytes,2,opt" json:"FriendName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerBeFocusPlayer) Reset()                { *m = PlayerBeFocusPlayer{} }
-func (m *PlayerBeFocusPlayer) String() string        { return proto.CompactTextString(m) }
-func (*PlayerBeFocusPlayer) ProtoMessage()           {}
-func (*PlayerBeFocusPlayer) MessageTypeId() uint16   { return 64 }
-func (*PlayerBeFocusPlayer) MessageTypeName() string { return "PlayerBeFocusPlayer" }
-
-func (m *PlayerBeFocusPlayer) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
-	}
-	return 0
-}
-
-func (m *PlayerBeFocusPlayer) GetFriendName() string {
-	if m != nil && m.FriendName != nil {
-		return *m.FriendName
-	}
-	return ""
-}
-
-type PlayerBeFocusPlayerList struct {
-	List             []*PlayerBeFocusPlayer `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte                 `json:"-"`
-}
-
-func (m *PlayerBeFocusPlayerList) Reset()                { *m = PlayerBeFocusPlayerList{} }
-func (m *PlayerBeFocusPlayerList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerBeFocusPlayerList) ProtoMessage()           {}
-func (*PlayerBeFocusPlayerList) MessageTypeId() uint16   { return 65 }
-func (*PlayerBeFocusPlayerList) MessageTypeName() string { return "PlayerBeFocusPlayerList" }
-
-func (m *PlayerBeFocusPlayerList) GetList() []*PlayerBeFocusPlayer {
 	if m != nil {
 		return m.List
 	}
@@ -2350,7 +1586,7 @@ type PlayerCustomData struct {
 func (m *PlayerCustomData) Reset()                { *m = PlayerCustomData{} }
 func (m *PlayerCustomData) String() string        { return proto.CompactTextString(m) }
 func (*PlayerCustomData) ProtoMessage()           {}
-func (*PlayerCustomData) MessageTypeId() uint16   { return 66 }
+func (*PlayerCustomData) MessageTypeId() uint16   { return 46 }
 func (*PlayerCustomData) MessageTypeName() string { return "PlayerCustomData" }
 
 func (m *PlayerCustomData) GetCustomData() []byte {
@@ -2368,136 +1604,12 @@ type PlayerChaterOpenRequest struct {
 func (m *PlayerChaterOpenRequest) Reset()                { *m = PlayerChaterOpenRequest{} }
 func (m *PlayerChaterOpenRequest) String() string        { return proto.CompactTextString(m) }
 func (*PlayerChaterOpenRequest) ProtoMessage()           {}
-func (*PlayerChaterOpenRequest) MessageTypeId() uint16   { return 67 }
+func (*PlayerChaterOpenRequest) MessageTypeId() uint16   { return 47 }
 func (*PlayerChaterOpenRequest) MessageTypeName() string { return "PlayerChaterOpenRequest" }
 
 func (m *PlayerChaterOpenRequest) GetCustomData() []byte {
 	if m != nil {
 		return m.CustomData
-	}
-	return nil
-}
-
-type PlayerExpedition struct {
-	Id                    *int32             `protobuf:"varint,1,opt" json:"Id,omitempty"`
-	TaskId                *int32             `protobuf:"varint,2,opt" json:"TaskId,omitempty"`
-	StartUnix             *int32             `protobuf:"varint,3,opt" json:"StartUnix,omitempty"`
-	EndUnix               *int32             `protobuf:"varint,4,opt" json:"EndUnix,omitempty"`
-	InCatIds              []int32            `protobuf:"varint,5,rep" json:"InCatIds,omitempty"`
-	CurState              *int32             `protobuf:"varint,6,opt" json:"CurState,omitempty"`
-	Result                *int32             `protobuf:"varint,7,opt" json:"Result,omitempty"`
-	TaskLeftSec           *int32             `protobuf:"varint,8,opt" json:"TaskLeftSec,omitempty"`
-	TaskLeftSecLastUpUnix *int32             `protobuf:"varint,9,opt" json:"TaskLeftSecLastUpUnix,omitempty"`
-	Conditions            []*ExpeditionCon   `protobuf:"bytes,10,rep" json:"Conditions,omitempty"`
-	EventIds              []*ExpeditionEvent `protobuf:"bytes,11,rep" json:"EventIds,omitempty"`
-	TotalSpecials         *int32             `protobuf:"varint,12,opt" json:"TotalSpecials,omitempty"`
-	XXX_unrecognized      []byte             `json:"-"`
-}
-
-func (m *PlayerExpedition) Reset()                { *m = PlayerExpedition{} }
-func (m *PlayerExpedition) String() string        { return proto.CompactTextString(m) }
-func (*PlayerExpedition) ProtoMessage()           {}
-func (*PlayerExpedition) MessageTypeId() uint16   { return 68 }
-func (*PlayerExpedition) MessageTypeName() string { return "PlayerExpedition" }
-
-func (m *PlayerExpedition) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *PlayerExpedition) GetTaskId() int32 {
-	if m != nil && m.TaskId != nil {
-		return *m.TaskId
-	}
-	return 0
-}
-
-func (m *PlayerExpedition) GetStartUnix() int32 {
-	if m != nil && m.StartUnix != nil {
-		return *m.StartUnix
-	}
-	return 0
-}
-
-func (m *PlayerExpedition) GetEndUnix() int32 {
-	if m != nil && m.EndUnix != nil {
-		return *m.EndUnix
-	}
-	return 0
-}
-
-func (m *PlayerExpedition) GetInCatIds() []int32 {
-	if m != nil {
-		return m.InCatIds
-	}
-	return nil
-}
-
-func (m *PlayerExpedition) GetCurState() int32 {
-	if m != nil && m.CurState != nil {
-		return *m.CurState
-	}
-	return 0
-}
-
-func (m *PlayerExpedition) GetResult() int32 {
-	if m != nil && m.Result != nil {
-		return *m.Result
-	}
-	return 0
-}
-
-func (m *PlayerExpedition) GetTaskLeftSec() int32 {
-	if m != nil && m.TaskLeftSec != nil {
-		return *m.TaskLeftSec
-	}
-	return 0
-}
-
-func (m *PlayerExpedition) GetTaskLeftSecLastUpUnix() int32 {
-	if m != nil && m.TaskLeftSecLastUpUnix != nil {
-		return *m.TaskLeftSecLastUpUnix
-	}
-	return 0
-}
-
-func (m *PlayerExpedition) GetConditions() []*ExpeditionCon {
-	if m != nil {
-		return m.Conditions
-	}
-	return nil
-}
-
-func (m *PlayerExpedition) GetEventIds() []*ExpeditionEvent {
-	if m != nil {
-		return m.EventIds
-	}
-	return nil
-}
-
-func (m *PlayerExpedition) GetTotalSpecials() int32 {
-	if m != nil && m.TotalSpecials != nil {
-		return *m.TotalSpecials
-	}
-	return 0
-}
-
-type PlayerExpeditionList struct {
-	List             []*PlayerExpedition `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte              `json:"-"`
-}
-
-func (m *PlayerExpeditionList) Reset()                { *m = PlayerExpeditionList{} }
-func (m *PlayerExpeditionList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerExpeditionList) ProtoMessage()           {}
-func (*PlayerExpeditionList) MessageTypeId() uint16   { return 69 }
-func (*PlayerExpeditionList) MessageTypeName() string { return "PlayerExpeditionList" }
-
-func (m *PlayerExpeditionList) GetList() []*PlayerExpedition {
-	if m != nil {
-		return m.List
 	}
 	return nil
 }
@@ -2510,7 +1622,7 @@ type PlayerHandbookItem struct {
 func (m *PlayerHandbookItem) Reset()                { *m = PlayerHandbookItem{} }
 func (m *PlayerHandbookItem) String() string        { return proto.CompactTextString(m) }
 func (*PlayerHandbookItem) ProtoMessage()           {}
-func (*PlayerHandbookItem) MessageTypeId() uint16   { return 70 }
+func (*PlayerHandbookItem) MessageTypeId() uint16   { return 48 }
 func (*PlayerHandbookItem) MessageTypeName() string { return "PlayerHandbookItem" }
 
 func (m *PlayerHandbookItem) GetId() int32 {
@@ -2528,7 +1640,7 @@ type PlayerHandbookItemList struct {
 func (m *PlayerHandbookItemList) Reset()                { *m = PlayerHandbookItemList{} }
 func (m *PlayerHandbookItemList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerHandbookItemList) ProtoMessage()           {}
-func (*PlayerHandbookItemList) MessageTypeId() uint16   { return 71 }
+func (*PlayerHandbookItemList) MessageTypeId() uint16   { return 49 }
 func (*PlayerHandbookItemList) MessageTypeName() string { return "PlayerHandbookItemList" }
 
 func (m *PlayerHandbookItemList) GetList() []*PlayerHandbookItem {
@@ -2546,7 +1658,7 @@ type PlayerHeadItem struct {
 func (m *PlayerHeadItem) Reset()                { *m = PlayerHeadItem{} }
 func (m *PlayerHeadItem) String() string        { return proto.CompactTextString(m) }
 func (*PlayerHeadItem) ProtoMessage()           {}
-func (*PlayerHeadItem) MessageTypeId() uint16   { return 72 }
+func (*PlayerHeadItem) MessageTypeId() uint16   { return 50 }
 func (*PlayerHeadItem) MessageTypeName() string { return "PlayerHeadItem" }
 
 func (m *PlayerHeadItem) GetId() int32 {
@@ -2564,7 +1676,7 @@ type PlayerHeadItemList struct {
 func (m *PlayerHeadItemList) Reset()                { *m = PlayerHeadItemList{} }
 func (m *PlayerHeadItemList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerHeadItemList) ProtoMessage()           {}
-func (*PlayerHeadItemList) MessageTypeId() uint16   { return 73 }
+func (*PlayerHeadItemList) MessageTypeId() uint16   { return 51 }
 func (*PlayerHeadItemList) MessageTypeName() string { return "PlayerHeadItemList" }
 
 func (m *PlayerHeadItemList) GetList() []*PlayerHeadItem {
@@ -2584,7 +1696,7 @@ type PlayerActivity struct {
 func (m *PlayerActivity) Reset()                { *m = PlayerActivity{} }
 func (m *PlayerActivity) String() string        { return proto.CompactTextString(m) }
 func (*PlayerActivity) ProtoMessage()           {}
-func (*PlayerActivity) MessageTypeId() uint16   { return 74 }
+func (*PlayerActivity) MessageTypeId() uint16   { return 52 }
 func (*PlayerActivity) MessageTypeName() string { return "PlayerActivity" }
 
 func (m *PlayerActivity) GetCfgId() int32 {
@@ -2616,7 +1728,7 @@ type PlayerActivityList struct {
 func (m *PlayerActivityList) Reset()                { *m = PlayerActivityList{} }
 func (m *PlayerActivityList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerActivityList) ProtoMessage()           {}
-func (*PlayerActivityList) MessageTypeId() uint16   { return 75 }
+func (*PlayerActivityList) MessageTypeId() uint16   { return 53 }
 func (*PlayerActivityList) MessageTypeName() string { return "PlayerActivityList" }
 
 func (m *PlayerActivityList) GetList() []*PlayerActivity {
@@ -2635,7 +1747,7 @@ type PlayerSuitAward struct {
 func (m *PlayerSuitAward) Reset()                { *m = PlayerSuitAward{} }
 func (m *PlayerSuitAward) String() string        { return proto.CompactTextString(m) }
 func (*PlayerSuitAward) ProtoMessage()           {}
-func (*PlayerSuitAward) MessageTypeId() uint16   { return 76 }
+func (*PlayerSuitAward) MessageTypeId() uint16   { return 54 }
 func (*PlayerSuitAward) MessageTypeName() string { return "PlayerSuitAward" }
 
 func (m *PlayerSuitAward) GetId() int32 {
@@ -2660,7 +1772,7 @@ type PlayerSuitAwardList struct {
 func (m *PlayerSuitAwardList) Reset()                { *m = PlayerSuitAwardList{} }
 func (m *PlayerSuitAwardList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerSuitAwardList) ProtoMessage()           {}
-func (*PlayerSuitAwardList) MessageTypeId() uint16   { return 77 }
+func (*PlayerSuitAwardList) MessageTypeId() uint16   { return 55 }
 func (*PlayerSuitAwardList) MessageTypeName() string { return "PlayerSuitAwardList" }
 
 func (m *PlayerSuitAwardList) GetList() []*PlayerSuitAward {
@@ -2680,7 +1792,7 @@ type PlayerZan struct {
 func (m *PlayerZan) Reset()                { *m = PlayerZan{} }
 func (m *PlayerZan) String() string        { return proto.CompactTextString(m) }
 func (*PlayerZan) ProtoMessage()           {}
-func (*PlayerZan) MessageTypeId() uint16   { return 78 }
+func (*PlayerZan) MessageTypeId() uint16   { return 56 }
 func (*PlayerZan) MessageTypeName() string { return "PlayerZan" }
 
 func (m *PlayerZan) GetPlayerId() int32 {
@@ -2712,418 +1824,10 @@ type PlayerZanList struct {
 func (m *PlayerZanList) Reset()                { *m = PlayerZanList{} }
 func (m *PlayerZanList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerZanList) ProtoMessage()           {}
-func (*PlayerZanList) MessageTypeId() uint16   { return 79 }
+func (*PlayerZanList) MessageTypeId() uint16   { return 57 }
 func (*PlayerZanList) MessageTypeName() string { return "PlayerZanList" }
 
 func (m *PlayerZanList) GetList() []*PlayerZan {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerFoster struct {
-	BuildingId       *int32  `protobuf:"varint,1,opt" json:"BuildingId,omitempty"`
-	EquippedCardId   *int32  `protobuf:"varint,2,opt" json:"EquippedCardId,omitempty"`
-	StartTime        *int32  `protobuf:"varint,3,opt" json:"StartTime,omitempty"`
-	CatIds           []int32 `protobuf:"varint,4,rep" json:"CatIds,omitempty"`
-	PlayerCatIds     []int64 `protobuf:"varint,5,rep" json:"PlayerCatIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerFoster) Reset()                { *m = PlayerFoster{} }
-func (m *PlayerFoster) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFoster) ProtoMessage()           {}
-func (*PlayerFoster) MessageTypeId() uint16   { return 80 }
-func (*PlayerFoster) MessageTypeName() string { return "PlayerFoster" }
-
-func (m *PlayerFoster) GetBuildingId() int32 {
-	if m != nil && m.BuildingId != nil {
-		return *m.BuildingId
-	}
-	return 0
-}
-
-func (m *PlayerFoster) GetEquippedCardId() int32 {
-	if m != nil && m.EquippedCardId != nil {
-		return *m.EquippedCardId
-	}
-	return 0
-}
-
-func (m *PlayerFoster) GetStartTime() int32 {
-	if m != nil && m.StartTime != nil {
-		return *m.StartTime
-	}
-	return 0
-}
-
-func (m *PlayerFoster) GetCatIds() []int32 {
-	if m != nil {
-		return m.CatIds
-	}
-	return nil
-}
-
-func (m *PlayerFoster) GetPlayerCatIds() []int64 {
-	if m != nil {
-		return m.PlayerCatIds
-	}
-	return nil
-}
-
-type PlayerFosterCat struct {
-	CatId            *int32 `protobuf:"varint,1,opt" json:"CatId,omitempty"`
-	StartTime        *int32 `protobuf:"varint,2,opt" json:"StartTime,omitempty"`
-	RemainSeconds    *int32 `protobuf:"varint,3,opt" json:"RemainSeconds,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerFosterCat) Reset()                { *m = PlayerFosterCat{} }
-func (m *PlayerFosterCat) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosterCat) ProtoMessage()           {}
-func (*PlayerFosterCat) MessageTypeId() uint16   { return 81 }
-func (*PlayerFosterCat) MessageTypeName() string { return "PlayerFosterCat" }
-
-func (m *PlayerFosterCat) GetCatId() int32 {
-	if m != nil && m.CatId != nil {
-		return *m.CatId
-	}
-	return 0
-}
-
-func (m *PlayerFosterCat) GetStartTime() int32 {
-	if m != nil && m.StartTime != nil {
-		return *m.StartTime
-	}
-	return 0
-}
-
-func (m *PlayerFosterCat) GetRemainSeconds() int32 {
-	if m != nil && m.RemainSeconds != nil {
-		return *m.RemainSeconds
-	}
-	return 0
-}
-
-type PlayerFosterCatList struct {
-	List             []*PlayerFosterCat `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
-}
-
-func (m *PlayerFosterCatList) Reset()                { *m = PlayerFosterCatList{} }
-func (m *PlayerFosterCatList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosterCatList) ProtoMessage()           {}
-func (*PlayerFosterCatList) MessageTypeId() uint16   { return 82 }
-func (*PlayerFosterCatList) MessageTypeName() string { return "PlayerFosterCatList" }
-
-func (m *PlayerFosterCatList) GetList() []*PlayerFosterCat {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerFosterFriendCat struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt" json:"PlayerId,omitempty"`
-	CatId            *int32  `protobuf:"varint,2,opt" json:"CatId,omitempty"`
-	CatTableId       *int32  `protobuf:"varint,3,opt" json:"CatTableId,omitempty"`
-	StartTime        *int32  `protobuf:"varint,4,opt" json:"StartTime,omitempty"`
-	StartCardId      *int32  `protobuf:"varint,5,opt" json:"StartCardId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,6,opt" json:"PlayerName,omitempty"`
-	PlayerLevel      *int32  `protobuf:"varint,7,opt" json:"PlayerLevel,omitempty"`
-	PlayerHead       *string `protobuf:"bytes,8,opt" json:"PlayerHead,omitempty"`
-	CatLevel         *int32  `protobuf:"varint,9,opt" json:"CatLevel,omitempty"`
-	CatStar          *int32  `protobuf:"varint,10,opt" json:"CatStar,omitempty"`
-	CatNick          *string `protobuf:"bytes,11,opt" json:"CatNick,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerFosterFriendCat) Reset()                { *m = PlayerFosterFriendCat{} }
-func (m *PlayerFosterFriendCat) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosterFriendCat) ProtoMessage()           {}
-func (*PlayerFosterFriendCat) MessageTypeId() uint16   { return 83 }
-func (*PlayerFosterFriendCat) MessageTypeName() string { return "PlayerFosterFriendCat" }
-
-func (m *PlayerFosterFriendCat) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *PlayerFosterFriendCat) GetCatId() int32 {
-	if m != nil && m.CatId != nil {
-		return *m.CatId
-	}
-	return 0
-}
-
-func (m *PlayerFosterFriendCat) GetCatTableId() int32 {
-	if m != nil && m.CatTableId != nil {
-		return *m.CatTableId
-	}
-	return 0
-}
-
-func (m *PlayerFosterFriendCat) GetStartTime() int32 {
-	if m != nil && m.StartTime != nil {
-		return *m.StartTime
-	}
-	return 0
-}
-
-func (m *PlayerFosterFriendCat) GetStartCardId() int32 {
-	if m != nil && m.StartCardId != nil {
-		return *m.StartCardId
-	}
-	return 0
-}
-
-func (m *PlayerFosterFriendCat) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *PlayerFosterFriendCat) GetPlayerLevel() int32 {
-	if m != nil && m.PlayerLevel != nil {
-		return *m.PlayerLevel
-	}
-	return 0
-}
-
-func (m *PlayerFosterFriendCat) GetPlayerHead() string {
-	if m != nil && m.PlayerHead != nil {
-		return *m.PlayerHead
-	}
-	return ""
-}
-
-func (m *PlayerFosterFriendCat) GetCatLevel() int32 {
-	if m != nil && m.CatLevel != nil {
-		return *m.CatLevel
-	}
-	return 0
-}
-
-func (m *PlayerFosterFriendCat) GetCatStar() int32 {
-	if m != nil && m.CatStar != nil {
-		return *m.CatStar
-	}
-	return 0
-}
-
-func (m *PlayerFosterFriendCat) GetCatNick() string {
-	if m != nil && m.CatNick != nil {
-		return *m.CatNick
-	}
-	return ""
-}
-
-type PlayerFosterFriendCatList struct {
-	List             []*PlayerFosterFriendCat `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte                   `json:"-"`
-}
-
-func (m *PlayerFosterFriendCatList) Reset()                { *m = PlayerFosterFriendCatList{} }
-func (m *PlayerFosterFriendCatList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosterFriendCatList) ProtoMessage()           {}
-func (*PlayerFosterFriendCatList) MessageTypeId() uint16   { return 84 }
-func (*PlayerFosterFriendCatList) MessageTypeName() string { return "PlayerFosterFriendCatList" }
-
-func (m *PlayerFosterFriendCatList) GetList() []*PlayerFosterFriendCat {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerFosterCatOnFriend struct {
-	CatId            *int32 `protobuf:"varint,1,opt" json:"CatId,omitempty"`
-	FriendId         *int32 `protobuf:"varint,2,opt" json:"FriendId,omitempty"`
-	FosterCardId     *int32 `protobuf:"varint,3,opt" json:"FosterCardId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerFosterCatOnFriend) Reset()                { *m = PlayerFosterCatOnFriend{} }
-func (m *PlayerFosterCatOnFriend) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosterCatOnFriend) ProtoMessage()           {}
-func (*PlayerFosterCatOnFriend) MessageTypeId() uint16   { return 85 }
-func (*PlayerFosterCatOnFriend) MessageTypeName() string { return "PlayerFosterCatOnFriend" }
-
-func (m *PlayerFosterCatOnFriend) GetCatId() int32 {
-	if m != nil && m.CatId != nil {
-		return *m.CatId
-	}
-	return 0
-}
-
-func (m *PlayerFosterCatOnFriend) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
-	}
-	return 0
-}
-
-func (m *PlayerFosterCatOnFriend) GetFosterCardId() int32 {
-	if m != nil && m.FosterCardId != nil {
-		return *m.FosterCardId
-	}
-	return 0
-}
-
-type PlayerFosterCatOnFriendList struct {
-	List             []*PlayerFosterCatOnFriend `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte                     `json:"-"`
-}
-
-func (m *PlayerFosterCatOnFriendList) Reset()                { *m = PlayerFosterCatOnFriendList{} }
-func (m *PlayerFosterCatOnFriendList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosterCatOnFriendList) ProtoMessage()           {}
-func (*PlayerFosterCatOnFriendList) MessageTypeId() uint16   { return 86 }
-func (*PlayerFosterCatOnFriendList) MessageTypeName() string { return "PlayerFosterCatOnFriendList" }
-
-func (m *PlayerFosterCatOnFriendList) GetList() []*PlayerFosterCatOnFriend {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerFosteredFriendCat struct {
-	PlayerCatId      *int64  `protobuf:"varint,1,opt" json:"PlayerCatId,omitempty"`
-	CatTableId       *int32  `protobuf:"varint,2,opt" json:"CatTableId,omitempty"`
-	StartTime        *int32  `protobuf:"varint,3,opt" json:"StartTime,omitempty"`
-	StartCardId      *int32  `protobuf:"varint,4,opt" json:"StartCardId,omitempty"`
-	CatLevel         *int32  `protobuf:"varint,5,opt" json:"CatLevel,omitempty"`
-	CatStar          *int32  `protobuf:"varint,6,opt" json:"CatStar,omitempty"`
-	CatNick          *string `protobuf:"bytes,7,opt" json:"CatNick,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerFosteredFriendCat) Reset()                { *m = PlayerFosteredFriendCat{} }
-func (m *PlayerFosteredFriendCat) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosteredFriendCat) ProtoMessage()           {}
-func (*PlayerFosteredFriendCat) MessageTypeId() uint16   { return 87 }
-func (*PlayerFosteredFriendCat) MessageTypeName() string { return "PlayerFosteredFriendCat" }
-
-func (m *PlayerFosteredFriendCat) GetPlayerCatId() int64 {
-	if m != nil && m.PlayerCatId != nil {
-		return *m.PlayerCatId
-	}
-	return 0
-}
-
-func (m *PlayerFosteredFriendCat) GetCatTableId() int32 {
-	if m != nil && m.CatTableId != nil {
-		return *m.CatTableId
-	}
-	return 0
-}
-
-func (m *PlayerFosteredFriendCat) GetStartTime() int32 {
-	if m != nil && m.StartTime != nil {
-		return *m.StartTime
-	}
-	return 0
-}
-
-func (m *PlayerFosteredFriendCat) GetStartCardId() int32 {
-	if m != nil && m.StartCardId != nil {
-		return *m.StartCardId
-	}
-	return 0
-}
-
-func (m *PlayerFosteredFriendCat) GetCatLevel() int32 {
-	if m != nil && m.CatLevel != nil {
-		return *m.CatLevel
-	}
-	return 0
-}
-
-func (m *PlayerFosteredFriendCat) GetCatStar() int32 {
-	if m != nil && m.CatStar != nil {
-		return *m.CatStar
-	}
-	return 0
-}
-
-func (m *PlayerFosteredFriendCat) GetCatNick() string {
-	if m != nil && m.CatNick != nil {
-		return *m.CatNick
-	}
-	return ""
-}
-
-type PlayerFosteredFriendCatList struct {
-	List             []*PlayerFosteredFriendCat `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte                     `json:"-"`
-}
-
-func (m *PlayerFosteredFriendCatList) Reset()                { *m = PlayerFosteredFriendCatList{} }
-func (m *PlayerFosteredFriendCatList) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosteredFriendCatList) ProtoMessage()           {}
-func (*PlayerFosteredFriendCatList) MessageTypeId() uint16   { return 88 }
-func (*PlayerFosteredFriendCatList) MessageTypeName() string { return "PlayerFosteredFriendCatList" }
-
-func (m *PlayerFosteredFriendCatList) GetList() []*PlayerFosteredFriendCat {
-	if m != nil {
-		return m.List
-	}
-	return nil
-}
-
-type PlayerFosterIncomeForFriend struct {
-	PlayerCatId      *int64 `protobuf:"varint,1,opt" json:"PlayerCatId,omitempty"`
-	FosterCardId     *int32 `protobuf:"varint,2,opt" json:"FosterCardId,omitempty"`
-	CatTableId       *int32 `protobuf:"varint,3,opt" json:"CatTableId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerFosterIncomeForFriend) Reset()                { *m = PlayerFosterIncomeForFriend{} }
-func (m *PlayerFosterIncomeForFriend) String() string        { return proto.CompactTextString(m) }
-func (*PlayerFosterIncomeForFriend) ProtoMessage()           {}
-func (*PlayerFosterIncomeForFriend) MessageTypeId() uint16   { return 89 }
-func (*PlayerFosterIncomeForFriend) MessageTypeName() string { return "PlayerFosterIncomeForFriend" }
-
-func (m *PlayerFosterIncomeForFriend) GetPlayerCatId() int64 {
-	if m != nil && m.PlayerCatId != nil {
-		return *m.PlayerCatId
-	}
-	return 0
-}
-
-func (m *PlayerFosterIncomeForFriend) GetFosterCardId() int32 {
-	if m != nil && m.FosterCardId != nil {
-		return *m.FosterCardId
-	}
-	return 0
-}
-
-func (m *PlayerFosterIncomeForFriend) GetCatTableId() int32 {
-	if m != nil && m.CatTableId != nil {
-		return *m.CatTableId
-	}
-	return 0
-}
-
-type PlayerFosterIncomeForFriendList struct {
-	List             []*PlayerFosterIncomeForFriend `protobuf:"bytes,1,rep" json:"List,omitempty"`
-	XXX_unrecognized []byte                         `json:"-"`
-}
-
-func (m *PlayerFosterIncomeForFriendList) Reset()              { *m = PlayerFosterIncomeForFriendList{} }
-func (m *PlayerFosterIncomeForFriendList) String() string      { return proto.CompactTextString(m) }
-func (*PlayerFosterIncomeForFriendList) ProtoMessage()         {}
-func (*PlayerFosterIncomeForFriendList) MessageTypeId() uint16 { return 90 }
-func (*PlayerFosterIncomeForFriendList) MessageTypeName() string {
-	return "PlayerFosterIncomeForFriendList"
-}
-
-func (m *PlayerFosterIncomeForFriendList) GetList() []*PlayerFosterIncomeForFriend {
 	if m != nil {
 		return m.List
 	}
@@ -3140,7 +1844,7 @@ type PlayerWorldChat struct {
 func (m *PlayerWorldChat) Reset()                { *m = PlayerWorldChat{} }
 func (m *PlayerWorldChat) String() string        { return proto.CompactTextString(m) }
 func (*PlayerWorldChat) ProtoMessage()           {}
-func (*PlayerWorldChat) MessageTypeId() uint16   { return 91 }
+func (*PlayerWorldChat) MessageTypeId() uint16   { return 58 }
 func (*PlayerWorldChat) MessageTypeName() string { return "PlayerWorldChat" }
 
 func (m *PlayerWorldChat) GetLastChatTime() int32 {
@@ -3172,7 +1876,7 @@ type PlayerAnouncement struct {
 func (m *PlayerAnouncement) Reset()                { *m = PlayerAnouncement{} }
 func (m *PlayerAnouncement) String() string        { return proto.CompactTextString(m) }
 func (*PlayerAnouncement) ProtoMessage()           {}
-func (*PlayerAnouncement) MessageTypeId() uint16   { return 92 }
+func (*PlayerAnouncement) MessageTypeId() uint16   { return 59 }
 func (*PlayerAnouncement) MessageTypeName() string { return "PlayerAnouncement" }
 
 func (m *PlayerAnouncement) GetLastSendTime() int32 {
@@ -3191,7 +1895,7 @@ type PlayerFirstDrawCard struct {
 func (m *PlayerFirstDrawCard) Reset()                { *m = PlayerFirstDrawCard{} }
 func (m *PlayerFirstDrawCard) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFirstDrawCard) ProtoMessage()           {}
-func (*PlayerFirstDrawCard) MessageTypeId() uint16   { return 93 }
+func (*PlayerFirstDrawCard) MessageTypeId() uint16   { return 60 }
 func (*PlayerFirstDrawCard) MessageTypeName() string { return "PlayerFirstDrawCard" }
 
 func (m *PlayerFirstDrawCard) GetId() int32 {
@@ -3216,7 +1920,7 @@ type PlayerFirstDrawCardList struct {
 func (m *PlayerFirstDrawCardList) Reset()                { *m = PlayerFirstDrawCardList{} }
 func (m *PlayerFirstDrawCardList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerFirstDrawCardList) ProtoMessage()           {}
-func (*PlayerFirstDrawCardList) MessageTypeId() uint16   { return 94 }
+func (*PlayerFirstDrawCardList) MessageTypeId() uint16   { return 61 }
 func (*PlayerFirstDrawCardList) MessageTypeName() string { return "PlayerFirstDrawCardList" }
 
 func (m *PlayerFirstDrawCardList) GetList() []*PlayerFirstDrawCard {
@@ -3235,7 +1939,7 @@ type PlayerTalkForbid struct {
 func (m *PlayerTalkForbid) Reset()                { *m = PlayerTalkForbid{} }
 func (m *PlayerTalkForbid) String() string        { return proto.CompactTextString(m) }
 func (*PlayerTalkForbid) ProtoMessage()           {}
-func (*PlayerTalkForbid) MessageTypeId() uint16   { return 95 }
+func (*PlayerTalkForbid) MessageTypeId() uint16   { return 62 }
 func (*PlayerTalkForbid) MessageTypeName() string { return "PlayerTalkForbid" }
 
 func (m *PlayerTalkForbid) GetEndUnix() int32 {
@@ -3261,7 +1965,7 @@ type PlayerServerReward struct {
 func (m *PlayerServerReward) Reset()                { *m = PlayerServerReward{} }
 func (m *PlayerServerReward) String() string        { return proto.CompactTextString(m) }
 func (*PlayerServerReward) ProtoMessage()           {}
-func (*PlayerServerReward) MessageTypeId() uint16   { return 96 }
+func (*PlayerServerReward) MessageTypeId() uint16   { return 63 }
 func (*PlayerServerReward) MessageTypeName() string { return "PlayerServerReward" }
 
 func (m *PlayerServerReward) GetRewardId() int32 {
@@ -3286,7 +1990,7 @@ type PlayerServerRewardList struct {
 func (m *PlayerServerRewardList) Reset()                { *m = PlayerServerRewardList{} }
 func (m *PlayerServerRewardList) String() string        { return proto.CompactTextString(m) }
 func (*PlayerServerRewardList) ProtoMessage()           {}
-func (*PlayerServerRewardList) MessageTypeId() uint16   { return 97 }
+func (*PlayerServerRewardList) MessageTypeId() uint16   { return 64 }
 func (*PlayerServerRewardList) MessageTypeName() string { return "PlayerServerRewardList" }
 
 func (m *PlayerServerRewardList) GetList() []*PlayerServerReward {
@@ -3298,301 +2002,202 @@ func (m *PlayerServerRewardList) GetList() []*PlayerServerReward {
 
 const ID_SmallRankRecord uint16 = 1
 const ID_LimitShopItem uint16 = 2
-const ID_ExpeditionCon uint16 = 3
-const ID_ExpeditionEvent uint16 = 4
-const ID_PlayerInfo uint16 = 5
+const ID_PlayerInfo uint16 = 3
+const ID_PlayerRole uint16 = 4
+const ID_PlayerRoleList uint16 = 5
 const ID_PlayerStage uint16 = 6
 const ID_PlayerStageList uint16 = 7
 const ID_PlayerChapterUnLock uint16 = 8
 const ID_PlayerItem uint16 = 9
 const ID_PlayerItemList uint16 = 10
-const ID_PlayerArea uint16 = 11
-const ID_PlayerAreaList uint16 = 12
-const ID_PlayerBuilding uint16 = 13
-const ID_PlayerBuildingList uint16 = 14
-const ID_PlayerBuildingDepot uint16 = 15
-const ID_PlayerBuildingDepotList uint16 = 16
-const ID_PlayerDepotBuildingFormula uint16 = 17
-const ID_PlayerDepotBuildingFormulaList uint16 = 18
-const ID_PlayerMakingFormulaBuilding uint16 = 19
-const ID_PlayerMakingFormulaBuildingList uint16 = 20
-const ID_PlayerCrop uint16 = 21
-const ID_PlayerCropList uint16 = 22
-const ID_PlayerCat uint16 = 23
-const ID_PlayerCatList uint16 = 24
-const ID_PlayerCatHouse uint16 = 25
-const ID_PlayerCatHouseList uint16 = 26
-const ID_PlayerShopItem uint16 = 27
-const ID_PlayerShopItemList uint16 = 28
-const ID_PlayerShopLimitedInfo uint16 = 29
-const ID_PlayerShopLimitedInfoList uint16 = 30
-const ID_PlayerChest uint16 = 31
-const ID_PlayerChestList uint16 = 32
-const ID_PlayerMail uint16 = 33
-const ID_PlayerMailList uint16 = 34
-const ID_PlayerPayBack uint16 = 35
-const ID_PlayerPayBackList uint16 = 36
-const ID_PlayerOptions uint16 = 37
-const ID_PlayerDialyTask uint16 = 38
-const ID_PlayerDialyTaskList uint16 = 39
-const ID_PlayerAchieve uint16 = 40
-const ID_PlayerAchieveList uint16 = 41
-const ID_PlayerFinishedAchieve uint16 = 42
-const ID_PlayerFinishedAchieveList uint16 = 43
-const ID_PlayerDailyTaskWholeDaily uint16 = 44
-const ID_PlayerDailyTaskWholeDailyList uint16 = 45
-const ID_PlayerSevenActivity uint16 = 46
-const ID_PlayerSevenActivityList uint16 = 47
-const ID_PlayerSignInfo uint16 = 48
-const ID_PlayerGuides uint16 = 49
-const ID_PlayerGuidesList uint16 = 50
-const ID_PlayerFriendRelative uint16 = 51
-const ID_PlayerFriend uint16 = 52
-const ID_PlayerFriendList uint16 = 53
-const ID_PlayerFriendReq uint16 = 54
-const ID_PlayerFriendReqList uint16 = 55
-const ID_PlayerFriendPoint uint16 = 56
-const ID_PlayerFriendPointList uint16 = 57
-const ID_PlayerFriendChatUnreadId uint16 = 58
-const ID_PlayerFriendChatUnreadIdList uint16 = 59
-const ID_PlayerFriendChatUnreadMessage uint16 = 60
-const ID_PlayerFriendChatUnreadMessageList uint16 = 61
-const ID_PlayerFocusPlayer uint16 = 62
-const ID_PlayerFocusPlayerList uint16 = 63
-const ID_PlayerBeFocusPlayer uint16 = 64
-const ID_PlayerBeFocusPlayerList uint16 = 65
-const ID_PlayerCustomData uint16 = 66
-const ID_PlayerChaterOpenRequest uint16 = 67
-const ID_PlayerExpedition uint16 = 68
-const ID_PlayerExpeditionList uint16 = 69
-const ID_PlayerHandbookItem uint16 = 70
-const ID_PlayerHandbookItemList uint16 = 71
-const ID_PlayerHeadItem uint16 = 72
-const ID_PlayerHeadItemList uint16 = 73
-const ID_PlayerActivity uint16 = 74
-const ID_PlayerActivityList uint16 = 75
-const ID_PlayerSuitAward uint16 = 76
-const ID_PlayerSuitAwardList uint16 = 77
-const ID_PlayerZan uint16 = 78
-const ID_PlayerZanList uint16 = 79
-const ID_PlayerFoster uint16 = 80
-const ID_PlayerFosterCat uint16 = 81
-const ID_PlayerFosterCatList uint16 = 82
-const ID_PlayerFosterFriendCat uint16 = 83
-const ID_PlayerFosterFriendCatList uint16 = 84
-const ID_PlayerFosterCatOnFriend uint16 = 85
-const ID_PlayerFosterCatOnFriendList uint16 = 86
-const ID_PlayerFosteredFriendCat uint16 = 87
-const ID_PlayerFosteredFriendCatList uint16 = 88
-const ID_PlayerFosterIncomeForFriend uint16 = 89
-const ID_PlayerFosterIncomeForFriendList uint16 = 90
-const ID_PlayerWorldChat uint16 = 91
-const ID_PlayerAnouncement uint16 = 92
-const ID_PlayerFirstDrawCard uint16 = 93
-const ID_PlayerFirstDrawCardList uint16 = 94
-const ID_PlayerTalkForbid uint16 = 95
-const ID_PlayerServerReward uint16 = 96
-const ID_PlayerServerRewardList uint16 = 97
+const ID_PlayerShopItem uint16 = 11
+const ID_PlayerShopItemList uint16 = 12
+const ID_PlayerShopLimitedInfo uint16 = 13
+const ID_PlayerShopLimitedInfoList uint16 = 14
+const ID_PlayerChest uint16 = 15
+const ID_PlayerChestList uint16 = 16
+const ID_PlayerMail uint16 = 17
+const ID_PlayerMailList uint16 = 18
+const ID_PlayerPayBack uint16 = 19
+const ID_PlayerPayBackList uint16 = 20
+const ID_PlayerOptions uint16 = 21
+const ID_PlayerDialyTask uint16 = 22
+const ID_PlayerDialyTaskList uint16 = 23
+const ID_PlayerAchieve uint16 = 24
+const ID_PlayerAchieveList uint16 = 25
+const ID_PlayerFinishedAchieve uint16 = 26
+const ID_PlayerFinishedAchieveList uint16 = 27
+const ID_PlayerDailyTaskWholeDaily uint16 = 28
+const ID_PlayerDailyTaskWholeDailyList uint16 = 29
+const ID_PlayerSevenActivity uint16 = 30
+const ID_PlayerSevenActivityList uint16 = 31
+const ID_PlayerSignInfo uint16 = 32
+const ID_PlayerGuides uint16 = 33
+const ID_PlayerGuidesList uint16 = 34
+const ID_PlayerFriendRelative uint16 = 35
+const ID_PlayerFriend uint16 = 36
+const ID_PlayerFriendList uint16 = 37
+const ID_PlayerFriendReq uint16 = 38
+const ID_PlayerFriendReqList uint16 = 39
+const ID_PlayerFriendPoint uint16 = 40
+const ID_PlayerFriendPointList uint16 = 41
+const ID_PlayerFriendChatUnreadId uint16 = 42
+const ID_PlayerFriendChatUnreadIdList uint16 = 43
+const ID_PlayerFriendChatUnreadMessage uint16 = 44
+const ID_PlayerFriendChatUnreadMessageList uint16 = 45
+const ID_PlayerCustomData uint16 = 46
+const ID_PlayerChaterOpenRequest uint16 = 47
+const ID_PlayerHandbookItem uint16 = 48
+const ID_PlayerHandbookItemList uint16 = 49
+const ID_PlayerHeadItem uint16 = 50
+const ID_PlayerHeadItemList uint16 = 51
+const ID_PlayerActivity uint16 = 52
+const ID_PlayerActivityList uint16 = 53
+const ID_PlayerSuitAward uint16 = 54
+const ID_PlayerSuitAwardList uint16 = 55
+const ID_PlayerZan uint16 = 56
+const ID_PlayerZanList uint16 = 57
+const ID_PlayerWorldChat uint16 = 58
+const ID_PlayerAnouncement uint16 = 59
+const ID_PlayerFirstDrawCard uint16 = 60
+const ID_PlayerFirstDrawCardList uint16 = 61
+const ID_PlayerTalkForbid uint16 = 62
+const ID_PlayerServerReward uint16 = 63
+const ID_PlayerServerRewardList uint16 = 64
 const ID_ACK uint16 = 0xFFFF
 
 var MessageNames = map[uint16]string{
 	1:      "SmallRankRecord",
 	2:      "LimitShopItem",
-	3:      "ExpeditionCon",
-	4:      "ExpeditionEvent",
-	5:      "PlayerInfo",
+	3:      "PlayerInfo",
+	4:      "PlayerRole",
+	5:      "PlayerRoleList",
 	6:      "PlayerStage",
 	7:      "PlayerStageList",
 	8:      "PlayerChapterUnLock",
 	9:      "PlayerItem",
 	10:     "PlayerItemList",
-	11:     "PlayerArea",
-	12:     "PlayerAreaList",
-	13:     "PlayerBuilding",
-	14:     "PlayerBuildingList",
-	15:     "PlayerBuildingDepot",
-	16:     "PlayerBuildingDepotList",
-	17:     "PlayerDepotBuildingFormula",
-	18:     "PlayerDepotBuildingFormulaList",
-	19:     "PlayerMakingFormulaBuilding",
-	20:     "PlayerMakingFormulaBuildingList",
-	21:     "PlayerCrop",
-	22:     "PlayerCropList",
-	23:     "PlayerCat",
-	24:     "PlayerCatList",
-	25:     "PlayerCatHouse",
-	26:     "PlayerCatHouseList",
-	27:     "PlayerShopItem",
-	28:     "PlayerShopItemList",
-	29:     "PlayerShopLimitedInfo",
-	30:     "PlayerShopLimitedInfoList",
-	31:     "PlayerChest",
-	32:     "PlayerChestList",
-	33:     "PlayerMail",
-	34:     "PlayerMailList",
-	35:     "PlayerPayBack",
-	36:     "PlayerPayBackList",
-	37:     "PlayerOptions",
-	38:     "PlayerDialyTask",
-	39:     "PlayerDialyTaskList",
-	40:     "PlayerAchieve",
-	41:     "PlayerAchieveList",
-	42:     "PlayerFinishedAchieve",
-	43:     "PlayerFinishedAchieveList",
-	44:     "PlayerDailyTaskWholeDaily",
-	45:     "PlayerDailyTaskWholeDailyList",
-	46:     "PlayerSevenActivity",
-	47:     "PlayerSevenActivityList",
-	48:     "PlayerSignInfo",
-	49:     "PlayerGuides",
-	50:     "PlayerGuidesList",
-	51:     "PlayerFriendRelative",
-	52:     "PlayerFriend",
-	53:     "PlayerFriendList",
-	54:     "PlayerFriendReq",
-	55:     "PlayerFriendReqList",
-	56:     "PlayerFriendPoint",
-	57:     "PlayerFriendPointList",
-	58:     "PlayerFriendChatUnreadId",
-	59:     "PlayerFriendChatUnreadIdList",
-	60:     "PlayerFriendChatUnreadMessage",
-	61:     "PlayerFriendChatUnreadMessageList",
-	62:     "PlayerFocusPlayer",
-	63:     "PlayerFocusPlayerList",
-	64:     "PlayerBeFocusPlayer",
-	65:     "PlayerBeFocusPlayerList",
-	66:     "PlayerCustomData",
-	67:     "PlayerChaterOpenRequest",
-	68:     "PlayerExpedition",
-	69:     "PlayerExpeditionList",
-	70:     "PlayerHandbookItem",
-	71:     "PlayerHandbookItemList",
-	72:     "PlayerHeadItem",
-	73:     "PlayerHeadItemList",
-	74:     "PlayerActivity",
-	75:     "PlayerActivityList",
-	76:     "PlayerSuitAward",
-	77:     "PlayerSuitAwardList",
-	78:     "PlayerZan",
-	79:     "PlayerZanList",
-	80:     "PlayerFoster",
-	81:     "PlayerFosterCat",
-	82:     "PlayerFosterCatList",
-	83:     "PlayerFosterFriendCat",
-	84:     "PlayerFosterFriendCatList",
-	85:     "PlayerFosterCatOnFriend",
-	86:     "PlayerFosterCatOnFriendList",
-	87:     "PlayerFosteredFriendCat",
-	88:     "PlayerFosteredFriendCatList",
-	89:     "PlayerFosterIncomeForFriend",
-	90:     "PlayerFosterIncomeForFriendList",
-	91:     "PlayerWorldChat",
-	92:     "PlayerAnouncement",
-	93:     "PlayerFirstDrawCard",
-	94:     "PlayerFirstDrawCardList",
-	95:     "PlayerTalkForbid",
-	96:     "PlayerServerReward",
-	97:     "PlayerServerRewardList",
+	11:     "PlayerShopItem",
+	12:     "PlayerShopItemList",
+	13:     "PlayerShopLimitedInfo",
+	14:     "PlayerShopLimitedInfoList",
+	15:     "PlayerChest",
+	16:     "PlayerChestList",
+	17:     "PlayerMail",
+	18:     "PlayerMailList",
+	19:     "PlayerPayBack",
+	20:     "PlayerPayBackList",
+	21:     "PlayerOptions",
+	22:     "PlayerDialyTask",
+	23:     "PlayerDialyTaskList",
+	24:     "PlayerAchieve",
+	25:     "PlayerAchieveList",
+	26:     "PlayerFinishedAchieve",
+	27:     "PlayerFinishedAchieveList",
+	28:     "PlayerDailyTaskWholeDaily",
+	29:     "PlayerDailyTaskWholeDailyList",
+	30:     "PlayerSevenActivity",
+	31:     "PlayerSevenActivityList",
+	32:     "PlayerSignInfo",
+	33:     "PlayerGuides",
+	34:     "PlayerGuidesList",
+	35:     "PlayerFriendRelative",
+	36:     "PlayerFriend",
+	37:     "PlayerFriendList",
+	38:     "PlayerFriendReq",
+	39:     "PlayerFriendReqList",
+	40:     "PlayerFriendPoint",
+	41:     "PlayerFriendPointList",
+	42:     "PlayerFriendChatUnreadId",
+	43:     "PlayerFriendChatUnreadIdList",
+	44:     "PlayerFriendChatUnreadMessage",
+	45:     "PlayerFriendChatUnreadMessageList",
+	46:     "PlayerCustomData",
+	47:     "PlayerChaterOpenRequest",
+	48:     "PlayerHandbookItem",
+	49:     "PlayerHandbookItemList",
+	50:     "PlayerHeadItem",
+	51:     "PlayerHeadItemList",
+	52:     "PlayerActivity",
+	53:     "PlayerActivityList",
+	54:     "PlayerSuitAward",
+	55:     "PlayerSuitAwardList",
+	56:     "PlayerZan",
+	57:     "PlayerZanList",
+	58:     "PlayerWorldChat",
+	59:     "PlayerAnouncement",
+	60:     "PlayerFirstDrawCard",
+	61:     "PlayerFirstDrawCardList",
+	62:     "PlayerTalkForbid",
+	63:     "PlayerServerReward",
+	64:     "PlayerServerRewardList",
 	0xFFFF: "ACK",
 }
 var MessageTypes = map[uint16]reflect.Type{
 	1:  reflect.TypeOf(SmallRankRecord{}),
 	2:  reflect.TypeOf(LimitShopItem{}),
-	3:  reflect.TypeOf(ExpeditionCon{}),
-	4:  reflect.TypeOf(ExpeditionEvent{}),
-	5:  reflect.TypeOf(PlayerInfo{}),
+	3:  reflect.TypeOf(PlayerInfo{}),
+	4:  reflect.TypeOf(PlayerRole{}),
+	5:  reflect.TypeOf(PlayerRoleList{}),
 	6:  reflect.TypeOf(PlayerStage{}),
 	7:  reflect.TypeOf(PlayerStageList{}),
 	8:  reflect.TypeOf(PlayerChapterUnLock{}),
 	9:  reflect.TypeOf(PlayerItem{}),
 	10: reflect.TypeOf(PlayerItemList{}),
-	11: reflect.TypeOf(PlayerArea{}),
-	12: reflect.TypeOf(PlayerAreaList{}),
-	13: reflect.TypeOf(PlayerBuilding{}),
-	14: reflect.TypeOf(PlayerBuildingList{}),
-	15: reflect.TypeOf(PlayerBuildingDepot{}),
-	16: reflect.TypeOf(PlayerBuildingDepotList{}),
-	17: reflect.TypeOf(PlayerDepotBuildingFormula{}),
-	18: reflect.TypeOf(PlayerDepotBuildingFormulaList{}),
-	19: reflect.TypeOf(PlayerMakingFormulaBuilding{}),
-	20: reflect.TypeOf(PlayerMakingFormulaBuildingList{}),
-	21: reflect.TypeOf(PlayerCrop{}),
-	22: reflect.TypeOf(PlayerCropList{}),
-	23: reflect.TypeOf(PlayerCat{}),
-	24: reflect.TypeOf(PlayerCatList{}),
-	25: reflect.TypeOf(PlayerCatHouse{}),
-	26: reflect.TypeOf(PlayerCatHouseList{}),
-	27: reflect.TypeOf(PlayerShopItem{}),
-	28: reflect.TypeOf(PlayerShopItemList{}),
-	29: reflect.TypeOf(PlayerShopLimitedInfo{}),
-	30: reflect.TypeOf(PlayerShopLimitedInfoList{}),
-	31: reflect.TypeOf(PlayerChest{}),
-	32: reflect.TypeOf(PlayerChestList{}),
-	33: reflect.TypeOf(PlayerMail{}),
-	34: reflect.TypeOf(PlayerMailList{}),
-	35: reflect.TypeOf(PlayerPayBack{}),
-	36: reflect.TypeOf(PlayerPayBackList{}),
-	37: reflect.TypeOf(PlayerOptions{}),
-	38: reflect.TypeOf(PlayerDialyTask{}),
-	39: reflect.TypeOf(PlayerDialyTaskList{}),
-	40: reflect.TypeOf(PlayerAchieve{}),
-	41: reflect.TypeOf(PlayerAchieveList{}),
-	42: reflect.TypeOf(PlayerFinishedAchieve{}),
-	43: reflect.TypeOf(PlayerFinishedAchieveList{}),
-	44: reflect.TypeOf(PlayerDailyTaskWholeDaily{}),
-	45: reflect.TypeOf(PlayerDailyTaskWholeDailyList{}),
-	46: reflect.TypeOf(PlayerSevenActivity{}),
-	47: reflect.TypeOf(PlayerSevenActivityList{}),
-	48: reflect.TypeOf(PlayerSignInfo{}),
-	49: reflect.TypeOf(PlayerGuides{}),
-	50: reflect.TypeOf(PlayerGuidesList{}),
-	51: reflect.TypeOf(PlayerFriendRelative{}),
-	52: reflect.TypeOf(PlayerFriend{}),
-	53: reflect.TypeOf(PlayerFriendList{}),
-	54: reflect.TypeOf(PlayerFriendReq{}),
-	55: reflect.TypeOf(PlayerFriendReqList{}),
-	56: reflect.TypeOf(PlayerFriendPoint{}),
-	57: reflect.TypeOf(PlayerFriendPointList{}),
-	58: reflect.TypeOf(PlayerFriendChatUnreadId{}),
-	59: reflect.TypeOf(PlayerFriendChatUnreadIdList{}),
-	60: reflect.TypeOf(PlayerFriendChatUnreadMessage{}),
-	61: reflect.TypeOf(PlayerFriendChatUnreadMessageList{}),
-	62: reflect.TypeOf(PlayerFocusPlayer{}),
-	63: reflect.TypeOf(PlayerFocusPlayerList{}),
-	64: reflect.TypeOf(PlayerBeFocusPlayer{}),
-	65: reflect.TypeOf(PlayerBeFocusPlayerList{}),
-	66: reflect.TypeOf(PlayerCustomData{}),
-	67: reflect.TypeOf(PlayerChaterOpenRequest{}),
-	68: reflect.TypeOf(PlayerExpedition{}),
-	69: reflect.TypeOf(PlayerExpeditionList{}),
-	70: reflect.TypeOf(PlayerHandbookItem{}),
-	71: reflect.TypeOf(PlayerHandbookItemList{}),
-	72: reflect.TypeOf(PlayerHeadItem{}),
-	73: reflect.TypeOf(PlayerHeadItemList{}),
-	74: reflect.TypeOf(PlayerActivity{}),
-	75: reflect.TypeOf(PlayerActivityList{}),
-	76: reflect.TypeOf(PlayerSuitAward{}),
-	77: reflect.TypeOf(PlayerSuitAwardList{}),
-	78: reflect.TypeOf(PlayerZan{}),
-	79: reflect.TypeOf(PlayerZanList{}),
-	80: reflect.TypeOf(PlayerFoster{}),
-	81: reflect.TypeOf(PlayerFosterCat{}),
-	82: reflect.TypeOf(PlayerFosterCatList{}),
-	83: reflect.TypeOf(PlayerFosterFriendCat{}),
-	84: reflect.TypeOf(PlayerFosterFriendCatList{}),
-	85: reflect.TypeOf(PlayerFosterCatOnFriend{}),
-	86: reflect.TypeOf(PlayerFosterCatOnFriendList{}),
-	87: reflect.TypeOf(PlayerFosteredFriendCat{}),
-	88: reflect.TypeOf(PlayerFosteredFriendCatList{}),
-	89: reflect.TypeOf(PlayerFosterIncomeForFriend{}),
-	90: reflect.TypeOf(PlayerFosterIncomeForFriendList{}),
-	91: reflect.TypeOf(PlayerWorldChat{}),
-	92: reflect.TypeOf(PlayerAnouncement{}),
-	93: reflect.TypeOf(PlayerFirstDrawCard{}),
-	94: reflect.TypeOf(PlayerFirstDrawCardList{}),
-	95: reflect.TypeOf(PlayerTalkForbid{}),
-	96: reflect.TypeOf(PlayerServerReward{}),
-	97: reflect.TypeOf(PlayerServerRewardList{}),
+	11: reflect.TypeOf(PlayerShopItem{}),
+	12: reflect.TypeOf(PlayerShopItemList{}),
+	13: reflect.TypeOf(PlayerShopLimitedInfo{}),
+	14: reflect.TypeOf(PlayerShopLimitedInfoList{}),
+	15: reflect.TypeOf(PlayerChest{}),
+	16: reflect.TypeOf(PlayerChestList{}),
+	17: reflect.TypeOf(PlayerMail{}),
+	18: reflect.TypeOf(PlayerMailList{}),
+	19: reflect.TypeOf(PlayerPayBack{}),
+	20: reflect.TypeOf(PlayerPayBackList{}),
+	21: reflect.TypeOf(PlayerOptions{}),
+	22: reflect.TypeOf(PlayerDialyTask{}),
+	23: reflect.TypeOf(PlayerDialyTaskList{}),
+	24: reflect.TypeOf(PlayerAchieve{}),
+	25: reflect.TypeOf(PlayerAchieveList{}),
+	26: reflect.TypeOf(PlayerFinishedAchieve{}),
+	27: reflect.TypeOf(PlayerFinishedAchieveList{}),
+	28: reflect.TypeOf(PlayerDailyTaskWholeDaily{}),
+	29: reflect.TypeOf(PlayerDailyTaskWholeDailyList{}),
+	30: reflect.TypeOf(PlayerSevenActivity{}),
+	31: reflect.TypeOf(PlayerSevenActivityList{}),
+	32: reflect.TypeOf(PlayerSignInfo{}),
+	33: reflect.TypeOf(PlayerGuides{}),
+	34: reflect.TypeOf(PlayerGuidesList{}),
+	35: reflect.TypeOf(PlayerFriendRelative{}),
+	36: reflect.TypeOf(PlayerFriend{}),
+	37: reflect.TypeOf(PlayerFriendList{}),
+	38: reflect.TypeOf(PlayerFriendReq{}),
+	39: reflect.TypeOf(PlayerFriendReqList{}),
+	40: reflect.TypeOf(PlayerFriendPoint{}),
+	41: reflect.TypeOf(PlayerFriendPointList{}),
+	42: reflect.TypeOf(PlayerFriendChatUnreadId{}),
+	43: reflect.TypeOf(PlayerFriendChatUnreadIdList{}),
+	44: reflect.TypeOf(PlayerFriendChatUnreadMessage{}),
+	45: reflect.TypeOf(PlayerFriendChatUnreadMessageList{}),
+	46: reflect.TypeOf(PlayerCustomData{}),
+	47: reflect.TypeOf(PlayerChaterOpenRequest{}),
+	48: reflect.TypeOf(PlayerHandbookItem{}),
+	49: reflect.TypeOf(PlayerHandbookItemList{}),
+	50: reflect.TypeOf(PlayerHeadItem{}),
+	51: reflect.TypeOf(PlayerHeadItemList{}),
+	52: reflect.TypeOf(PlayerActivity{}),
+	53: reflect.TypeOf(PlayerActivityList{}),
+	54: reflect.TypeOf(PlayerSuitAward{}),
+	55: reflect.TypeOf(PlayerSuitAwardList{}),
+	56: reflect.TypeOf(PlayerZan{}),
+	57: reflect.TypeOf(PlayerZanList{}),
+	58: reflect.TypeOf(PlayerWorldChat{}),
+	59: reflect.TypeOf(PlayerAnouncement{}),
+	60: reflect.TypeOf(PlayerFirstDrawCard{}),
+	61: reflect.TypeOf(PlayerFirstDrawCardList{}),
+	62: reflect.TypeOf(PlayerTalkForbid{}),
+	63: reflect.TypeOf(PlayerServerReward{}),
+	64: reflect.TypeOf(PlayerServerRewardList{}),
 }
 
 func init() {

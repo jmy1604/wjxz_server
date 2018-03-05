@@ -2,11 +2,11 @@ package main
 
 import (
 	"libs/log"
+	"main/table_config"
 	"math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"time"
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -66,20 +66,19 @@ func (this *Player) drop_item(drop_lib *table_config.DropCardTypeLib, check_same
 				item.ItemNum = proto.Int32(num)
 
 			} else if nil != cat_table_mgr.Map[tmp_item.DropType] {
-				if badd {
+				/*if badd {
 					cat = this.AddCat(tmp_item.DropType, "draw", "player", true)
 				} else {
 					cat = &msg_client_message.CatInfo{}
 					cat.CatCfgId = proto.Int32(tmp_item.DropType)
-				}
+				}*/
 			} else if nil != cfg_building_mgr.Map[tmp_item.DropType] {
-				if badd {
+				/*if badd {
 					this.AddDepotBuilding(tmp_item.DropType, num, "draw", "draw_building", true)
 				}
 				building = &msg_client_message.DepotBuildingInfo{}
 				building.CfgId = proto.Int32(tmp_item.DropType)
-				building.Num = proto.Int32(num)
-
+				building.Num = proto.Int32(num)*/
 			} else {
 				if badd {
 					if this.AddItemResource(tmp_item.DropType, num, "draw", "draw_item_resource") < 0 {
@@ -205,10 +204,10 @@ func (this *Player) DropItems3(items_info []int32, items map[int32]*msg_client_m
 						_, num := rand31n_from_range(tmp_item.Min, tmp_item.Max)
 						items[tmp_item.DropType] = this.AddItem(tmp_item.DropType, num, "draw", "player", true)
 					} else if nil != cat_table_mgr.Map[tmp_item.DropType] {
-						cats[tmp_item.DropType] = this.AddCat(tmp_item.DropType, "draw", "player", true)
+						//cats[tmp_item.DropType] = this.AddCat(tmp_item.DropType, "draw", "player", true)
 					} else if nil != cfg_building_mgr.Map[tmp_item.DropType] {
-						_, num := rand31n_from_range(tmp_item.Min, tmp_item.Max)
-						buildings[tmp_item.DropType] = this.AddDepotBuilding(tmp_item.DropType, num, "draw", "draw_building", true)
+						//_, num := rand31n_from_range(tmp_item.Min, tmp_item.Max)
+						//buildings[tmp_item.DropType] = this.AddDepotBuilding(tmp_item.DropType, num, "draw", "draw_building", true)
 					} else {
 						log.Error("C2SDrawHandler rand dropid[%d] not item or cat", tmp_item.DropType)
 					}
@@ -261,10 +260,7 @@ func (this *Player) DrawCard(draw_type, draw_count int32) int32 {
 
 	this.RemoveItemResource(extract.CostId, extract.CostNum*draw_count, "draw_card", "draw")
 
-	this.SendCatsUpdate()
 	this.SendItemsUpdate()
-	this.SendDepotBuildingUpdate()
-
 	this.Send(res2cli)
 
 	return 1

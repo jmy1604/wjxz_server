@@ -1,4 +1,6 @@
-go install youma/table_config
+set GOPATH=D:\work\wjxz_server
+
+go install main/table_config
 if errorlevel 1 goto exit
 
 if errorlevel 0 goto ok

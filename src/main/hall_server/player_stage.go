@@ -3,13 +3,13 @@ package main
 import (
 	"libs/log"
 	"libs/timer"
+	"main/table_config"
 	"math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/server_message"
 	"sync"
 	"time"
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -108,12 +108,6 @@ func (this *Player) CheckBeginStage(data *StageBeginData) bool {
 	}
 
 	this.SubSpirit(level.NeedPower, "pass_stage", "stage")
-
-	if data.cat_id > 0 {
-		if !this.db.Cats.HasIndex(data.cat_id) {
-			return false
-		}
-	}
 
 	if data.item_ids != nil {
 		items := make(map[int32]int32)
@@ -222,8 +216,6 @@ func (this *Player) ChkFinishStage(stageid, star, score int32, ret_msg *msg_clie
 
 	// 给予首次通关奖励
 	var tmp_item *msg_client_message.ItemInfo
-	var tmp_cat *msg_client_message.CatInfo
-	var tmp_building *msg_client_message.DepotBuildingInfo
 
 	ret_msg.Getitems = make([]*msg_client_message.ItemInfo, 0)
 	ret_msg.GetCats = make([]*msg_client_message.CatInfo, 0)
@@ -254,7 +246,7 @@ func (this *Player) ChkFinishStage(stageid, star, score int32, ret_msg *msg_clie
 	}
 
 	// 额外增加的金币
-	extra_coin := this.get_cat_match_ability(this.stage_cat_id) * stagecfg.CoinReward / 100
+	extra_coin := int32(0)
 	ret_msg.CatExtraAddCoin = proto.Int32(extra_coin)
 	log.Debug("@@@@ stage_cat_id[%v] extra_coin[%v]", this.stage_cat_id, extra_coin)
 
@@ -270,35 +262,21 @@ func (this *Player) ChkFinishStage(stageid, star, score int32, ret_msg *msg_clie
 	var b bool
 	if len(stagecfg.ExtraReward1) == 2 && rand.Int31n(100) < stagecfg.ExtraReward1[1] {
 		//this.AddItem(stagecfg.ExtraReward1, 1, "StagePass", "Stage", true)
-		b, tmp_item, tmp_cat, tmp_building = this.drop_item_by_id(stagecfg.ExtraReward1[0], false)
+		b, tmp_item, _, _ = this.drop_item_by_id(stagecfg.ExtraReward1[0], false)
 		if b {
 			if tmp_item != nil {
 				ret_msg.Getitems = append(ret_msg.Getitems, tmp_item)
 			}
-			if tmp_cat != nil {
-				ret_msg.GetCats = append(ret_msg.GetCats, tmp_cat)
-			}
-			if tmp_building != nil {
-				ret_msg.GetBuildings = append(ret_msg.GetBuildings, tmp_building)
-			}
-			//this.AddItem(stagecfg.ExtraReward1, 1, "StageFirstAllStar", "Stage", true)
 		}
 	}
 
 	if len(stagecfg.ExtraReward2) == 2 && rand.Int31n(100) < stagecfg.ExtraReward2[1] {
 		//this.AddItem(stagecfg.ExtraReward2, 1, "StagePass", "Stage", true)
-		b, tmp_item, tmp_cat, tmp_building = this.drop_item_by_id(stagecfg.ExtraReward2[0], false)
+		b, tmp_item, _, _ = this.drop_item_by_id(stagecfg.ExtraReward2[0], false)
 		if b {
 			if tmp_item != nil {
 				ret_msg.Getitems = append(ret_msg.Getitems, tmp_item)
 			}
-			if tmp_cat != nil {
-				ret_msg.GetCats = append(ret_msg.GetCats, tmp_cat)
-			}
-			if tmp_building != nil {
-				ret_msg.GetBuildings = append(ret_msg.GetBuildings, tmp_building)
-			}
-			//this.AddItem(stagecfg.ExtraReward2, 1, "StageFirstAllStar", "Stage", true)
 		}
 	}
 
@@ -435,11 +413,7 @@ func (p *Player) stage_pass(result int32, stageid int32, score int32, stars int3
 	log.Info("Stage Pass res %v", new_session.ret)
 
 	p.SendItemsUpdate()
-	p.SendCatsUpdate()
-	p.SendDepotBuildingUpdate()
-
 	p.Send(new_session.ret)
-
 	p.send_stage_info()
 
 	return 1

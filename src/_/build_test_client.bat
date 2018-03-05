@@ -1,7 +1,9 @@
-go build -o ../youma/test_client/test_client.exe youma/test_client
+set GOPATH=D:\work\wjxz_server
+
+go build -o ../main/test_client/test_client.exe main/test_client
 if errorlevel 1 goto exit
 
-go install youma/test_client
+go install main/test_client
 if errorlevel 1 goto exit
 
 if errorlevel 0 goto ok

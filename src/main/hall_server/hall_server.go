@@ -6,10 +6,10 @@ import (
 	"libs/rpc"
 	"libs/socket"
 	"libs/timer"
+	"main/table_config"
 	"public_message/gen_go/client_message"
 	"sync"
 	"time"
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -72,14 +72,8 @@ func (this *HallServer) OnInit() (err error) {
 	reg_player_friend_msg()
 	reg_player_stage_msg()
 	reg_player_draw_msg()
-	reg_player_building_msg()
-	reg_player_expedition_msg()
-	reg_player_areaunlock_msg()
 	reg_player_chapter_msg()
 	reg_player_activity_msg()
-	reg_player_foster_msg()
-	reg_player_foster_new_msg()
-	reg_player_personl_space_msg()
 
 	player_mgr.RegMsgHandler()
 

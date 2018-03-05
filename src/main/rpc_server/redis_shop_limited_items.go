@@ -2,10 +2,10 @@ package main
 
 import (
 	"libs/log"
+	"main/table_config"
 	"strconv"
 	"sync"
 	"time"
-	"youma/table_config"
 
 	"github.com/garyburd/redigo/redis"
 )

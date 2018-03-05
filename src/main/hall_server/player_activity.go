@@ -3,11 +3,10 @@ package main
 import (
 	"libs/log"
 	"libs/timer"
+	"main/table_config"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"time"
-
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -561,9 +560,6 @@ func (this *Player) GetActReward(act_cfg *table_config.XmlActivityItem, extras [
 				res2cil.Rewards = append(res2cil.Rewards, tmp_idnum)
 			}
 			this.SendItemsUpdate()
-			this.SendCatsUpdate()
-			this.SendDepotBuildingUpdate()
-
 			this.Send(res2cil)
 		}
 	}

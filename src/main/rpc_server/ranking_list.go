@@ -3,8 +3,8 @@ package main
 import (
 	"libs/log"
 	"libs/utils"
+	"main/rpc_common"
 	"sync"
-	"youma/rpc_common"
 )
 
 const (
@@ -353,112 +353,6 @@ func (this *RankCharmItem) CopyDataTo(node interface{}) {
 	n.PlayerId = this.PlayerId
 	n.PlayerLevel = this.PlayerLevel
 	n.Charm = this.Charm
-}
-
-/*欧气值*/
-func (this *RankOuqiItem) Less(value interface{}) bool {
-	item := value.(*RankOuqiItem)
-	if item == nil {
-		return false
-	}
-	if this.CatOuqi < item.CatOuqi {
-		return true
-	}
-	if this.CatOuqi == item.CatOuqi {
-		if this.SaveTime > item.SaveTime {
-			return true
-		}
-		if this.SaveTime == item.SaveTime {
-			if this.PlayerId < item.PlayerId {
-				return true
-			}
-			if this.PlayerId == item.PlayerId {
-				if this.CatId < item.CatId {
-					return true
-				}
-			}
-		}
-	}
-	return false
-}
-
-func (this *RankOuqiItem) Greater(value interface{}) bool {
-	item := value.(*RankOuqiItem)
-	if item == nil {
-		return false
-	}
-	if this.CatOuqi > item.CatOuqi {
-		return true
-	}
-	if this.CatOuqi == item.CatOuqi {
-		if this.SaveTime < item.SaveTime {
-			return true
-		}
-		if this.SaveTime == item.SaveTime {
-			if this.PlayerId > item.PlayerId {
-				return true
-			}
-			if this.PlayerId == item.PlayerId {
-				if this.CatId > item.CatId {
-					return true
-				}
-			}
-		}
-	}
-	return false
-}
-
-func (this *RankOuqiItem) KeyEqual(value interface{}) bool {
-	item := value.(*RankOuqiItem)
-	if item == nil {
-		return false
-	}
-	if this.PlayerId == item.PlayerId && this.CatId == item.CatId {
-		return true
-	}
-	return false
-}
-
-func (this *RankOuqiItem) GetKey() interface{} {
-	return utils.Int64From2Int32(this.PlayerId, this.CatId)
-}
-
-func (this *RankOuqiItem) GetValue() interface{} {
-	return this.CatOuqi
-}
-
-func (this *RankOuqiItem) New() utils.SkiplistNodeValue {
-	return &RankOuqiItem{}
-}
-
-func (this *RankOuqiItem) Assign(node utils.SkiplistNodeValue) {
-	n := node.(*RankOuqiItem)
-	if n != nil {
-		this.PlayerId = n.PlayerId
-		this.PlayerLevel = n.PlayerLevel
-		this.CatId = n.CatId
-		this.CatTableId = n.CatTableId
-		this.CatLevel = n.CatLevel
-		this.CatStar = n.CatStar
-		this.CatNick = n.CatNick
-		this.CatOuqi = n.CatOuqi
-		this.SaveTime = n.SaveTime
-	}
-}
-
-func (this *RankOuqiItem) CopyDataTo(node interface{}) {
-	n := node.(*rpc_common.H2R_RankCatOuqi)
-	if n == nil {
-		return
-	}
-	n.PlayerId = this.PlayerId
-	n.PlayerLevel = this.PlayerLevel
-	n.CatId = this.CatId
-	n.CatLevel = this.CatLevel
-	n.CatTableId = this.CatTableId
-	n.CatStar = this.CatStar
-	n.CatNick = this.CatNick
-	n.CatOuqi = this.CatOuqi
 }
 
 /*被赞*/

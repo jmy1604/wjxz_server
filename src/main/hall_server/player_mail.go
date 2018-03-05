@@ -280,9 +280,9 @@ func C2SGetMailAttachHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 				if nil != item_table_mgr.Map[obj_id] {
 					p.AddItem(obj_id, obj_num, "expedition_finish", "expedition", true)
 				} else if nil != cfg_building_mgr.Map[obj_id] {
-					p.AddDepotBuilding(obj_id, obj_num, "expedition_finish", "expedition", true)
+					//p.AddDepotBuilding(obj_id, obj_num, "expedition_finish", "expedition", true)
 				} else if nil != cat_table_mgr.Map[obj_id] {
-					p.AddCat(obj_id, "expedition_finish", "expedition", true)
+					//p.AddCat(obj_id, "expedition_finish", "expedition", true)
 				} else {
 					p.AddItemResource(obj_id, obj_num, "expedition_finish", "expedition")
 				}
@@ -328,9 +328,9 @@ func C2SGetMailAttachHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 			if nil != item_table_mgr.Map[obj_id] {
 				p.AddItem(obj_id, obj_num, "expedition_finish", "expedition", true)
 			} else if nil != cfg_building_mgr.Map[obj_id] {
-				p.AddDepotBuilding(obj_id, obj_num, "expedition_finish", "expedition", true)
+				//p.AddDepotBuilding(obj_id, obj_num, "expedition_finish", "expedition", true)
 			} else if nil != cat_table_mgr.Map[obj_id] {
-				p.AddCat(obj_id, "expedition_finish", "expedition", true)
+				//p.AddCat(obj_id, "expedition_finish", "expedition", true)
 			} else {
 				p.AddItemResource(obj_id, obj_num, "expedition_finish", "expedition")
 			}
@@ -359,8 +359,6 @@ func C2SGetMailAttachHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	}
 
 	p.SendItemsUpdate()
-	p.SendDepotBuildingUpdate()
-	p.SendCatsUpdate()
 
 	return 1
 }

@@ -3,12 +3,12 @@ package main
 import (
 	//"fmt"
 	"libs/log"
+	"main/table_config"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/server_message"
 	"sync"
 	"time"
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -21,6 +21,12 @@ const (
 	BUILDING_ADD_MSG_INIT_LEN = 5
 	BUILDING_ADD_MSG_ADD_STEP = 2
 )
+
+type Role struct {
+	id      int32
+	jingjie int32
+	level   int32
+}
 
 type PlayerMsgItem struct {
 	data          []byte
@@ -54,8 +60,7 @@ type Player struct {
 	cur_area_map_lock            *sync.RWMutex
 	cur_building_map             map[int32]int32
 	cur_open_pos_map             map[int32]int32
-	//cur_area_use_count      map[int32]int32
-	cur_areablocknum_map map[int32]int32
+	cur_areablocknum_map         map[int32]int32
 
 	b_base_prop_chg bool
 
@@ -198,14 +203,10 @@ func (this *Player) SendBaseInfo() {
 	res_2cli.Head = proto.String(this.db.Info.GetIcon())
 	res_2cli.CurMaxStage = proto.Int32(this.db.Info.GetCurMaxStage())
 	res_2cli.CurUnlockMaxStage = proto.Int32(this.db.Info.GetMaxUnlockStage())
-	res_2cli.CharmVal = proto.Int32(this.db.Info.GetCharmVal())
-	res_2cli.CatFood = proto.Int32(this.db.Info.GetCatFood())
 	res_2cli.Zan = proto.Int32(this.db.Info.GetZan())
 	res_2cli.FriendPoints = proto.Int32(this.db.Info.GetFriendPoints())
-	res_2cli.SoulStone = proto.Int32(this.db.Info.GetSoulStone())
 	res_2cli.Star = proto.Int32(this.db.Info.GetTotalStars())
 	res_2cli.Spirit = proto.Int32(this.CalcSpirit())
-	res_2cli.CharmMetal = proto.Int32(this.db.Info.GetCharmMedal())
 	res_2cli.HistoricalMaxStar = proto.Int32(this.db.Stages.GetTotalTopStar())
 	res_2cli.ChangeNameNum = proto.Int32(this.db.Info.GetChangeNameCount())
 	res_2cli.ChangeNameCostDiamond = proto.Int32(global_id.ChangeNameCostDiamond_58)
@@ -234,24 +235,7 @@ func (this *Player) PopCurMsgData() []byte {
 		this.SendBaseInfo()
 	}
 
-	over_ids := this.db.Buildings.ChkBuildingOver()
-	if len(over_ids) > 0 {
-		for id, _ := range over_ids {
-			this.item_cat_building_change_info.building_remove(this, id)
-		}
-
-		this.item_cat_building_change_info.send_buildings_update(this)
-	}
-
 	this.ChkSendActUpdate()
-
-	if this.ChkMapBlock() > 0 {
-		this.item_cat_building_change_info.send_buildings_update(this)
-	}
-
-	if this.ChkMapChest() > 0 {
-		this.item_cat_building_change_info.send_buildings_update(this)
-	}
 
 	this.ChkSendNotifyState()
 
@@ -342,39 +326,6 @@ func (this *Player) OnCreate() {
 		this.AddItemResource(tmp_cfgidnum.CfgId, tmp_cfgidnum.Num, "on_create", "player")
 	}
 
-	// 添加猫
-	for i := int32(0); i < global_config_mgr.GetGlobalConfig().InitCats_len; i++ {
-		tmp_cfgidnum = &global_config_mgr.GetGlobalConfig().InitCats[i]
-		this.AddCat(tmp_cfgidnum.CfgId, "on_create", "player", true)
-	}
-
-	// 初始化默认建筑
-	this.InitPlayerArea()
-	this.ChkUpdateMyBuildingAreas()
-
-	// 初始配方
-	init_formulas := global_config_mgr.GetGlobalConfig().InitFormulas
-	if init_formulas != nil {
-		for i := 0; i < len(init_formulas); i++ {
-			f := formula_table_mgr.Map[init_formulas[i]]
-			if f == nil {
-				log.Error("没有建筑配方[%v]配置", init_formulas[i])
-				continue
-			}
-			var data dbPlayerDepotBuildingFormulaData
-			data.Id = init_formulas[i]
-			this.db.DepotBuildingFormulas.Add(&data)
-		}
-	}
-
-	// 初始建筑
-	init_buildings := global_config_mgr.GetGlobalConfig().InitBuildings
-	if init_buildings != nil {
-		for i := 0; i < len(init_buildings)/2; i++ {
-			this.AddDepotBuilding(init_buildings[2*i], init_buildings[2*i+1], "on_create", "player", false)
-		}
-	}
-
 	return
 }
 
@@ -416,8 +367,6 @@ func reg_player_base_info_msg() {
 	// 角色
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetBaseInfo, C2SGetBaseInfoHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetItemInfos, C2SGetItemInfosHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetDepotBuildingInfos, C2SGetDepotBuildingInfosHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetCatInfos, C2SGetCatInfosHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetStageInfos, C2SGetStageInfosHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetOptions, C2SGetOptionsHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SSaveOptions, C2SSaveOptionsHandler)
@@ -428,51 +377,11 @@ func reg_player_base_info_msg() {
 	// 物品
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SUseItem, C2SUserItemHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SSellItem, C2SSellItemHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SComposeCat, C2SComposeCatHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SItemResource, C2SItemResourceHandler)
 
 	// 商店
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SShopItems, C2SShopItemsHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SBuyShopItem, C2SBuyShopItemHandler)
-
-	// 猫
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFeedCat, C2SFeedCatHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCatUpgradeStar, C2SCatUpgradeStarHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCatSkillLevelUp, C2SCatSkillLevelUpHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SRenameCatNick, C2SCatRenameNickHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SLockCat, C2SCatLockHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SDecomposeCat, C2SCatDecomposeHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SPlayerCatInfo, C2SPlayerCatInfoHandler)
-
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetInfo, C2SGetInfoHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2S_TEST_COMMAND, C2STestCommandHandler)
-
-	// 配方
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetMakingFormulaBuildings, C2SGetMakingFormulaBuildingsHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SExchangeBuildingFormula, C2SExchangeBuildingFormulaHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SMakeFormulaBuilding, C2SMakeFormulaBuildingHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SBuyMakeBuildingSlot, C2SBuyMakeBuildingSlotHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SSpeedupMakeBuilding, C2SSpeedupMakeBuildingHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetCompletedFormulaBuilding, C2SGetCompletedFormulaBuildingHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCancelMakingFormulaBuilding, C2SCancelMakingFormulaBuildingHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetFormulas, C2SGetFormulasHandler)
-
-	// 农田
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetCrops, C2SGetCropsHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SPlantCrop, C2SPlantCropHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SHarvestCrop, C2SHarvestCropHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCropSpeedup, C2SSpeedupCropHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SHarvestCrops, C2SHarvestCropsHandler)
-
-	// 猫舍
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetCatHousesInfo, C2SGetCatHousesInfoHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCatHouseAddCat, C2SCatHouseAddCatHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCatHouseRemoveCat, C2SCatHouseRemoveCatHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCatHouseStartLevelup, C2SCatHouseStartLevelupHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCatHouseSpeedLevelup, C2SCatHouseSpeedLevelupHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SSellCatHouse, C2SCatHouseSellHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SCatHouseGetGold, C2SCatHouseGetGoldHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SBuildingSetDone, C2SBuildingSetDoneHandler)
 
 	// 任务
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetDialyTaskInfo, C2SGetDialyTaskInfoHanlder)
@@ -506,22 +415,6 @@ func C2SGetBaseInfoHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 		return -1
 	}
 
-	/*res2cli := &msg_client_message.S2CRetBaseInfo{}
-	res2cli.Coins = proto.Int32(p.db.Info.GetCoin())
-	res2cli.Lvl = proto.Int32(p.db.Info.GetLvl())
-	res2cli.CurMaxStage = proto.Int32(p.db.Info.GetCurMaxStage())
-	res2cli.CurUnlockMaxStage = proto.Int32(p.db.Info.GetMaxUnlockStage())
-	res2cli.Diamonds = proto.Int32(p.db.Info.GetDiamond())
-	res2cli.Exp = proto.Int32(p.db.Info.GetExp())
-	res2cli.Nick = proto.String(p.db.GetName())
-	res2cli.Head = proto.String(p.db.Info.GetIcon())
-	res2cli.Star = proto.Int32(p.db.Info.GetTotalStars())
-	res2cli.Zan = proto.Int32(p.db.Info.GetZan())
-	res2cli.CatFood = proto.Int32(p.db.Info.GetCatFood())
-	res2cli.Spirit = proto.Int32(p.db.Info.GetSpirit())
-	res2cli.HistoricalMaxStar = proto.Int32(p.db.Stages.GetTotalTopStar())
-
-	p.Send(res2cli)*/
 	p.SendBaseInfo()
 
 	return 1
@@ -538,41 +431,6 @@ func C2SGetItemInfosHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	p.db.Items.FillAllMsg(res2cli)
 
 	log.Info("GetItem %v res %v", p.db.Items.GetAll(), res2cli)
-	p.Send(res2cli)
-
-	return 1
-}
-
-func C2SGetDepotBuildingInfosHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetDepotBuildingInfos)
-	if req == nil || p == nil {
-		log.Error("C2SGetDepotBuildingInfos req nil[%v]!", nil == req)
-		return -1
-	}
-
-	res2cli := &msg_client_message.S2CRetDepotBuildingInfos{}
-	p.db.BuildingDepots.FillAllMsg(res2cli)
-	p.Send(res2cli)
-	return 1
-}
-
-func C2SGetCatInfosHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetCatInfos)
-	if nil == req {
-		log.Error("C2SGetCatInfosHandler req nil [%v] !", nil == req)
-		return -1
-	}
-
-	res2cli := &msg_client_message.S2CRetCatInfos{}
-	p.db.Cats.FillAllMsg(res2cli)
-
-	cats := res2cli.GetCats()
-	if cats != nil {
-		for i := 0; i < len(cats); i++ {
-			cats[i].State = proto.Int32(p.GetCatState(cats[i].GetId()))
-		}
-	}
-
 	p.Send(res2cli)
 
 	return 1
@@ -754,15 +612,6 @@ func C2SSellItemHandler(w http.ResponseWriter, r *http.Request, p *Player, msg p
 	return p.sell_item(req.GetItemId(), req.GetItemNum())
 }
 
-func C2SComposeCatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SComposeCat)
-	if req == nil || p == nil {
-		log.Error("C2SComposeFragmentHandler req nil[%v]!", nil == req)
-		return -1
-	}
-	return p.compose_cat(req.GetCatConfigId())
-}
-
 func C2SItemResourceHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SItemResource)
 	if req == nil || p == nil {
@@ -822,80 +671,6 @@ func C2SBuyShopItemHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 	return p.buy_item(req.GetItemId(), req.GetItemNum(), true)
 }
 
-func C2SFeedCatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SFeedCat)
-	if req == nil || nil == p {
-		log.Error("C2SFeedCat proto is invalid")
-		return -1
-	}
-	need_food, add_exp, is_critical := p.feed_need_food(req.GetCatId())
-	if need_food <= 0 {
-		return need_food
-	}
-	curr_level, curr_exp, err := p.feed_cat(req.GetCatId(), need_food, add_exp, is_critical)
-	if err < 0 {
-		return err
-	}
-
-	response := &msg_client_message.S2CFeedCatResult{}
-	response.CatId = proto.Int32(req.GetCatId())
-	response.CatLevel = proto.Int32(curr_level)
-	response.CatExp = proto.Int32(curr_exp)
-	response.IsCritical = proto.Bool(is_critical)
-	p.Send(response)
-	return 1
-}
-
-func C2SCatUpgradeStarHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCatUpgradeStar)
-	if req == nil || nil == p {
-		log.Error("C2SCatUpgradeStar proto is invalid")
-		return -1
-	}
-	return p.cat_upstar(req.GetCatId(), req.GetCostCatIds())
-}
-
-func C2SCatSkillLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCatSkillLevelUp)
-	if req == nil || nil == p {
-		log.Error("C2SCatSkillLevelUp proto is invalid")
-		return -1
-	}
-	if req.GetCostCatIds() == nil {
-		log.Error("Player[%v] Cat[%v] skill level up need cost cat[%v]", p.Id, req.GetCatId(), req.GetCostCatIds())
-		return -1
-	}
-	return p.cat_skill_levelup(req.GetCatId(), req.GetCostCatIds())
-}
-
-func C2SCatRenameNickHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SRenameCatNick)
-	if req == nil || nil == p {
-		log.Error("C2SRenameCatNick proto is invalid")
-		return -1
-	}
-	return p.rename_cat(req.GetCatId(), req.GetNewNick())
-}
-
-func C2SCatLockHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SLockCat)
-	if req == nil || nil == p {
-		log.Error("C2SLockCat proto is invalid")
-		return -1
-	}
-
-	return p.lock_cat(req.GetCatId(), req.GetIsLock())
-}
-
-func C2SCatDecomposeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SDecomposeCat)
-	if req == nil || nil == p {
-		log.Error("C2SDecomposeCat proto is invalid")
-		return -1
-	}
-	return p.decompose_cat(req.GetCatId())
-}
-
 func (p *Player) send_stage_info() {
 	m := &msg_client_message.S2CRetStageInfos{}
 	cur_max_stage_id := p.db.Info.GetCurMaxStage()
@@ -947,279 +722,15 @@ func C2SGetInfoHandler(w http.ResponseWriter, r *http.Request, p *Player, msg pr
 		p.Send(m)
 	}
 
-	if req.GetCat() {
-		res2cli := &msg_client_message.S2CRetCatInfos{}
-		p.db.Cats.FillAllMsg(res2cli)
-		cats := res2cli.GetCats()
-		if cats != nil {
-			for i := 0; i < len(cats); i++ {
-				cats[i].State = proto.Int32(p.GetCatState(cats[i].GetId()))
-			}
-		}
-		p.Send(res2cli)
-	}
-
-	if req.GetBuilding() {
-		res2cli := &msg_client_message.S2CRetBuildingInfos{}
-		//p.db.Buildings.FillAllMsg(res2cli)
-		res2cli.Builds = p.check_and_fill_buildings_msg()
-		p.Send(res2cli)
-	}
-
-	if req.GetArea() {
-		m := &msg_client_message.S2CRetAreasInfos{}
-		p.db.Areas.FillAllMsg(m)
-		p.Send(m)
-	}
-
 	if req.GetStage() {
 		p.send_stage_info()
-	}
-
-	if req.GetFormula() {
-		p.get_formulas()
-	}
-
-	if req.GetDepotBuilding() {
-		m := &msg_client_message.S2CRetDepotBuildingInfos{}
-		p.db.BuildingDepots.FillAllMsg(m)
-		p.Send(m)
 	}
 
 	if req.GetGuide() {
 		p.SyncPlayerGuideData()
 	}
 
-	if req.GetCatHouse() {
-		p.get_cathouses_info()
-	}
-
-	if req.GetWorkShop() {
-		p.pull_formula_building()
-	}
-
-	if req.GetFarm() {
-		p.get_crops()
-	}
-
 	return 1
-}
-
-func C2SGetMakingFormulaBuildingsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetMakingFormulaBuildings)
-	if req == nil {
-		log.Error("C2SGetMakingFormulaBuildingsResult proto is invalid")
-		return -1
-	}
-	return p.pull_formula_building()
-}
-
-func C2SExchangeBuildingFormulaHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SExchangeBuildingFormula)
-	if req == nil {
-		log.Error("C2SExchangeBuildingFormula proto is invalid")
-		return -1
-	}
-	return p.exchange_formula(req.GetFormulaId())
-}
-
-func C2SMakeFormulaBuildingHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SMakeFormulaBuilding)
-	if req == nil {
-		log.Error("C2SMakeFormulaBuilding proto is invalid")
-		return -1
-	}
-	return p.make_formula_building(req.GetFormulaId() /*, req.GetSlotId()*/)
-}
-
-func C2SBuyMakeBuildingSlotHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SBuyMakeBuildingSlot)
-	if req == nil {
-		log.Error("C2SBuyMakeBuildingSlot proto is invalid")
-		return -1
-	}
-	return p.buy_new_making_building_slot()
-}
-
-func C2SSpeedupMakeBuildingHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SSpeedupMakeBuilding)
-	if req == nil {
-		log.Error("C2SSpeedupMakeBuilding proto is invalid")
-		return -1
-	}
-	return p.speedup_making_building( /*req.GetSlotId()*/ )
-}
-
-func C2SGetCompletedFormulaBuildingHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetCompletedFormulaBuilding)
-	if req == nil {
-		log.Error("C2SGetCompletedFormulaBuilding proto is invalid")
-		return -1
-	}
-	return p.get_completed_formula_building( /*req.GetSlotId()*/ )
-}
-
-func C2SCancelMakingFormulaBuildingHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCancelMakingFormulaBuilding)
-	if req == nil {
-		log.Error("C2SCancelMakingFormulaBuilding proto is invalid")
-		return -1
-	}
-	return p.cancel_making_formula_building(req.GetSlotId())
-}
-
-func C2SGetFormulasHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetFormulas)
-	if req == nil {
-		log.Error("C2SGetFormulas proto is invalid")
-		return -1
-	}
-	return p.get_formulas()
-}
-
-func C2SGetCropsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetCrops)
-	if req == nil {
-		log.Error("C2SGetCrops proto is invalid")
-		return -1
-	}
-	return p.get_crops()
-}
-
-func C2SPlantCropHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SPlantCrop)
-	if req == nil {
-		log.Error("C2SPlantCrop proto is invalid")
-		return -1
-	}
-	return p.plant_crop(req.GetCropId(), req.GetDestBuildingId())
-}
-
-func C2SSpeedupCropHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCropSpeedup)
-	if req == nil {
-		log.Error("C2SCropSpeedup proto is invalid")
-		return -1
-	}
-	return p.speedup_crop(req.GetFarmBuildingId())
-}
-
-func C2SHarvestCropHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SHarvestCrop)
-	if req == nil {
-		log.Error("C2SHarvestCrop proto is invalid")
-		return -1
-	}
-
-	return p.harvest_crop(req.GetFarmBuildingId(), req.GetIsSpeedup())
-}
-
-func C2SHarvestCropsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SHarvestCrops)
-	if req == nil {
-		log.Error("C2SHarvestCrops proto is invalid")
-		return -1
-	}
-
-	return p.harvest_crops(req.GetBuildingIds())
-}
-
-func C2SGetCatHousesInfoHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetCatHousesInfo)
-	if req == nil || p == nil {
-		log.Error("C2SGetCatHouses proto is invalid")
-		return -1
-	}
-	return p.get_cathouses_info()
-}
-
-func C2SCatHouseAddCatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCatHouseAddCat)
-	if req == nil {
-		log.Error("C2SCatHouseAddCat proto is invalid")
-		return -1
-	}
-
-	return p.cathouse_add_cat(req.GetCatId(), req.GetCatHouseId())
-}
-
-func C2SCatHouseRemoveCatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCatHouseRemoveCat)
-	if req == nil {
-		log.Error("C2SCatHouseRemoveCat proto is invalid")
-		return -1
-	}
-
-	return p.cathouse_remove_cat(req.GetCatId(), req.GetCatHouseId())
-}
-
-func C2SCatHouseStartLevelupHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCatHouseStartLevelup)
-	if req == nil {
-		log.Error("C2SCatHouseStartLevelup proto is invalid")
-		return -1
-	}
-
-	return p.cathouse_start_levelup(req.GetCatHouseId(), true)
-}
-
-func C2SCatHouseSpeedLevelupHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCatHouseSpeedLevelup)
-	if req == nil {
-		log.Error("C2SCatHouseSpeedLevelup proto is invalid")
-		return -1
-	}
-
-	return p.cathouse_speed_levelup(req.GetCatHouseId())
-}
-
-func C2SCatHouseSellHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SSellCatHouse)
-	if req == nil {
-		log.Error("C2SSellCatHouse proto is invalid")
-		return -1
-	}
-
-	return p.cathouse_remove(req.GetCatHouseId(), true)
-}
-
-func C2SCatHouseGetGoldHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCatHouseGetGold)
-	if req == nil {
-		log.Error("C2SCatHouseGetGold proto is invalid")
-		return -1
-	}
-
-	res := p.cathouse_collect_gold(req.GetCatHouseId())
-	if res < 0 {
-		return res
-	}
-	return 1
-}
-
-func C2SCatHousesGetGoldHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCatHousesGetGold)
-	if req == nil {
-		log.Error("C2SCatHousesGetGold proto is invalid")
-		return -1
-	}
-
-	if req.GetCatHouseIds() == nil {
-		log.Error("!!! Cat houses is empty")
-		return -1
-	}
-
-	return p.cathouses_collect_gold(req.GetCatHouseIds())
-}
-
-func C2SBuildingSetDoneHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SBuildingSetDone)
-	if req == nil {
-		log.Error("C2SBuildingSetDone proto is invalid")
-		return -1
-	}
-
-	return p.building_setdone(req.GetBuildingId())
 }
 
 func C2SHeartHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) (ret_val int32) {
@@ -1348,10 +859,7 @@ func C2SGetSuitHandbookRewardHandler(w http.ResponseWriter, r *http.Request, p *
 		}
 	}
 	p.Send(response)
-
 	p.SendItemsUpdate()
-	p.SendCatsUpdate()
-	p.SendBuildingUpdate()
 
 	return 1
 }
@@ -1510,58 +1018,6 @@ func (this *Player) get_charm_rank_list(rank_start, rank_num int32) int32 {
 	return 1
 }
 
-func (this *Player) get_cat_ouqi_rank_list(param, rank_start, rank_num int32) int32 {
-	if rank_num > global_config_mgr.GetGlobalConfig().RankingListOnceGetItemsNum {
-		return int32(msg_client_message.E_ERR_RANK_GET_ITEMS_NUM_OVER_MAX)
-	}
-
-	result := this.rpc_ranklist_cat_ouqi(rank_start, rank_num, param)
-	if result == nil {
-		log.Error("Player[%v] rpc get cat ouqi rank list range[%v,%v] failed", this.Id, rank_start, rank_num)
-		return -1
-	}
-
-	var items []*msg_client_message.RankingListItemInfo
-	if result.RankItems == nil {
-		items = make([]*msg_client_message.RankingListItemInfo, 0)
-	} else {
-		now_time := time.Now()
-		items = make([]*msg_client_message.RankingListItemInfo, len(result.RankItems))
-		for i := int32(0); i < int32(len(result.RankItems)); i++ {
-			r := result.RankItems[i]
-			is_friend := this.db.Friends.HasIndex(r.PlayerId)
-			is_zaned := this.is_today_zan(r.PlayerId, now_time)
-			name, level, head := GetPlayerBaseInfo(r.PlayerId)
-			items[i] = &msg_client_message.RankingListItemInfo{
-				Rank:        proto.Int32(rank_start + i),
-				PlayerId:    proto.Int32(r.PlayerId),
-				PlayerName:  proto.String(name),
-				PlayerLevel: proto.Int32(level),
-				PlayerHead:  proto.String(head),
-				CatId:       proto.Int32(r.CatId),
-				CatTableId:  proto.Int32(r.CatTableId),
-				CatLevel:    proto.Int32(r.CatLevel),
-				CatStar:     proto.Int32(r.CatStar),
-				CatNick:     proto.String(r.CatNick),
-				CatOuqi:     proto.Int32(r.CatOuqi),
-				IsFriend:    proto.Bool(is_friend),
-				IsZaned:     proto.Bool(is_zaned),
-			}
-		}
-	}
-	response := &msg_client_message.S2CPullRankingListResult{}
-	response.ItemList = items
-	response.RankType = proto.Int32(4)
-	response.StartRank = proto.Int32(rank_start)
-	response.SelfRank = proto.Int32(result.SelfRank)
-	response.SelfValue1 = proto.Int32(result.SelfCatId)
-	response.SelfValue2 = proto.Int32(result.SelfCatOuqi)
-
-	this.Send(response)
-
-	return 1
-}
-
 func (this *Player) get_zaned_rank_list(rank_start, rank_num int32) int32 {
 	if rank_num > global_config_mgr.GetGlobalConfig().RankingListOnceGetItemsNum {
 		return int32(msg_client_message.E_ERR_RANK_GET_ITEMS_NUM_OVER_MAX)
@@ -1637,8 +1093,7 @@ func C2SPullRankingListHandler(w http.ResponseWriter, r *http.Request, p *Player
 		// 魅力
 		res = p.get_charm_rank_list(rank_start, rank_num)
 	} else if rank_type == 4 {
-		// 欧气值
-		res = p.get_cat_ouqi_rank_list(param, rank_start, rank_num)
+
 	} else if rank_type == 5 {
 		// 被赞
 		res = p.get_zaned_rank_list(rank_start, rank_num)
@@ -1648,16 +1103,6 @@ func C2SPullRankingListHandler(w http.ResponseWriter, r *http.Request, p *Player
 	}
 
 	return res
-}
-
-func C2SPlayerCatInfoHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SPlayerCatInfo)
-	if req == nil || p == nil {
-		log.Error("C2SPlayerCatInfoHandler player[%v] proto is invalid", p.Id)
-		return -1
-	}
-
-	return p.get_player_cat_info(req.GetPlayerId(), req.GetCatId())
 }
 
 func C2SWorldChatMsgPullHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {

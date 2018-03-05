@@ -13,18 +13,6 @@ message LimitShopItem{
 	optional int32 LeftNum=2;
 }
 
-message ExpeditionCon{
-	optional int32 ConType=1;
-	repeated int32 ConVals=2;
-}
-
-message ExpeditionEvent{
-	optional int32 EventId=1;
-	optional int32 ClientId=2;
-	optional int32 Sec=3;
-	repeated int32 DropIdNums=4;
-}
-
 message PlayerInfo{
 	optional int32 Coin=1;
 	optional int32 Diamond=2;
@@ -41,35 +29,33 @@ message PlayerInfo{
 	optional int32 LastDialyTaskUpUinx=13;
 	optional string Icon=14;
 	optional string CustomIcon=15;
-	optional int32 NextBuildingId=16;
-	optional int32 NextCatId=17;
 	optional int32 CharmVal=18;
 	optional int32 LastLogin=19;
 	optional int32 Zan=20;
-	optional int32 CatFood=21;
 	optional int32 Spirit=22;
 	optional int32 FriendPoints=23;
-	optional int32 SoulStone=24;
-	optional int32 CharmMedal=25;
 	optional int32 SaveLastSpiritPointTime=26;
 	optional int32 LastRefreshShopTime=27;
-	optional int32 DayChgExpeditionCount=28;
-	optional int32 DayChgExpeditionUpDay=29;
 	optional int32 LastMapChestUpUnix=30;
 	optional int32 LastMapBlockUpUnix=31;
 	optional int32 VipLvl=32;
-	repeated int32 MakingBuildingQueue=33;
-	repeated int32 MakedBuildingQueue=34;
 	optional int32 DayHelpUnlockCount=35;
 	optional int32 DayHelpUnlockUpDay=36;
 	optional int32 FriendMessageUnreadCurrId=37;
 	optional int32 VipCardEndDay=38;
-	optional int32 NextExpeditionId=39;
-	optional int32 DayExpeditionCount=40;
-	optional int32 DayExpeditionUpDay=41;
 	optional string Channel=42;
 	optional int32 DayBuyTiLiCount=43;
 	optional int32 DayBuyTiLiUpDay=44;
+}
+
+message PlayerRole{
+	optional int32 Id=1;
+	optional int32 Jingjie=2;
+	optional int32 Level=3;
+}
+
+message PlayerRoleList{
+	repeated PlayerRole List=1;
 }
 
 message PlayerStage{
@@ -102,104 +88,6 @@ message PlayerItem{
 
 message PlayerItemList{
 	repeated PlayerItem List=1;
-}
-
-message PlayerArea{
-	optional int32 CfgId=1;
-}
-
-message PlayerAreaList{
-	repeated PlayerArea List=1;
-}
-
-message PlayerBuilding{
-	optional int32 Id=1;
-	optional int32 CfgId=2;
-	optional int32 X=3;
-	optional int32 Y=4;
-	optional int32 Dir=5;
-	optional int32 CreateUnix=6;
-	optional int32 OverUnix=7;
-	optional int32 IsDone=8;
-}
-
-message PlayerBuildingList{
-	repeated PlayerBuilding List=1;
-}
-
-message PlayerBuildingDepot{
-	optional int32 CfgId=1;
-	optional int32 Num=2;
-}
-
-message PlayerBuildingDepotList{
-	repeated PlayerBuildingDepot List=1;
-}
-
-message PlayerDepotBuildingFormula{
-	optional int32 Id=1;
-}
-
-message PlayerDepotBuildingFormulaList{
-	repeated PlayerDepotBuildingFormula List=1;
-}
-
-message PlayerMakingFormulaBuilding{
-	optional int32 SlotId=1;
-	optional int32 CanUse=2;
-	optional int32 FormulaId=3;
-	optional int32 StartTime=4;
-}
-
-message PlayerMakingFormulaBuildingList{
-	repeated PlayerMakingFormulaBuilding List=1;
-}
-
-message PlayerCrop{
-	optional int32 BuildingId=1;
-	optional int32 Id=2;
-	optional int32 PlantTime=3;
-	optional int32 BuildingTableId=4;
-}
-
-message PlayerCropList{
-	repeated PlayerCrop List=1;
-}
-
-message PlayerCat{
-	optional int32 Id=1;
-	optional int32 CfgId=2;
-	optional int32 Exp=3;
-	optional int32 Level=4;
-	optional int32 Star=5;
-	optional string Nick=6;
-	optional int32 SkillLevel=7;
-	optional int32 Locked=8;
-	optional int32 CoinAbility=9;
-	optional int32 ExploreAbility=10;
-	optional int32 MatchAbility=11;
-	optional int32 CathouseId=12;
-	optional int32 State=13;
-	optional int32 StateValue=14;
-}
-
-message PlayerCatList{
-	repeated PlayerCat List=1;
-}
-
-message PlayerCatHouse{
-	optional int32 BuildingId=1;
-	optional int32 CfgId=2;
-	optional int32 Level=3;
-	repeated int32 CatIds=4;
-	optional int32 LastGetGoldTime=5;
-	optional int32 CurrGold=6;
-	optional int32 LevelupStartTime=7;
-	optional int32 IsDone=8;
-}
-
-message PlayerCatHouseList{
-	repeated PlayerCatHouse List=1;
 }
 
 message PlayerShopItem{
@@ -387,49 +275,12 @@ message PlayerFriendChatUnreadMessageList{
 	repeated PlayerFriendChatUnreadMessage List=1;
 }
 
-message PlayerFocusPlayer{
-	optional int32 FriendId=1;
-	optional string FriendName=2;
-}
-
-message PlayerFocusPlayerList{
-	repeated PlayerFocusPlayer List=1;
-}
-
-message PlayerBeFocusPlayer{
-	optional int32 FriendId=1;
-	optional string FriendName=2;
-}
-
-message PlayerBeFocusPlayerList{
-	repeated PlayerBeFocusPlayer List=1;
-}
-
 message PlayerCustomData{
 	optional bytes CustomData=1;
 }
 
 message PlayerChaterOpenRequest{
 	optional bytes CustomData=1;
-}
-
-message PlayerExpedition{
-	optional int32 Id=1;
-	optional int32 TaskId=2;
-	optional int32 StartUnix=3;
-	optional int32 EndUnix=4;
-	repeated int32 InCatIds=5;
-	optional int32 CurState=6;
-	optional int32 Result=7;
-	optional int32 TaskLeftSec=8;
-	optional int32 TaskLeftSecLastUpUnix=9;
-	repeated ExpeditionCon Conditions=10;
-	repeated ExpeditionEvent EventIds=11;
-	optional int32 TotalSpecials=12;
-}
-
-message PlayerExpeditionList{
-	repeated PlayerExpedition List=1;
 }
 
 message PlayerHandbookItem{
@@ -475,76 +326,6 @@ message PlayerZan{
 
 message PlayerZanList{
 	repeated PlayerZan List=1;
-}
-
-message PlayerFoster{
-	optional int32 BuildingId=1;
-	optional int32 EquippedCardId=2;
-	optional int32 StartTime=3;
-	repeated int32 CatIds=4;
-	repeated int64 PlayerCatIds=5;
-}
-
-message PlayerFosterCat{
-	optional int32 CatId=1;
-	optional int32 StartTime=2;
-	optional int32 RemainSeconds=3;
-}
-
-message PlayerFosterCatList{
-	repeated PlayerFosterCat List=1;
-}
-
-message PlayerFosterFriendCat{
-	optional int32 PlayerId=1;
-	optional int32 CatId=2;
-	optional int32 CatTableId=3;
-	optional int32 StartTime=4;
-	optional int32 StartCardId=5;
-	optional string PlayerName=6;
-	optional int32 PlayerLevel=7;
-	optional string PlayerHead=8;
-	optional int32 CatLevel=9;
-	optional int32 CatStar=10;
-	optional string CatNick=11;
-}
-
-message PlayerFosterFriendCatList{
-	repeated PlayerFosterFriendCat List=1;
-}
-
-message PlayerFosterCatOnFriend{
-	optional int32 CatId=1;
-	optional int32 FriendId=2;
-	optional int32 FosterCardId=3;
-}
-
-message PlayerFosterCatOnFriendList{
-	repeated PlayerFosterCatOnFriend List=1;
-}
-
-message PlayerFosteredFriendCat{
-	optional int64 PlayerCatId=1;
-	optional int32 CatTableId=2;
-	optional int32 StartTime=3;
-	optional int32 StartCardId=4;
-	optional int32 CatLevel=5;
-	optional int32 CatStar=6;
-	optional string CatNick=7;
-}
-
-message PlayerFosteredFriendCatList{
-	repeated PlayerFosteredFriendCat List=1;
-}
-
-message PlayerFosterIncomeForFriend{
-	optional int64 PlayerCatId=1;
-	optional int32 FosterCardId=2;
-	optional int32 CatTableId=3;
-}
-
-message PlayerFosterIncomeForFriendList{
-	repeated PlayerFosterIncomeForFriend List=1;
 }
 
 message PlayerWorldChat{

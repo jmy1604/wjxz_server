@@ -2,11 +2,10 @@ package main
 
 import (
 	"libs/log"
-	//"libs/utils"
+	"main/table_config"
 	"public_message/gen_go/client_message"
 	"strings"
 	"time"
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -139,16 +138,6 @@ func (this *Player) buy_item(item_id int32, num int32, send_msg bool) int32 {
 				log.Warn("商品[%v]价格[%v]高于所持友情点[%v]", item_id, item.CostNum, this.db.Info.GetFriendPoints())
 				return int32(msg_client_message.E_ERR_SHOP_FRIEND_POINT_NOT_ENOUGH)
 			}
-		} else if item.CostResourceId == ITEM_RESOURCE_ID_SOUL_STONE {
-			if this.db.Info.GetSoulStone() < num*item.CostNum {
-				log.Warn("商品[%v]价格[%v]高于所持魂石数[%v]", item_id, item.CostNum, this.db.Info.GetSoulStone())
-				return int32(msg_client_message.E_ERR_SHOP_SOUL_STONE_NOT_ENOUGH)
-			}
-		} else if item.CostResourceId == ITEM_RESOURCE_ID_CHARM_MEDAL {
-			if this.db.Info.GetCharmMedal() < num*item.CostNum {
-				log.Warn("商品[%v]价格[%v]高于所持魅力勋章数[%v]", item_id, item.CostNum, this.db.Info.GetCharmMedal())
-				return int32(msg_client_message.E_ERR_SHOP_CHARM_MEDAL_NOT_ENOUGH)
-			}
 		} else {
 			log.Warn("商品[%v]的支付类型[%v]不支持", item_id, item.CostResourceId)
 			return int32(msg_client_message.E_ERR_SHOP_PURCHASE_TYPE_INVALID)
@@ -193,8 +182,6 @@ func (this *Player) buy_item(item_id int32, num int32, send_msg bool) int32 {
 		this.AddItemResource(item.BagItems[2*n], num*item.BagItems[2*n+1], "shop", "buy_shop_item")
 	}
 	this.SendItemsUpdate()
-	this.SendCatsUpdate()
-	this.SendDepotBuildingUpdate()
 
 	// 花费资源
 	if item.CostResourceId == ITEM_RESOURCE_ID_GOLD {
@@ -207,10 +194,6 @@ func (this *Player) buy_item(item_id int32, num int32, send_msg bool) int32 {
 		this.SubCharmVal(num*item.CostNum, "buy_shop_item", "shop")
 	} else if item.CostResourceId == ITEM_RESOURCE_ID_FRIEND_POINT {
 		this.SubFriendPoints(num*item.CostNum, "buy_shop_item", "shop")
-	} else if item.CostResourceId == ITEM_RESOURCE_ID_CHARM_MEDAL {
-		this.SubCharmMedal(num*item.CostNum, "buy_shop_item", "shop")
-	} else if item.CostResourceId == ITEM_RESOURCE_ID_SOUL_STONE {
-		this.SubSoulStone(num*item.CostNum, "buy_shop_item", "shop")
 	}
 
 	if send_msg {

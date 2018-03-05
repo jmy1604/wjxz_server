@@ -1,7 +1,7 @@
 package main
 
 import (
-	"libs/log"
+	//"libs/log"
 	"math/rand"
 )
 
@@ -91,6 +91,7 @@ func BattleRound(team []*BattleTeam) (report *ReportItem) {
 
 		}
 	}
+	return
 }
 
 func BattleGenerateReport(team1 *BattleTeam, team2 *BattleTeam) (report *ReportItem) {

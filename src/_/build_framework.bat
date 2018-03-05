@@ -1,3 +1,5 @@
+set GOPATH=D:\work\wjxz_server
+
 call gen_server_message.bat
 if errorlevel 1 goto exit
 

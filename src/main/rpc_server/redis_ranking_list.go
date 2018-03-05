@@ -88,26 +88,6 @@ func (this *RedisGlobalData) LoadCharmRankItems() int32 {
 	return 1
 }
 
-func (this *RedisGlobalData) LoadCatOuqiRankItems() int32 {
-	int_map, err := redis.StringMap(global_data.redis_conn.Do("HGETALL", RANKING_LIST_CAT_OUQI))
-	if err != nil {
-		log.Error("redis获取集合[%v]数据失败[%v]", RANKING_LIST_CAT_OUQI, err.Error())
-		return -1
-	}
-
-	for k, item := range int_map {
-		jitem := &RankOuqiItem{}
-		if err := json.Unmarshal([]byte(item), jitem); err != nil {
-			log.Error("##### Load StageOuqiItem key[%v] item[%v] error[%v]", k, item, err.Error())
-			return -1
-		}
-		if !ranking_list_proc.cat_ouqi_ranking_list.Update(jitem) {
-			log.Warn("载入集合[%v]数据[%v,%v]失败", RANKING_LIST_CAT_OUQI, k, item)
-		}
-	}
-	return 1
-}
-
 func (this *RedisGlobalData) LoadZanedRankItems() int32 {
 	int_map, err := redis.StringMap(global_data.redis_conn.Do("HGETALL", RANKING_LIST_ZANED))
 	if err != nil {

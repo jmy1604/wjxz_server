@@ -6,11 +6,10 @@ import (
 	"libs/log"
 	"libs/rpc"
 	"libs/utils"
-	"public_message/gen_go/client_message"
+	"main/rpc_common"
 	"strconv"
 	"sync"
 	"time"
-	"youma/rpc_common"
 )
 
 // 大厅到大厅的调用
@@ -409,50 +408,6 @@ func (this *H2H_FriendProc) RefreshGivePoints(args *rpc_common.H2H_RefreshGiveFr
 	return nil
 }
 
-// 获得好友宝箱配置ID
-func (this *H2H_FriendProc) GetPlayerChestTableId(args *rpc_common.H2H_GetPlayerChestTableId, result *rpc_common.H2H_GetPlayerChestTableIdResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("RPC FriendProc @@@ get rpc client by player_id[%v] failed", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FriendProc.GetPlayerChestTableId", args, result)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// 打开好友宝箱
-func (this *H2H_FriendProc) OpenChest(args *rpc_common.H2H_OpenFriendChest, result *rpc_common.H2H_OpenFriendChestResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("RPC FriendProc @@@ get rpc client by player_id[%v] failed", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FriendProc.OpenChest", args, result)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 /* 商店调用 */
 type H2R_ShopProc struct {
 }
@@ -626,175 +581,6 @@ func (this *H2R_StageProc) GetFriendsStageInfo(args *rpc_common.H2R_FriendsStage
 	return nil
 }
 
-// 寄养所调用
-type H2H_FosterProc struct {
-}
-
-func (this *H2H_FosterProc) GetCatOnFriend(args *rpc_common.H2H_FosterGetCatInfoOnFriend, result *rpc_common.H2H_FosterGetCatInfoOnFriendResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FosterProc.GetCatOnFriend", args, result)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// 获取玩家寄养所
-func (this *H2H_FosterProc) GetPlayerFosterData(args *rpc_common.H2H_FosterGetPlayerFosterData, result *rpc_common.H2H_FosterGetPlayerFosterDataResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FosterProc.GetPlayerFosterData", args, result)
-	if err != nil {
-		return err
-	}
-
-	log.Debug("@@@@@@@@@@@ H2H_FosterProc::GetPlayerFosterData  Result[%v]", *result)
-
-	return nil
-}
-
-// 获取有寄养空位的玩家
-func (this *H2H_FosterProc) GetEmptySlotFriendInfo(args *rpc_common.H2H_FosterGetEmptySlotFriendInfo, result *rpc_common.H2H_FosterGetEmptySlotFriendInfoResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FosterProc.GetEmptySlotFriendInfo", args, result)
-	if err != nil {
-		return err
-	}
-
-	log.Debug("@@@ get empty slot friend info: %v", *result)
-
-	return nil
-}
-
-// 获取好友寄养所
-func (this *H2H_FosterProc) GetFriendCats(args *rpc_common.H2H_FosterGetFriendCats, result *rpc_common.H2H_FosterGetFriendCatsResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FosterProc.GetFriendCats", args, result)
-	if err != nil {
-		return err
-	}
-
-	log.Debug("@@@ Player[%v] foster get friend[%v] cats", args.FromPlayerId, args.ToPlayerId)
-
-	return nil
-}
-
-// 获取寄养收益
-func (this *H2H_FosterProc) GetIncome(args *rpc_common.H2H_FosterIncome, result *rpc_common.H2H_FosterIncomeResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FosterProc.GetIncom", args, result)
-	if err != nil {
-		return err
-	}
-
-	log.Debug("@@@ Player[%v] get foster income from friend[%v]", result.FromPlayerId, result.ToPlayerId)
-
-	return nil
-}
-
-// 清除寄养完成的猫
-func (this *H2H_FosterProc) ClearFinishedCats(args *rpc_common.H2H_FosterClearFinishedCats, result *rpc_common.H2H_FosterClearFinishedCatsResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FosterProc.ClearFinishedCats", args, result)
-	if err != nil {
-		return err
-	}
-
-	log.Debug("@@@ Player[%v] clear friend[%v] finished cats[%v]", args.FromPlayerId, args.ToPlayerId, args.OutCats)
-
-	return nil
-}
-
-// 结束寄养
-func (this *H2H_FosterProc) FinishCats(args *rpc_common.H2H_FosterFinishCats, result *rpc_common.H2H_FosterFinishCatsResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_FosterProc.FinishCats", args, result)
-	if err != nil {
-		return err
-	}
-
-	log.Debug("@@@ Player[%v] finished friend[%v] cats[%v]", args.FromPlayerId, args.ToPlayerId, args.Cats)
-
-	return nil
-}
-
 type H2H_PlayerProc struct {
 }
 
@@ -859,59 +645,11 @@ func (this *H2H_PlayerProc) Zan(args *rpc_common.H2H_ZanPlayer, result *rpc_comm
 	return nil
 }
 
-// 拜访
-func (this *H2H_PlayerProc) VisitPlayer(args *rpc_common.H2H_VisitPlayer, result *rpc_common.H2H_VisitPlayerResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_PlayerProc.VisitPlayer", args, result)
-	if err != nil {
-		return err
-	}
-
-	log.Debug("@@@ player[%v] visit player[%v]", args.FromPlayerId, args.ToPlayerId)
-	return nil
-}
-
-// 猫数据
-func (this *H2H_PlayerProc) CatInfo(args *rpc_common.H2H_PlayerCatInfo, result *rpc_common.H2H_PlayerCatInfoResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	rpc_client := get_hall_rpc_client_by_player_id(args.ToPlayerId)
-	if rpc_client == nil {
-		err_str := fmt.Sprintf("not found rpc client for player id[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	err := rpc_client.Call("H2H_PlayerProc.CatInfo", args, result)
-	if err != nil {
-		return err
-	}
-
-	log.Debug("@@@ player[%v] get player[%v] cat[%v]", args.FromPlayerId, args.ToPlayerId, args.ToPlayerCatId)
-	return nil
-}
-
 type H2R_RankingListProc struct {
 	stage_total_score_ranking_list  *CommonRankingList
 	stage_score_ranking_list_map    map[int32]*CommonRankingList
 	stage_score_ranking_list_locker *sync.RWMutex
 	charm_ranking_list              *CommonRankingList
-	cat_ouqi_ranking_list           *CommonRankingList
-	cat_max_ouqi_player2cat         map[int32]*RankOuqiItem
 	zaned_ranking_list              *CommonRankingList
 	total_score_item_pool           *sync.Pool
 	score_item_pool                 *sync.Pool
@@ -927,8 +665,6 @@ func (this *H2R_RankingListProc) Init() {
 	this.stage_score_ranking_list_map = make(map[int32]*CommonRankingList)
 	this.stage_score_ranking_list_locker = &sync.RWMutex{}
 	this.charm_ranking_list = NewCommonRankingList(&RankCharmItem{}, RANKING_LIST_MAX_RANK)
-	this.cat_ouqi_ranking_list = NewCommonRankingList(&RankOuqiItem{}, RANKING_LIST_MAX_RANK)
-	this.cat_max_ouqi_player2cat = make(map[int32]*RankOuqiItem)
 	this.zaned_ranking_list = NewCommonRankingList(&RankZanedItem{}, RANKING_LIST_MAX_RANK)
 	this.total_score_item_pool = &sync.Pool{
 		New: func() interface{} {
@@ -943,11 +679,6 @@ func (this *H2R_RankingListProc) Init() {
 	this.charm_item_pool = &sync.Pool{
 		New: func() interface{} {
 			return &rpc_common.H2R_RankCharm{}
-		},
-	}
-	this.ouqi_item_pool = &sync.Pool{
-		New: func() interface{} {
-			return &rpc_common.H2R_RankCatOuqi{}
 		},
 	}
 	this.zaned_item_pool = &sync.Pool{
@@ -1183,82 +914,6 @@ func (this *H2R_RankingListProc) GetCharmRankRange(args *rpc_common.H2R_Ranklist
 	return nil
 }
 
-// 更新猫欧气值排行
-func (this *H2R_RankingListProc) UpdateCatOuqi(args *rpc_common.H2R_RankCatOuqi, result *rpc_common.H2R_RankCatOuqiResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	var update_item = RankOuqiItem{
-		PlayerId:    args.PlayerId,
-		PlayerLevel: args.PlayerLevel,
-		CatId:       args.CatId,
-		CatTableId:  args.CatTableId,
-		CatLevel:    args.CatLevel,
-		CatNick:     args.CatNick,
-		CatStar:     args.CatStar,
-		CatOuqi:     args.CatOuqi,
-		SaveTime:    int32(time.Now().Unix()),
-	}
-
-	before_first_item := this.cat_ouqi_ranking_list.GetByRank(1)
-	if !this.cat_ouqi_ranking_list.Update(&update_item) {
-		err_str := fmt.Sprintf("@@@ Player[%v] update cat[%v] ouqi[%v] failed", args.PlayerId, args.CatId, args.CatOuqi)
-		return errors.New(err_str)
-	}
-
-	global_data.UpdateRankCatOuqi(&update_item)
-
-	this.anouncement_ouqi_frist_rank(before_first_item)
-
-	log.Debug("@@@ H2R_RankingListProc::UpdateCatOuqi Player[%v] updated cat[%v] ouqi[%v]", args.PlayerId, args.CatId, args.CatOuqi)
-
-	return nil
-}
-
-// 获取猫欧气排行榜
-func (this *H2R_RankingListProc) GetCatOuqiRankRange(args *rpc_common.H2R_RanklistGetCatOuqi, result *rpc_common.H2R_RanklistGetCatOuqiResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	start, num := this.cat_ouqi_ranking_list.GetRankRange(args.RankStart, args.RankNum)
-	if start == 0 {
-		result.RankItems = make([]*rpc_common.H2R_RankCatOuqi, 0)
-	} else {
-		items := make([]interface{}, num)
-		for i := int32(0); i < num; i++ {
-			items[i] = this.ouqi_item_pool.Get().(*rpc_common.H2R_RankCatOuqi)
-		}
-		num := this.cat_ouqi_ranking_list.GetRangeNodes(start, num, items)
-		if num == 0 {
-			err_str := fmt.Sprintf("@@@ Player[%v] get cat ouqi rank list failed", args.PlayerId)
-			return errors.New(err_str)
-		}
-
-		result.RankItems = make([]*rpc_common.H2R_RankCatOuqi, num)
-		for i := 0; i < len(items); i++ {
-			result.RankItems[i] = items[i].(*rpc_common.H2R_RankCatOuqi)
-		}
-
-		if args.MaxOuqiCatId > 0 {
-			var self_cat_ouqi interface{}
-			result.SelfRank, self_cat_ouqi = this.cat_ouqi_ranking_list.GetRankAndValue(utils.Int64From2Int32(args.PlayerId, args.MaxOuqiCatId))
-			if self_cat_ouqi != nil {
-				result.SelfCatOuqi = self_cat_ouqi.(int32)
-			}
-			result.SelfCatId = args.MaxOuqiCatId
-		}
-	}
-
-	log.Debug("@@@ H2R_RankingListProc::GetCatOuqiRankRange Player[%v] get cat ouqi rank list", args.PlayerId)
-	return nil
-}
-
 // 更新被赞排行榜
 func (this *H2R_RankingListProc) UpdateZaned(args *rpc_common.H2R_RankZaned, result *rpc_common.H2R_RankZanedResult) error {
 	defer func() {
@@ -1379,17 +1034,6 @@ func (this *H2R_RankingListProc) anouncement_charm_first_rank(before_first_item 
 	}
 }
 
-func (this *H2R_RankingListProc) anouncement_ouqi_frist_rank(before_first_item utils.SkiplistNodeValue) {
-	first_item := this.cat_ouqi_ranking_list.GetByRank(1)
-	if before_first_item == nil || !before_first_item.KeyEqual(first_item) {
-		first_item_node := first_item.(*RankOuqiItem)
-		if first_item_node != nil {
-			nick, _ := global_data.GetNickById(first_item_node.PlayerId)
-			rpc_call_anouncement_player_first_rank(4, 0, first_item_node.PlayerId, nick, first_item_node.PlayerLevel)
-		}
-	}
-}
-
 func (this *H2R_RankingListProc) anouncement_zaned_first_rank(before_first_item utils.SkiplistNodeValue) {
 	first_item := this.zaned_ranking_list.GetByRank(1)
 	if before_first_item == nil || !before_first_item.KeyEqual(first_item) {
@@ -1435,13 +1079,6 @@ func (this *H2R_RankingListProc) RankDelete(args *rpc_common.H2R_RankDelete, res
 		}
 		global_data.DeleteRankCharm(args.PlayerId)
 		this.anouncement_charm_first_rank(before_first_item)
-	} else if args.RankType == RANKING_LIST_TYPE_CAT_OUQI { // 欧气
-		before_first_item := this.cat_ouqi_ranking_list.GetByRank(1)
-		if !this.cat_ouqi_ranking_list.Delete(utils.Int64From2Int32(args.PlayerId, args.Param)) {
-			log.Error("@@@ Player[%v] delete cat ouqi rank list failed", args.PlayerId)
-		}
-		global_data.DeleteRankCatOuqi(args.PlayerId, args.Param)
-		this.anouncement_ouqi_frist_rank(before_first_item)
 	} else if args.RankType == RANKING_LIST_TYPE_ZANED { // 被赞
 		before_first_item := this.zaned_ranking_list.GetByRank(1)
 		if !this.zaned_ranking_list.Delete(args.PlayerId) {
@@ -1501,365 +1138,6 @@ func (this *H2H_GlobalProc) Anouncement(args *rpc_common.H2H_Anouncement, result
 	return nil
 }
 
-// 个人空间调用
-type H2R_PersonalSpaceProc struct {
-}
-
-func (this *H2R_PersonalSpaceProc) Create(args *rpc_common.H2R_PersonalSpaceCreate, result *rpc_common.H2R_PersonalSpaceCreateResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.FromPlayerId)
-	if ps != nil {
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_ALREADY_EXISTS)
-		return nil
-	}
-
-	ps_mgr.CreateSpace(args.FromPlayerId)
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::Create Player[%v] created personal space", args.FromPlayerId)
-	return nil
-}
-
-// 获取个人空间
-func (this *H2R_PersonalSpaceProc) Get(args *rpc_common.H2R_GetPersonalSpace, result *rpc_common.H2R_GetPersonalSpaceResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.ToPlayerId)
-	if ps == nil {
-		ps = ps_mgr.CreateSpace(args.ToPlayerId)
-	}
-
-	result.FromPlayerId = args.FromPlayerId
-	result.ToPlayerId = args.ToPlayerId
-	result.Signature = ps.GetSignature()
-	for pic_id := int32(1); pic_id <= PERSONAL_SPACE_MAX_PICTURE_NUM; pic_id++ {
-		b, url, upload_time, zaned, msg_num := ps_pic_mgr.GetPicBaseData(args.ToPlayerId, pic_id)
-		if !b {
-			continue
-		}
-		pic_data := &rpc_common.H2R_PSPictureData{
-			Id:          pic_id,
-			Url:         url,
-			UploadTime:  upload_time,
-			Zaned:       zaned,
-			LeaveMsgNum: msg_num,
-		}
-		result.Pictures = append(result.Pictures, pic_data)
-	}
-
-	msg_ids, is_more := ps.GetLeaveMsgIds(0, PERSONAL_SPACE_GET_LEAVE_MSG_NUM)
-	if msg_ids == nil || len(msg_ids) == 0 {
-		result.LeaveMsgs = make([]*rpc_common.H2R_PSLeaveMessageData, 0)
-	} else {
-		result.LeaveMsgs = ps_leave_messages_mgr.GetSome(args.ToPlayerId, msg_ids)
-	}
-	result.LeaveMsgIsMore = is_more
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::Get Player[%v] get player[%v] personal space", args.FromPlayerId, args.ToPlayerId)
-	return nil
-}
-
-// 修改空间签名
-func (this *H2R_PersonalSpaceProc) ModifySignature(args *rpc_common.H2R_PSModifySignature, result *rpc_common.H2R_PSModifySignatureResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.FromPlayerId)
-	if ps == nil {
-		log.Error("no player[%v] have personal space", args.FromPlayerId)
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_GET_FAILED)
-		return nil
-	}
-
-	ps.SetSignature(args.Signature)
-
-	global_data.UpdatePersonalSpaceBaseData(args.FromPlayerId)
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::ModifySignature Player[%v] modified signature to %v", args.FromPlayerId, args.Signature)
-
-	return nil
-}
-
-// 空间点赞
-func (this *H2R_PersonalSpaceProc) Zan(args *rpc_common.H2R_PSZan, result *rpc_common.H2R_PSZanResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.ToPlayerId)
-	if ps == nil {
-		log.Error("no player[%v] have personal space", args.ToPlayerId)
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_GET_FAILED)
-		return nil
-	}
-
-	res := ps_pic_zan_mgr.CheckAndZan(args.ToPlayerId, args.PictureId, args.FromPlayerId)
-	if res < 0 {
-		result.Error = res
-	} else {
-		global_data.UpdatePersonalSpacePicZan(args.ToPlayerId, args.PictureId, args.FromPlayerId)
-	}
-
-	return nil
-}
-
-// 拉取空间留言
-func (this *H2R_PersonalSpaceProc) PullLeaveMsg(args *rpc_common.H2R_PSPullLeaveMessages, result *rpc_common.H2R_PSPullLeaveMessagesResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.ToPlayerId)
-	if ps == nil {
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_GET_FAILED)
-		log.Error("no player[%v] have personal space", args.ToPlayerId)
-		return nil
-	}
-
-	var msg_ids []int32
-	var is_more bool
-	if args.PictureId == 0 {
-		msg_ids, is_more = ps.GetLeaveMsgIds(args.StartIndex, args.MessageNum)
-		if msg_ids == nil || len(msg_ids) == 0 {
-			result.LeaveMsgs = make([]*rpc_common.H2R_PSLeaveMessageData, 0)
-		} else {
-			result.LeaveMsgs = ps_leave_messages_mgr.GetSome(args.ToPlayerId, msg_ids)
-		}
-	} else {
-		msg_ids, is_more = ps_pic_mgr.GetLeaveMsgIds(args.ToPlayerId, args.PictureId, args.StartIndex, args.MessageNum)
-		if msg_ids == nil || len(msg_ids) == 0 {
-			result.LeaveMsgs = make([]*rpc_common.H2R_PSLeaveMessageData, 0)
-		} else {
-			result.LeaveMsgs = ps_pic_leave_messages_mgr.GetLeaveMsgs(args.ToPlayerId, args.PictureId, msg_ids)
-		}
-	}
-
-	result.IsMoreMsg = is_more
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::PullLeaveMsg Player[%v] pulled player[%v] leave msg: [%v,%v]", args.FromPlayerId, args.ToPlayerId, args.StartIndex, args.MessageNum)
-	return nil
-}
-
-// 发送空间留言
-func (this *H2R_PersonalSpaceProc) SendLeaveMsg(args *rpc_common.H2R_PSSendLeaveMsg, result *rpc_common.H2R_PSSendLeaveMsgResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.ToPlayerId)
-	if ps == nil {
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_GET_FAILED)
-		log.Error("no player[%v] have personal space", args.ToPlayerId)
-		return nil
-	}
-
-	var new_msg_id int32
-	if args.PictureId == 0 {
-		new_msg_id = ps.GetNewLeaveMsgId()
-		if !ps_leave_messages_mgr.AddNew(args.ToPlayerId, args.FromPlayerId, new_msg_id, args.Content) {
-			result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_EXISTS_THE_LEAVE_MSG)
-			log.Error("player[%v] send leave msg[%v] to player[%v] personal space with msg_id[%v] failed", args.FromPlayerId, args.Content, args.ToPlayerId, new_msg_id)
-			return nil
-		}
-		global_data.UpdatePersonalSpaceLeaveMessage(args.ToPlayerId, new_msg_id)
-		global_data.UpdatePersonalSpaceBaseData(args.ToPlayerId)
-	} else {
-		new_msg_id = ps_pic_mgr.GetNewMsgId(args.ToPlayerId, args.PictureId)
-		if !ps_pic_leave_messages_mgr.AddNewLeaveMsg(args.ToPlayerId, args.PictureId, new_msg_id, args.FromPlayerId, args.Content) {
-			return nil
-		}
-		global_data.UpdatePersonalSpacePicLeaveMsg(args.ToPlayerId, args.PictureId, new_msg_id)
-		global_data.UpdatePersonalSpacePictureData(args.ToPlayerId, args.PictureId)
-	}
-
-	result.MsgId = new_msg_id
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::SendLeaveMsg player[%v] send leave msg[%v] to player[%v] personal space with msg_id[%v]", args.FromPlayerId, args.Content, args.ToPlayerId, new_msg_id)
-	return nil
-}
-
-// 删除空间留言
-func (this *H2R_PersonalSpaceProc) DeleteLeaveMsg(args *rpc_common.H2R_PSDeleteLeaveMsg, result *rpc_common.H2R_PSDeleteLeaveMsgResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.ToPlayerId)
-	if ps == nil {
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_GET_FAILED)
-		log.Error("player[%v] no have personal space", args.FromPlayerId)
-		return nil
-	}
-
-	if args.PictureId == 0 {
-		// 先删除留言内容
-		if !ps_leave_messages_mgr.Delete(args.ToPlayerId, args.LeaveMessageId, args.FromPlayerId) {
-			result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_NOT_FOUND_THE_LEAVE_MSG)
-			log.Error("player[%v] no leave message[%v] in player[%v] personal space, delete failed", args.FromPlayerId, args.LeaveMessageId, args.ToPlayerId)
-			return nil
-		}
-		global_data.DeletePersonalSpaceLeaveMsg(args.ToPlayerId, args.LeaveMessageId)
-
-		// 再删除留言ID
-		if !ps.DeleteLeaveMsg(args.LeaveMessageId) {
-			result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_NOT_FOUND_THE_LEAVE_MSG)
-			log.Error("player[%v] delete leave msg_id[%v] in player[%v] personal space failed", args.FromPlayerId, args.LeaveMessageId, args.ToPlayerId)
-			return nil
-		}
-		global_data.UpdatePersonalSpaceBaseData(args.ToPlayerId)
-	} else {
-		if !ps_pic_leave_messages_mgr.DeleteLeaveMsg(args.FromPlayerId, args.ToPlayerId, args.PictureId, args.LeaveMessageId) {
-			result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_NOT_FOUND_THE_LEAVE_MSG)
-			log.Error("player[%v] no leave message[%v] in player[%v] personal space with pic[%v], delete failed", args.FromPlayerId, args.LeaveMessageId, args.ToPlayerId, args.PictureId)
-			return nil
-		}
-		global_data.DeletePersonalSpacePicLeaveMsg(args.ToPlayerId, args.PictureId, args.LeaveMessageId)
-
-		if !ps_pic_mgr.DeleteLeaveMsgId(args.ToPlayerId, args.PictureId, args.LeaveMessageId) {
-			result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_NOT_FOUND_THE_LEAVE_MSG)
-			log.Error("player[%v] delete leave msg_id[%v] in player[%v] personal space with pic[%v] failed", args.FromPlayerId, args.LeaveMessageId, args.ToPlayerId, args.PictureId)
-			return nil
-		}
-		global_data.UpdatePersonalSpacePictureData(args.ToPlayerId, args.PictureId)
-	}
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::DeleteLeaveMsg player[%v] deleted leave msg[%v] in personal space", args.FromPlayerId, args.LeaveMessageId)
-	return nil
-}
-
-// 发送留言评论
-func (this *H2R_PersonalSpaceProc) SendLeaveMsgComment(args *rpc_common.H2R_PSSendLeaveMsgComment, result *rpc_common.H2R_PSSendLeaveMsgCommentResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.ToPlayerId)
-	if ps == nil {
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_GET_FAILED)
-		log.Error("Player[%v] send leave msg[%v] comment[%v] to player[%v] personal space failed", args.FromPlayerId, args.LeaveMsgId, args.Content, args.ToPlayerId)
-		return nil
-	}
-
-	var err int32
-	if args.PictureId == 0 {
-		err = ps_leave_messages_mgr.AddLeaveMsgComment(args.ToPlayerId, args.LeaveMsgId, args.FromPlayerId, args.Content)
-		if err > 0 {
-			global_data.UpdatePersonalSpaceComment(args.ToPlayerId, args.LeaveMsgId, err)
-			global_data.UpdatePersonalSpaceLeaveMessage(args.ToPlayerId, args.LeaveMsgId)
-		}
-	} else {
-		err = ps_pic_leave_messages_mgr.AddNewLeaveMsgComment(args.ToPlayerId, args.PictureId, args.LeaveMsgId, args.Content, args.FromPlayerId)
-		if err > 0 {
-			global_data.UpdatePersonalSpacePicComment(args.ToPlayerId, args.PictureId, args.LeaveMsgId, err)
-			global_data.UpdatePersonalSpacePicLeaveMsg(args.ToPlayerId, args.PictureId, args.LeaveMsgId)
-		}
-	}
-
-	if err < 0 {
-		result.Error = err
-		return nil
-	}
-	result.CommentId = err
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::SendLeaveMsgComment player[%v] send leave msg[%v] comment[%v] to player[%v] personal space", args.FromPlayerId, args.LeaveMsgId, args.Content, args.ToPlayerId)
-	return nil
-}
-
-// 删除留言评论
-func (this *H2R_PersonalSpaceProc) DeleteLeaveMsgComment(args *rpc_common.H2R_PSDeleteLeaveMsgComment, result *rpc_common.H2R_PSDeleteLeaveMsgCommentResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.ToPlayerId)
-	if ps == nil {
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_GET_FAILED)
-		log.Error("Player[%v] delete leave msg[%v] comment[%v] in player[%v] personal space failed", args.FromPlayerId, args.LeaveMessageId, args.LeaveMessageId, args.ToPlayerId)
-		return nil
-	}
-
-	var err int32
-	if args.PictureId == 0 {
-		err = ps_leave_messages_mgr.DeleteLeaveMsgComment(args.ToPlayerId, args.LeaveMessageId, args.CommentId, args.FromPlayerId)
-		if err >= 0 {
-			global_data.DeletePersonalSpaceComment(args.ToPlayerId, args.LeaveMessageId, args.CommentId)
-			global_data.UpdatePersonalSpaceLeaveMessage(args.ToPlayerId, args.LeaveMessageId)
-		}
-	} else {
-		err = ps_pic_leave_messages_mgr.DeleteLeaveMsgComment(args.ToPlayerId, args.PictureId, args.LeaveMessageId, args.CommentId, args.FromPlayerId)
-		if err >= 0 {
-			global_data.DeletePersonalSpacePicComment(args.ToPlayerId, args.PictureId, args.LeaveMessageId, args.CommentId)
-			global_data.UpdatePersonalSpacePicLeaveMsg(args.ToPlayerId, args.PictureId, args.LeaveMessageId)
-		}
-	}
-	if err < 0 {
-		result.Error = err
-		return nil
-	}
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::DeleteLeaveMsgComment player[%v] deleted leave msg[%v] comment[%v] in player[%v] personal space", args.FromPlayerId, args.LeaveMessageId, args.CommentId, args.ToPlayerId)
-	return nil
-}
-
-// 拉取留言评论
-func (this *H2R_PersonalSpaceProc) PullLeaveMsgComments(args *rpc_common.H2R_PSPullLeaveMessageComments, result *rpc_common.H2R_PSPullLeaveMessageCommentsResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error(err)
-		}
-	}()
-
-	ps := ps_mgr.GetSpace(args.ToPlayerId)
-	if ps == nil {
-		result.Error = int32(msg_client_message.E_ERR_PERSONAL_SPACE_GET_FAILED)
-		log.Error("Player[%v] pull player[%v] pic[%v] leave msg_id[%v] comments with range[%v,%v] error[%v]", args.FromPlayerId, args.ToPlayerId, args.PictureId, args.MessageId, args.StartIndex, args.CommentNum, result.Error)
-		return nil
-	}
-
-	var comments []*rpc_common.H2R_PSLeaveMessageCommentData
-	var err int32
-	if args.PictureId == 0 {
-		comments, err = ps_leave_messages_mgr.GetLeaveMsgComments(args.ToPlayerId, args.MessageId, args.StartIndex, args.CommentNum)
-	} else {
-		comments, err = ps_pic_leave_messages_mgr.GetLeaveMsgComments(args.ToPlayerId, args.PictureId, args.MessageId, args.StartIndex, args.CommentNum)
-	}
-
-	if err < 0 {
-		result.Error = err
-		log.Error("Player[%v] pull player[%v] pic[%v] leave msg_id[%v] comments with range[%v,%v] error[%v]", args.FromPlayerId, args.ToPlayerId, args.PictureId, args.MessageId, args.StartIndex, args.CommentNum, result.Error)
-		return nil
-	}
-
-	result.Comments = comments
-
-	log.Debug("@@@ H2R_PersonalSpaceProc::PullLeaveMsgComments player[%v] pulled player[%v] pic[%v] leave msg_id[%v] comments[%v] with range[%v,%v]", args.FromPlayerId, args.ToPlayerId, args.PictureId, args.MessageId, comments, args.StartIndex, args.CommentNum)
-
-	return nil
-}
-
 var ranking_list_proc *H2R_RankingListProc
 
 // 初始化
@@ -1900,11 +1178,6 @@ func (this *RpcServer) init_proc_service() bool {
 		return false
 	}
 
-	// 注册寄养所调用
-	if !this.rpc_service.Register(&H2H_FosterProc{}) {
-		return false
-	}
-
 	// 玩家调用注册
 	if !this.rpc_service.Register(&H2H_PlayerProc{}) {
 		return false
@@ -1919,11 +1192,6 @@ func (this *RpcServer) init_proc_service() bool {
 
 	// 世界聊天调用注册
 	if !this.rpc_service.Register(&H2H_GlobalProc{}) {
-		return false
-	}
-
-	// 个人空间调用注册
-	if !this.rpc_service.Register(&H2R_PersonalSpaceProc{}) {
 		return false
 	}
 

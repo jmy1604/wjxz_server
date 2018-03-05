@@ -3,11 +3,11 @@ package main
 import (
 	"libs/log"
 	"libs/utils"
+	"main/rpc_common"
+	"main/table_config"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"time"
-	"youma/rpc_common"
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -32,7 +32,6 @@ func reg_player_friend_msg() {
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendPullUnreadMessage, C2SFriendPullUnreadMessageHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendConfirmUnreadMessage, C2SFriendConfirmUnreadMessageHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SAgreeFriend, C2SAddFriendAgreeHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SOpenFriendChest, C2SOpenFriendChestHandler)
 }
 
 func send_search_player_msg(p *Player, players_info []*rpc_common.H2R_SearchPlayerInfo) {
@@ -439,10 +438,6 @@ func (this *Player) get_friend_list(get_foster bool) int32 {
 		last_save, _ := this.db.Friends.GetLastGivePointsTime(fid)
 		remain_seconds := utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, last_save)
 		response.FriendList[i].LeftGiveSeconds = proto.Int32(remain_seconds)
-		if get_foster {
-			response.FriendList[i].FosteredCatNum = proto.Int32(this.foster_cat_num_to_friend(fid))
-			response.FriendList[i].CanFosterCatNum = proto.Int32(fostered_slot_for_level(level))
-		}
 	}
 	for i := 0; i < len(response.Reqs); i++ {
 		fid := response.Reqs[i].GetPlayerId()
@@ -743,83 +738,6 @@ func (this *Player) friend_confirm_unread_message(friend_id int32, message_num i
 	return 1
 }
 
-func (this *Player) open_local_chest(chest_id int32) (chest_table_id int32) {
-	chest_table_id, o := this.db.Buildings.GetCfgId(chest_id)
-	if !o {
-		log.Error("Player[%v] no building[%v]", this.Id, chest_id)
-		return int32(msg_client_message.E_ERR_BUILDING_NOT_EXIST)
-	}
-	box := cfg_mapchest_mgr.Map[chest_table_id]
-	if box == nil {
-		log.Error("no chest[%v] box table data", chest_table_id)
-		return int32(msg_client_message.E_ERR_BUILDING_AREA_NO_CFG)
-	}
-	chest_table_id, _ = this.OpenMapChest(chest_id, false)
-	return
-}
-
-func (this *Player) open_friend_chest(friend_id int32, chest_id int32) int32 {
-	if !this.db.Friends.HasIndex(friend_id) {
-		return int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
-	}
-	var result *msg_client_message.S2COpenMapChest
-	friend := player_mgr.GetPlayerById(friend_id)
-	if friend != nil {
-		res := friend.open_local_chest(chest_id)
-		if res < 0 {
-			return res
-		}
-		result = this.open_chest_result(res)
-		if result == nil {
-			this.return_chest_cost_by_id(chest_id)
-			return -1
-		}
-	} else {
-		// 获得宝箱配置ID
-		get_res := this.rpc_get_friend_chest_table_id(friend_id, chest_id)
-		if get_res == nil {
-			log.Error("Player[%v] get friend[%v] chest[%v] table id from rpc failed", this.Id, friend_id, chest_id)
-			return -1
-		}
-		if get_res.Error < 0 {
-			log.Error("Player[%v] get friend[%v] chest[%v] table id from rpc error[%v]", this.Id, friend_id, chest_id, get_res.Error)
-			return get_res.Error
-		}
-		// 花费
-		err := this.open_chest_cost(get_res.ChestTableId)
-		if err < 0 {
-			return err
-		}
-		// 打开
-		res := this.rpc_open_friend_chest(friend_id, chest_id)
-		if res == nil {
-			this.return_chest_cost(get_res.ChestTableId)
-			log.Error("Player[%v] open friend[%v] chest[%v] failed", this.Id, friend_id, chest_id)
-			return -1
-		}
-		if res.ChestTableId <= 0 {
-			this.return_chest_cost(get_res.ChestTableId)
-			return res.ChestTableId
-		}
-		result = this.open_chest_result(res.ChestTableId)
-		if result == nil {
-			this.return_chest_cost(get_res.ChestTableId)
-			return -1
-		}
-	}
-
-	result.BuildingId = proto.Int32(chest_id)
-	result.FriendId = proto.Int32(friend_id)
-	this.Send(result)
-
-	this.item_cat_building_change_info.building_remove(this, chest_id)
-	this.item_cat_building_change_info.send_buildings_update(this)
-
-	this.TaskUpdate(table_config.TASK_FINISH_OPEN_FRIEND_TREATURE_BOX, false, 0, 1)
-
-	return 1
-}
-
 func C2SFriendSearchHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SFriendSearch)
 	if nil == req {
@@ -1045,21 +963,6 @@ func C2SGetOnlineFriendsHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	}
 
 	return 0
-}
-
-func C2SOpenFriendChestHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SOpenFriendChest)
-	if req == nil {
-		log.Error("C2SOpenFriendChestHandler proto is invalid")
-		return -1
-	}
-
-	if p == nil {
-		log.Error("C2SOpenFriendChestHandler player is nil")
-		return -1
-	}
-
-	return p.open_friend_chest(req.GetFriendid(), req.GetBuildingId())
 }
 
 // ------------------------------------------------------

@@ -3,10 +3,10 @@ package main
 import (
 	"libs/log"
 	"libs/timer"
+	"main/table_config"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"time"
-	"youma/table_config"
 
 	"3p/code.google.com.protobuf/proto"
 )
@@ -424,8 +424,6 @@ func (p *Player) get_daily_reward(task_id int32) int32 {
 	cur_lvl, cur_exp := p.AddExp(task_cfg.Exp, "gettaskreward", "dialytask")
 
 	p.SendItemsUpdate()
-	p.SendCatsUpdate()
-	p.SendDepotBuildingUpdate()
 
 	res2cli := &msg_client_message.S2CRetTaskReward{}
 	res2cli.Coin = proto.Int32(p.GetCoin())
@@ -479,8 +477,6 @@ func (p *Player) get_achieve_reward(achieve_id int32) int32 {
 	cur_lvl, cur_exp := p.AddExp(achieve_cfg.Exp, "gettaskreward", "dialytask")
 
 	p.SendItemsUpdate()
-	p.SendCatsUpdate()
-	p.SendDepotBuildingUpdate()
 
 	res2cli := &msg_client_message.S2CRetAchieveReward{}
 	res2cli.TaskId = proto.Int32(achieve_id)
