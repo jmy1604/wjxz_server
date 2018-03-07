@@ -444,14 +444,20 @@ type dbPlayerRoleData struct{
 	Id int32
 	Jingjie int32
 	Level int32
+	Attr []int32
 }
 func (this* dbPlayerRoleData)from_pb(pb *db.PlayerRole){
 	if pb == nil {
+		this.Attr = make([]int32,0)
 		return
 	}
 	this.Id = pb.GetId()
 	this.Jingjie = pb.GetJingjie()
 	this.Level = pb.GetLevel()
+	this.Attr = make([]int32,len(pb.GetAttr()))
+	for i, v := range pb.GetAttr() {
+		this.Attr[i] = v
+	}
 	return
 }
 func (this* dbPlayerRoleData)to_pb()(pb *db.PlayerRole){
@@ -459,12 +465,20 @@ func (this* dbPlayerRoleData)to_pb()(pb *db.PlayerRole){
 	pb.Id = proto.Int32(this.Id)
 	pb.Jingjie = proto.Int32(this.Jingjie)
 	pb.Level = proto.Int32(this.Level)
+	pb.Attr = make([]int32, len(this.Attr))
+	for i, v := range this.Attr {
+		pb.Attr[i]=v
+	}
 	return
 }
 func (this* dbPlayerRoleData)clone_to(d *dbPlayerRoleData){
 	d.Id = this.Id
 	d.Jingjie = this.Jingjie
 	d.Level = this.Level
+	d.Attr = make([]int32, len(this.Attr))
+	for _ii, _vv := range this.Attr {
+		d.Attr[_ii]=_vv
+	}
 	return
 }
 type dbPlayerStageData struct{
@@ -2221,6 +2235,34 @@ func (this *dbPlayerRoleColumn)SetLevel(id int32,v int32)(has bool){
 		return
 	}
 	d.Level = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerRoleColumn)GetAttr(id int32)(v []int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.GetAttr")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = make([]int32, len(d.Attr))
+	for _ii, _vv := range d.Attr {
+		v[_ii]=_vv
+	}
+	return v,true
+}
+func (this *dbPlayerRoleColumn)SetAttr(id int32,v []int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleColumn.SetAttr")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Attr = make([]int32, len(v))
+	for _ii, _vv := range v {
+		d.Attr[_ii]=_vv
+	}
 	this.m_changed = true
 	return true
 }

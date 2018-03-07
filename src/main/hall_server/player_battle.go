@@ -14,18 +14,6 @@ const (
 	BATTLE_FORMATION_ONE_LINE_MEMBER_NUM = 3
 )
 
-const (
-	BATTLE_ATTR_HP_MAX             = 1
-	BATTLE_ATTR_HP_CURR            = 2
-	BATTLE_ATTR_ATTACK             = 3
-	BATTLE_ATTR_DEFENSE            = 4
-	BATTLE_ATTR_CRITICAL           = 5
-	BATTLE_ATTR_CRITICAL_MULTI     = 6
-	BATTLE_ATTR_ANTI_CRITICAL      = 7
-	BATTLE_ATTR_BLOCK_RATE         = 8
-	BATTLE_ATTR_BLOCK_DEFENSE_RATE = 9
-)
-
 type AttrItem struct {
 	id    int32
 	value int32

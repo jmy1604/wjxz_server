@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -127,7 +128,7 @@ type JsonLoginRes struct {
 
 var cur_hall_conn *HallConnection
 
-func (this *TestClient) cmd_login() {
+func (this *TestClient) cmd_login(use_https bool) {
 	var acc string
 	fmt.Printf("请输入账号：")
 	fmt.Scanf("%s\n", &acc)
@@ -152,7 +153,18 @@ func (this *TestClient) cmd_login() {
 		http.Get(url_str)
 		http.Get(url_str)
 		http.Get(url_str)
-		resp, err := http.Get(url_str)
+
+		var resp *http.Response
+		var err error
+		if use_https {
+			tr := &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			}
+			client := &http.Client{Transport: tr}
+			resp, err = client.Get(url_str)
+		} else {
+			resp, err = http.Get(url_str)
+		}
 		if nil != err {
 			log.Error("login http get err (%s)", err.Error())
 			return
@@ -173,7 +185,7 @@ func (this *TestClient) cmd_login() {
 
 		log.Info("login before connect hall, HallIP(%v), Account(%v), Token(%v)", res.HallIP, res.Account, res.Token)
 
-		cur_hall_conn = new_hall_connect(res.HallIP, res.Account, res.Token)
+		cur_hall_conn = new_hall_connect(res.HallIP, res.Account, res.Token, use_https)
 		hall_conn_mgr.AddHallConn(cur_hall_conn)
 
 		req2s := &msg_client_message.C2SLoginRequest{}
@@ -469,7 +481,7 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 		switch cmd_str {
 		case "login":
 			{
-				this.cmd_login()
+				this.cmd_login(true)
 				is_test = true
 			}
 		case "options_get":

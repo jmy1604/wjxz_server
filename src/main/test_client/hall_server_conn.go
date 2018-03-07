@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"io/ioutil"
 	"libs/log"
 	"net/http"
@@ -21,6 +22,7 @@ const (
 // ========================================================================================
 
 type HallConnection struct {
+	use_https      bool
 	state          int32
 	last_conn_time int32
 	acc            string
@@ -35,11 +37,12 @@ type HallConnection struct {
 
 var hall_conn HallConnection
 
-func new_hall_connect(hall_ip, acc, token string) *HallConnection {
+func new_hall_connect(hall_ip, acc, token string, use_https bool) *HallConnection {
 	ret_conn := &HallConnection{}
 	ret_conn.acc = acc
 	ret_conn.hall_ip = hall_ip
 	ret_conn.token = token
+	ret_conn.use_https = use_https
 
 	log.Info("new hall connection to ip %v", hall_ip)
 
@@ -65,7 +68,16 @@ func (this *HallConnection) Send(msg proto.Message) {
 		return
 	}
 
-	resp, err := http.Post(this.hall_ip+"/client_msg", "application/x-www-form-urlencoded", bytes.NewReader(data))
+	var resp *http.Response
+	if this.use_https {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err = client.Post(this.hall_ip+"/client_msg", "application/x-www-form-urlencoded", bytes.NewReader(data))
+	} else {
+		resp, err = http.Post(this.hall_ip+"/client_msg", "application/x-www-form-urlencoded", bytes.NewReader(data))
+	}
 	if nil != err {
 		log.Error("login C2S_MSG http post[%s] error[%s]", this.hall_ip+"/client_msg", err.Error())
 		return

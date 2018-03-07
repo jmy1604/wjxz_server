@@ -106,7 +106,8 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"Jingjie"},
-						{"Type":"int32","Index":3,"Name":"Level"}
+						{"Type":"int32","Index":3,"Name":"Level"},
+						{"Type":"int32","Index":4,"Name":"Attr","Repeated":true}
 					]
 				},
 				{

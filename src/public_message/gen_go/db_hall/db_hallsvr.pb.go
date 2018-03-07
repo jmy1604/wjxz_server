@@ -349,10 +349,11 @@ func (m *PlayerInfo) GetDayBuyTiLiUpDay() int32 {
 }
 
 type PlayerRole struct {
-	Id               *int32 `protobuf:"varint,1,opt" json:"Id,omitempty"`
-	Jingjie          *int32 `protobuf:"varint,2,opt" json:"Jingjie,omitempty"`
-	Level            *int32 `protobuf:"varint,3,opt" json:"Level,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	Id               *int32  `protobuf:"varint,1,opt" json:"Id,omitempty"`
+	Jingjie          *int32  `protobuf:"varint,2,opt" json:"Jingjie,omitempty"`
+	Level            *int32  `protobuf:"varint,3,opt" json:"Level,omitempty"`
+	Attr             []int32 `protobuf:"varint,4,rep" json:"Attr,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
 }
 
 func (m *PlayerRole) Reset()                { *m = PlayerRole{} }
@@ -380,6 +381,13 @@ func (m *PlayerRole) GetLevel() int32 {
 		return *m.Level
 	}
 	return 0
+}
+
+func (m *PlayerRole) GetAttr() []int32 {
+	if m != nil {
+		return m.Attr
+	}
+	return nil
 }
 
 type PlayerRoleList struct {

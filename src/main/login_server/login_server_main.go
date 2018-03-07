@@ -91,5 +91,5 @@ func main() {
 		return
 	}
 
-	server.Start()
+	server.Start(true)
 }

@@ -22,11 +22,43 @@ const (
 	BUILDING_ADD_MSG_ADD_STEP = 2
 )
 
-type Role struct {
-	id      int32
-	jingjie int32
-	level   int32
-}
+// 基础属性
+const (
+	ATTR_HP_MAX              = 1  // 最大血量
+	ATTR_HP                  = 2  // 当前血量
+	ATTR_MP                  = 3  // 气势
+	ATTR_ATTACK              = 4  // 攻击
+	ATTR_DEFENSE             = 5  // 防御
+	ATTR_CRITICAL            = 6  // 暴击率
+	ATTR_CRITICAL_MULTI      = 7  // 暴击伤害倍率
+	ATTR_ANTI_CRITICAL       = 8  // 抗暴率
+	ATTR_BLOCK_RATE          = 9  // 格挡率
+	ATTR_BLOCK_DEFENSE_RATE  = 10 // 格挡减伤率
+	ATTR_BREAK_BLOCK_RATE    = 11 // 破格率
+	ATTR_SHIELD              = 12 // 护盾
+	ATTR_TOTAL_DAMAGE_ADD    = 13 // 总增伤
+	ATTR_CLOSE_DAMAGE_ADD    = 14 // 近战增伤
+	ATTR_REMOTE_DAMAGE_ADD   = 15 // 远程增伤
+	ATTR_NORMAL_DAMAGE_ADD   = 16 // 普攻增伤
+	ATTR_RAGE_DAMAGE_ADD     = 17 // 怒气增伤
+	ATTR_TOTAL_DAMAGE_SUB    = 18 // 总减伤
+	ATTR_CLOSE_DAMAGE_SUB    = 19 // 近战减伤
+	ATTR_REMOTE_DAMAGE_SUB   = 20 // 远程减伤
+	ATTR_NORMAL_DAMAGE_SUB   = 21 // 普攻减伤
+	ATTR_RAGE_DAMAGE_SUB     = 22 // 怒气减伤
+	ATTR_CLOSE_VAMPIRE       = 23 // 近战吸血
+	ATTR_REMOTE_VAMPIRE      = 24 // 远程吸血
+	ATTR_CURE_RATE_CORRECT   = 25 // 治疗率修正
+	ATTR_CURED_RATE_CORRECT  = 26 // 被治疗率修正
+	ATTR_CLOSE_COUNTER       = 27 // 近战反击系数
+	ATTR_REMOTE_COUNTER      = 28 // 远程反击系数
+	ATTR_DODGE_COUNT         = 29 // 闪避次数
+	ATTR_INJURED_MAX         = 30 // 受伤上限
+	ATTR_POISON_INJURED_RATE = 31 // 毒气受伤率
+	ATTR_BURN_INJURED_RATE   = 32 // 点燃受伤率
+	ATTR_BLEED_INJURED_RATE  = 33 // 流血受伤率
+	ATTR_COUNT_MAX           = 64
+)
 
 type PlayerMsgItem struct {
 	data          []byte
@@ -46,8 +78,6 @@ type Player struct {
 
 	pos int32
 
-	p_cache *PlayerCache
-
 	bhandling          bool
 	msg_items          []*PlayerMsgItem
 	msg_items_lock     *sync.Mutex
@@ -55,16 +85,9 @@ type Player struct {
 	max_msg_items_len  int32
 	total_msg_data_len int32
 
-	b_cur_building_map_init      bool
-	b_cur_building_map_init_lock *sync.Mutex
-	cur_area_map_lock            *sync.RWMutex
-	cur_building_map             map[int32]int32
-	cur_open_pos_map             map[int32]int32
-	cur_areablocknum_map         map[int32]int32
-
 	b_base_prop_chg bool
 
-	item_cat_building_change_info ItemCatBuildingChangeInfo // 物品猫建筑数量状态变化
+	item_change_info ItemChangeInfo // 物品猫建筑数量状态变化
 
 	notify_state          *msg_client_message.NotifyState // 红点状态
 	new_unlock_chapter_id int32
@@ -85,13 +108,6 @@ type Player struct {
 	max_msg_acts_len int32
 }
 
-type PlayerCache struct {
-}
-
-func (this *PlayerCache) Init() {
-
-}
-
 func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
 
 	ret_p := &Player{}
@@ -102,24 +118,15 @@ func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
 	ret_p.ol_array_idx = -1
 	ret_p.all_array_idx = -1
 
-	ret_p.p_cache = &PlayerCache{}
-	ret_p.p_cache.Init()
-
 	ret_p.max_msg_items_len = INIT_PLAYER_MSG_NUM
 	ret_p.msg_items_lock = &sync.Mutex{}
 	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
-
-	ret_p.b_cur_building_map_init_lock = &sync.Mutex{}
-	ret_p.cur_building_map = make(map[int32]int32)
-	ret_p.cur_open_pos_map = make(map[int32]int32)
-	ret_p.cur_areablocknum_map = make(map[int32]int32)
-	ret_p.cur_area_map_lock = &sync.RWMutex{}
 
 	ret_p.msg_acts_lock = &sync.Mutex{}
 	ret_p.max_msg_acts_len = DEFAULT_PLAYER_MSG_ACT_ARRAY_LEN
 	ret_p.msg_acts = make([]*msg_client_message.ActivityInfo, 0, ret_p.max_msg_acts_len)
 
-	ret_p.item_cat_building_change_info.init()
+	ret_p.item_change_info.init()
 
 	return ret_p
 }
@@ -137,24 +144,15 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	ret_p.all_array_idx = -1
 	ret_p.Account = db.GetAccount()
 
-	ret_p.p_cache = &PlayerCache{}
-	ret_p.p_cache.Init()
-
 	ret_p.max_msg_items_len = INIT_PLAYER_MSG_NUM
 	ret_p.msg_items_lock = &sync.Mutex{}
 	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
-
-	ret_p.b_cur_building_map_init_lock = &sync.Mutex{}
-	ret_p.cur_building_map = make(map[int32]int32)
-	ret_p.cur_open_pos_map = make(map[int32]int32)
-	ret_p.cur_areablocknum_map = make(map[int32]int32)
-	ret_p.cur_area_map_lock = &sync.RWMutex{}
 
 	ret_p.msg_acts_lock = &sync.Mutex{}
 	ret_p.max_msg_acts_len = DEFAULT_PLAYER_MSG_ACT_ARRAY_LEN
 	ret_p.msg_acts = make([]*msg_client_message.ActivityInfo, 0, ret_p.max_msg_acts_len)
 
-	ret_p.item_cat_building_change_info.init()
+	ret_p.item_change_info.init()
 
 	return ret_p
 }

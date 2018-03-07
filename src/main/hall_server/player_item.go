@@ -15,15 +15,7 @@ const (
 	ITEM_TYPE_NONE              = iota
 	ITEM_TYPE_RESOURCE          = 1  // 资源类
 	ITEM_TYPE_DRAW              = 2  // 抽卡券
-	ITEM_TYPE_ELIMINATE         = 3  // 消除类
-	ITEM_TYPE_OBSTACLE          = 4  // 障碍类
-	ITEM_TYPE_DECORATION        = 5  // 装饰材料
-	ITEM_TYPE_FOSTER            = 6  // 寄养卡
-	ITEM_TYPE_CAT_FRAGMENT      = 7  // 猫碎片
-	ITEM_TYPE_SPIRIT            = 8  // 体力道具
-	ITEM_TYPE_JUMP              = 9  // 跳跳道具
-	ITEM_TYPE_CAT               = 10 // 猫道具
-	ITEM_TYPE_BUILDING          = 11 // 建筑物
+	ITEM_TYPE_STAMINA           = 8  // 体力道具
 	ITEM_TYPE_GIFT              = 12 // 礼包
 	ITEM_TYPE_DECORATION_RECIPE = 13 // 装饰物配方
 )
@@ -33,28 +25,24 @@ const (
 	ITEM_RESOURCE_ID_RMB          = 1  // 人民币
 	ITEM_RESOURCE_ID_GOLD         = 2  // 金币
 	ITEM_RESOURCE_ID_DIAMOND      = 3  // 钻石
-	ITEM_RESOURCE_ID_CAT_FOOD     = 4  // 猫粮
-	ITEM_RESOURCE_ID_SPIRIT       = 5  // 体力
+	ITEM_RESOURCE_ID_STAMINA      = 5  // 体力
 	ITEM_RESOURCE_ID_FRIEND_POINT = 6  // 友情值
 	ITEM_RESOURCE_ID_CHARM_VALUE  = 7  // 魅力值
 	ITEM_RESOURCE_ID_EXP_VALUE    = 8  // 经验值
-	ITEM_RESOURCE_ID_SOUL_STONE   = 9  // 魂石
-	ITEM_RESOURCE_ID_CHARM_MEDAL  = 10 // 魅力勋章
 	ITEM_RESOURCE_ID_TIME         = 11 // 时间
 	ITEM_RESOURCE_ID_STAR         = 12 // 星数
-	ITEM_RESOURCE_ID_CAT_EXP      = 13 // 猫经验
 )
 
-type ItemCatBuildingChangeInfo struct {
+type ItemChangeInfo struct {
 	items_update      map[int32]*msg_client_message.ItemInfo // 物品变化
 	items_update_lock *sync.RWMutex                          // 物品变化锁
 }
 
-func (this *ItemCatBuildingChangeInfo) init() {
+func (this *ItemChangeInfo) init() {
 	this.items_update_lock = &sync.RWMutex{}
 }
 
-func (this *ItemCatBuildingChangeInfo) item_update(p *Player, item_id int32) {
+func (this *ItemChangeInfo) item_update(p *Player, item_id int32) {
 	//this.items_update_lock.Lock()
 	//defer this.items_update_lock.Unlock()
 
@@ -93,7 +81,7 @@ func get_time_item_remain_seconds(item *dbPlayerItemData) int32 {
 	return left_seconds
 }
 
-func (this *ItemCatBuildingChangeInfo) send_items_update(p *Player) bool {
+func (this *ItemChangeInfo) send_items_update(p *Player) bool {
 	//this.items_update_lock.Lock()
 	//defer this.items_update_lock.Unlock()
 
@@ -118,7 +106,7 @@ func (this *ItemCatBuildingChangeInfo) send_items_update(p *Player) bool {
 
 //////////////////////////////////////////////////////////////////////////////////
 func (this *Player) SendItemsUpdate() {
-	this.item_cat_building_change_info.send_items_update(this)
+	this.item_change_info.send_items_update(this)
 }
 
 // 体力增长计算
@@ -160,7 +148,7 @@ func (this *Player) GetItemResourceValue(other_id int32) int32 {
 		{
 			return this.db.Info.GetDiamond()
 		}
-	case ITEM_RESOURCE_ID_SPIRIT:
+	case ITEM_RESOURCE_ID_STAMINA:
 		{
 			// 体力要即时计算
 			return this.CalcSpirit()
@@ -214,7 +202,7 @@ func (this *Player) AddItemResource(cid, num int32, reason, mod string) int32 {
 		{
 			return this.AddFriendPoints(num, reason, mod)
 		}
-	case ITEM_RESOURCE_ID_SPIRIT:
+	case ITEM_RESOURCE_ID_STAMINA:
 		{
 			return this.AddSpirit(num, reason, mod)
 		}
@@ -254,7 +242,7 @@ func (this *Player) RemoveItemResource(cid, num int32, reason, mod string) int32
 		{
 			return this.SubFriendPoints(num, reason, mod)
 		}
-	case ITEM_RESOURCE_ID_SPIRIT:
+	case ITEM_RESOURCE_ID_STAMINA:
 		{
 			return this.SubSpirit(num, reason, mod)
 		}
@@ -594,7 +582,7 @@ func (this *Player) AddItem(itemcfgid, addnum int32, reason, mod string, bslienc
 	new_num := this.db.Items.ChkAddItemByNum(itemcfgid, addnum)
 
 	// 更新物品变化状态
-	this.item_cat_building_change_info.item_update(this, itemcfgid)
+	this.item_change_info.item_update(this, itemcfgid)
 
 	res2cli := &msg_client_message.ItemInfo{}
 	res2cli.ItemCfgId = proto.Int32(itemcfgid)
@@ -625,7 +613,7 @@ func (this *Player) RemoveItem(cfgid, num int32, bsilence bool) *msg_client_mess
 	}
 
 	// 更新物品变化状态
-	this.item_cat_building_change_info.item_update(this, cfgid)
+	this.item_change_info.item_update(this, cfgid)
 
 	msg := &msg_client_message.ItemInfo{}
 	msg.ItemCfgId = proto.Int32(cfgid)
@@ -644,7 +632,7 @@ func (this *Player) RemoveItemAll(item_id int32, silence bool) {
 	this.db.Items.Remove(item_id)
 
 	// 更新物品变化状态
-	this.item_cat_building_change_info.item_update(this, item_id)
+	this.item_change_info.item_update(this, item_id)
 
 	msg := &msg_client_message.ItemInfo{}
 	msg.ItemCfgId = proto.Int32(item_id)
@@ -721,7 +709,7 @@ func (this *Player) use_item(item_id int32, item_count int32) int32 {
 	}
 
 	// 体力道具
-	if item.Type == ITEM_TYPE_SPIRIT {
+	if item.Type == ITEM_TYPE_STAMINA {
 		if len(item.Numbers) < 2 {
 			log.Error("物品[%v]数据配置错误", item_id)
 			return -1
@@ -732,7 +720,7 @@ func (this *Player) use_item(item_id int32, item_count int32) int32 {
 	}
 
 	// 发送物品变化
-	this.item_cat_building_change_info.send_items_update(this)
+	this.item_change_info.send_items_update(this)
 
 	msg := &msg_client_message.S2CUseItem{}
 	msg.CostItem = &msg_client_message.ItemInfo{}
@@ -755,7 +743,7 @@ func (this *Player) sell_item(item_id int32, item_count int32) int32 {
 	}
 
 	// 发送物品变化
-	this.item_cat_building_change_info.send_items_update(this)
+	this.item_change_info.send_items_update(this)
 
 	this.AddCoin(item.SaleCoin*item_count, "sell item", "item")
 

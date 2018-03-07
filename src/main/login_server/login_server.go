@@ -31,6 +31,8 @@ type LoginServer struct {
 	initialized        bool
 
 	login_http_listener net.Listener
+	login_http_server   http.Server
+	use_https           bool
 
 	acc2c_wait      map[string]*WaitCenterInfo
 	acc2c_wait_lock *sync.RWMutex
@@ -49,9 +51,14 @@ func (this *LoginServer) Init() (ok bool) {
 	return true
 }
 
-func (this *LoginServer) Start() (err error) {
-	go this.StartHttp()
+func (this *LoginServer) Start(use_https bool) (err error) {
+	if use_https {
+		go this.StartHttps("../conf/server.crt", "../conf/server.key")
+	} else {
+		go this.StartHttp()
+	}
 
+	this.use_https = use_https
 	log.Event("服务器已启动", nil, log.Property{"IP", config.ListenClientIP})
 	log.Trace("**************************************************")
 
@@ -171,14 +178,14 @@ func (this *LoginServer) pop_c_wait_by_acc(acc string) *WaitCenterInfo {
 
 type LoginHttpHandle struct{}
 
-func (this *LoginServer) StartHttp() {
+func (this *LoginServer) StartHttp() bool {
 	var err error
 	this.reg_http_mux()
 
 	this.login_http_listener, err = net.Listen("tcp", config.ListenClientIP)
 	if nil != err {
 		log.Error("LoginServer StartHttp Failed %s", err.Error())
-		return
+		return false
 	}
 
 	login_http_server := http.Server{
@@ -189,8 +196,31 @@ func (this *LoginServer) StartHttp() {
 	err = login_http_server.Serve(this.login_http_listener)
 	if err != nil {
 		log.Error("启动Login Http Server %s", err.Error())
-		return
+		return false
 	}
+
+	return true
+}
+
+func (this *LoginServer) StartHttps(crt_file, key_file string) bool {
+	this.reg_http_mux()
+
+	this.login_http_server = http.Server{
+		Addr:        config.ListenClientIP,
+		Handler:     &LoginHttpHandle{},
+		ReadTimeout: 6 * time.Second,
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	err := this.login_http_server.ListenAndServeTLS(crt_file, key_file)
+	if err != nil {
+		log.Error("启动https server error[%v]", err.Error())
+		return false
+	}
+
+	return true
 }
 
 var login_http_mux map[string]func(http.ResponseWriter, *http.Request)
@@ -303,7 +333,13 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 		req_2h.PlayerId = proto.Int64(c2l_res.GetPlayerId())
 		hall_agent.Send(req_2h)
 
-		http_res := &JsonLoginRes{Code: 0, Account: account_str, Token: inner_token, HallIP: c2l_res.GetHallIP()}
+		var hall_ip string
+		if server.use_https {
+			hall_ip = "https://" + c2l_res.GetHallIP()
+		} else {
+			hall_ip = "http://" + c2l_res.GetHallIP()
+		}
+		http_res := &JsonLoginRes{Code: 0, Account: account_str, Token: inner_token, HallIP: hall_ip}
 		data, err := json.Marshal(http_res)
 		if nil != err {
 			log.Error("login_http_handler json mashal error")

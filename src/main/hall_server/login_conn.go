@@ -105,7 +105,7 @@ func (this *LoginConnection) OnAccept(c *server_conn.ServerConn) {
 }
 
 func (this *LoginConnection) OnConnect(c *server_conn.ServerConn) {
-	log.Trace("MatchServer[%v][%v] on LoginServer connect", config.ServerId, config.ServerName)
+	log.Trace("Server[%v][%v] on LoginServer connect", config.ServerId, config.ServerName)
 	c.T = this.serverid
 	notify := &msg_server_message.H2LHallServerRegister{}
 	notify.ServerId = proto.Int32(config.ServerId)

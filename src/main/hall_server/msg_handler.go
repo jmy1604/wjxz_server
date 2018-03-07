@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"io/ioutil"
 	"libs/log"
 	"net"
@@ -49,6 +50,7 @@ type MsgHanlderInfo struct {
 
 type MsgHandlerMgr struct {
 	msg_http_listener net.Listener
+	login_http_server http.Server
 	msgid2handler     map[int32]*MsgHanlderInfo
 }
 
@@ -69,14 +71,14 @@ func (this *MsgHandlerMgr) SetPlayerMsgHandler(msg_code uint16, msg_handler CLIE
 	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{typ: msg_client_message.MessageTypes[msg_code], player_msg_handler: msg_handler, if_player_msg: true}
 }
 
-func (this *MsgHandlerMgr) StartHttp() {
+func (this *MsgHandlerMgr) StartHttp() bool {
 	var err error
 	this.reg_http_mux()
 
 	this.msg_http_listener, err = net.Listen("tcp", config.ListenClientInIP)
 	if nil != err {
 		log.Error("Center StartHttp Failed %s", err.Error())
-		return
+		return false
 	}
 
 	signal_mgr.RegCloseFunc("msg_handler_mgr", this.CloseFunc)
@@ -90,9 +92,31 @@ func (this *MsgHandlerMgr) StartHttp() {
 	err = msg_http_server.Serve(this.msg_http_listener)
 	if err != nil {
 		log.Error("启动消息处理服务失败 %s", err.Error())
-		return
+		return false
 	}
 
+	return true
+}
+
+func (this *MsgHandlerMgr) StartHttps(crt_file, key_file string) bool {
+	this.reg_http_mux()
+
+	this.login_http_server = http.Server{
+		Addr:        config.ListenClientInIP,
+		Handler:     &MsgHttpHandle{},
+		ReadTimeout: 6 * time.Second,
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+
+	err := this.login_http_server.ListenAndServeTLS(crt_file, key_file)
+	if err != nil {
+		log.Error("启动消息处理服务失败%s", err.Error())
+		return false
+	}
+
+	return true
 }
 
 func (this *MsgHandlerMgr) CloseFunc(info *SignalRegRecod) {

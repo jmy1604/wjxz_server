@@ -52,6 +52,7 @@ message PlayerRole{
 	optional int32 Id=1;
 	optional int32 Jingjie=2;
 	optional int32 Level=3;
+	repeated int32 Attr=4;
 }
 
 message PlayerRoleList{

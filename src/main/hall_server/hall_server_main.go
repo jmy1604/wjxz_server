@@ -180,5 +180,5 @@ func main() {
 
 	after_center_match_conn()
 
-	hall_server.Start()
+	hall_server.Start(true)
 }

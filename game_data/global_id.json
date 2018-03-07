@@ -1,0 +1,20 @@
+{
+	"CancelMakingFormulaReturnMaterial_19" : 50,
+	"GiveFriendPointsOnce_30" : 5,
+	"GiveFriendPointsPlayersCount_31" : 20,
+	"GiveFriendPointsRefreshHours_32" : 6,
+	"GetFriendPointsOpenFriendWoodBox_33" : 1,
+	"GetFriendPointsOpenFriendSilverBox_34" : 3,
+	"GetFriendPointsOpenFriendGoldBox_35" : 5,
+	"FriendsMaxCount_38" : 200,
+	"FriendFosterLimit_41" : 3,
+	"FriendFosterHours_27" : 6,
+	"SpiritGrowPointNeedMinute_44": 5,
+	"FormulaAddNewSlotCostDiamond_51": 998,
+	"FormulaSpeedupMakingBuildingCostDiamond_52": 300,
+	"CropSpeedupCostDiamond_53": 300,
+	"CatHouseSpeedupLevelCostDiamond_18": 300,
+	"WorldChannelChatCooldown_40": 10,
+	"ChangeNameCostDiamond_58": 600,
+	"ChangeNameFreeNum_59": 1
+}

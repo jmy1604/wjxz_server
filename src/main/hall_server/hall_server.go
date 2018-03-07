@@ -310,13 +310,17 @@ func (this *HallServer) OnInit() (err error) {
 	return
 }
 
-func (this *HallServer) Start() (err error) {
+func (this *HallServer) Start(use_https bool) (err error) {
 	log.Event("服务器已启动", nil, log.Property{"IP", config.ListenClientInIP})
 	log.Trace("**************************************************")
 
 	go this.Run()
 
-	msg_handler_mgr.StartHttp()
+	if use_https {
+		msg_handler_mgr.StartHttps("../conf/server.crt", "../conf/server.key")
+	} else {
+		msg_handler_mgr.StartHttp()
+	}
 
 	return
 }
