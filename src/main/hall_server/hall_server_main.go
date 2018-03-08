@@ -29,6 +29,8 @@ type ServerConfig struct {
 	RecvMaxMSec    int64  // 接收超时毫秒数
 	SendMaxMSec    int64  // 发送超时毫秒数
 
+	RedisServerIP string
+
 	MYSQL_NAME    string
 	MYSQL_IP      string
 	MYSQL_ACCOUNT string
@@ -150,13 +152,6 @@ func main() {
 		return
 	} else {
 		log.Info("payback_mgr init succeed !")
-	}
-
-	if !notice_mgr.Init() {
-		log.Error("notice_mgr init failed")
-		return
-	} else {
-		log.Info("notice_mgr init succeed !")
 	}
 
 	// 初始化CenterServer

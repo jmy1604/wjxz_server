@@ -23,9 +23,7 @@ type ServerConfig struct {
 	LogConfigDir        string // 日志配置文件路径
 
 	CenterServerIP string // 连接AssistServer
-
-	EnableSDK bool   // 是否使用SDK
-	SAuthIP   string // 计费登陆地址
+	RedisServerIP  string // 连接redis
 }
 
 var config ServerConfig

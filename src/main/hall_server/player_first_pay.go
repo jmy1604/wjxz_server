@@ -1,7 +1,6 @@
 package main
 
 import (
-	"libs/log"
 	"libs/socket"
 	"public_message/gen_go/client_message"
 
@@ -30,28 +29,5 @@ func reg_player_first_pay_msg() {
 }
 
 func C2SGetFirstPayRewardHandler(c *socket.TcpConn, msg proto.Message) {
-	req := msg.(*msg_client_message.C2SGetFirstPayReward)
-	if nil == c || nil == req {
-		log.Error("C2SGetFirstPayRewardHandler c or req nil [%v]", nil == req)
-		return
-	}
-
-	p := player_mgr.GetPlayerById(int32(c.T))
-	if nil == p {
-		log.Error("C2SGetFirstPayRewardHandler not login[%d]", c.T)
-		return
-	}
-
-	cur_state := p.db.Info.GetFirstPayState()
-	if PLAYER_FIRST_PAY_ACT != cur_state {
-		log.Error("C2SGetFirstPayRewardHandler state[%d] error", cur_state)
-		return
-	}
-
-	p.db.Info.SetFirstPayState(PLAYER_FIRST_PAY_REWARDED)
-	res2cli := &msg_client_message.S2CRetFirstPayReward{}
-	res2cli.Rewards = p.OpenChest(global_config_mgr.GetGlobalConfig().FirstPayReward, "first_pay_reward", "first_pay", 0, -1, true)
-	p.Send(res2cli)
-
 	return
 }

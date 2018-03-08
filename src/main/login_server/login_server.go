@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"libs/log"
 	"libs/timer"
+	"libs/utils"
 	"net"
 	"net/http"
 	"public_message/gen_go/server_message"
@@ -34,6 +35,8 @@ type LoginServer struct {
 	login_http_server   http.Server
 	use_https           bool
 
+	redis_conn *utils.RedisConn
+
 	acc2c_wait      map[string]*WaitCenterInfo
 	acc2c_wait_lock *sync.RWMutex
 }
@@ -45,13 +48,18 @@ func (this *LoginServer) Init() (ok bool) {
 	this.shutdown_lock = &sync.Mutex{}
 	this.acc2c_wait = make(map[string]*WaitCenterInfo)
 	this.acc2c_wait_lock = &sync.RWMutex{}
+	this.redis_conn = &utils.RedisConn{}
 
 	this.initialized = true
 
 	return true
 }
 
-func (this *LoginServer) Start(use_https bool) (err error) {
+func (this *LoginServer) Start(use_https bool) bool {
+	if !this.redis_conn.Connect(config.RedisServerIP) {
+		return false
+	}
+
 	if use_https {
 		go this.StartHttps("../conf/server.crt", "../conf/server.key")
 	} else {
@@ -64,7 +72,7 @@ func (this *LoginServer) Start(use_https bool) (err error) {
 
 	this.Run()
 
-	return
+	return true
 }
 
 func (this *LoginServer) Run() {
@@ -79,6 +87,8 @@ func (this *LoginServer) Run() {
 	this.ticker = timer.NewTickTimer(1000)
 	this.ticker.Start()
 	defer this.ticker.Stop()
+
+	go this.redis_conn.Run(100)
 
 	for {
 		select {
@@ -114,6 +124,8 @@ func (this *LoginServer) Shutdown() {
 		return
 	}
 	this.quit = true
+
+	this.redis_conn.Close()
 
 	log.Trace("关闭游戏主循环")
 

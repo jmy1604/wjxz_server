@@ -591,12 +591,6 @@ func (this *Player) AddItem(itemcfgid, addnum int32, reason, mod string, bslienc
 		this.Send(res2cli)
 	}
 
-	// 公告寄养卡
-	foster := foster_table_mgr.Get(itemcfgid)
-	if foster != nil && foster.Rarity >= 4 {
-		anouncement_mgr.PushNew(ANOUNCEMENT_TYPE_GET_FOSTER_CARD, true, this.Id, itemcfgid, 0, 0, "")
-	}
-
 	return res2cli
 }
 

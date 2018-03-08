@@ -4,7 +4,6 @@ import (
 	"libs/log"
 	"libs/server_conn"
 	"libs/timer"
-	"public_message/gen_go/client_message"
 	"public_message/gen_go/server_message"
 	"sync/atomic"
 	"time"
@@ -176,7 +175,6 @@ func (this *CenterConnection) RegisterMsgHandler() {
 	this.SetMessageHandler(msg_server_message.ID_PayBackAdd, C2HPayBackDataHandler)
 	this.SetMessageHandler(msg_server_message.ID_SyncPayBackDataList, C2HSyncPayBackDataListHandler)
 	this.SetMessageHandler(msg_server_message.ID_PayBackRemove, C2HPayBackRemoveHandler)
-	this.SetMessageHandler(msg_server_message.ID_NoticeAdd, C2HNoticeAddHandler)
 }
 
 func C2HLoginServerListHandler(conn *CenterConnection, msg proto.Message) {
@@ -274,23 +272,4 @@ func C2HPayBackRemoveHandler(c *CenterConnection, msg proto.Message) {
 
 	log.Info("PayBackMgr 删除补偿 [%v]", *notify)
 	return
-}
-
-func C2HNoticeAddHandler(c *CenterConnection, msg proto.Message) {
-	notify := msg.(*msg_server_message.NoticeAdd)
-	if nil == notify || nil == c {
-		log.Error("NoticeMgr C2HNoticeAddHandler c or notify nil [%v]", nil == notify)
-		return
-	}
-
-	last_sec := notify.GetOverUnix() - int32(time.Now().Unix())
-
-	res2cli := &msg_client_message.S2CNoticeAdd{}
-	res2cli.Content = proto.String(notify.GetContent())
-	res2cli.NoticeId = proto.Int32(notify.GetNoticeId())
-	res2cli.LastSec = proto.Int32(last_sec)
-
-	go player_mgr.SendMsgToAllPlayers(res2cli)
-
-	notice_mgr.AddNotice(notify)
 }

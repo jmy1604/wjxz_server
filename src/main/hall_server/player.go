@@ -804,61 +804,6 @@ func C2SGetHeadHandler(w http.ResponseWriter, r *http.Request, p *Player, msg pr
 }
 
 func C2SGetSuitHandbookRewardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetSuitHandbookReward)
-	if req == nil {
-		log.Error("C2SGetSuitHandbookReward proto is invalid")
-		return -1
-	}
-
-	if p == nil {
-		log.Error("C2SGetSuitHandbookReward player is nil")
-		return -1
-	}
-
-	suit := suit_table_mgr.Map[req.GetSuitId()]
-	suit_buildings := cfg_building_mgr.Suits[suit.Id]
-
-	if suit == nil || suit_buildings == nil {
-		log.Error("Player[%v] suit_id[%v] is invalid", p.Id, req.GetSuitId())
-		return -1
-	}
-
-	if p.db.SuitAwards.HasIndex(suit.Id) {
-		log.Error("Player[%v] already award suit[%v] reward", p.Id, suit.Id)
-		return -1
-	}
-
-	b := true
-	for _, v := range suit_buildings.Items {
-		if !p.db.HandbookItems.HasIndex(v) {
-			b = false
-			break
-		}
-	}
-	if !b {
-		log.Error("Player[%v] suit[%v] not collect all", p.Id, suit.Id)
-		return -1
-	}
-
-	d := &dbPlayerSuitAwardData{
-		Id:        suit.Id,
-		AwardTime: int32(time.Now().Unix()),
-	}
-	p.db.SuitAwards.Add(d)
-
-	response := &msg_client_message.S2CGetSuitHandbookRewardResult{}
-	l := int32(len(suit.Rewards) / 2)
-	response.Rewards = make([]*msg_client_message.ItemInfo, l)
-	for i := int32(0); i < l; i++ {
-		p.AddItemResource(suit.Rewards[2*i], suit.Rewards[2*i+1], "suit_award", "handbook")
-		response.Rewards[i] = &msg_client_message.ItemInfo{
-			ItemCfgId: proto.Int32(suit.Rewards[2*i]),
-			ItemNum:   proto.Int32(suit.Rewards[2*i+1]),
-		}
-	}
-	p.Send(response)
-	p.SendItemsUpdate()
-
 	return 1
 }
 

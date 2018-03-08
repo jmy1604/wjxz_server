@@ -6,6 +6,7 @@ import (
 	"libs/rpc"
 	"libs/socket"
 	"libs/timer"
+	"libs/utils"
 	"main/table_config"
 	"public_message/gen_go/client_message"
 	"sync"
@@ -25,6 +26,7 @@ type HallServer struct {
 	last_gc_time       int32
 	rpc_client         *rpc.Client  // 连接到rpc服务
 	rpc_service        *rpc.Service // 接受rpc连接
+	redis_conn         *utils.RedisConn
 
 	server_info_row *dbServerInfoRow
 }
@@ -35,6 +37,11 @@ func (this *HallServer) Init() (ok bool) {
 	this.start_time = time.Now()
 	this.shutdown_lock = &sync.Mutex{}
 	this.net = socket.NewNode(&hall_server, time.Duration(config.RecvMaxMSec), time.Duration(config.SendMaxMSec), 5000, msg_client_message.MessageNames) //(this, 0, 0, 5000, 0, 0, 0, 0, 0)
+
+	this.redis_conn = &utils.RedisConn{}
+	if !this.redis_conn.Connect(config.RedisServerIP) {
+		return
+	}
 
 	// rpc初始化
 	if !this.init_rpc_service() {
@@ -66,7 +73,6 @@ func (this *HallServer) Init() (ok bool) {
 func (this *HallServer) OnInit() (err error) {
 	reg_player_mail_msg()
 	reg_player_base_info_msg()
-	reg_player_sign_msg()
 	reg_player_first_pay_msg()
 	reg_player_guide_msg()
 	reg_player_friend_msg()
@@ -76,6 +82,12 @@ func (this *HallServer) OnInit() (err error) {
 	reg_player_activity_msg()
 
 	player_mgr.RegMsgHandler()
+
+	if !cfg_position.Init() {
+		return errors.New("cfg_positioin init failed")
+	} else {
+		log.Info("cfg_position init succeed")
+	}
 
 	if !item_table_mgr.Init() {
 		return errors.New("cfg_item_mgr init failed!")
@@ -89,31 +101,11 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("cfg_stage_mgr init succeed !")
 	}
 
-	if !cfg_position.Init() {
-		return errors.New("cfg_position init failed !")
-	} else {
-		log.Info("cfg_position init succeed !")
-	}
-
-	//if !achieve_task_mgr.Init() {
 	if !task_table_mgr.Init() {
 		log.Error("task_mgr init failed")
 		return errors.New("task_mgr init failed !")
 	} else {
 		log.Info("task_mgr init succeed !")
-	}
-
-	if !cfg_build_area_mgr.Init() {
-		return errors.New("cfg_build_area_mgr init failed !")
-	} else {
-		log.Info("cfg_build_area_mgr init succeed !")
-	}
-
-	if !cat_table_mgr.Init() {
-		log.Error("cfg_character_mgr init failed !")
-		return errors.New("cfg_character_mgr init failed !")
-	} else {
-		log.Info("cfg_character_mgr init succeed !")
 	}
 
 	if !cfg_skill_mgr.Init() {
@@ -123,13 +115,6 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("cfg_skill_mgr init succeed")
 	}
 
-	if !cfg_building_mgr.Init() {
-		log.Error("cfg_building_mgr init failed !")
-		return errors.New("cfg_building_mgr init failed")
-	} else {
-		log.Info("cfg_building_mgr init succeed")
-	}
-
 	if !cfg_drop_card_mgr.Init() {
 		log.Error("cfg_drop_card_mgr init failed !")
 		return errors.New("cfg_drop_card_mgr init failed !")
@@ -137,32 +122,10 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("cfg_drop_card_mgr init succeed !")
 	}
 
-	if !cfg_expedition_mgr.Init() {
-		log.Error("cfg_expedition_mgr init failed !")
-		return errors.New("cfg_expedition_mgr init failed !")
+	if !extract_table_mgr.Init() {
+		return errors.New("extract_table_mgr init failed")
 	} else {
-		log.Info("cfg_expedition_mgr init succeed")
-	}
-
-	if !cfg_block_mgr.Init() {
-		log.Error("cfg_block_mgr init failed !")
-		return errors.New("cfg_block_mgr init failed !")
-	} else {
-		log.Info("cfg_block_mgr init succeed")
-	}
-
-	if !cfg_mapchest_mgr.Init() {
-		log.Error("cfg_mapchest_mgr init failed !")
-		return errors.New("cfg_mapchest_mgr init failed !")
-	} else {
-		log.Info("cfg_mapchest_mgr init succeed")
-	}
-
-	if !cfg_areaunlock_mgr.Init() {
-		log.Error("cfg_areaunlock_mgr init failed !")
-		return errors.New("cfg_areaunlock_mgr init failed !")
-	} else {
-		log.Info("cfg_areaunlock_mgr init succeed")
+		log.Info("extract_table_mgr init succeed")
 	}
 
 	if !cfg_activity_mgr.Init() {
@@ -214,47 +177,11 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("chapter_mgr init succeed!")
 	}
 
-	/*if !cfg_mail_mgr.Init() {
-		return errors.New("cfg_mail_mgr init failed !")
-	} else {
-		log.Info("cfg_mail_mgr init succeed !")
-	}*/
-
-	//chest_cfg_mgr.OpenChestTest()
-
-	if !formula_table_mgr.Init() {
-		log.Error("formula_mgr init failed")
-		return errors.New("formula_mgr init failed")
-	} else {
-		log.Info("formula_mgr init succeed")
-	}
-
 	if !other_table_mgr.Init() {
 		log.Error("other_mgr init failed")
 		return errors.New("other_mgr init failed")
 	} else {
 		log.Info("other_mgr init succeed")
-	}
-
-	if !crop_table_mgr.Init() {
-		log.Error("crop_mgr init failed")
-		return errors.New("crop_mgr init failed")
-	} else {
-		log.Info("crop_mgr init succeed")
-	}
-
-	if !cathouse_table_mgr.Init() {
-		log.Error("cathouse_mgr init failed")
-		return errors.New("cathouse_mgr init failed")
-	} else {
-		log.Info("cathouse_mgr init succeed")
-	}
-
-	if !extract_table_mgr.Init() {
-		log.Error("extract_table_mgr init failed")
-		return errors.New("extract_table_mgr init failed")
-	} else {
-		log.Info("extract_table_mgr init succeed")
 	}
 
 	if !level_table_mgr.Init() {
@@ -276,20 +203,6 @@ func (this *HallServer) OnInit() (err error) {
 		return errors.New("suit_table_mgr init failed")
 	} else {
 		log.Info("suit_table_mgr init succeed")
-	}
-
-	if !foster_table_mgr.Init() {
-		log.Error("foster_table_mgr init failed")
-		return errors.New("foster_table_mgr init failed")
-	} else {
-		log.Info("foster_table_mgr init succeed")
-	}
-
-	if !foster_card_table_mgr.Init() {
-		log.Error("foster_card_table_mgr init failed")
-		return errors.New("foster_card_table_mgr init failed")
-	} else {
-		log.Info("foster_card_table_mgr init succeed")
 	}
 
 	pay_mgr.init()
@@ -338,6 +251,8 @@ func (this *HallServer) Run() {
 	this.ticker.Start()
 	defer this.ticker.Stop()
 
+	go this.redis_conn.Run(100)
+
 	for {
 		select {
 		case d, ok := <-this.ticker.Chan:
@@ -372,6 +287,8 @@ func (this *HallServer) Shutdown() {
 		return
 	}
 	this.quit = true
+
+	this.redis_conn.Close()
 
 	log.Trace("关闭游戏主循环")
 
@@ -463,67 +380,22 @@ func (this *HallServer) OnUpdate(c *socket.TcpConn, t timer.TickTime) {
 }
 
 var global_id table_config.GlobalId
-
 var global_config_mgr table_config.GlobalConfigManager
-
 var task_table_mgr table_config.TaskTableMgr
-
 var item_table_mgr table_config.CfgItemManager
-
-var cfg_building_mgr table_config.CfgBuildingMgr
-
 var stage_table_mgr table_config.CfgStageManager
-
-var cat_table_mgr table_config.CfgCharacterMgr
-
 var cfg_skill_mgr table_config.CfgSkillMgr
-
 var cfg_drop_card_mgr table_config.CfgDropCardManager
-
 var cfg_player_level_mgr table_config.CfgPlayerLevelManager
-
 var shop_table_mgr table_config.ShopTableManager
-
 var box_table_mgr table_config.BoxTableManager
-
-var cfg_position table_config.CfgPosition
-
 var cfg_chapter_mgr table_config.CfgChapterManager
-
-var cfg_build_area_mgr table_config.CfgBuildAreaMgr
-
-var chest_cfg_mgr table_config.ChestConfigMgr
-
 var cfg_mail_mgr table_config.MailConfigManager
-
 var cfg_day_sign_mgr table_config.CfgDaySignManager
-
-var formula_table_mgr table_config.FormulaTableMgr
-
 var other_table_mgr table_config.OtherTableManager
-
-var crop_table_mgr table_config.CropTableMgr
-
-var cathouse_table_mgr table_config.CatHouseTableMgr
-
-var cfg_expedition_mgr table_config.CfgExpeditionMgr
-
-var extract_table_mgr table_config.ExtractTableManager
-
-var cfg_block_mgr table_config.CfgBlockMgr
-
-var cfg_mapchest_mgr table_config.CfgMapChestMgr
-
-var cfg_areaunlock_mgr table_config.CfgAreaUnlockMgr
-
 var level_table_mgr table_config.LevelTableMgr
-
 var handbook_table_mgr table_config.HandbookTableMgr
-
 var suit_table_mgr table_config.SuitTableMgr
-
 var cfg_activity_mgr table_config.CfgActivityMgr
-
-var foster_table_mgr table_config.FosterTableMgr
-
-var foster_card_table_mgr table_config.FosterCardTableMgr
+var extract_table_mgr table_config.ExtractTableManager
+var cfg_position table_config.CfgPosition
