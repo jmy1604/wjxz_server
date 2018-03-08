@@ -2,6 +2,7 @@ package main
 
 import (
 	"libs/log"
+	"libs/utils"
 	"time"
 )
 
@@ -9,13 +10,13 @@ type RedisGlobalData struct {
 	inited             bool
 	nick_id_set        *NickIdSet
 	shop_limited_items *ShopLimitedItemSet
-	redis_conn         *RedisConn // redis连接
+	redis_conn         *utils.RedisConn // redis连接
 }
 
 var global_data RedisGlobalData
 
 func (this *RedisGlobalData) Init() bool {
-	this.redis_conn = &RedisConn{}
+	this.redis_conn = &utils.RedisConn{}
 	if this.redis_conn == nil {
 		log.Error("redis客户端未初始化")
 		return false

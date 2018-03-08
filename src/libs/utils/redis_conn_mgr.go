@@ -1,4 +1,4 @@
-package main
+package utils
 
 type RedisConnMgr struct {
 	conn_arr []*RedisConn
