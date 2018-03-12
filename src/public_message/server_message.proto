@@ -1,3 +1,4 @@
+syntax = "proto2";
 package msg.server_message;
 
 //版本号

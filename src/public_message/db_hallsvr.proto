@@ -1,3 +1,4 @@
+syntax = "proto2";
 package db;
 
 
@@ -55,6 +56,10 @@ message PlayerRole{
 
 message PlayerRoleList{
 	repeated PlayerRole List=1;
+}
+
+message PlayerBattleTeam{
+	repeated int32 Member=1;
 }
 
 message PlayerStage{

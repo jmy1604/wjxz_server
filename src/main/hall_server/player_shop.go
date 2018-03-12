@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 func (this *Player) fetch_shop_limit_items(shop_id int32, send_msg bool) int32 {

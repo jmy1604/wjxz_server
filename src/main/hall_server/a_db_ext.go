@@ -7,7 +7,8 @@ import (
 	"public_message/gen_go/server_message"
 	"time"
 
-	"3p/code.google.com.protobuf/proto"
+	//"3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 func (this *DBC) on_preload() (err error) {

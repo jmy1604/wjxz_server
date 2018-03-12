@@ -157,6 +157,19 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	return ret_p
 }
 
+func (this *Player) new_role(role_id int32, jingjie int32, level int32) bool {
+	if this.db.Roles.HasIndex(role_id) {
+		log.Error("Player[%v] already has role[%v]", this.Id, role_id)
+		return false
+	}
+	var role dbPlayerRoleData
+	role.Id = role_id
+	role.Jingjie = jingjie
+	role.Level = level
+	this.db.Roles.Add(&role)
+	return true
+}
+
 func (this *Player) add_msg_data(msg_code uint16, data []byte) {
 	if nil == data {
 		log.Error("Player add_msg_data !")

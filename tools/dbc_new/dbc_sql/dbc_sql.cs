@@ -2858,6 +2858,7 @@ namespace DBCompiler_sql
             StringBuilder proto = new StringBuilder();
 
             //namespace
+            proto.AppendLine("syntax = \"proto2\";");
             proto.AppendLine("package " + def.Namespace + ";");
             proto.AppendLine();
 

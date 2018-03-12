@@ -11,7 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"3p/code.google.com.protobuf/proto"
+	//"3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 var msg_handler_http_mux map[string]func(http.ResponseWriter, *http.Request)

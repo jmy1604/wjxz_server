@@ -6,7 +6,8 @@ import (
 	"public_message/gen_go/server_message"
 	"sync"
 
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 type PlayerManager struct {

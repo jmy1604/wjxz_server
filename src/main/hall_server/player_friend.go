@@ -9,7 +9,8 @@ import (
 	"public_message/gen_go/client_message"
 	"time"
 
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 const FRIEND_UNREAD_MESSAGE_MAX_NUM int = 200

@@ -1,3 +1,5 @@
+syntax = "proto2";
+
 package msg.client_message;
 
 //版本号

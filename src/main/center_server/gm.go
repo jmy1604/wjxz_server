@@ -14,7 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 var gm_http_mux map[string]func(http.ResponseWriter, *http.Request)

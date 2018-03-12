@@ -7,7 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 const MAX_WORLD_CHAT_ONCE_GET int32 = 50

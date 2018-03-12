@@ -16,7 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 type E_DISCONNECT_REASON int32

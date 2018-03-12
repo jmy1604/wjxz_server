@@ -1,7 +1,8 @@
 package main
 
 import (
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	_ "3p/mysql"
 	"database/sql"
 	"errors"
@@ -470,6 +471,35 @@ func (this* dbPlayerRoleData)clone_to(d *dbPlayerRoleData){
 	d.Attr = make([]int32, len(this.Attr))
 	for _ii, _vv := range this.Attr {
 		d.Attr[_ii]=_vv
+	}
+	return
+}
+type dbPlayerBattleTeamData struct{
+	Member []int32
+}
+func (this* dbPlayerBattleTeamData)from_pb(pb *db.PlayerBattleTeam){
+	if pb == nil {
+		this.Member = make([]int32,0)
+		return
+	}
+	this.Member = make([]int32,len(pb.GetMember()))
+	for i, v := range pb.GetMember() {
+		this.Member[i] = v
+	}
+	return
+}
+func (this* dbPlayerBattleTeamData)to_pb()(pb *db.PlayerBattleTeam){
+	pb = &db.PlayerBattleTeam{}
+	pb.Member = make([]int32, len(this.Member))
+	for i, v := range this.Member {
+		pb.Member[i]=v
+	}
+	return
+}
+func (this* dbPlayerBattleTeamData)clone_to(d *dbPlayerBattleTeamData){
+	d.Member = make([]int32, len(this.Member))
+	for _ii, _vv := range this.Member {
+		d.Member[_ii]=_vv
 	}
 	return
 }
@@ -2231,6 +2261,72 @@ func (this *dbPlayerRoleColumn)SetAttr(id int32,v []int32)(has bool){
 	}
 	this.m_changed = true
 	return true
+}
+type dbPlayerBattleTeamColumn struct{
+	m_row *dbPlayerRow
+	m_data *dbPlayerBattleTeamData
+	m_changed bool
+}
+func (this *dbPlayerBattleTeamColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbPlayerBattleTeamData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerBattleTeam{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_data = &dbPlayerBattleTeamData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerBattleTeamColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerBattleTeamColumn)Get( )(v *dbPlayerBattleTeamData ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbPlayerBattleTeamData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbPlayerBattleTeamColumn)Set(v dbPlayerBattleTeamData ){
+	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbPlayerBattleTeamData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbPlayerBattleTeamColumn)GetMember( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamColumn.GetMember")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.Member))
+	for _ii, _vv := range this.m_data.Member {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbPlayerBattleTeamColumn)SetMember(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamColumn.SetMember")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Member = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.Member[_ii]=_vv
+	}
+	this.m_changed = true
+	return
 }
 type dbPlayerStageColumn struct{
 	m_row *dbPlayerRow
@@ -7523,6 +7619,7 @@ type dbPlayerRow struct {
 	m_Name string
 	Info dbPlayerInfoColumn
 	Roles dbPlayerRoleColumn
+	BattleTeam dbPlayerBattleTeamColumn
 	Stages dbPlayerStageColumn
 	ChapterUnLock dbPlayerChapterUnLockColumn
 	Items dbPlayerItemColumn
@@ -7569,6 +7666,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.Info.m_data=&dbPlayerInfoData{}
 	this.Roles.m_row=this
 	this.Roles.m_data=make(map[int32]*dbPlayerRoleData)
+	this.BattleTeam.m_row=this
+	this.BattleTeam.m_data=&dbPlayerBattleTeamData{}
 	this.Stages.m_row=this
 	this.Stages.m_data=make(map[int32]*dbPlayerStageData)
 	this.ChapterUnLock.m_row=this
@@ -7646,7 +7745,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(39)
+		db_args:=new_db_args(40)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
@@ -7662,6 +7761,12 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dRoles)
+		dBattleTeam,db_err:=this.BattleTeam.save()
+		if db_err!=nil{
+			log.Error("insert save BattleTeam failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dBattleTeam)
 		dStages,db_err:=this.Stages.save()
 		if db_err!=nil{
 			log.Error("insert save Stage failed")
@@ -7869,9 +7974,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Roles.m_changed||this.Stages.m_changed||this.ChapterUnLock.m_changed||this.Items.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.Chests.m_changed||this.Mails.m_changed||this.PayBacks.m_changed||this.Options.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.SignInfo.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.CustomData.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.Activitys.m_changed||this.SuitAwards.m_changed||this.Zans.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.TalkForbid.m_changed||this.ServerRewards.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.Stages.m_changed||this.ChapterUnLock.m_changed||this.Items.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.Chests.m_changed||this.Mails.m_changed||this.PayBacks.m_changed||this.Options.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.SignInfo.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.CustomData.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.Activitys.m_changed||this.SuitAwards.m_changed||this.Zans.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.TalkForbid.m_changed||this.ServerRewards.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(39)
+			db_args:=new_db_args(40)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -7897,6 +8002,15 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 					return err,false,0,"",nil
 				}
 				db_args.Push(dRoles)
+			}
+			if this.BattleTeam.m_changed{
+				update_string+="BattleTeam=?,"
+				dBattleTeam,err:=this.BattleTeam.save()
+				if err!=nil{
+					log.Error("update save BattleTeam failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dBattleTeam)
 			}
 			if this.Stages.m_changed{
 				update_string+="Stages=?,"
@@ -8216,6 +8330,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_Name_changed = false
 	this.Info.m_changed = false
 	this.Roles.m_changed = false
+	this.BattleTeam.m_changed = false
 	this.Stages.m_changed = false
 	this.ChapterUnLock.m_changed = false
 	this.Items.m_changed = false
@@ -8351,7 +8466,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	}
 	_, hasAccount := columns["Account"]
 	if !hasAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Account varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Account varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Account failed")
 			return
@@ -8359,7 +8474,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	}
 	_, hasName := columns["Name"]
 	if !hasName {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Name varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Name varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Name failed")
 			return
@@ -8378,6 +8493,14 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Roles LONGBLOB")
 		if err != nil {
 			log.Error("ADD COLUMN Roles failed")
+			return
+		}
+	}
+	_, hasBattleTeam := columns["BattleTeam"]
+	if !hasBattleTeam {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN BattleTeam LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN BattleTeam failed")
 			return
 		}
 	}
@@ -8656,7 +8779,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Roles,Stages,ChapterUnLock,Items,ShopItems,ShopLimitedInfos,Chests,Mails,PayBacks,Options,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,SignInfo,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,CustomData,ChaterOpenRequest,HandbookItems,HeadItems,Activitys,SuitAwards,Zans,WorldChat,Anouncement,FirstDrawCards,TalkForbid,ServerRewards FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Roles,BattleTeam,Stages,ChapterUnLock,Items,ShopItems,ShopLimitedInfos,Chests,Mails,PayBacks,Options,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,SignInfo,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,CustomData,ChaterOpenRequest,HandbookItems,HeadItems,Activitys,SuitAwards,Zans,WorldChat,Anouncement,FirstDrawCards,TalkForbid,ServerRewards FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -8664,7 +8787,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Roles,Stages,ChapterUnLock,Items,ShopItems,ShopLimitedInfos,Chests,Mails,PayBacks,Options,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,SignInfo,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,CustomData,ChaterOpenRequest,HandbookItems,HeadItems,Activitys,SuitAwards,Zans,WorldChat,Anouncement,FirstDrawCards,TalkForbid,ServerRewards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Roles,BattleTeam,Stages,ChapterUnLock,Items,ShopItems,ShopLimitedInfos,Chests,Mails,PayBacks,Options,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,SignInfo,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,CustomData,ChaterOpenRequest,HandbookItems,HeadItems,Activitys,SuitAwards,Zans,WorldChat,Anouncement,FirstDrawCards,TalkForbid,ServerRewards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -8713,6 +8836,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dName string
 	var dInfo []byte
 	var dRoles []byte
+	var dBattleTeam []byte
 	var dStages []byte
 	var dChapterUnLock []byte
 	var dItems []byte
@@ -8749,7 +8873,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dServerRewards []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dRoles,&dStages,&dChapterUnLock,&dItems,&dShopItems,&dShopLimitedInfos,&dChests,&dMails,&dPayBacks,&dOptions,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dSignInfo,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dCustomData,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dActivitys,&dSuitAwards,&dZans,&dWorldChat,&dAnouncement,&dFirstDrawCards,&dTalkForbid,&dServerRewards)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dRoles,&dBattleTeam,&dStages,&dChapterUnLock,&dItems,&dShopItems,&dShopLimitedInfos,&dChests,&dMails,&dPayBacks,&dOptions,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dSignInfo,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dCustomData,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dActivitys,&dSuitAwards,&dZans,&dWorldChat,&dAnouncement,&dFirstDrawCards,&dTalkForbid,&dServerRewards)
 		if err != nil {
 			log.Error("Scan")
 			return
@@ -8768,6 +8892,11 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.Roles.load(dRoles)
 		if err != nil {
 			log.Error("Roles %v", PlayerId)
+			return
+		}
+		err = row.BattleTeam.load(dBattleTeam)
+		if err != nil {
+			log.Error("BattleTeam %v", PlayerId)
 			return
 		}
 		err = row.Stages.load(dStages)
@@ -9351,7 +9480,7 @@ func (this *dbGooglePayRecordTable) check_create_table() (err error) {
 	}
 	_, hasSn := columns["Sn"]
 	if !hasSn {
-		_, err = this.m_dbc.Exec("ALTER TABLE GooglePayRecords ADD COLUMN Sn varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePayRecords ADD COLUMN Sn varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Sn failed")
 			return
@@ -9359,7 +9488,7 @@ func (this *dbGooglePayRecordTable) check_create_table() (err error) {
 	}
 	_, hasBid := columns["Bid"]
 	if !hasBid {
-		_, err = this.m_dbc.Exec("ALTER TABLE GooglePayRecords ADD COLUMN Bid varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE GooglePayRecords ADD COLUMN Bid varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Bid failed")
 			return
@@ -9928,7 +10057,7 @@ func (this *dbApplePayRecordTable) check_create_table() (err error) {
 	}
 	_, hasSn := columns["Sn"]
 	if !hasSn {
-		_, err = this.m_dbc.Exec("ALTER TABLE ApplePayRecords ADD COLUMN Sn varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePayRecords ADD COLUMN Sn varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Sn failed")
 			return
@@ -9936,7 +10065,7 @@ func (this *dbApplePayRecordTable) check_create_table() (err error) {
 	}
 	_, hasBid := columns["Bid"]
 	if !hasBid {
-		_, err = this.m_dbc.Exec("ALTER TABLE ApplePayRecords ADD COLUMN Bid varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE ApplePayRecords ADD COLUMN Bid varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Bid failed")
 			return
@@ -10505,7 +10634,7 @@ func (this *dbFaceBPayRecordTable) check_create_table() (err error) {
 	}
 	_, hasSn := columns["Sn"]
 	if !hasSn {
-		_, err = this.m_dbc.Exec("ALTER TABLE FaceBPayRecords ADD COLUMN Sn varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE FaceBPayRecords ADD COLUMN Sn varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Sn failed")
 			return
@@ -10513,7 +10642,7 @@ func (this *dbFaceBPayRecordTable) check_create_table() (err error) {
 	}
 	_, hasBid := columns["Bid"]
 	if !hasBid {
-		_, err = this.m_dbc.Exec("ALTER TABLE FaceBPayRecords ADD COLUMN Bid varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE FaceBPayRecords ADD COLUMN Bid varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Bid failed")
 			return
@@ -11299,7 +11428,7 @@ func (this *dbPlayerLoginTable) check_create_table() (err error) {
 	}
 	_, hasPlayerAccount := columns["PlayerAccount"]
 	if !hasPlayerAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerLogins ADD COLUMN PlayerAccount varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE PlayerLogins ADD COLUMN PlayerAccount varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN PlayerAccount failed")
 			return
@@ -11315,7 +11444,7 @@ func (this *dbPlayerLoginTable) check_create_table() (err error) {
 	}
 	_, hasPlayerName := columns["PlayerName"]
 	if !hasPlayerName {
-		_, err = this.m_dbc.Exec("ALTER TABLE PlayerLogins ADD COLUMN PlayerName varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE PlayerLogins ADD COLUMN PlayerName varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN PlayerName failed")
 			return
@@ -11779,7 +11908,7 @@ func (this *dbOtherServerPlayerTable) check_create_table() (err error) {
 	}
 	_, hasAccount := columns["Account"]
 	if !hasAccount {
-		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Account varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Account varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Account failed")
 			return
@@ -11787,7 +11916,7 @@ func (this *dbOtherServerPlayerTable) check_create_table() (err error) {
 	}
 	_, hasName := columns["Name"]
 	if !hasName {
-		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Name varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Name varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Name failed")
 			return
@@ -11803,7 +11932,7 @@ func (this *dbOtherServerPlayerTable) check_create_table() (err error) {
 	}
 	_, hasHead := columns["Head"]
 	if !hasHead {
-		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Head varchar(45) CHARACTER SET utf8")
+		_, err = this.m_dbc.Exec("ALTER TABLE OtherServerPlayers ADD COLUMN Head varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Head failed")
 			return

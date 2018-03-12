@@ -10,6 +10,7 @@ import (
 	"public_message/gen_go/server_message"
 
 	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 type ServerConfig struct {

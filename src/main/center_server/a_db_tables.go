@@ -2,7 +2,8 @@ package main
 
 import (
 	"sort"
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	_ "3p/mysql"
 	"database/sql"
 	"errors"
@@ -1283,6 +1284,7 @@ func (this *dbForbidTalkTable) Save(quick bool) (err error){
 }
 func (this *dbForbidTalkTable) AddRow(KeyId int32) (row *dbForbidTalkRow) {
 	this.GC()
+	this.GCRow(KeyId)
 	this.m_lock.UnSafeLock("dbForbidTalkTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
 	row = new_dbForbidTalkRow(this,KeyId)
@@ -1792,6 +1794,7 @@ func (this *dbForbidLoginTable) Save(quick bool) (err error){
 }
 func (this *dbForbidLoginTable) AddRow(KeyId int32) (row *dbForbidLoginRow) {
 	this.GC()
+	this.GCRow(KeyId)
 	this.m_lock.UnSafeLock("dbForbidLoginTable.AddRow")
 	defer this.m_lock.UnSafeUnlock()
 	row = new_dbForbidLoginRow(this,KeyId)
