@@ -320,8 +320,6 @@ type dbPlayerInfoData struct{
 	FriendPoints int32
 	SaveLastSpiritPointTime int32
 	LastRefreshShopTime int32
-	LastMapChestUpUnix int32
-	LastMapBlockUpUnix int32
 	VipLvl int32
 	DayHelpUnlockCount int32
 	DayHelpUnlockUpDay int32
@@ -357,8 +355,6 @@ func (this* dbPlayerInfoData)from_pb(pb *db.PlayerInfo){
 	this.FriendPoints = pb.GetFriendPoints()
 	this.SaveLastSpiritPointTime = pb.GetSaveLastSpiritPointTime()
 	this.LastRefreshShopTime = pb.GetLastRefreshShopTime()
-	this.LastMapChestUpUnix = pb.GetLastMapChestUpUnix()
-	this.LastMapBlockUpUnix = pb.GetLastMapBlockUpUnix()
 	this.VipLvl = pb.GetVipLvl()
 	this.DayHelpUnlockCount = pb.GetDayHelpUnlockCount()
 	this.DayHelpUnlockUpDay = pb.GetDayHelpUnlockUpDay()
@@ -393,8 +389,6 @@ func (this* dbPlayerInfoData)to_pb()(pb *db.PlayerInfo){
 	pb.FriendPoints = proto.Int32(this.FriendPoints)
 	pb.SaveLastSpiritPointTime = proto.Int32(this.SaveLastSpiritPointTime)
 	pb.LastRefreshShopTime = proto.Int32(this.LastRefreshShopTime)
-	pb.LastMapChestUpUnix = proto.Int32(this.LastMapChestUpUnix)
-	pb.LastMapBlockUpUnix = proto.Int32(this.LastMapBlockUpUnix)
 	pb.VipLvl = proto.Int32(this.VipLvl)
 	pb.DayHelpUnlockCount = proto.Int32(this.DayHelpUnlockCount)
 	pb.DayHelpUnlockUpDay = proto.Int32(this.DayHelpUnlockUpDay)
@@ -428,8 +422,6 @@ func (this* dbPlayerInfoData)clone_to(d *dbPlayerInfoData){
 	d.FriendPoints = this.FriendPoints
 	d.SaveLastSpiritPointTime = this.SaveLastSpiritPointTime
 	d.LastRefreshShopTime = this.LastRefreshShopTime
-	d.LastMapChestUpUnix = this.LastMapChestUpUnix
-	d.LastMapBlockUpUnix = this.LastMapBlockUpUnix
 	d.VipLvl = this.VipLvl
 	d.DayHelpUnlockCount = this.DayHelpUnlockCount
 	d.DayHelpUnlockUpDay = this.DayHelpUnlockUpDay
@@ -1927,32 +1919,6 @@ func (this *dbPlayerInfoColumn)SetLastRefreshShopTime(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetLastRefreshShopTime")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.LastRefreshShopTime = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)GetLastMapChestUpUnix( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetLastMapChestUpUnix")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.LastMapChestUpUnix
-	return
-}
-func (this *dbPlayerInfoColumn)SetLastMapChestUpUnix(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetLastMapChestUpUnix")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.LastMapChestUpUnix = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)GetLastMapBlockUpUnix( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetLastMapBlockUpUnix")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.LastMapBlockUpUnix
-	return
-}
-func (this *dbPlayerInfoColumn)SetLastMapBlockUpUnix(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetLastMapBlockUpUnix")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.LastMapBlockUpUnix = v
 	this.m_changed = true
 	return
 }

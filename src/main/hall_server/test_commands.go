@@ -233,7 +233,7 @@ func drop_items_cmd(p *Player, args []string) int32 {
 		a[i] = int32(n)
 	}
 
-	b, items, _, _ := p.DropItems2([]int32(a), true)
+	b, items := p.DropItems2([]int32(a), true)
 	if !b {
 		return -1
 	}

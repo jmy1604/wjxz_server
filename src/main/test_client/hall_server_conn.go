@@ -170,9 +170,7 @@ func (this *MsgHandlerMgr) RegisterMsgHandler() {
 	this.SetMsgHandler(msg_client_message.ID_S2CRetOptions, S2CRetOptionsHandler)
 	this.SetMsgHandler(msg_client_message.ID_S2CRetBaseInfo, S2CRetBaseInfo)
 	this.SetMsgHandler(msg_client_message.ID_S2CRetItemInfos, S2CRetItemInfos)
-	this.SetMsgHandler(msg_client_message.ID_S2CRetCatInfos, S2CRetCatInfos)
 	this.SetMsgHandler(msg_client_message.ID_S2CDrawResult, S2CDrawCatHandler)
-	this.SetMsgHandler(msg_client_message.ID_S2CComposeCatResult, S2CComposeCatHandler)
 }
 
 func S2CLoginResponseHandler(hall_conn *HallConnection, m proto.Message) {
@@ -200,11 +198,6 @@ func S2CRetItemInfos(hall_conn *HallConnection, m proto.Message) {
 	log.Info("收到服务器返回的物品数据 %v", res.String())
 }
 
-func S2CRetCatInfos(hall_conn *HallConnection, m proto.Message) {
-	res := m.(*msg_client_message.S2CRetCatInfos)
-	log.Info("收到服务器返回的猫数据 %v", res.String())
-}
-
 func S2CRetOptionsHandler(hall_conn *HallConnection, m proto.Message) {
 	res := m.(*msg_client_message.S2CRetOptions)
 	log.Info("player[%d:%s]收到服务器选项返回 %v", hall_conn.playerid, hall_conn.acc, res)
@@ -214,11 +207,6 @@ func S2CRetOptionsHandler(hall_conn *HallConnection, m proto.Message) {
 
 func S2CDrawCatHandler(hall_conn *HallConnection, m proto.Message) {
 	res := m.(*msg_client_message.S2CDrawResult)
-	log.Info("player[%d:%s]收到服务器抽卡返回%s, 猫[%v], 物品[%v]", hall_conn.playerid, hall_conn.acc, res.String(), res.Cats, res.Items)
+	log.Info("player[%d:%s]收到服务器抽卡返回%s, 物品[%v]", hall_conn.playerid, hall_conn.acc, res.String(), res.Items)
 	return
-}
-
-func S2CComposeCatHandler(hall_conn *HallConnection, m proto.Message) {
-	res := m.(*msg_client_message.S2CComposeCatResult)
-	log.Info("收到服务器返回的合成结果[%v]", res.String())
 }

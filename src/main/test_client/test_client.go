@@ -258,35 +258,6 @@ func (this TestClient) cmd_draw_cards() {
 	}
 }
 
-func (this *TestClient) cmd_set_building() {
-	if nil == cur_hall_conn || !cur_hall_conn.blogin {
-		log.Error("当前连接未登陆", cur_hall_conn)
-	} else {
-		req := &msg_client_message.C2SSetBuilding{}
-		fmt.Println("请输入建筑配置Id:")
-		var building_cfgid int32
-		fmt.Scanf("%d\n", &building_cfgid)
-		req.BuildingCfgId = proto.Int32(building_cfgid)
-		fmt.Println("请输入方向:")
-		var dir int32
-		fmt.Scanf("%d\n", &dir)
-		fmt.Println("请输入X坐标:")
-		var X int32
-		fmt.Scanf("%d\n", &X)
-		req.X = proto.Int32(X)
-		fmt.Println("请输入Y坐标:")
-		var Y int32
-		fmt.Scanf("%d\n", &Y)
-		req.Y = proto.Int32(Y)
-		cur_hall_conn.Send(req)
-	}
-}
-
-func (this *TestClient) cmd_get_cats() {
-	req := &msg_client_message.C2SGetCatInfos{}
-	cur_hall_conn.Send(req)
-}
-
 func (this *TestClient) cmd_get_base_info() {
 	req := &msg_client_message.C2SGetBaseInfo{}
 	cur_hall_conn.Send(req)
@@ -301,103 +272,9 @@ func (this *TestClient) cmd_change_nick() {
 	cur_hall_conn.Send(req)
 }
 
-func (this *TestClient) cmd_get_all_expeditions() {
-	req := &msg_client_message.C2SGetAllExpedition{}
-	fmt.Println("请求所有探险任务！")
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_get_expedition_reward() {
-	var task_id int32
-	fmt.Println("请输入任务Id:")
-	fmt.Scanf("%s\n", &task_id)
-	req := &msg_client_message.C2SGetExpeditionReward{}
-	req.Id = proto.Int32(task_id)
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_start_expedition() {
-	var task_id int32
-	fmt.Println("请输入任务Id:")
-	fmt.Scanf("%d\n", &task_id)
-	req := &msg_client_message.C2SStartExpedition{}
-	req.Id = proto.Int32(task_id)
-
-	var cat_num, cat_id int32
-	fmt.Println("请输入猫数量:")
-	fmt.Scanf("%d\n", &cat_num)
-	req.CatIds = make([]int32, 0, cat_num)
-	for idx := int32(0); idx < cat_num; idx++ {
-
-		fmt.Println("请输入猫Id:")
-		fmt.Scanf("%d\n", &cat_id)
-		req.CatIds = append(req.CatIds, cat_id)
-	}
-
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_reward_expedition() {
-	var task_id int32
-	fmt.Println("请输入任务Id:")
-	fmt.Scanf("%d\n", &task_id)
-	req := &msg_client_message.C2SGetExpeditionReward{}
-	req.Id = proto.Int32(task_id)
-
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_chg_expedition() {
-	var task_id int32
-	fmt.Println("请输入任务Id:")
-	fmt.Scanf("%d\n", &task_id)
-	req := &msg_client_message.C2SChgExpedition{}
-	req.Id = proto.Int32(task_id)
-
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_unlock_area() {
-	var area_id int32
-	fmt.Println("请输入区域Id:")
-	fmt.Scanf("%d\n", &area_id)
-	var if_quick int32
-	fmt.Println("是否快速解锁:")
-	fmt.Scanf("%d\n", &if_quick)
-	req := &msg_client_message.C2SUnlockArea{}
-	req.AreaId = proto.Int32(area_id)
-	req.IfQuick = proto.Int32(if_quick)
-
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_get_all_buildings() {
-	cur_hall_conn.Send(&msg_client_message.C2SGetBuildingInfos{})
-}
-
 func (this *TestClient) cmd_heart_beat() {
 	log.Info("心跳")
 	cur_hall_conn.Send(&msg_client_message.HeartBeat{})
-}
-
-func (this *TestClient) cmd_remove_block() {
-	var building_id int32
-	fmt.Println("请输入建筑Id:")
-	fmt.Scanf("%d\n", &building_id)
-	req := &msg_client_message.C2SRemoveBlock{}
-	req.BuildingId = proto.Int32(building_id)
-
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_open_chest() {
-	var building_id int32
-	fmt.Println("请输入建筑Id:")
-	fmt.Scanf("%d\n", &building_id)
-	req := &msg_client_message.C2SOpenMapChest{}
-	req.BuildingId = proto.Int32(building_id)
-
-	cur_hall_conn.Send(req)
 }
 
 func (this *TestClient) cmd_get_info() {
@@ -464,13 +341,6 @@ func (this *TestClient) cmd_get_act_reward() {
 	cur_hall_conn.Send(req)
 }
 
-func (this *TestClient) cmd_get_area_info() {
-	fmt.Println("获取活动奖励")
-	req := &msg_client_message.C2SGetAreasInfos{}
-
-	cur_hall_conn.Send(req)
-}
-
 var is_test bool
 
 func (this *TestClient) OnTick(t timer.TickTime) {
@@ -500,18 +370,6 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 			{
 				this.cmd_draw_cards()
 			}
-		case "set_building":
-			{
-				this.cmd_set_building()
-			}
-		case "get_all_buildings":
-			{
-				this.cmd_get_all_buildings()
-			}
-		case "get_cats":
-			{
-				this.cmd_get_cats()
-			}
 		case "get_base_info":
 			{
 				this.cmd_get_base_info()
@@ -524,38 +382,11 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 			{
 				is_test = true
 			}
-		case "get_all_expedition":
-			{
-				this.cmd_get_all_expeditions()
-			}
-		case "get_expedition_reward":
-			{
-				this.cmd_get_expedition_reward()
-			}
-		case "start_expedition":
-			{
-				this.cmd_start_expedition()
-			}
-		case "reward_expedition":
-			{
-				this.cmd_reward_expedition()
-			}
-		case "chg_expedition":
-			{
-				this.cmd_chg_expedition()
-			}
-		case "unlock_area":
-			{
-				this.cmd_unlock_area()
-			}
 		case "heart_beat":
 			{
 				this.cmd_heart_beat()
 			}
-		case "remove_block":
-			{
-				this.cmd_remove_block()
-			}
+
 		case "get_info":
 			{
 				this.cmd_get_info()
@@ -571,10 +402,6 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 		case "get_act_reward":
 			{
 				this.cmd_get_act_reward()
-			}
-		case "get_area_info":
-			{
-				this.cmd_get_area_info()
 			}
 		}
 	} else {

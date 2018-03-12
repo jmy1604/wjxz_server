@@ -15,16 +15,16 @@ func reg_player_draw_msg() {
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SDraw, C2SDrawHandler)
 }
 
-func (this *Player) drop_item_by_id(id int32, check_same bool) (bool, *msg_client_message.ItemInfo, *msg_client_message.CatInfo, *msg_client_message.DepotBuildingInfo) {
+func (this *Player) drop_item_by_id(id int32, check_same bool) (bool, *msg_client_message.ItemInfo) {
 	drop_lib := cfg_drop_card_mgr.Map[id]
 	if nil == drop_lib {
-		return false, nil, nil, nil
+		return false, nil
 	}
-	item, cat, building := this.drop_item(drop_lib, check_same, true)
-	return true, item, cat, building
+	item := this.drop_item(drop_lib, check_same, true)
+	return true, item
 }
 
-func (this *Player) drop_item(drop_lib *table_config.DropCardTypeLib, check_same, badd bool) (item *msg_client_message.ItemInfo, cat *msg_client_message.CatInfo, building *msg_client_message.DepotBuildingInfo) {
+func (this *Player) drop_item(drop_lib *table_config.DropCardTypeLib, check_same, badd bool) (item *msg_client_message.ItemInfo) {
 	log.Info("当前抽取库 总数目%d 总权重%d 详细%v", drop_lib.TotalCount, drop_lib.TotalWeight, drop_lib)
 
 	if check_same {
@@ -88,15 +88,13 @@ func (this *Player) drop_item(drop_lib *table_config.DropCardTypeLib, check_same
 	return
 }
 
-func (this *Player) DropItems(items_info []*table_config.ItemInfo, draw_count int32, badd bool) (bool, []*msg_client_message.ItemInfo, []*msg_client_message.CatInfo, []*msg_client_message.DepotBuildingInfo) {
+func (this *Player) DropItems(items_info []*table_config.ItemInfo, draw_count int32, badd bool) (bool, []*msg_client_message.ItemInfo) {
 	total_drop_count := int32(0)
 	for n := 0; n < len(items_info); n++ {
 		total_drop_count += items_info[n].Num
 	}
 
-	cats := make([]*msg_client_message.CatInfo, 0, draw_count*total_drop_count)
 	items := make([]*msg_client_message.ItemInfo, 0, draw_count*total_drop_count)
-	buildings := make([]*msg_client_message.DepotBuildingInfo, 0, draw_count*total_drop_count)
 
 	this.used_drop_ids = make(map[int32]int32)
 
@@ -108,60 +106,46 @@ func (this *Player) DropItems(items_info []*table_config.ItemInfo, draw_count in
 				draw_lib := cfg_drop_card_mgr.Map[items_info[i].Id]
 				if nil == draw_lib {
 					log.Error("Player[%v] draw card not found draw lib[%v]", this.Id, items_info[i].Id)
-					return false, nil, nil, nil
+					return false, nil
 				}
 
-				tmp_item, tmp_cat, tmp_building := this.drop_item(draw_lib, true, badd)
+				tmp_item := this.drop_item(draw_lib, true, badd)
 				if tmp_item != nil {
 					items = append(items, tmp_item)
-				}
-				if tmp_cat != nil {
-					cats = append(cats, tmp_cat)
-				}
-				if tmp_building != nil {
-					buildings = append(buildings, tmp_building)
 				}
 			}
 		}
 	}
 
-	return true, items, cats, buildings
+	return true, items
 }
 
-func (this *Player) DropItems2(items_info []int32, badd bool) (bool, []*msg_client_message.ItemInfo, []*msg_client_message.CatInfo, []*msg_client_message.DepotBuildingInfo) {
+func (this *Player) DropItems2(items_info []int32, badd bool) (bool, []*msg_client_message.ItemInfo) {
 	total_drop_count := int32(0)
 	for n := 0; n < len(items_info)/2; n++ {
 		total_drop_count += items_info[2*n+1]
 	}
 
-	cats := make([]*msg_client_message.CatInfo, 0, total_drop_count)
 	items := make([]*msg_client_message.ItemInfo, 0, total_drop_count)
-	buildings := make([]*msg_client_message.DepotBuildingInfo, 0, total_drop_count)
 
 	rand.Seed(time.Now().Unix() + time.Now().UnixNano())
 	for i := 0; i < len(items_info)/2; i++ {
 		drop_lib := cfg_drop_card_mgr.Map[items_info[2*i]]
 		if nil == drop_lib {
-			return false, nil, nil, nil
+			return false, nil
 		}
 
 		for j := 0; j < int(items_info[2*i+1]); j++ {
-			tmp_item, tmp_cat, tmp_building := this.drop_item(drop_lib, false, badd)
+			tmp_item := this.drop_item(drop_lib, false, badd)
 			if tmp_item != nil {
 				items = append(items, tmp_item)
 			}
-			if tmp_cat != nil {
-				cats = append(cats, tmp_cat)
-			}
-			if tmp_building != nil {
-				buildings = append(buildings, tmp_building)
-			}
 		}
 	}
-	return true, items, cats, buildings
+	return true, items
 }
 
-func (this *Player) DropItems3(items_info []int32, items map[int32]*msg_client_message.ItemInfo, cats map[int32]*msg_client_message.CatInfo, buildings map[int32]*msg_client_message.DepotBuildingInfo) bool {
+func (this *Player) DropItems3(items_info []int32, items map[int32]*msg_client_message.ItemInfo) bool {
 	total_drop_count := int32(0)
 	for n := 0; n < len(items_info)/2; n++ {
 		total_drop_count += items_info[2*n+1]
@@ -220,7 +204,7 @@ func (this *Player) DrawCard(draw_type, draw_count int32) int32 {
 
 	// 首抽
 	if !this.db.FirstDrawCards.HasIndex(draw_type) && (extract.FirstDropIds != nil && len(extract.FirstDropIds) > 0) {
-		b, res2cli.Items, res2cli.Cats, res2cli.Buildings = this.DropItems2(extract.FirstDropIds, true)
+		b, res2cli.Items = this.DropItems2(extract.FirstDropIds, true)
 		if !b {
 			log.Error("C2SDrawHandler failed to find draw_lib [%d]", draw_type)
 			return int32(msg_client_message.E_ERR_DRAW_WRONG_DRAW_TYPE)
@@ -231,7 +215,7 @@ func (this *Player) DrawCard(draw_type, draw_count int32) int32 {
 		this.db.FirstDrawCards.Add(&d)
 		res2cli.IsFirst = proto.Bool(true)
 	} else {
-		b, res2cli.Items, res2cli.Cats, res2cli.Buildings = this.DropItems(extract.DropItems, draw_count, true)
+		b, res2cli.Items = this.DropItems(extract.DropItems, draw_count, true)
 		if !b {
 			log.Error("C2SDrawHandler failed to find draw_lib [%d]", draw_type)
 			return int32(msg_client_message.E_ERR_DRAW_WRONG_DRAW_TYPE)

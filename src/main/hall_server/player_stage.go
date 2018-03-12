@@ -218,8 +218,6 @@ func (this *Player) ChkFinishStage(stageid, star, score int32, ret_msg *msg_clie
 	var tmp_item *msg_client_message.ItemInfo
 
 	ret_msg.Getitems = make([]*msg_client_message.ItemInfo, 0)
-	ret_msg.GetCats = make([]*msg_client_message.CatInfo, 0)
-	ret_msg.GetBuildings = make([]*msg_client_message.DepotBuildingInfo, 0)
 	if bfirst {
 		ret_msg.GetitemsFirst = make([]*msg_client_message.ItemInfo, 0, len(stagecfg.FirstClearReward)/2)
 		log.Info("首次通关[%d]给予奖励 %v", stageid, stagecfg.FirstClearReward)
@@ -262,7 +260,7 @@ func (this *Player) ChkFinishStage(stageid, star, score int32, ret_msg *msg_clie
 	var b bool
 	if len(stagecfg.ExtraReward1) == 2 && rand.Int31n(100) < stagecfg.ExtraReward1[1] {
 		//this.AddItem(stagecfg.ExtraReward1, 1, "StagePass", "Stage", true)
-		b, tmp_item, _, _ = this.drop_item_by_id(stagecfg.ExtraReward1[0], false)
+		b, tmp_item = this.drop_item_by_id(stagecfg.ExtraReward1[0], false)
 		if b {
 			if tmp_item != nil {
 				ret_msg.Getitems = append(ret_msg.Getitems, tmp_item)
@@ -272,7 +270,7 @@ func (this *Player) ChkFinishStage(stageid, star, score int32, ret_msg *msg_clie
 
 	if len(stagecfg.ExtraReward2) == 2 && rand.Int31n(100) < stagecfg.ExtraReward2[1] {
 		//this.AddItem(stagecfg.ExtraReward2, 1, "StagePass", "Stage", true)
-		b, tmp_item, _, _ = this.drop_item_by_id(stagecfg.ExtraReward2[0], false)
+		b, tmp_item = this.drop_item_by_id(stagecfg.ExtraReward2[0], false)
 		if b {
 			if tmp_item != nil {
 				ret_msg.Getitems = append(ret_msg.Getitems, tmp_item)
@@ -290,7 +288,6 @@ func (this *Player) ChkFinishStage(stageid, star, score int32, ret_msg *msg_clie
 func reg_player_stage_msg() {
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SStageBegin, C2SStagePassBeginHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SStagePass, C2SStagePassHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SDayBuyTiLi, C2SDayBuyTiLiHandler)
 	center_conn.SetMessageHandler(msg_server_message.ID_GetFriendStageInfo, C2HGetFriendStageInfoHandler)
 	center_conn.SetMessageHandler(msg_server_message.ID_RetPlayerStagePass, C2HRetPlayerStagePassHandler)
 }
@@ -347,8 +344,6 @@ func (p *Player) stage_pass(result int32, stageid int32, score int32, stars int3
 	// 未过关
 	if result == 0 {
 		tmp_ret.FriendItems = make([]*msg_client_message.PlayerStageInfo, 0)
-		tmp_ret.GetBuildings = make([]*msg_client_message.DepotBuildingInfo, 0)
-		tmp_ret.GetCats = make([]*msg_client_message.CatInfo, 0)
 		tmp_ret.GetCoin = proto.Int32(0)
 		tmp_ret.Getitems = make([]*msg_client_message.ItemInfo, 0)
 		tmp_ret.RankItems = make([]*msg_client_message.PlayerStageInfo, 0)

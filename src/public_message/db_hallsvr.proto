@@ -36,8 +36,6 @@ message PlayerInfo{
 	optional int32 FriendPoints=23;
 	optional int32 SaveLastSpiritPointTime=26;
 	optional int32 LastRefreshShopTime=27;
-	optional int32 LastMapChestUpUnix=30;
-	optional int32 LastMapBlockUpUnix=31;
 	optional int32 VipLvl=32;
 	optional int32 DayHelpUnlockCount=35;
 	optional int32 DayHelpUnlockUpDay=36;

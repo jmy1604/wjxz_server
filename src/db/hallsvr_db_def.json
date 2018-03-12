@@ -84,8 +84,6 @@
 						{"Type":"int32","Index":23,"Name":"FriendPoints","Incby":true},
 						{"Type":"int32","Index":26,"Name":"SaveLastSpiritPointTime"},
 						{"Type":"int32","Index":27,"Name":"LastRefreshShopTime"},
-						{"Type":"int32","Index":30,"Name":"LastMapChestUpUnix"},
-						{"Type":"int32","Index":31,"Name":"LastMapBlockUpUnix"},
 						{"Type":"int32","Index":32,"Name":"VipLvl"},
 						{"Type":"int32","Index":35,"Name":"DayHelpUnlockCount"},
 						{"Type":"int32","Index":36,"Name":"DayHelpUnlockUpDay"},
