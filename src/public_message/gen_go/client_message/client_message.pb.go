@@ -8,116 +8,22 @@ It is generated from these files:
 	client_message.proto
 
 It has these top-level messages:
-	C2S_MSG_DATA
-	S2C_MSG_DATA
 	C2S_TEST_COMMAND
-	IdNum
 	ItemInfo
-	ResourceInfo
-	StageInfo
-	HeartBeat
-	S2CItemsInfoUpdate
-	C2SLoginRequest
-	S2CLoginResponse
-	S2COtherPlaceLogin
-	C2SGetInfo
-	C2SGetBaseInfo
-	S2CRetBaseInfo
-	C2SGetItemInfos
-	S2CRetItemInfos
-	C2SGetStageInfos
-	S2CRetStageInfos
-	C2SGetCoin
-	S2CRetCoin
-	C2SGetDiamond
-	S2CRetDiamond
-	C2SGetCharmVal
-	S2CRetCharmVal
-	C2SGetZan
-	S2CRetZan
-	C2SGetSpirit
-	S2CRetSpirit
-	C2SStagePass
+	FriendInfo
 	PlayerStageInfo
 	S2CStagePass
-	C2SChapterUnlock
-	S2CChapterUnlock
-	C2SGetCurHelpReqPIds
-	S2CRetCurHelpReqPIds
-	S2CRetDayHelpUnlockCount
-	S2COpenChest
-	C2SBuyChest
-	S2CBuyChest
-	C2SUseItem
-	S2CUseItem
-	C2SPayOrder
-	S2CPayOrder
-	C2SRankInfo
-	SmallRankRecord
-	S2CRankItems
-	C2SGetMailList
-	MailInfo
-	S2CMailList
-	C2SGetMailAttach
-	C2SMailRemove
-	C2SSetMailRead
-	C2SAgreeMailHelpReq
-	S2CNoticeAdd
-	S2CNoticeList
-	C2SSaveOptions
-	C2SGetOptions
-	S2CRetOptions
-	DialyTaskData
-	C2SGetDialyTaskInfo
-	S2CSyncDialyTask
-	S2CNotifyTaskValueChg
-	AchieveData
-	C2SGetAchieve
-	S2CSyncAchieveData
-	S2CNotifyAchieveValueChg
-	C2SGetTaskReward
-	S2CRetTaskReward
-	C2SGetAchieveReward
-	S2CRetAchieveReward
-	C2SChgName
-	S2CChgName
-	C2SChangeHead
-	S2CChangeHead
-	C2SGetPlayerInfo
-	OtherPlayerBaseInfo
-	S2CRetPlayerInfo
-	S2CSyncSignInfo
-	C2SDaySign
-	S2CDaySign
-	C2SGetDaySignSumReward
-	S2CRetDaySignSumReward
-	S2CSyncFirstPayState
-	C2SGetFirstPayReward
-	S2CRetFirstPayReward
-	ActivityData
-	S2CSyncSevenActivity
-	S2CNotifySevenActValueChg
-	C2SGetSevenActReward
-	S2CRetSevenActReward
-	S2CSyncGuideData
-	C2SSaveGuideData
-	S2CRetSaveGuideData
-	C2SDraw
-	S2CDrawResult
-	C2SItemResource
-	S2CItemResourceValue
-	S2CItemResourceResult
-	C2SShopItems
-	S2CShopItem
-	S2CShopItemsResult
-	C2SBuyShopItem
-	S2CBuyShopItemResult
-	S2CShopNeedRefreshNotify
-	C2SSellItem
-	S2CSellItemResult
-	C2SStageBegin
-	S2CStageBeginResult
-	FriendInfo
+	C2SLoginRequest
+	ServerInfo
+	S2CLoginResponse
+	S2COtherPlaceLogin
+	C2SSelectServerRequest
+	S2CSelectServerResponse
+	C2S_MSG_DATA
+	S2C_MSG_DATA
+	C2SEnterGameRequest
+	S2CEnterGameResponse
+	S2CEnterGameCompleteNotify
 	C2SFriendSearch
 	C2SFriendSearchById
 	S2CFriendSearchResult
@@ -153,33 +59,33 @@ It has these top-level messages:
 	S2CFriendConfirmUnreadMessageResult
 	C2SGetOnlineFriends
 	S2CRetOnlineFriends
-	NotifyState
-	C2SGetHandbook
-	S2CGetHandbookResult
-	S2CNewHandbookItemNotify
-	C2SGetHead
-	S2CGetHeadResult
-	S2CNewHeadNotify
-	C2SGetSuitHandbookReward
-	S2CGetSuitHandbookRewardResult
-	ActivityInfo
-	C2SGetAllActivityInfos
-	ActivityInfosUpdate
-	C2SGetActivityReward
-	S2CRetActivityReward
-	C2SZanPlayer
-	S2CZanPlayerResult
-	RankingListItemInfo
-	C2SPullRankingList
-	S2CPullRankingListResult
+	C2SShopItems
+	S2CShopItem
+	S2CShopItemsResult
+	C2SBuyShopItem
+	S2CBuyShopItemResult
+	S2CShopNeedRefreshNotify
+	DialyTaskData
+	C2SGetDialyTaskInfo
+	S2CSyncDialyTask
+	S2CNotifyTaskValueChg
+	AchieveData
+	C2SGetAchieve
+	S2CSyncAchieveData
+	S2CNotifyAchieveValueChg
+	C2SGetTaskReward
+	S2CRetTaskReward
+	C2SGetAchieveReward
+	S2CRetAchieveReward
 	C2SWorldChatSend
 	S2CWorldChatSendResult
 	C2SWorldChatMsgPull
 	WorldChatItem
 	S2CWorldChatMsgPullResult
 	S2CWorldChatForbid
-	AnouncementItem
-	S2CAnouncementNotify
+	S2CSyncGuideData
+	C2SSaveGuideData
+	S2CRetSaveGuideData
 */
 package msg_client_message
 
@@ -198,453 +104,182 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// 版本号
-type E_VERSION int32
-
-const (
-	E_VERSION_E_VERSION_NUMBER E_VERSION = 1101
-)
-
-var E_VERSION_name = map[int32]string{
-	1101: "E_VERSION_NUMBER",
-}
-var E_VERSION_value = map[string]int32{
-	"E_VERSION_NUMBER": 1101,
-}
-
-func (x E_VERSION) Enum() *E_VERSION {
-	p := new(E_VERSION)
-	*p = x
-	return p
-}
-func (x E_VERSION) String() string {
-	return proto.EnumName(E_VERSION_name, int32(x))
-}
-func (x *E_VERSION) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(E_VERSION_value, data, "E_VERSION")
-	if err != nil {
-		return err
-	}
-	*x = E_VERSION(value)
-	return nil
-}
-func (E_VERSION) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
-
 type E_ERR int32
 
 const (
-	E_ERR_E_ERR_INTERNAL                 E_ERR = -1
-	E_ERR_E_ERR_PLAYER_NOT_EXIST         E_ERR = -2
-	E_ERR_E_ERR_PLAYER_OTHER_PLACE_LOGIN E_ERR = -3
+	E_ERR_NONE                           E_ERR = 0
+	E_ERR_INTERNAL                       E_ERR = -1
+	E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR   E_ERR = -2
+	E_ERR_PLAYER_NOT_EXIST               E_ERR = -3
+	E_ERR_PLAYER_ALREADY_LOGINED         E_ERR = -4
+	E_ERR_PLAYER_OTHER_PLACE_LOGIN       E_ERR = -5
+	E_ERR_PLAYER_TOKEN_ERROR             E_ERR = -6
+	E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND E_ERR = -7
+	E_ERR_PLAYER_ALREADY_SELECTED_SERVER E_ERR = -8
 	// 玩家
-	E_ERR_E_ERR_PLAYER_ALREADY_ZAN_TODAY           E_ERR = -100000
-	E_ERR_E_ERR_PLAYER_RENAME_NEW_CANT_SAME_TO_OLD E_ERR = -100001
-	E_ERR_E_ERR_PLAYER_RENAME_NEW_CANT_EMPTY       E_ERR = -100002
-	E_ERR_E_ERR_PLAYER_RENAME_REMOVE_OLD_FAILED    E_ERR = -100003
-	E_ERR_E_ERR_PLAYER_RENAME_TOO_LONG_NAME        E_ERR = -100004
-	E_ERR_E_ERR_PLAYER_RENAME_NOT_ENOUGH_DIAMOND   E_ERR = -100005
-	// 签到错误骂
-	E_ERR_E_ERR_DAYSIGN_ALRADY_SUM_SIGN E_ERR = -100100
-	// 抽奖错误码
-	E_ERR_E_ERR_DRAW_WRONG_DRAW_TYPE E_ERR = -100300
-	// 邮件错误码
-	E_ERR_E_ERR_MAIL_FAILED_TO_FIND_MAIL E_ERR = -100600
-	E_ERR_E_ERR_MAIL_ATTACH_ERROR        E_ERR = -100601
-	// 物品错误码
-	E_ERR_E_ERR_ITEM_TABLE_DATA_NOT_FOUND E_ERR = -101000
-	E_ERR_E_ERR_ITEM_NOT_FOUND            E_ERR = -101001
-	E_ERR_E_ERR_ITEM_NUM_NOT_ENOUGH       E_ERR = -101002
-	// 商店错误码
-	E_ERR_E_ERR_SHOP_NOT_FOUND               E_ERR = -101501
-	E_ERR_E_ERR_SHOP_LIMITED_TYPE_INVALID    E_ERR = -101502
-	E_ERR_E_ERR_SHOP_DIAMOND_NOT_ENOUGH      E_ERR = -101503
-	E_ERR_E_ERR_SHOP_COIN_NOT_ENOUGH         E_ERR = -101504
-	E_ERR_E_ERR_SHOP_CHARM_NOT_ENOUGH        E_ERR = -101505
-	E_ERR_E_ERR_SHOP_FRIEND_POINT_NOT_ENOUGH E_ERR = -101506
-	E_ERR_E_ERR_SHOP_SOUL_STONE_NOT_ENOUGH   E_ERR = -101507
-	E_ERR_E_ERR_SHOP_CHARM_MEDAL_NOT_ENOUGH  E_ERR = -101508
-	E_ERR_E_ERR_SHOP_PURCHASE_TYPE_INVALID   E_ERR = -101509
-	E_ERR_E_ERR_SHOP_PURCHASED_FAILED        E_ERR = -101510
-	E_ERR_E_ERR_SHOP_ITEM_NOT_FOUND          E_ERR = -101511
-	E_ERR_E_ERR_SHOP_ITEM_NOT_ENOUGH         E_ERR = -101512
-	E_ERR_E_ERR_SHOP_AFTER_PURCHASE_FAILED   E_ERR = -101513
+	E_ERR_PLAYER_ALREADY_ZAN_TODAY           E_ERR = -100000
+	E_ERR_PLAYER_RENAME_NEW_CANT_SAME_TO_OLD E_ERR = -100001
+	E_ERR_PLAYER_RENAME_NEW_CANT_EMPTY       E_ERR = -100002
+	E_ERR_PLAYER_RENAME_REMOVE_OLD_FAILED    E_ERR = -100003
+	E_ERR_PLAYER_RENAME_TOO_LONG_NAME        E_ERR = -100004
+	E_ERR_PLAYER_RENAME_NOT_ENOUGH_DIAMOND   E_ERR = -100005
+	E_ERR_CHARGE_ORDER_DATA_EMPTY            E_ERR = -200000
+	E_ERR_CHARGE_ORDER_DATA_INVALID          E_ERR = -200001
+	E_ERR_CHARGE_ORDER_SIGNATURE_INVALID     E_ERR = -200002
+	E_ERR_CHARGE_ORDER_SN_EMPTY              E_ERR = -200003
+	E_ERR_CHARGE_ORDER_SN_ALREDY_USED        E_ERR = -200004
+	E_ERR_CHARGE_ORDER_VERIFY_FAILED         E_ERR = -200005
+	E_ERR_FRIEND_MESSAGE_NUM_MAX             E_ERR = -300000
+	E_ERR_FRIEND_NO_UNREAD_MESSAGE           E_ERR = -300001
+	E_ERR_FRIEND_THE_PLAYER_ALREADY_FRIEND   E_ERR = -300002
+	E_ERR_FRIEND_THE_PLAYER_REQUESTED        E_ERR = -300003
+	E_ERR_FRIEND_REMOVE_FRIEND_FAILED        E_ERR = -300004
+	E_ERR_FRIEND_GIVE_POINTS_FREQUENTLY      E_ERR = -300005
+	E_ERR_FRIEND_TOO_MANY_FRIEND_GIVE_POINTS E_ERR = -300006
+	E_ERR_FRIEND_GIVE_POINTS_MAX_NUM_LIMIT   E_ERR = -300007
+	E_ERR_FRIEND_NO_THE_FRIEND               E_ERR = -300008
+	E_ERR_FRIEND_MESSAGE_TOO_LONG            E_ERR = -300009
+	E_ERR_FRIEND_CHAT_FAILED                 E_ERR = -300010
+	E_ERR_SHOP_NOT_FOUND                     E_ERR = -400000
+	E_ERR_SHOP_PURCHASED_FAILED              E_ERR = -400001
+	E_ERR_SHOP_ITEM_NOT_FOUND                E_ERR = -400002
+	E_ERR_SHOP_LIMITED_TYPE_INVALID          E_ERR = -400003
+	E_ERR_SHOP_ITEM_NOT_ENOUGH               E_ERR = -400004
 	// 任务错误码
-	E_ERR_E_ERR_TASK_NOT_FOUND         E_ERR = -101600
-	E_ERR_E_ERR_TASK_NOT_COMPLETE      E_ERR = -101601
-	E_ERR_E_ERR_TASK_NOT_REWARD        E_ERR = -101602
-	E_ERR_E_ERR_TASK_ALREADY_REWARDED  E_ERR = -101603
-	E_ERR_E_ERR_TASK_LEVEL_NOT_ENOUGH  E_ERR = -101604
-	E_ERR_E_ERR_TASK_PREV_NOT_COMPLETE E_ERR = -101605
-	// 章节解锁
-	E_ERR_E_ERR_CHAPTER_UNLOCK_WRONG_CHAPTER_ID  E_ERR = -101700
-	E_ERR_E_ERR_CHAPTER_UNLOCK_LESS_STAR         E_ERR = -101701
-	E_ERR_E_ERR_CHAPTER_UNLOCK_LESS_DIAMOND      E_ERR = -101702
-	E_ERR_E_ERR_CHAPTER_UNLOCK_NO_UNLOCK_CFG     E_ERR = -101703
-	E_ERR_E_ERR_CHAPTER_UNLOCK_NO_CUR_UNLOCK_CFG E_ERR = -101704
-	E_ERR_E_ERR_CHAPTER_UNLOCK_NO_ENOUGH_TIME    E_ERR = -101705
-	E_ERR_E_ERR_CHAPTER_UNLOCK_NO_FRIEND_IDS     E_ERR = -101706
-	E_ERR_E_ERR_CHAPTER_UNLOCK_NEED_PASS_STAGE   E_ERR = -101707
-	E_ERR_E_ERR_CHAPTER_HELP_UNLOCK_LESS_NUM     E_ERR = -101708
-	// 章节通关
-	E_ERR_E_ERR_STAGE_PASS_NOT_UNLOCK      E_ERR = -101800
-	E_ERR_E_ERR_STAGE_PASS_OVER_NEXT_STATE E_ERR = -101801
-	E_ERR_E_ERR_STAGE_TABLE_DATA_NOT_FOUND E_ERR = -101802
-	E_ERR_E_ERR_STAGE_NO_MATCH_WITH_END    E_ERR = -101803
-	E_ERR_E_ERR_STAGE_ALREADY_FINISHED     E_ERR = -101804
-	E_ERR_E_ERR_STAGE_ALREADY_BEGAN        E_ERR = -101805
-	E_ERR_E_ERR_STAGE_NO_BEGIN             E_ERR = -101806
-	// 好友
-	E_ERR_E_ERR_FRIEND_NOT_FOUND_PLAYER              E_ERR = -101900
-	E_ERR_E_ERR_FRIEND_OFFLINE                       E_ERR = -101901
-	E_ERR_E_ERR_FRIEND_GIVE_POINTS_FREQUENTLY        E_ERR = -101902
-	E_ERR_E_ERR_FRIEND_TOO_MANY_FRIEND_GIVE_POINTS   E_ERR = -101903
-	E_ERR_E_ERR_FRIEND_POINTS_NOT_ENOUGH_TO_GIVE     E_ERR = -101904
-	E_ERR_E_ERR_FRIEND_VISIT_FRIEND_FAILED           E_ERR = -101905
-	E_ERR_E_ERR_FRIEND_NO_THE_FRIEND                 E_ERR = -101906
-	E_ERR_E_ERR_FRIEND_CHAT_FAILED                   E_ERR = -101907
-	E_ERR_E_ERR_FRIEND_NO_UNREAD_MESSAGE             E_ERR = -101908
-	E_ERR_E_ERR_FRIEND_MESSAGE_NUM_MAX               E_ERR = -101909
-	E_ERR_E_ERR_FRIEND_MESSAGE_TOO_LONG              E_ERR = -101910
-	E_ERR_E_ERR_FRIEND_REMOVE_FRIEND_FAILED          E_ERR = -101911
-	E_ERR_E_ERR_FRIEND_LAST_POINTS_NOT_GET           E_ERR = -101912
-	E_ERR_E_ERR_FRIEND_THE_PLAYER_ALREADY_FRIEND     E_ERR = -101913
-	E_ERR_E_ERR_FRIEND_THE_PLAYER_REQUESTED          E_ERR = -101914
-	E_ERR_E_ERR_FRIEND_GIVE_POINTS_MAX_NUM_LIMIT     E_ERR = -101915
-	E_ERR_E_ERR_FRIEND_ALREDY_GIVED_POINTS_TO_PLAYER E_ERR = -101916
-	// 活动配置
-	E_ERR_E_ERR_ACTIVITY_NO_CFG               E_ERR = -102000
-	E_ERR_E_ERR_ACTIVITY_HAVE_REWARDED        E_ERR = -102001
-	E_ERR_E_ERR_ACTIVITY_NOT_FINISHED         E_ERR = -102002
-	E_ERR_E_ERR_ACTIVITY_NO_REWARDED          E_ERR = -102003
-	E_ERR_E_ERR_ACTIVITY_GET_REWARD_REQ_ERROR E_ERR = -102004
-	E_ERR_E_ERR_ACTIVITY_LVL_REWARD_NO_CFG    E_ERR = -102005
-	E_ERR_E_ERR_ACTIVITY_LVL_REWARD_LESS_LVL  E_ERR = -102006
-	E_ERR_E_ERR_ACTIVITY_VIPCARD_NOT_OPEN     E_ERR = -102007
-	E_ERR_E_ERR_ACTIVITY_DAY_REWARD_NO_CFG    E_ERR = -102008
-	E_ERR_E_ERR_ACTIVITY_SUM_DAYREWARD_NO_CFG E_ERR = -102009
-	E_ERR_E_ERR_ACTIVITY_NOT_OPEN             E_ERR = -102010
-	// 排行榜
-	E_ERR_E_ERR_RANK_GET_ITEMS_NUM_OVER_MAX E_ERR = -102200
+	E_ERR_TASK_NOT_FOUND         E_ERR = -101600
+	E_ERR_TASK_NOT_COMPLETE      E_ERR = -101601
+	E_ERR_TASK_NOT_REWARD        E_ERR = -101602
+	E_ERR_TASK_ALREADY_REWARDED  E_ERR = -101603
+	E_ERR_TASK_LEVEL_NOT_ENOUGH  E_ERR = -101604
+	E_ERR_TASK_PREV_NOT_COMPLETE E_ERR = -101605
 	// 世界聊天
-	E_ERR_E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN   E_ERR = -102300
-	E_ERR_E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG E_ERR = -102301
-	E_ERR_E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE  E_ERR = -102302
-	E_ERR_E_ERR_WORLDCHAT_PULL_COOLING_DOWN       E_ERR = -102303
-	E_ERR_E_ERR_WORLDCHAT_SEND_MSG_BE_FORBIDEN    E_ERR = -102304
-	// 充值
-	E_ERR_E_ERR_CHARGE_ORDER_DATA_EMPTY        E_ERR = -102500
-	E_ERR_E_ERR_CHARGE_ORDER_DATA_INVALID      E_ERR = -102501
-	E_ERR_E_ERR_CHARGE_ORDER_SIGNATURE_INVALID E_ERR = -102502
-	E_ERR_E_ERR_CHARGE_ORDER_SN_EMPTY          E_ERR = -102503
-	E_ERR_E_ERR_CHARGE_ORDER_SN_ALREDY_USED    E_ERR = -102504
-	E_ERR_E_ERR_CHARGE_ORDER_VERIFY_FAILED     E_ERR = -102505
-	E_ERR_E_ERR_CHARGE_CHANNEL_INVALID         E_ERR = -102506
-	// 购买体力
-	E_ERR_E_ERR_DAYBUY_TILI_MAX_COUNT    E_ERR = -102600
-	E_ERR_E_ERR_DAYBUY_TILI_LESS_DIAMOND E_ERR = -102601
+	E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN   E_ERR = -102300
+	E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG E_ERR = -102301
+	E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE  E_ERR = -102302
+	E_ERR_WORLDCHAT_PULL_COOLING_DOWN       E_ERR = -102303
+	E_ERR_WORLDCHAT_SEND_MSG_BE_FORBIDEN    E_ERR = -102304
 )
 
 var E_ERR_name = map[int32]string{
-	-1:      "E_ERR_INTERNAL",
-	-2:      "E_ERR_PLAYER_NOT_EXIST",
-	-3:      "E_ERR_PLAYER_OTHER_PLACE_LOGIN",
-	-100000: "E_ERR_PLAYER_ALREADY_ZAN_TODAY",
-	-100001: "E_ERR_PLAYER_RENAME_NEW_CANT_SAME_TO_OLD",
-	-100002: "E_ERR_PLAYER_RENAME_NEW_CANT_EMPTY",
-	-100003: "E_ERR_PLAYER_RENAME_REMOVE_OLD_FAILED",
-	-100004: "E_ERR_PLAYER_RENAME_TOO_LONG_NAME",
-	-100005: "E_ERR_PLAYER_RENAME_NOT_ENOUGH_DIAMOND",
-	-100100: "E_ERR_DAYSIGN_ALRADY_SUM_SIGN",
-	-100300: "E_ERR_DRAW_WRONG_DRAW_TYPE",
-	-100600: "E_ERR_MAIL_FAILED_TO_FIND_MAIL",
-	-100601: "E_ERR_MAIL_ATTACH_ERROR",
-	-101000: "E_ERR_ITEM_TABLE_DATA_NOT_FOUND",
-	-101001: "E_ERR_ITEM_NOT_FOUND",
-	-101002: "E_ERR_ITEM_NUM_NOT_ENOUGH",
-	-101501: "E_ERR_SHOP_NOT_FOUND",
-	-101502: "E_ERR_SHOP_LIMITED_TYPE_INVALID",
-	-101503: "E_ERR_SHOP_DIAMOND_NOT_ENOUGH",
-	-101504: "E_ERR_SHOP_COIN_NOT_ENOUGH",
-	-101505: "E_ERR_SHOP_CHARM_NOT_ENOUGH",
-	-101506: "E_ERR_SHOP_FRIEND_POINT_NOT_ENOUGH",
-	-101507: "E_ERR_SHOP_SOUL_STONE_NOT_ENOUGH",
-	-101508: "E_ERR_SHOP_CHARM_MEDAL_NOT_ENOUGH",
-	-101509: "E_ERR_SHOP_PURCHASE_TYPE_INVALID",
-	-101510: "E_ERR_SHOP_PURCHASED_FAILED",
-	-101511: "E_ERR_SHOP_ITEM_NOT_FOUND",
-	-101512: "E_ERR_SHOP_ITEM_NOT_ENOUGH",
-	-101513: "E_ERR_SHOP_AFTER_PURCHASE_FAILED",
-	-101600: "E_ERR_TASK_NOT_FOUND",
-	-101601: "E_ERR_TASK_NOT_COMPLETE",
-	-101602: "E_ERR_TASK_NOT_REWARD",
-	-101603: "E_ERR_TASK_ALREADY_REWARDED",
-	-101604: "E_ERR_TASK_LEVEL_NOT_ENOUGH",
-	-101605: "E_ERR_TASK_PREV_NOT_COMPLETE",
-	-101700: "E_ERR_CHAPTER_UNLOCK_WRONG_CHAPTER_ID",
-	-101701: "E_ERR_CHAPTER_UNLOCK_LESS_STAR",
-	-101702: "E_ERR_CHAPTER_UNLOCK_LESS_DIAMOND",
-	-101703: "E_ERR_CHAPTER_UNLOCK_NO_UNLOCK_CFG",
-	-101704: "E_ERR_CHAPTER_UNLOCK_NO_CUR_UNLOCK_CFG",
-	-101705: "E_ERR_CHAPTER_UNLOCK_NO_ENOUGH_TIME",
-	-101706: "E_ERR_CHAPTER_UNLOCK_NO_FRIEND_IDS",
-	-101707: "E_ERR_CHAPTER_UNLOCK_NEED_PASS_STAGE",
-	-101708: "E_ERR_CHAPTER_HELP_UNLOCK_LESS_NUM",
-	-101800: "E_ERR_STAGE_PASS_NOT_UNLOCK",
-	-101801: "E_ERR_STAGE_PASS_OVER_NEXT_STATE",
-	-101802: "E_ERR_STAGE_TABLE_DATA_NOT_FOUND",
-	-101803: "E_ERR_STAGE_NO_MATCH_WITH_END",
-	-101804: "E_ERR_STAGE_ALREADY_FINISHED",
-	-101805: "E_ERR_STAGE_ALREADY_BEGAN",
-	-101806: "E_ERR_STAGE_NO_BEGIN",
-	-101900: "E_ERR_FRIEND_NOT_FOUND_PLAYER",
-	-101901: "E_ERR_FRIEND_OFFLINE",
-	-101902: "E_ERR_FRIEND_GIVE_POINTS_FREQUENTLY",
-	-101903: "E_ERR_FRIEND_TOO_MANY_FRIEND_GIVE_POINTS",
-	-101904: "E_ERR_FRIEND_POINTS_NOT_ENOUGH_TO_GIVE",
-	-101905: "E_ERR_FRIEND_VISIT_FRIEND_FAILED",
-	-101906: "E_ERR_FRIEND_NO_THE_FRIEND",
-	-101907: "E_ERR_FRIEND_CHAT_FAILED",
-	-101908: "E_ERR_FRIEND_NO_UNREAD_MESSAGE",
-	-101909: "E_ERR_FRIEND_MESSAGE_NUM_MAX",
-	-101910: "E_ERR_FRIEND_MESSAGE_TOO_LONG",
-	-101911: "E_ERR_FRIEND_REMOVE_FRIEND_FAILED",
-	-101912: "E_ERR_FRIEND_LAST_POINTS_NOT_GET",
-	-101913: "E_ERR_FRIEND_THE_PLAYER_ALREADY_FRIEND",
-	-101914: "E_ERR_FRIEND_THE_PLAYER_REQUESTED",
-	-101915: "E_ERR_FRIEND_GIVE_POINTS_MAX_NUM_LIMIT",
-	-101916: "E_ERR_FRIEND_ALREDY_GIVED_POINTS_TO_PLAYER",
-	-102000: "E_ERR_ACTIVITY_NO_CFG",
-	-102001: "E_ERR_ACTIVITY_HAVE_REWARDED",
-	-102002: "E_ERR_ACTIVITY_NOT_FINISHED",
-	-102003: "E_ERR_ACTIVITY_NO_REWARDED",
-	-102004: "E_ERR_ACTIVITY_GET_REWARD_REQ_ERROR",
-	-102005: "E_ERR_ACTIVITY_LVL_REWARD_NO_CFG",
-	-102006: "E_ERR_ACTIVITY_LVL_REWARD_LESS_LVL",
-	-102007: "E_ERR_ACTIVITY_VIPCARD_NOT_OPEN",
-	-102008: "E_ERR_ACTIVITY_DAY_REWARD_NO_CFG",
-	-102009: "E_ERR_ACTIVITY_SUM_DAYREWARD_NO_CFG",
-	-102010: "E_ERR_ACTIVITY_NOT_OPEN",
-	-102200: "E_ERR_RANK_GET_ITEMS_NUM_OVER_MAX",
-	-102300: "E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN",
-	-102301: "E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG",
-	-102302: "E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE",
-	-102303: "E_ERR_WORLDCHAT_PULL_COOLING_DOWN",
-	-102304: "E_ERR_WORLDCHAT_SEND_MSG_BE_FORBIDEN",
-	-102500: "E_ERR_CHARGE_ORDER_DATA_EMPTY",
-	-102501: "E_ERR_CHARGE_ORDER_DATA_INVALID",
-	-102502: "E_ERR_CHARGE_ORDER_SIGNATURE_INVALID",
-	-102503: "E_ERR_CHARGE_ORDER_SN_EMPTY",
-	-102504: "E_ERR_CHARGE_ORDER_SN_ALREDY_USED",
-	-102505: "E_ERR_CHARGE_ORDER_VERIFY_FAILED",
-	-102506: "E_ERR_CHARGE_CHANNEL_INVALID",
-	-102600: "E_ERR_DAYBUY_TILI_MAX_COUNT",
-	-102601: "E_ERR_DAYBUY_TILI_LESS_DIAMOND",
+	0:       "NONE",
+	-1:      "INTERNAL",
+	-2:      "PLAYER_ACC_OR_PASSWORD_ERROR",
+	-3:      "PLAYER_NOT_EXIST",
+	-4:      "PLAYER_ALREADY_LOGINED",
+	-5:      "PLAYER_OTHER_PLACE_LOGIN",
+	-6:      "PLAYER_TOKEN_ERROR",
+	-7:      "PLAYER_SELECT_SERVER_NOT_FOUND",
+	-8:      "PLAYER_ALREADY_SELECTED_SERVER",
+	-100000: "PLAYER_ALREADY_ZAN_TODAY",
+	-100001: "PLAYER_RENAME_NEW_CANT_SAME_TO_OLD",
+	-100002: "PLAYER_RENAME_NEW_CANT_EMPTY",
+	-100003: "PLAYER_RENAME_REMOVE_OLD_FAILED",
+	-100004: "PLAYER_RENAME_TOO_LONG_NAME",
+	-100005: "PLAYER_RENAME_NOT_ENOUGH_DIAMOND",
+	-200000: "CHARGE_ORDER_DATA_EMPTY",
+	-200001: "CHARGE_ORDER_DATA_INVALID",
+	-200002: "CHARGE_ORDER_SIGNATURE_INVALID",
+	-200003: "CHARGE_ORDER_SN_EMPTY",
+	-200004: "CHARGE_ORDER_SN_ALREDY_USED",
+	-200005: "CHARGE_ORDER_VERIFY_FAILED",
+	-300000: "FRIEND_MESSAGE_NUM_MAX",
+	-300001: "FRIEND_NO_UNREAD_MESSAGE",
+	-300002: "FRIEND_THE_PLAYER_ALREADY_FRIEND",
+	-300003: "FRIEND_THE_PLAYER_REQUESTED",
+	-300004: "FRIEND_REMOVE_FRIEND_FAILED",
+	-300005: "FRIEND_GIVE_POINTS_FREQUENTLY",
+	-300006: "FRIEND_TOO_MANY_FRIEND_GIVE_POINTS",
+	-300007: "FRIEND_GIVE_POINTS_MAX_NUM_LIMIT",
+	-300008: "FRIEND_NO_THE_FRIEND",
+	-300009: "FRIEND_MESSAGE_TOO_LONG",
+	-300010: "FRIEND_CHAT_FAILED",
+	-400000: "SHOP_NOT_FOUND",
+	-400001: "SHOP_PURCHASED_FAILED",
+	-400002: "SHOP_ITEM_NOT_FOUND",
+	-400003: "SHOP_LIMITED_TYPE_INVALID",
+	-400004: "SHOP_ITEM_NOT_ENOUGH",
+	-101600: "TASK_NOT_FOUND",
+	-101601: "TASK_NOT_COMPLETE",
+	-101602: "TASK_NOT_REWARD",
+	-101603: "TASK_ALREADY_REWARDED",
+	-101604: "TASK_LEVEL_NOT_ENOUGH",
+	-101605: "TASK_PREV_NOT_COMPLETE",
+	-102300: "WORLDCHAT_SEND_MSG_COOLING_DOWN",
+	-102301: "WORLDCHAT_SEND_MSG_BYTES_TOO_LONG",
+	-102302: "WORLDCHAT_CANT_SEND_WITH_NO_FREE",
+	-102303: "WORLDCHAT_PULL_COOLING_DOWN",
+	-102304: "WORLDCHAT_SEND_MSG_BE_FORBIDEN",
 }
 var E_ERR_value = map[string]int32{
-	"E_ERR_INTERNAL":                             -1,
-	"E_ERR_PLAYER_NOT_EXIST":                     -2,
-	"E_ERR_PLAYER_OTHER_PLACE_LOGIN":             -3,
-	"E_ERR_PLAYER_ALREADY_ZAN_TODAY":             -100000,
-	"E_ERR_PLAYER_RENAME_NEW_CANT_SAME_TO_OLD":   -100001,
-	"E_ERR_PLAYER_RENAME_NEW_CANT_EMPTY":         -100002,
-	"E_ERR_PLAYER_RENAME_REMOVE_OLD_FAILED":      -100003,
-	"E_ERR_PLAYER_RENAME_TOO_LONG_NAME":          -100004,
-	"E_ERR_PLAYER_RENAME_NOT_ENOUGH_DIAMOND":     -100005,
-	"E_ERR_DAYSIGN_ALRADY_SUM_SIGN":              -100100,
-	"E_ERR_DRAW_WRONG_DRAW_TYPE":                 -100300,
-	"E_ERR_MAIL_FAILED_TO_FIND_MAIL":             -100600,
-	"E_ERR_MAIL_ATTACH_ERROR":                    -100601,
-	"E_ERR_ITEM_TABLE_DATA_NOT_FOUND":            -101000,
-	"E_ERR_ITEM_NOT_FOUND":                       -101001,
-	"E_ERR_ITEM_NUM_NOT_ENOUGH":                  -101002,
-	"E_ERR_SHOP_NOT_FOUND":                       -101501,
-	"E_ERR_SHOP_LIMITED_TYPE_INVALID":            -101502,
-	"E_ERR_SHOP_DIAMOND_NOT_ENOUGH":              -101503,
-	"E_ERR_SHOP_COIN_NOT_ENOUGH":                 -101504,
-	"E_ERR_SHOP_CHARM_NOT_ENOUGH":                -101505,
-	"E_ERR_SHOP_FRIEND_POINT_NOT_ENOUGH":         -101506,
-	"E_ERR_SHOP_SOUL_STONE_NOT_ENOUGH":           -101507,
-	"E_ERR_SHOP_CHARM_MEDAL_NOT_ENOUGH":          -101508,
-	"E_ERR_SHOP_PURCHASE_TYPE_INVALID":           -101509,
-	"E_ERR_SHOP_PURCHASED_FAILED":                -101510,
-	"E_ERR_SHOP_ITEM_NOT_FOUND":                  -101511,
-	"E_ERR_SHOP_ITEM_NOT_ENOUGH":                 -101512,
-	"E_ERR_SHOP_AFTER_PURCHASE_FAILED":           -101513,
-	"E_ERR_TASK_NOT_FOUND":                       -101600,
-	"E_ERR_TASK_NOT_COMPLETE":                    -101601,
-	"E_ERR_TASK_NOT_REWARD":                      -101602,
-	"E_ERR_TASK_ALREADY_REWARDED":                -101603,
-	"E_ERR_TASK_LEVEL_NOT_ENOUGH":                -101604,
-	"E_ERR_TASK_PREV_NOT_COMPLETE":               -101605,
-	"E_ERR_CHAPTER_UNLOCK_WRONG_CHAPTER_ID":      -101700,
-	"E_ERR_CHAPTER_UNLOCK_LESS_STAR":             -101701,
-	"E_ERR_CHAPTER_UNLOCK_LESS_DIAMOND":          -101702,
-	"E_ERR_CHAPTER_UNLOCK_NO_UNLOCK_CFG":         -101703,
-	"E_ERR_CHAPTER_UNLOCK_NO_CUR_UNLOCK_CFG":     -101704,
-	"E_ERR_CHAPTER_UNLOCK_NO_ENOUGH_TIME":        -101705,
-	"E_ERR_CHAPTER_UNLOCK_NO_FRIEND_IDS":         -101706,
-	"E_ERR_CHAPTER_UNLOCK_NEED_PASS_STAGE":       -101707,
-	"E_ERR_CHAPTER_HELP_UNLOCK_LESS_NUM":         -101708,
-	"E_ERR_STAGE_PASS_NOT_UNLOCK":                -101800,
-	"E_ERR_STAGE_PASS_OVER_NEXT_STATE":           -101801,
-	"E_ERR_STAGE_TABLE_DATA_NOT_FOUND":           -101802,
-	"E_ERR_STAGE_NO_MATCH_WITH_END":              -101803,
-	"E_ERR_STAGE_ALREADY_FINISHED":               -101804,
-	"E_ERR_STAGE_ALREADY_BEGAN":                  -101805,
-	"E_ERR_STAGE_NO_BEGIN":                       -101806,
-	"E_ERR_FRIEND_NOT_FOUND_PLAYER":              -101900,
-	"E_ERR_FRIEND_OFFLINE":                       -101901,
-	"E_ERR_FRIEND_GIVE_POINTS_FREQUENTLY":        -101902,
-	"E_ERR_FRIEND_TOO_MANY_FRIEND_GIVE_POINTS":   -101903,
-	"E_ERR_FRIEND_POINTS_NOT_ENOUGH_TO_GIVE":     -101904,
-	"E_ERR_FRIEND_VISIT_FRIEND_FAILED":           -101905,
-	"E_ERR_FRIEND_NO_THE_FRIEND":                 -101906,
-	"E_ERR_FRIEND_CHAT_FAILED":                   -101907,
-	"E_ERR_FRIEND_NO_UNREAD_MESSAGE":             -101908,
-	"E_ERR_FRIEND_MESSAGE_NUM_MAX":               -101909,
-	"E_ERR_FRIEND_MESSAGE_TOO_LONG":              -101910,
-	"E_ERR_FRIEND_REMOVE_FRIEND_FAILED":          -101911,
-	"E_ERR_FRIEND_LAST_POINTS_NOT_GET":           -101912,
-	"E_ERR_FRIEND_THE_PLAYER_ALREADY_FRIEND":     -101913,
-	"E_ERR_FRIEND_THE_PLAYER_REQUESTED":          -101914,
-	"E_ERR_FRIEND_GIVE_POINTS_MAX_NUM_LIMIT":     -101915,
-	"E_ERR_FRIEND_ALREDY_GIVED_POINTS_TO_PLAYER": -101916,
-	"E_ERR_ACTIVITY_NO_CFG":                      -102000,
-	"E_ERR_ACTIVITY_HAVE_REWARDED":               -102001,
-	"E_ERR_ACTIVITY_NOT_FINISHED":                -102002,
-	"E_ERR_ACTIVITY_NO_REWARDED":                 -102003,
-	"E_ERR_ACTIVITY_GET_REWARD_REQ_ERROR":        -102004,
-	"E_ERR_ACTIVITY_LVL_REWARD_NO_CFG":           -102005,
-	"E_ERR_ACTIVITY_LVL_REWARD_LESS_LVL":         -102006,
-	"E_ERR_ACTIVITY_VIPCARD_NOT_OPEN":            -102007,
-	"E_ERR_ACTIVITY_DAY_REWARD_NO_CFG":           -102008,
-	"E_ERR_ACTIVITY_SUM_DAYREWARD_NO_CFG":        -102009,
-	"E_ERR_ACTIVITY_NOT_OPEN":                    -102010,
-	"E_ERR_RANK_GET_ITEMS_NUM_OVER_MAX":          -102200,
-	"E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN":      -102300,
-	"E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG":    -102301,
-	"E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE":     -102302,
-	"E_ERR_WORLDCHAT_PULL_COOLING_DOWN":          -102303,
-	"E_ERR_WORLDCHAT_SEND_MSG_BE_FORBIDEN":       -102304,
-	"E_ERR_CHARGE_ORDER_DATA_EMPTY":              -102500,
-	"E_ERR_CHARGE_ORDER_DATA_INVALID":            -102501,
-	"E_ERR_CHARGE_ORDER_SIGNATURE_INVALID":       -102502,
-	"E_ERR_CHARGE_ORDER_SN_EMPTY":                -102503,
-	"E_ERR_CHARGE_ORDER_SN_ALREDY_USED":          -102504,
-	"E_ERR_CHARGE_ORDER_VERIFY_FAILED":           -102505,
-	"E_ERR_CHARGE_CHANNEL_INVALID":               -102506,
-	"E_ERR_DAYBUY_TILI_MAX_COUNT":                -102600,
-	"E_ERR_DAYBUY_TILI_LESS_DIAMOND":             -102601,
+	"NONE":                               0,
+	"INTERNAL":                           -1,
+	"PLAYER_ACC_OR_PASSWORD_ERROR":       -2,
+	"PLAYER_NOT_EXIST":                   -3,
+	"PLAYER_ALREADY_LOGINED":             -4,
+	"PLAYER_OTHER_PLACE_LOGIN":           -5,
+	"PLAYER_TOKEN_ERROR":                 -6,
+	"PLAYER_SELECT_SERVER_NOT_FOUND":     -7,
+	"PLAYER_ALREADY_SELECTED_SERVER":     -8,
+	"PLAYER_ALREADY_ZAN_TODAY":           -100000,
+	"PLAYER_RENAME_NEW_CANT_SAME_TO_OLD": -100001,
+	"PLAYER_RENAME_NEW_CANT_EMPTY":       -100002,
+	"PLAYER_RENAME_REMOVE_OLD_FAILED":    -100003,
+	"PLAYER_RENAME_TOO_LONG_NAME":        -100004,
+	"PLAYER_RENAME_NOT_ENOUGH_DIAMOND":   -100005,
+	"CHARGE_ORDER_DATA_EMPTY":            -200000,
+	"CHARGE_ORDER_DATA_INVALID":          -200001,
+	"CHARGE_ORDER_SIGNATURE_INVALID":     -200002,
+	"CHARGE_ORDER_SN_EMPTY":              -200003,
+	"CHARGE_ORDER_SN_ALREDY_USED":        -200004,
+	"CHARGE_ORDER_VERIFY_FAILED":         -200005,
+	"FRIEND_MESSAGE_NUM_MAX":             -300000,
+	"FRIEND_NO_UNREAD_MESSAGE":           -300001,
+	"FRIEND_THE_PLAYER_ALREADY_FRIEND":   -300002,
+	"FRIEND_THE_PLAYER_REQUESTED":        -300003,
+	"FRIEND_REMOVE_FRIEND_FAILED":        -300004,
+	"FRIEND_GIVE_POINTS_FREQUENTLY":      -300005,
+	"FRIEND_TOO_MANY_FRIEND_GIVE_POINTS": -300006,
+	"FRIEND_GIVE_POINTS_MAX_NUM_LIMIT":   -300007,
+	"FRIEND_NO_THE_FRIEND":               -300008,
+	"FRIEND_MESSAGE_TOO_LONG":            -300009,
+	"FRIEND_CHAT_FAILED":                 -300010,
+	"SHOP_NOT_FOUND":                     -400000,
+	"SHOP_PURCHASED_FAILED":              -400001,
+	"SHOP_ITEM_NOT_FOUND":                -400002,
+	"SHOP_LIMITED_TYPE_INVALID":          -400003,
+	"SHOP_ITEM_NOT_ENOUGH":               -400004,
+	"TASK_NOT_FOUND":                     -101600,
+	"TASK_NOT_COMPLETE":                  -101601,
+	"TASK_NOT_REWARD":                    -101602,
+	"TASK_ALREADY_REWARDED":              -101603,
+	"TASK_LEVEL_NOT_ENOUGH":              -101604,
+	"TASK_PREV_NOT_COMPLETE":             -101605,
+	"WORLDCHAT_SEND_MSG_COOLING_DOWN":    -102300,
+	"WORLDCHAT_SEND_MSG_BYTES_TOO_LONG":  -102301,
+	"WORLDCHAT_CANT_SEND_WITH_NO_FREE":   -102302,
+	"WORLDCHAT_PULL_COOLING_DOWN":        -102303,
+	"WORLDCHAT_SEND_MSG_BE_FORBIDEN":     -102304,
 }
 
-func (x E_ERR) Enum() *E_ERR {
-	p := new(E_ERR)
-	*p = x
-	return p
-}
 func (x E_ERR) String() string {
 	return proto.EnumName(E_ERR_name, int32(x))
 }
-func (x *E_ERR) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(E_ERR_value, data, "E_ERR")
-	if err != nil {
-		return err
-	}
-	*x = E_ERR(value)
-	return nil
-}
-func (E_ERR) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (E_ERR) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
-type C2S_MSG_DATA struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Token            *string `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
-	MsgCode          *int32  `protobuf:"varint,3,opt,name=MsgCode" json:"MsgCode,omitempty"`
-	Data             []byte  `protobuf:"bytes,4,opt,name=Data" json:"Data,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2S_MSG_DATA) Reset()                    { *m = C2S_MSG_DATA{} }
-func (m *C2S_MSG_DATA) String() string            { return proto.CompactTextString(m) }
-func (*C2S_MSG_DATA) ProtoMessage()               {}
-func (*C2S_MSG_DATA) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
-
-func (m *C2S_MSG_DATA) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *C2S_MSG_DATA) GetToken() string {
-	if m != nil && m.Token != nil {
-		return *m.Token
-	}
-	return ""
-}
-
-func (m *C2S_MSG_DATA) GetMsgCode() int32 {
-	if m != nil && m.MsgCode != nil {
-		return *m.MsgCode
-	}
-	return 0
-}
-
-func (m *C2S_MSG_DATA) GetData() []byte {
-	if m != nil {
-		return m.Data
-	}
-	return nil
-}
-
-type S2C_MSG_DATA struct {
-	ErrorCode        *int32  `protobuf:"varint,1,opt,name=ErrorCode" json:"ErrorCode,omitempty"`
-	ErrorMsg         *string `protobuf:"bytes,2,opt,name=ErrorMsg" json:"ErrorMsg,omitempty"`
-	Data             []byte  `protobuf:"bytes,3,opt,name=Data" json:"Data,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *S2C_MSG_DATA) Reset()                    { *m = S2C_MSG_DATA{} }
-func (m *S2C_MSG_DATA) String() string            { return proto.CompactTextString(m) }
-func (*S2C_MSG_DATA) ProtoMessage()               {}
-func (*S2C_MSG_DATA) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-func (m *S2C_MSG_DATA) GetErrorCode() int32 {
-	if m != nil && m.ErrorCode != nil {
-		return *m.ErrorCode
-	}
-	return 0
-}
-
-func (m *S2C_MSG_DATA) GetErrorMsg() string {
-	if m != nil && m.ErrorMsg != nil {
-		return *m.ErrorMsg
-	}
-	return ""
-}
-
-func (m *S2C_MSG_DATA) GetData() []byte {
-	if m != nil {
-		return m.Data
-	}
-	return nil
-}
-
-// ////////////////////////////////////////////////////////////////////////////
 // 测试用消息
 type C2S_TEST_COMMAND struct {
-	Cmd              *string  `protobuf:"bytes,1,opt,name=cmd" json:"cmd,omitempty"`
-	Args             []string `protobuf:"bytes,2,rep,name=args" json:"args,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Cmd  string   `protobuf:"bytes,1,opt,name=cmd" json:"cmd,omitempty"`
+	Args []string `protobuf:"bytes,2,rep,name=args" json:"args,omitempty"`
 }
 
 func (m *C2S_TEST_COMMAND) Reset()                    { *m = C2S_TEST_COMMAND{} }
 func (m *C2S_TEST_COMMAND) String() string            { return proto.CompactTextString(m) }
 func (*C2S_TEST_COMMAND) ProtoMessage()               {}
-func (*C2S_TEST_COMMAND) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*C2S_TEST_COMMAND) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 func (m *C2S_TEST_COMMAND) GetCmd() string {
-	if m != nil && m.Cmd != nil {
-		return *m.Cmd
+	if m != nil {
+		return m.Cmd
 	}
 	return ""
 }
@@ -656,832 +291,261 @@ func (m *C2S_TEST_COMMAND) GetArgs() []string {
 	return nil
 }
 
-// Id Num 结构
-type IdNum struct {
-	Id               *int32 `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
-	Num              *int32 `protobuf:"varint,2,opt,name=Num" json:"Num,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *IdNum) Reset()                    { *m = IdNum{} }
-func (m *IdNum) String() string            { return proto.CompactTextString(m) }
-func (*IdNum) ProtoMessage()               {}
-func (*IdNum) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
-
-func (m *IdNum) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *IdNum) GetNum() int32 {
-	if m != nil && m.Num != nil {
-		return *m.Num
-	}
-	return 0
-}
-
 // 物品
 type ItemInfo struct {
-	ItemCfgId        *int32 `protobuf:"varint,1,opt,name=ItemCfgId" json:"ItemCfgId,omitempty"`
-	ItemNum          *int32 `protobuf:"varint,2,opt,name=ItemNum" json:"ItemNum,omitempty"`
-	RemainSeconds    *int32 `protobuf:"varint,3,opt,name=RemainSeconds" json:"RemainSeconds,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	ItemCfgId     int32 `protobuf:"varint,1,opt,name=ItemCfgId" json:"ItemCfgId,omitempty"`
+	ItemNum       int32 `protobuf:"varint,2,opt,name=ItemNum" json:"ItemNum,omitempty"`
+	RemainSeconds int32 `protobuf:"varint,3,opt,name=RemainSeconds" json:"RemainSeconds,omitempty"`
 }
 
 func (m *ItemInfo) Reset()                    { *m = ItemInfo{} }
 func (m *ItemInfo) String() string            { return proto.CompactTextString(m) }
 func (*ItemInfo) ProtoMessage()               {}
-func (*ItemInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (*ItemInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
 func (m *ItemInfo) GetItemCfgId() int32 {
-	if m != nil && m.ItemCfgId != nil {
-		return *m.ItemCfgId
+	if m != nil {
+		return m.ItemCfgId
 	}
 	return 0
 }
 
 func (m *ItemInfo) GetItemNum() int32 {
-	if m != nil && m.ItemNum != nil {
-		return *m.ItemNum
+	if m != nil {
+		return m.ItemNum
 	}
 	return 0
 }
 
 func (m *ItemInfo) GetRemainSeconds() int32 {
-	if m != nil && m.RemainSeconds != nil {
-		return *m.RemainSeconds
-	}
-	return 0
-}
-
-// 消耗的资源物品类型数量(Other表里配置的属性，像金币，钻石，体力，魅力值，猫粮等)
-type ResourceInfo struct {
-	ResourceType     *int32 `protobuf:"varint,1,opt,name=ResourceType" json:"ResourceType,omitempty"`
-	ResourceValue    *int32 `protobuf:"varint,2,opt,name=ResourceValue" json:"ResourceValue,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *ResourceInfo) Reset()                    { *m = ResourceInfo{} }
-func (m *ResourceInfo) String() string            { return proto.CompactTextString(m) }
-func (*ResourceInfo) ProtoMessage()               {}
-func (*ResourceInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
-
-func (m *ResourceInfo) GetResourceType() int32 {
-	if m != nil && m.ResourceType != nil {
-		return *m.ResourceType
-	}
-	return 0
-}
-
-func (m *ResourceInfo) GetResourceValue() int32 {
-	if m != nil && m.ResourceValue != nil {
-		return *m.ResourceValue
-	}
-	return 0
-}
-
-type StageInfo struct {
-	StageId          *int32 `protobuf:"varint,1,opt,name=StageId" json:"StageId,omitempty"`
-	Star             *int32 `protobuf:"varint,2,opt,name=Star" json:"Star,omitempty"`
-	TopScore         *int32 `protobuf:"varint,3,opt,name=TopScore" json:"TopScore,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *StageInfo) Reset()                    { *m = StageInfo{} }
-func (m *StageInfo) String() string            { return proto.CompactTextString(m) }
-func (*StageInfo) ProtoMessage()               {}
-func (*StageInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
-
-func (m *StageInfo) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
-	}
-	return 0
-}
-
-func (m *StageInfo) GetStar() int32 {
-	if m != nil && m.Star != nil {
-		return *m.Star
-	}
-	return 0
-}
-
-func (m *StageInfo) GetTopScore() int32 {
-	if m != nil && m.TopScore != nil {
-		return *m.TopScore
-	}
-	return 0
-}
-
-type HeartBeat struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *HeartBeat) Reset()                    { *m = HeartBeat{} }
-func (m *HeartBeat) String() string            { return proto.CompactTextString(m) }
-func (*HeartBeat) ProtoMessage()               {}
-func (*HeartBeat) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
-
-// ///////////////////////////////////////////////////////////////////////
-// 物品变化
-type S2CItemsInfoUpdate struct {
-	Items            []*ItemInfo `protobuf:"bytes,1,rep,name=Items" json:"Items,omitempty"`
-	XXX_unrecognized []byte      `json:"-"`
-}
-
-func (m *S2CItemsInfoUpdate) Reset()                    { *m = S2CItemsInfoUpdate{} }
-func (m *S2CItemsInfoUpdate) String() string            { return proto.CompactTextString(m) }
-func (*S2CItemsInfoUpdate) ProtoMessage()               {}
-func (*S2CItemsInfoUpdate) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
-
-func (m *S2CItemsInfoUpdate) GetItems() []*ItemInfo {
 	if m != nil {
-		return m.Items
-	}
-	return nil
-}
-
-type C2SLoginRequest struct {
-	Acc              *string `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
-	Token            *string `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
-	Channel          *string `protobuf:"bytes,3,opt,name=Channel" json:"Channel,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2SLoginRequest) Reset()                    { *m = C2SLoginRequest{} }
-func (m *C2SLoginRequest) String() string            { return proto.CompactTextString(m) }
-func (*C2SLoginRequest) ProtoMessage()               {}
-func (*C2SLoginRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
-
-func (m *C2SLoginRequest) GetAcc() string {
-	if m != nil && m.Acc != nil {
-		return *m.Acc
-	}
-	return ""
-}
-
-func (m *C2SLoginRequest) GetToken() string {
-	if m != nil && m.Token != nil {
-		return *m.Token
-	}
-	return ""
-}
-
-func (m *C2SLoginRequest) GetChannel() string {
-	if m != nil && m.Channel != nil {
-		return *m.Channel
-	}
-	return ""
-}
-
-type S2CLoginResponse struct {
-	Acc              *string `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
-	PlayerId         *int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,3,opt,name=Name" json:"Name,omitempty"`
-	ServerUnix       *int32  `protobuf:"varint,4,opt,name=ServerUnix" json:"ServerUnix,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *S2CLoginResponse) Reset()                    { *m = S2CLoginResponse{} }
-func (m *S2CLoginResponse) String() string            { return proto.CompactTextString(m) }
-func (*S2CLoginResponse) ProtoMessage()               {}
-func (*S2CLoginResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
-
-func (m *S2CLoginResponse) GetAcc() string {
-	if m != nil && m.Acc != nil {
-		return *m.Acc
-	}
-	return ""
-}
-
-func (m *S2CLoginResponse) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+		return m.RemainSeconds
 	}
 	return 0
 }
 
-func (m *S2CLoginResponse) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
+// 好友信息
+type FriendInfo struct {
+	PlayerId         int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	Name             string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
+	Head             string `protobuf:"bytes,3,opt,name=Head" json:"Head,omitempty"`
+	Level            int32  `protobuf:"varint,4,opt,name=Level" json:"Level,omitempty"`
+	VipLevel         int32  `protobuf:"varint,5,opt,name=VipLevel" json:"VipLevel,omitempty"`
+	LastLogin        int32  `protobuf:"varint,6,opt,name=LastLogin" json:"LastLogin,omitempty"`
+	FriendPoints     int32  `protobuf:"varint,7,opt,name=FriendPoints" json:"FriendPoints,omitempty"`
+	LeftGiveSeconds  int32  `protobuf:"varint,8,opt,name=LeftGiveSeconds" json:"LeftGiveSeconds,omitempty"`
+	UnreadMessageNum int32  `protobuf:"varint,9,opt,name=UnreadMessageNum" json:"UnreadMessageNum,omitempty"`
+	Zan              int32  `protobuf:"varint,10,opt,name=Zan" json:"Zan,omitempty"`
+	IsZanToday       bool   `protobuf:"varint,11,opt,name=IsZanToday" json:"IsZanToday,omitempty"`
+	IsOnline         bool   `protobuf:"varint,12,opt,name=IsOnline" json:"IsOnline,omitempty"`
+	FosteredCatNum   int32  `protobuf:"varint,14,opt,name=FosteredCatNum" json:"FosteredCatNum,omitempty"`
+	CanFosterCatNum  int32  `protobuf:"varint,15,opt,name=CanFosterCatNum" json:"CanFosterCatNum,omitempty"`
 }
 
-func (m *S2CLoginResponse) GetServerUnix() int32 {
-	if m != nil && m.ServerUnix != nil {
-		return *m.ServerUnix
-	}
-	return 0
-}
+func (m *FriendInfo) Reset()                    { *m = FriendInfo{} }
+func (m *FriendInfo) String() string            { return proto.CompactTextString(m) }
+func (*FriendInfo) ProtoMessage()               {}
+func (*FriendInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
-// / 其它地方登录
-type S2COtherPlaceLogin struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2COtherPlaceLogin) Reset()                    { *m = S2COtherPlaceLogin{} }
-func (m *S2COtherPlaceLogin) String() string            { return proto.CompactTextString(m) }
-func (*S2COtherPlaceLogin) ProtoMessage()               {}
-func (*S2COtherPlaceLogin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
-
-// 拉取数据（基础数据，物品，猫，建筑，区域等）
-type C2SGetInfo struct {
-	Base             *bool  `protobuf:"varint,1,opt,name=Base" json:"Base,omitempty"`
-	Item             *bool  `protobuf:"varint,2,opt,name=Item" json:"Item,omitempty"`
-	Stage            *bool  `protobuf:"varint,6,opt,name=Stage" json:"Stage,omitempty"`
-	Formula          *bool  `protobuf:"varint,8,opt,name=Formula" json:"Formula,omitempty"`
-	Guide            *bool  `protobuf:"varint,9,opt,name=Guide" json:"Guide,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetInfo) Reset()                    { *m = C2SGetInfo{} }
-func (m *C2SGetInfo) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetInfo) ProtoMessage()               {}
-func (*C2SGetInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
-
-func (m *C2SGetInfo) GetBase() bool {
-	if m != nil && m.Base != nil {
-		return *m.Base
-	}
-	return false
-}
-
-func (m *C2SGetInfo) GetItem() bool {
-	if m != nil && m.Item != nil {
-		return *m.Item
-	}
-	return false
-}
-
-func (m *C2SGetInfo) GetStage() bool {
-	if m != nil && m.Stage != nil {
-		return *m.Stage
-	}
-	return false
-}
-
-func (m *C2SGetInfo) GetFormula() bool {
-	if m != nil && m.Formula != nil {
-		return *m.Formula
-	}
-	return false
-}
-
-func (m *C2SGetInfo) GetGuide() bool {
-	if m != nil && m.Guide != nil {
-		return *m.Guide
-	}
-	return false
-}
-
-// 拉基础信息
-type C2SGetBaseInfo struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetBaseInfo) Reset()                    { *m = C2SGetBaseInfo{} }
-func (m *C2SGetBaseInfo) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetBaseInfo) ProtoMessage()               {}
-func (*C2SGetBaseInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
-
-type S2CRetBaseInfo struct {
-	Coins                 *int32  `protobuf:"varint,1,opt,name=Coins" json:"Coins,omitempty"`
-	Diamonds              *int32  `protobuf:"varint,2,opt,name=Diamonds" json:"Diamonds,omitempty"`
-	Lvl                   *int32  `protobuf:"varint,3,opt,name=Lvl" json:"Lvl,omitempty"`
-	Exp                   *int32  `protobuf:"varint,4,opt,name=Exp" json:"Exp,omitempty"`
-	CurMaxStage           *int32  `protobuf:"varint,5,opt,name=CurMaxStage" json:"CurMaxStage,omitempty"`
-	CurUnlockMaxStage     *int32  `protobuf:"varint,6,opt,name=CurUnlockMaxStage" json:"CurUnlockMaxStage,omitempty"`
-	CharmVal              *int32  `protobuf:"varint,7,opt,name=CharmVal" json:"CharmVal,omitempty"`
-	Nick                  *string `protobuf:"bytes,8,opt,name=Nick" json:"Nick,omitempty"`
-	Head                  *string `protobuf:"bytes,9,opt,name=Head" json:"Head,omitempty"`
-	Star                  *int32  `protobuf:"varint,10,opt,name=Star" json:"Star,omitempty"`
-	Zan                   *int32  `protobuf:"varint,11,opt,name=Zan" json:"Zan,omitempty"`
-	Spirit                *int32  `protobuf:"varint,13,opt,name=Spirit" json:"Spirit,omitempty"`
-	FriendPoints          *int32  `protobuf:"varint,14,opt,name=FriendPoints" json:"FriendPoints,omitempty"`
-	SoulStone             *int32  `protobuf:"varint,15,opt,name=SoulStone" json:"SoulStone,omitempty"`
-	HistoricalMaxStar     *int32  `protobuf:"varint,17,opt,name=HistoricalMaxStar" json:"HistoricalMaxStar,omitempty"`
-	ChangeNameNum         *int32  `protobuf:"varint,18,opt,name=ChangeNameNum" json:"ChangeNameNum,omitempty"`
-	ChangeNameFreeNum     *int32  `protobuf:"varint,19,opt,name=ChangeNameFreeNum" json:"ChangeNameFreeNum,omitempty"`
-	ChangeNameCostDiamond *int32  `protobuf:"varint,20,opt,name=ChangeNameCostDiamond" json:"ChangeNameCostDiamond,omitempty"`
-	DayBuyTiLiCount       *int32  `protobuf:"varint,21,opt,name=DayBuyTiLiCount" json:"DayBuyTiLiCount,omitempty"`
-	XXX_unrecognized      []byte  `json:"-"`
-}
-
-func (m *S2CRetBaseInfo) Reset()                    { *m = S2CRetBaseInfo{} }
-func (m *S2CRetBaseInfo) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetBaseInfo) ProtoMessage()               {}
-func (*S2CRetBaseInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
-
-func (m *S2CRetBaseInfo) GetCoins() int32 {
-	if m != nil && m.Coins != nil {
-		return *m.Coins
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetDiamonds() int32 {
-	if m != nil && m.Diamonds != nil {
-		return *m.Diamonds
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetExp() int32 {
-	if m != nil && m.Exp != nil {
-		return *m.Exp
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetCurMaxStage() int32 {
-	if m != nil && m.CurMaxStage != nil {
-		return *m.CurMaxStage
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetCurUnlockMaxStage() int32 {
-	if m != nil && m.CurUnlockMaxStage != nil {
-		return *m.CurUnlockMaxStage
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetCharmVal() int32 {
-	if m != nil && m.CharmVal != nil {
-		return *m.CharmVal
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetNick() string {
-	if m != nil && m.Nick != nil {
-		return *m.Nick
-	}
-	return ""
-}
-
-func (m *S2CRetBaseInfo) GetHead() string {
-	if m != nil && m.Head != nil {
-		return *m.Head
-	}
-	return ""
-}
-
-func (m *S2CRetBaseInfo) GetStar() int32 {
-	if m != nil && m.Star != nil {
-		return *m.Star
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetZan() int32 {
-	if m != nil && m.Zan != nil {
-		return *m.Zan
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetSpirit() int32 {
-	if m != nil && m.Spirit != nil {
-		return *m.Spirit
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetFriendPoints() int32 {
-	if m != nil && m.FriendPoints != nil {
-		return *m.FriendPoints
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetSoulStone() int32 {
-	if m != nil && m.SoulStone != nil {
-		return *m.SoulStone
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetHistoricalMaxStar() int32 {
-	if m != nil && m.HistoricalMaxStar != nil {
-		return *m.HistoricalMaxStar
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetChangeNameNum() int32 {
-	if m != nil && m.ChangeNameNum != nil {
-		return *m.ChangeNameNum
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetChangeNameFreeNum() int32 {
-	if m != nil && m.ChangeNameFreeNum != nil {
-		return *m.ChangeNameFreeNum
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetChangeNameCostDiamond() int32 {
-	if m != nil && m.ChangeNameCostDiamond != nil {
-		return *m.ChangeNameCostDiamond
-	}
-	return 0
-}
-
-func (m *S2CRetBaseInfo) GetDayBuyTiLiCount() int32 {
-	if m != nil && m.DayBuyTiLiCount != nil {
-		return *m.DayBuyTiLiCount
-	}
-	return 0
-}
-
-// / 拉物品信息
-type C2SGetItemInfos struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetItemInfos) Reset()                    { *m = C2SGetItemInfos{} }
-func (m *C2SGetItemInfos) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetItemInfos) ProtoMessage()               {}
-func (*C2SGetItemInfos) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
-
-// 物品同步结果
-type S2CRetItemInfos struct {
-	Items            []*ItemInfo `protobuf:"bytes,1,rep,name=Items" json:"Items,omitempty"`
-	XXX_unrecognized []byte      `json:"-"`
-}
-
-func (m *S2CRetItemInfos) Reset()                    { *m = S2CRetItemInfos{} }
-func (m *S2CRetItemInfos) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetItemInfos) ProtoMessage()               {}
-func (*S2CRetItemInfos) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
-
-func (m *S2CRetItemInfos) GetItems() []*ItemInfo {
+func (m *FriendInfo) GetPlayerId() int32 {
 	if m != nil {
-		return m.Items
+		return m.PlayerId
 	}
-	return nil
+	return 0
 }
 
-// 拉取关卡信息
-type C2SGetStageInfos struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetStageInfos) Reset()                    { *m = C2SGetStageInfos{} }
-func (m *C2SGetStageInfos) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetStageInfos) ProtoMessage()               {}
-func (*C2SGetStageInfos) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
-
-type S2CRetStageInfos struct {
-	Stages            []*StageInfo `protobuf:"bytes,1,rep,name=Stages" json:"Stages,omitempty"`
-	CurMaxStage       *int32       `protobuf:"varint,2,opt,name=CurMaxStage" json:"CurMaxStage,omitempty"`
-	CurUnlockMaxStage *int32       `protobuf:"varint,3,opt,name=CurUnlockMaxStage" json:"CurUnlockMaxStage,omitempty"`
-	UnlockLeftSec     *int32       `protobuf:"varint,4,opt,name=UnlockLeftSec" json:"UnlockLeftSec,omitempty"`
-	CurUnlockStageId  *int32       `protobuf:"varint,5,opt,name=CurUnlockStageId" json:"CurUnlockStageId,omitempty"`
-	XXX_unrecognized  []byte       `json:"-"`
-}
-
-func (m *S2CRetStageInfos) Reset()                    { *m = S2CRetStageInfos{} }
-func (m *S2CRetStageInfos) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetStageInfos) ProtoMessage()               {}
-func (*S2CRetStageInfos) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
-
-func (m *S2CRetStageInfos) GetStages() []*StageInfo {
+func (m *FriendInfo) GetName() string {
 	if m != nil {
-		return m.Stages
+		return m.Name
 	}
-	return nil
+	return ""
 }
 
-func (m *S2CRetStageInfos) GetCurMaxStage() int32 {
-	if m != nil && m.CurMaxStage != nil {
-		return *m.CurMaxStage
-	}
-	return 0
-}
-
-func (m *S2CRetStageInfos) GetCurUnlockMaxStage() int32 {
-	if m != nil && m.CurUnlockMaxStage != nil {
-		return *m.CurUnlockMaxStage
-	}
-	return 0
-}
-
-func (m *S2CRetStageInfos) GetUnlockLeftSec() int32 {
-	if m != nil && m.UnlockLeftSec != nil {
-		return *m.UnlockLeftSec
-	}
-	return 0
-}
-
-func (m *S2CRetStageInfos) GetCurUnlockStageId() int32 {
-	if m != nil && m.CurUnlockStageId != nil {
-		return *m.CurUnlockStageId
-	}
-	return 0
-}
-
-// 金币
-type C2SGetCoin struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetCoin) Reset()                    { *m = C2SGetCoin{} }
-func (m *C2SGetCoin) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetCoin) ProtoMessage()               {}
-func (*C2SGetCoin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
-
-type S2CRetCoin struct {
-	Coin             *int32 `protobuf:"varint,1,opt,name=Coin" json:"Coin,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetCoin) Reset()                    { *m = S2CRetCoin{} }
-func (m *S2CRetCoin) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetCoin) ProtoMessage()               {}
-func (*S2CRetCoin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
-
-func (m *S2CRetCoin) GetCoin() int32 {
-	if m != nil && m.Coin != nil {
-		return *m.Coin
-	}
-	return 0
-}
-
-// 钻石
-type C2SGetDiamond struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetDiamond) Reset()                    { *m = C2SGetDiamond{} }
-func (m *C2SGetDiamond) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetDiamond) ProtoMessage()               {}
-func (*C2SGetDiamond) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
-
-type S2CRetDiamond struct {
-	Diamond          *int32 `protobuf:"varint,1,opt,name=Diamond" json:"Diamond,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetDiamond) Reset()                    { *m = S2CRetDiamond{} }
-func (m *S2CRetDiamond) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetDiamond) ProtoMessage()               {}
-func (*S2CRetDiamond) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
-
-func (m *S2CRetDiamond) GetDiamond() int32 {
-	if m != nil && m.Diamond != nil {
-		return *m.Diamond
-	}
-	return 0
-}
-
-// 魅力值
-type C2SGetCharmVal struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetCharmVal) Reset()                    { *m = C2SGetCharmVal{} }
-func (m *C2SGetCharmVal) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetCharmVal) ProtoMessage()               {}
-func (*C2SGetCharmVal) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
-
-type S2CRetCharmVal struct {
-	CharmVal         *int32 `protobuf:"varint,1,opt,name=CharmVal" json:"CharmVal,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetCharmVal) Reset()                    { *m = S2CRetCharmVal{} }
-func (m *S2CRetCharmVal) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetCharmVal) ProtoMessage()               {}
-func (*S2CRetCharmVal) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
-
-func (m *S2CRetCharmVal) GetCharmVal() int32 {
-	if m != nil && m.CharmVal != nil {
-		return *m.CharmVal
-	}
-	return 0
-}
-
-// 点赞数
-type C2SGetZan struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetZan) Reset()                    { *m = C2SGetZan{} }
-func (m *C2SGetZan) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetZan) ProtoMessage()               {}
-func (*C2SGetZan) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{25} }
-
-type S2CRetZan struct {
-	Zan              *int32 `protobuf:"varint,1,opt,name=Zan" json:"Zan,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetZan) Reset()                    { *m = S2CRetZan{} }
-func (m *S2CRetZan) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetZan) ProtoMessage()               {}
-func (*S2CRetZan) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{26} }
-
-func (m *S2CRetZan) GetZan() int32 {
-	if m != nil && m.Zan != nil {
-		return *m.Zan
-	}
-	return 0
-}
-
-// 体力
-type C2SGetSpirit struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetSpirit) Reset()                    { *m = C2SGetSpirit{} }
-func (m *C2SGetSpirit) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetSpirit) ProtoMessage()               {}
-func (*C2SGetSpirit) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{27} }
-
-type S2CRetSpirit struct {
-	Spirit           *int32 `protobuf:"varint,1,opt,name=Spirit" json:"Spirit,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetSpirit) Reset()                    { *m = S2CRetSpirit{} }
-func (m *S2CRetSpirit) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetSpirit) ProtoMessage()               {}
-func (*S2CRetSpirit) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{28} }
-
-func (m *S2CRetSpirit) GetSpirit() int32 {
-	if m != nil && m.Spirit != nil {
-		return *m.Spirit
-	}
-	return 0
-}
-
-type C2SStagePass struct {
-	StageId          *int32      `protobuf:"varint,1,opt,name=StageId" json:"StageId,omitempty"`
-	Stars            *int32      `protobuf:"varint,2,opt,name=Stars" json:"Stars,omitempty"`
-	Score            *int32      `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	Items            []*ItemInfo `protobuf:"bytes,4,rep,name=Items" json:"Items,omitempty"`
-	Result           *int32      `protobuf:"varint,5,opt,name=Result" json:"Result,omitempty"`
-	XXX_unrecognized []byte      `json:"-"`
-}
-
-func (m *C2SStagePass) Reset()                    { *m = C2SStagePass{} }
-func (m *C2SStagePass) String() string            { return proto.CompactTextString(m) }
-func (*C2SStagePass) ProtoMessage()               {}
-func (*C2SStagePass) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{29} }
-
-func (m *C2SStagePass) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
-	}
-	return 0
-}
-
-func (m *C2SStagePass) GetStars() int32 {
-	if m != nil && m.Stars != nil {
-		return *m.Stars
-	}
-	return 0
-}
-
-func (m *C2SStagePass) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *C2SStagePass) GetItems() []*ItemInfo {
+func (m *FriendInfo) GetHead() string {
 	if m != nil {
-		return m.Items
+		return m.Head
 	}
-	return nil
+	return ""
 }
 
-func (m *C2SStagePass) GetResult() int32 {
-	if m != nil && m.Result != nil {
-		return *m.Result
+func (m *FriendInfo) GetLevel() int32 {
+	if m != nil {
+		return m.Level
+	}
+	return 0
+}
+
+func (m *FriendInfo) GetVipLevel() int32 {
+	if m != nil {
+		return m.VipLevel
+	}
+	return 0
+}
+
+func (m *FriendInfo) GetLastLogin() int32 {
+	if m != nil {
+		return m.LastLogin
+	}
+	return 0
+}
+
+func (m *FriendInfo) GetFriendPoints() int32 {
+	if m != nil {
+		return m.FriendPoints
+	}
+	return 0
+}
+
+func (m *FriendInfo) GetLeftGiveSeconds() int32 {
+	if m != nil {
+		return m.LeftGiveSeconds
+	}
+	return 0
+}
+
+func (m *FriendInfo) GetUnreadMessageNum() int32 {
+	if m != nil {
+		return m.UnreadMessageNum
+	}
+	return 0
+}
+
+func (m *FriendInfo) GetZan() int32 {
+	if m != nil {
+		return m.Zan
+	}
+	return 0
+}
+
+func (m *FriendInfo) GetIsZanToday() bool {
+	if m != nil {
+		return m.IsZanToday
+	}
+	return false
+}
+
+func (m *FriendInfo) GetIsOnline() bool {
+	if m != nil {
+		return m.IsOnline
+	}
+	return false
+}
+
+func (m *FriendInfo) GetFosteredCatNum() int32 {
+	if m != nil {
+		return m.FosteredCatNum
+	}
+	return 0
+}
+
+func (m *FriendInfo) GetCanFosterCatNum() int32 {
+	if m != nil {
+		return m.CanFosterCatNum
 	}
 	return 0
 }
 
 type PlayerStageInfo struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Score            *int32  `protobuf:"varint,2,opt,name=Score" json:"Score,omitempty"`
-	Name             *string `protobuf:"bytes,3,opt,name=Name" json:"Name,omitempty"`
-	Lvl              *int32  `protobuf:"varint,4,opt,name=Lvl" json:"Lvl,omitempty"`
-	Icon             *string `protobuf:"bytes,5,opt,name=Icon" json:"Icon,omitempty"`
-	CustomIcon       *string `protobuf:"bytes,6,opt,name=CustomIcon" json:"CustomIcon,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	PlayerId   int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	Score      int32  `protobuf:"varint,2,opt,name=Score" json:"Score,omitempty"`
+	Name       string `protobuf:"bytes,3,opt,name=Name" json:"Name,omitempty"`
+	Lvl        int32  `protobuf:"varint,4,opt,name=Lvl" json:"Lvl,omitempty"`
+	Icon       string `protobuf:"bytes,5,opt,name=Icon" json:"Icon,omitempty"`
+	CustomIcon string `protobuf:"bytes,6,opt,name=CustomIcon" json:"CustomIcon,omitempty"`
 }
 
 func (m *PlayerStageInfo) Reset()                    { *m = PlayerStageInfo{} }
 func (m *PlayerStageInfo) String() string            { return proto.CompactTextString(m) }
 func (*PlayerStageInfo) ProtoMessage()               {}
-func (*PlayerStageInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{30} }
+func (*PlayerStageInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
 func (m *PlayerStageInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 func (m *PlayerStageInfo) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
+	if m != nil {
+		return m.Score
 	}
 	return 0
 }
 
 func (m *PlayerStageInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+	if m != nil {
+		return m.Name
 	}
 	return ""
 }
 
 func (m *PlayerStageInfo) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
+	if m != nil {
+		return m.Lvl
 	}
 	return 0
 }
 
 func (m *PlayerStageInfo) GetIcon() string {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
+	if m != nil {
+		return m.Icon
 	}
 	return ""
 }
 
 func (m *PlayerStageInfo) GetCustomIcon() string {
-	if m != nil && m.CustomIcon != nil {
-		return *m.CustomIcon
+	if m != nil {
+		return m.CustomIcon
 	}
 	return ""
 }
 
 type S2CStagePass struct {
-	StageId          *int32             `protobuf:"varint,1,opt,name=StageId" json:"StageId,omitempty"`
-	Stars            *int32             `protobuf:"varint,2,opt,name=Stars" json:"Stars,omitempty"`
-	Score            *int32             `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	TopScore         *int32             `protobuf:"varint,4,opt,name=TopScore" json:"TopScore,omitempty"`
-	UseItems         []*ItemInfo        `protobuf:"bytes,5,rep,name=UseItems" json:"UseItems,omitempty"`
-	GetCoin          *int32             `protobuf:"varint,6,opt,name=GetCoin" json:"GetCoin,omitempty"`
-	Getitems         []*ItemInfo        `protobuf:"bytes,7,rep,name=Getitems" json:"Getitems,omitempty"`
-	RankItems        []*PlayerStageInfo `protobuf:"bytes,8,rep,name=RankItems" json:"RankItems,omitempty"`
-	FriendItems      []*PlayerStageInfo `protobuf:"bytes,9,rep,name=FriendItems" json:"FriendItems,omitempty"`
-	Result           *int32             `protobuf:"varint,12,opt,name=Result" json:"Result,omitempty"`
-	GetitemsFirst    []*ItemInfo        `protobuf:"bytes,13,rep,name=GetitemsFirst" json:"GetitemsFirst,omitempty"`
-	Getitems3Star    []*ItemInfo        `protobuf:"bytes,14,rep,name=Getitems3Star" json:"Getitems3Star,omitempty"`
-	CatExtraAddCoin  *int32             `protobuf:"varint,15,opt,name=CatExtraAddCoin" json:"CatExtraAddCoin,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
+	StageId         int32              `protobuf:"varint,1,opt,name=StageId" json:"StageId,omitempty"`
+	Stars           int32              `protobuf:"varint,2,opt,name=Stars" json:"Stars,omitempty"`
+	Score           int32              `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
+	TopScore        int32              `protobuf:"varint,4,opt,name=TopScore" json:"TopScore,omitempty"`
+	UseItems        []*ItemInfo        `protobuf:"bytes,5,rep,name=UseItems" json:"UseItems,omitempty"`
+	GetCoin         int32              `protobuf:"varint,6,opt,name=GetCoin" json:"GetCoin,omitempty"`
+	Getitems        []*ItemInfo        `protobuf:"bytes,7,rep,name=Getitems" json:"Getitems,omitempty"`
+	RankItems       []*PlayerStageInfo `protobuf:"bytes,8,rep,name=RankItems" json:"RankItems,omitempty"`
+	FriendItems     []*PlayerStageInfo `protobuf:"bytes,9,rep,name=FriendItems" json:"FriendItems,omitempty"`
+	Result          int32              `protobuf:"varint,12,opt,name=Result" json:"Result,omitempty"`
+	GetitemsFirst   []*ItemInfo        `protobuf:"bytes,13,rep,name=GetitemsFirst" json:"GetitemsFirst,omitempty"`
+	Getitems3Star   []*ItemInfo        `protobuf:"bytes,14,rep,name=Getitems3Star" json:"Getitems3Star,omitempty"`
+	CatExtraAddCoin int32              `protobuf:"varint,15,opt,name=CatExtraAddCoin" json:"CatExtraAddCoin,omitempty"`
 }
 
 func (m *S2CStagePass) Reset()                    { *m = S2CStagePass{} }
 func (m *S2CStagePass) String() string            { return proto.CompactTextString(m) }
 func (*S2CStagePass) ProtoMessage()               {}
-func (*S2CStagePass) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{31} }
+func (*S2CStagePass) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *S2CStagePass) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
+	if m != nil {
+		return m.StageId
 	}
 	return 0
 }
 
 func (m *S2CStagePass) GetStars() int32 {
-	if m != nil && m.Stars != nil {
-		return *m.Stars
+	if m != nil {
+		return m.Stars
 	}
 	return 0
 }
 
 func (m *S2CStagePass) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
+	if m != nil {
+		return m.Score
 	}
 	return 0
 }
 
 func (m *S2CStagePass) GetTopScore() int32 {
-	if m != nil && m.TopScore != nil {
-		return *m.TopScore
+	if m != nil {
+		return m.TopScore
 	}
 	return 0
 }
@@ -1494,8 +558,8 @@ func (m *S2CStagePass) GetUseItems() []*ItemInfo {
 }
 
 func (m *S2CStagePass) GetGetCoin() int32 {
-	if m != nil && m.GetCoin != nil {
-		return *m.GetCoin
+	if m != nil {
+		return m.GetCoin
 	}
 	return 0
 }
@@ -1522,8 +586,8 @@ func (m *S2CStagePass) GetFriendItems() []*PlayerStageInfo {
 }
 
 func (m *S2CStagePass) GetResult() int32 {
-	if m != nil && m.Result != nil {
-		return *m.Result
+	if m != nil {
+		return m.Result
 	}
 	return 0
 }
@@ -1543,2353 +607,358 @@ func (m *S2CStagePass) GetGetitems3Star() []*ItemInfo {
 }
 
 func (m *S2CStagePass) GetCatExtraAddCoin() int32 {
-	if m != nil && m.CatExtraAddCoin != nil {
-		return *m.CatExtraAddCoin
-	}
-	return 0
-}
-
-type C2SChapterUnlock struct {
-	UnLockType       *int32  `protobuf:"varint,1,opt,name=UnLockType" json:"UnLockType,omitempty"`
-	ChapterId        *int32  `protobuf:"varint,2,opt,name=ChapterId" json:"ChapterId,omitempty"`
-	FriendIds        []int32 `protobuf:"varint,3,rep,name=FriendIds" json:"FriendIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2SChapterUnlock) Reset()                    { *m = C2SChapterUnlock{} }
-func (m *C2SChapterUnlock) String() string            { return proto.CompactTextString(m) }
-func (*C2SChapterUnlock) ProtoMessage()               {}
-func (*C2SChapterUnlock) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{32} }
-
-func (m *C2SChapterUnlock) GetUnLockType() int32 {
-	if m != nil && m.UnLockType != nil {
-		return *m.UnLockType
-	}
-	return 0
-}
-
-func (m *C2SChapterUnlock) GetChapterId() int32 {
-	if m != nil && m.ChapterId != nil {
-		return *m.ChapterId
-	}
-	return 0
-}
-
-func (m *C2SChapterUnlock) GetFriendIds() []int32 {
 	if m != nil {
-		return m.FriendIds
-	}
-	return nil
-}
-
-type S2CChapterUnlock struct {
-	ChapterId        *int32 `protobuf:"varint,1,opt,name=ChapterId" json:"ChapterId,omitempty"`
-	MaxUnlockStageId *int32 `protobuf:"varint,2,opt,name=MaxUnlockStageId" json:"MaxUnlockStageId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CChapterUnlock) Reset()                    { *m = S2CChapterUnlock{} }
-func (m *S2CChapterUnlock) String() string            { return proto.CompactTextString(m) }
-func (*S2CChapterUnlock) ProtoMessage()               {}
-func (*S2CChapterUnlock) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{33} }
-
-func (m *S2CChapterUnlock) GetChapterId() int32 {
-	if m != nil && m.ChapterId != nil {
-		return *m.ChapterId
+		return m.CatExtraAddCoin
 	}
 	return 0
 }
 
-func (m *S2CChapterUnlock) GetMaxUnlockStageId() int32 {
-	if m != nil && m.MaxUnlockStageId != nil {
-		return *m.MaxUnlockStageId
-	}
-	return 0
+// 登陆
+type C2SLoginRequest struct {
+	Acc      string `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
+	Password string `protobuf:"bytes,2,opt,name=Password" json:"Password,omitempty"`
+	Channel  string `protobuf:"bytes,3,opt,name=Channel" json:"Channel,omitempty"`
 }
 
-type C2SGetCurHelpReqPIds struct {
-	XXX_unrecognized []byte `json:"-"`
-}
+func (m *C2SLoginRequest) Reset()                    { *m = C2SLoginRequest{} }
+func (m *C2SLoginRequest) String() string            { return proto.CompactTextString(m) }
+func (*C2SLoginRequest) ProtoMessage()               {}
+func (*C2SLoginRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
-func (m *C2SGetCurHelpReqPIds) Reset()                    { *m = C2SGetCurHelpReqPIds{} }
-func (m *C2SGetCurHelpReqPIds) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetCurHelpReqPIds) ProtoMessage()               {}
-func (*C2SGetCurHelpReqPIds) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{34} }
-
-type S2CRetCurHelpReqPIds struct {
-	PIds             []int32 `protobuf:"varint,1,rep,name=PIds" json:"PIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *S2CRetCurHelpReqPIds) Reset()                    { *m = S2CRetCurHelpReqPIds{} }
-func (m *S2CRetCurHelpReqPIds) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetCurHelpReqPIds) ProtoMessage()               {}
-func (*S2CRetCurHelpReqPIds) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{35} }
-
-func (m *S2CRetCurHelpReqPIds) GetPIds() []int32 {
+func (m *C2SLoginRequest) GetAcc() string {
 	if m != nil {
-		return m.PIds
-	}
-	return nil
-}
-
-type S2CRetDayHelpUnlockCount struct {
-	HelpOtherNum     *int32 `protobuf:"varint,1,opt,name=HelpOtherNum" json:"HelpOtherNum,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetDayHelpUnlockCount) Reset()                    { *m = S2CRetDayHelpUnlockCount{} }
-func (m *S2CRetDayHelpUnlockCount) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetDayHelpUnlockCount) ProtoMessage()               {}
-func (*S2CRetDayHelpUnlockCount) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{36} }
-
-func (m *S2CRetDayHelpUnlockCount) GetHelpOtherNum() int32 {
-	if m != nil && m.HelpOtherNum != nil {
-		return *m.HelpOtherNum
-	}
-	return 0
-}
-
-// ============================================================================
-type S2COpenChest struct {
-	ChestId          *int32      `protobuf:"varint,1,opt,name=ChestId" json:"ChestId,omitempty"`
-	CurCoins         *int32      `protobuf:"varint,2,opt,name=CurCoins" json:"CurCoins,omitempty"`
-	CurDiamond       *int32      `protobuf:"varint,3,opt,name=CurDiamond" json:"CurDiamond,omitempty"`
-	NewItems         []*ItemInfo `protobuf:"bytes,4,rep,name=NewItems" json:"NewItems,omitempty"`
-	CostDiamond      *int32      `protobuf:"varint,5,opt,name=CostDiamond" json:"CostDiamond,omitempty"`
-	XXX_unrecognized []byte      `json:"-"`
-}
-
-func (m *S2COpenChest) Reset()                    { *m = S2COpenChest{} }
-func (m *S2COpenChest) String() string            { return proto.CompactTextString(m) }
-func (*S2COpenChest) ProtoMessage()               {}
-func (*S2COpenChest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{37} }
-
-func (m *S2COpenChest) GetChestId() int32 {
-	if m != nil && m.ChestId != nil {
-		return *m.ChestId
-	}
-	return 0
-}
-
-func (m *S2COpenChest) GetCurCoins() int32 {
-	if m != nil && m.CurCoins != nil {
-		return *m.CurCoins
-	}
-	return 0
-}
-
-func (m *S2COpenChest) GetCurDiamond() int32 {
-	if m != nil && m.CurDiamond != nil {
-		return *m.CurDiamond
-	}
-	return 0
-}
-
-func (m *S2COpenChest) GetNewItems() []*ItemInfo {
-	if m != nil {
-		return m.NewItems
-	}
-	return nil
-}
-
-func (m *S2COpenChest) GetCostDiamond() int32 {
-	if m != nil && m.CostDiamond != nil {
-		return *m.CostDiamond
-	}
-	return 0
-}
-
-type C2SBuyChest struct {
-	ChestId          *int32 `protobuf:"varint,1,opt,name=ChestId" json:"ChestId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SBuyChest) Reset()                    { *m = C2SBuyChest{} }
-func (m *C2SBuyChest) String() string            { return proto.CompactTextString(m) }
-func (*C2SBuyChest) ProtoMessage()               {}
-func (*C2SBuyChest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{38} }
-
-func (m *C2SBuyChest) GetChestId() int32 {
-	if m != nil && m.ChestId != nil {
-		return *m.ChestId
-	}
-	return 0
-}
-
-type S2CBuyChest struct {
-	ChestOpen        *S2COpenChest `protobuf:"bytes,1,opt,name=ChestOpen" json:"ChestOpen,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *S2CBuyChest) Reset()                    { *m = S2CBuyChest{} }
-func (m *S2CBuyChest) String() string            { return proto.CompactTextString(m) }
-func (*S2CBuyChest) ProtoMessage()               {}
-func (*S2CBuyChest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{39} }
-
-func (m *S2CBuyChest) GetChestOpen() *S2COpenChest {
-	if m != nil {
-		return m.ChestOpen
-	}
-	return nil
-}
-
-// 客户端请求使用物品
-type C2SUseItem struct {
-	ItemCfgId        *int32 `protobuf:"varint,1,opt,name=ItemCfgId" json:"ItemCfgId,omitempty"`
-	ItemNum          *int32 `protobuf:"varint,2,opt,name=ItemNum" json:"ItemNum,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SUseItem) Reset()                    { *m = C2SUseItem{} }
-func (m *C2SUseItem) String() string            { return proto.CompactTextString(m) }
-func (*C2SUseItem) ProtoMessage()               {}
-func (*C2SUseItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{40} }
-
-func (m *C2SUseItem) GetItemCfgId() int32 {
-	if m != nil && m.ItemCfgId != nil {
-		return *m.ItemCfgId
-	}
-	return 0
-}
-
-func (m *C2SUseItem) GetItemNum() int32 {
-	if m != nil && m.ItemNum != nil {
-		return *m.ItemNum
-	}
-	return 0
-}
-
-// 服务器返回使用物品结果
-type S2CUseItem struct {
-	CostItem         *ItemInfo `protobuf:"bytes,1,opt,name=CostItem" json:"CostItem,omitempty"`
-	XXX_unrecognized []byte    `json:"-"`
-}
-
-func (m *S2CUseItem) Reset()                    { *m = S2CUseItem{} }
-func (m *S2CUseItem) String() string            { return proto.CompactTextString(m) }
-func (*S2CUseItem) ProtoMessage()               {}
-func (*S2CUseItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{41} }
-
-func (m *S2CUseItem) GetCostItem() *ItemInfo {
-	if m != nil {
-		return m.CostItem
-	}
-	return nil
-}
-
-// 客户端向服务器发送充值收据
-type C2SPayOrder struct {
-	ItemId           *int32 `protobuf:"varint,1,opt,name=ItemId" json:"ItemId,omitempty"`
-	Channel          *int32 `protobuf:"varint,2,opt,name=Channel" json:"Channel,omitempty"`
-	OrderData        []byte `protobuf:"bytes,3,opt,name=OrderData" json:"OrderData,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SPayOrder) Reset()                    { *m = C2SPayOrder{} }
-func (m *C2SPayOrder) String() string            { return proto.CompactTextString(m) }
-func (*C2SPayOrder) ProtoMessage()               {}
-func (*C2SPayOrder) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{42} }
-
-func (m *C2SPayOrder) GetItemId() int32 {
-	if m != nil && m.ItemId != nil {
-		return *m.ItemId
-	}
-	return 0
-}
-
-func (m *C2SPayOrder) GetChannel() int32 {
-	if m != nil && m.Channel != nil {
-		return *m.Channel
-	}
-	return 0
-}
-
-func (m *C2SPayOrder) GetOrderData() []byte {
-	if m != nil {
-		return m.OrderData
-	}
-	return nil
-}
-
-// 充值回复
-type S2CPayOrder struct {
-	CurDiamond       *int32 `protobuf:"varint,1,opt,name=CurDiamond" json:"CurDiamond,omitempty"`
-	IsMonthCard      *int32 `protobuf:"varint,2,opt,name=IsMonthCard" json:"IsMonthCard,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CPayOrder) Reset()                    { *m = S2CPayOrder{} }
-func (m *S2CPayOrder) String() string            { return proto.CompactTextString(m) }
-func (*S2CPayOrder) ProtoMessage()               {}
-func (*S2CPayOrder) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{43} }
-
-func (m *S2CPayOrder) GetCurDiamond() int32 {
-	if m != nil && m.CurDiamond != nil {
-		return *m.CurDiamond
-	}
-	return 0
-}
-
-func (m *S2CPayOrder) GetIsMonthCard() int32 {
-	if m != nil && m.IsMonthCard != nil {
-		return *m.IsMonthCard
-	}
-	return 0
-}
-
-// 客户端请求当前排行榜信息
-type C2SRankInfo struct {
-	IfGetLast        *int32 `protobuf:"varint,1,opt,name=IfGetLast" json:"IfGetLast,omitempty"`
-	IfLocal          *int32 `protobuf:"varint,2,opt,name=IfLocal" json:"IfLocal,omitempty"`
-	RankType         *int32 `protobuf:"varint,3,opt,name=RankType" json:"RankType,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SRankInfo) Reset()                    { *m = C2SRankInfo{} }
-func (m *C2SRankInfo) String() string            { return proto.CompactTextString(m) }
-func (*C2SRankInfo) ProtoMessage()               {}
-func (*C2SRankInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{44} }
-
-func (m *C2SRankInfo) GetIfGetLast() int32 {
-	if m != nil && m.IfGetLast != nil {
-		return *m.IfGetLast
-	}
-	return 0
-}
-
-func (m *C2SRankInfo) GetIfLocal() int32 {
-	if m != nil && m.IfLocal != nil {
-		return *m.IfLocal
-	}
-	return 0
-}
-
-func (m *C2SRankInfo) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-type SmallRankRecord struct {
-	Rank             *int32  `protobuf:"varint,1,opt,name=Rank" json:"Rank,omitempty"`
-	Id               *int32  `protobuf:"varint,2,opt,name=Id" json:"Id,omitempty"`
-	Name             *string `protobuf:"bytes,3,opt,name=Name" json:"Name,omitempty"`
-	Score            *int32  `protobuf:"varint,4,opt,name=Score" json:"Score,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,5,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,6,opt,name=TongName" json:"TongName,omitempty"`
-	UpVal            *int32  `protobuf:"varint,7,opt,name=UpVal" json:"UpVal,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *SmallRankRecord) Reset()                    { *m = SmallRankRecord{} }
-func (m *SmallRankRecord) String() string            { return proto.CompactTextString(m) }
-func (*SmallRankRecord) ProtoMessage()               {}
-func (*SmallRankRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{45} }
-
-func (m *SmallRankRecord) GetRank() int32 {
-	if m != nil && m.Rank != nil {
-		return *m.Rank
-	}
-	return 0
-}
-
-func (m *SmallRankRecord) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *SmallRankRecord) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+		return m.Acc
 	}
 	return ""
 }
 
-func (m *SmallRankRecord) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *SmallRankRecord) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *SmallRankRecord) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
+func (m *C2SLoginRequest) GetPassword() string {
+	if m != nil {
+		return m.Password
 	}
 	return ""
 }
 
-func (m *SmallRankRecord) GetUpVal() int32 {
-	if m != nil && m.UpVal != nil {
-		return *m.UpVal
-	}
-	return 0
-}
-
-// 服务器向客户端同步排行榜列表
-type S2CRankItems struct {
-	IfGetLast        *int32             `protobuf:"varint,1,opt,name=IfGetLast" json:"IfGetLast,omitempty"`
-	RankList         []*SmallRankRecord `protobuf:"bytes,2,rep,name=RankList" json:"RankList,omitempty"`
-	LastTop3         []*SmallRankRecord `protobuf:"bytes,3,rep,name=LastTop3" json:"LastTop3,omitempty"`
-	IfLocal          *int32             `protobuf:"varint,4,opt,name=IfLocal" json:"IfLocal,omitempty"`
-	RankType         *int32             `protobuf:"varint,5,opt,name=RankType" json:"RankType,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
-}
-
-func (m *S2CRankItems) Reset()                    { *m = S2CRankItems{} }
-func (m *S2CRankItems) String() string            { return proto.CompactTextString(m) }
-func (*S2CRankItems) ProtoMessage()               {}
-func (*S2CRankItems) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{46} }
-
-func (m *S2CRankItems) GetIfGetLast() int32 {
-	if m != nil && m.IfGetLast != nil {
-		return *m.IfGetLast
-	}
-	return 0
-}
-
-func (m *S2CRankItems) GetRankList() []*SmallRankRecord {
+func (m *C2SLoginRequest) GetChannel() string {
 	if m != nil {
-		return m.RankList
-	}
-	return nil
-}
-
-func (m *S2CRankItems) GetLastTop3() []*SmallRankRecord {
-	if m != nil {
-		return m.LastTop3
-	}
-	return nil
-}
-
-func (m *S2CRankItems) GetIfLocal() int32 {
-	if m != nil && m.IfLocal != nil {
-		return *m.IfLocal
-	}
-	return 0
-}
-
-func (m *S2CRankItems) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-// 客户端向服务器拉取邮件列表
-type C2SGetMailList struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetMailList) Reset()                    { *m = C2SGetMailList{} }
-func (m *C2SGetMailList) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetMailList) ProtoMessage()               {}
-func (*C2SGetMailList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{47} }
-
-// 服务器向客户端发送增加邮件消息
-type MailInfo struct {
-	OpType           *int32  `protobuf:"varint,1,opt,name=OpType" json:"OpType,omitempty"`
-	MailId           *int32  `protobuf:"varint,2,opt,name=MailId" json:"MailId,omitempty"`
-	MailType         *int32  `protobuf:"varint,3,opt,name=MailType" json:"MailType,omitempty"`
-	Title            *string `protobuf:"bytes,4,opt,name=Title" json:"Title,omitempty"`
-	Content          *string `protobuf:"bytes,5,opt,name=Content" json:"Content,omitempty"`
-	SenderId         *int32  `protobuf:"varint,6,opt,name=SenderId" json:"SenderId,omitempty"`
-	SenderName       *string `protobuf:"bytes,7,opt,name=SenderName" json:"SenderName,omitempty"`
-	SendUnix         *int32  `protobuf:"varint,8,opt,name=SendUnix" json:"SendUnix,omitempty"`
-	LeftSec          *int32  `protobuf:"varint,9,opt,name=LeftSec" json:"LeftSec,omitempty"`
-	ObjIds           []int32 `protobuf:"varint,10,rep,name=ObjIds" json:"ObjIds,omitempty"`
-	ObjNums          []int32 `protobuf:"varint,11,rep,name=ObjNums" json:"ObjNums,omitempty"`
-	ExtraDatas       []int32 `protobuf:"varint,12,rep,name=ExtraDatas" json:"ExtraDatas,omitempty"`
-	State            *int32  `protobuf:"varint,13,opt,name=State" json:"State,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *MailInfo) Reset()                    { *m = MailInfo{} }
-func (m *MailInfo) String() string            { return proto.CompactTextString(m) }
-func (*MailInfo) ProtoMessage()               {}
-func (*MailInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{48} }
-
-func (m *MailInfo) GetOpType() int32 {
-	if m != nil && m.OpType != nil {
-		return *m.OpType
-	}
-	return 0
-}
-
-func (m *MailInfo) GetMailId() int32 {
-	if m != nil && m.MailId != nil {
-		return *m.MailId
-	}
-	return 0
-}
-
-func (m *MailInfo) GetMailType() int32 {
-	if m != nil && m.MailType != nil {
-		return *m.MailType
-	}
-	return 0
-}
-
-func (m *MailInfo) GetTitle() string {
-	if m != nil && m.Title != nil {
-		return *m.Title
+		return m.Channel
 	}
 	return ""
 }
 
-func (m *MailInfo) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
+// 服务器信息
+type ServerInfo struct {
+	Id   int32  `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
+	IP   string `protobuf:"bytes,3,opt,name=IP" json:"IP,omitempty"`
+}
+
+func (m *ServerInfo) Reset()                    { *m = ServerInfo{} }
+func (m *ServerInfo) String() string            { return proto.CompactTextString(m) }
+func (*ServerInfo) ProtoMessage()               {}
+func (*ServerInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+
+func (m *ServerInfo) GetId() int32 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *ServerInfo) GetName() string {
+	if m != nil {
+		return m.Name
 	}
 	return ""
 }
 
-func (m *MailInfo) GetSenderId() int32 {
-	if m != nil && m.SenderId != nil {
-		return *m.SenderId
-	}
-	return 0
-}
-
-func (m *MailInfo) GetSenderName() string {
-	if m != nil && m.SenderName != nil {
-		return *m.SenderName
+func (m *ServerInfo) GetIP() string {
+	if m != nil {
+		return m.IP
 	}
 	return ""
 }
 
-func (m *MailInfo) GetSendUnix() int32 {
-	if m != nil && m.SendUnix != nil {
-		return *m.SendUnix
-	}
-	return 0
+// 登陆返回
+type S2CLoginResponse struct {
+	Acc     string        `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
+	Token   string        `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
+	Servers []*ServerInfo `protobuf:"bytes,3,rep,name=Servers" json:"Servers,omitempty"`
 }
 
-func (m *MailInfo) GetLeftSec() int32 {
-	if m != nil && m.LeftSec != nil {
-		return *m.LeftSec
-	}
-	return 0
-}
+func (m *S2CLoginResponse) Reset()                    { *m = S2CLoginResponse{} }
+func (m *S2CLoginResponse) String() string            { return proto.CompactTextString(m) }
+func (*S2CLoginResponse) ProtoMessage()               {}
+func (*S2CLoginResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
-func (m *MailInfo) GetObjIds() []int32 {
+func (m *S2CLoginResponse) GetAcc() string {
 	if m != nil {
-		return m.ObjIds
-	}
-	return nil
-}
-
-func (m *MailInfo) GetObjNums() []int32 {
-	if m != nil {
-		return m.ObjNums
-	}
-	return nil
-}
-
-func (m *MailInfo) GetExtraDatas() []int32 {
-	if m != nil {
-		return m.ExtraDatas
-	}
-	return nil
-}
-
-func (m *MailInfo) GetState() int32 {
-	if m != nil && m.State != nil {
-		return *m.State
-	}
-	return 0
-}
-
-// 服务器向客户端发送邮件列表
-type S2CMailList struct {
-	MailList         []*MailInfo `protobuf:"bytes,1,rep,name=MailList" json:"MailList,omitempty"`
-	XXX_unrecognized []byte      `json:"-"`
-}
-
-func (m *S2CMailList) Reset()                    { *m = S2CMailList{} }
-func (m *S2CMailList) String() string            { return proto.CompactTextString(m) }
-func (*S2CMailList) ProtoMessage()               {}
-func (*S2CMailList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{49} }
-
-func (m *S2CMailList) GetMailList() []*MailInfo {
-	if m != nil {
-		return m.MailList
-	}
-	return nil
-}
-
-// 客户端向服务器发送领取附件的请求
-type C2SGetMailAttach struct {
-	MailId           *int32 `protobuf:"varint,1,opt,name=MailId" json:"MailId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetMailAttach) Reset()                    { *m = C2SGetMailAttach{} }
-func (m *C2SGetMailAttach) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetMailAttach) ProtoMessage()               {}
-func (*C2SGetMailAttach) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{50} }
-
-func (m *C2SGetMailAttach) GetMailId() int32 {
-	if m != nil && m.MailId != nil {
-		return *m.MailId
-	}
-	return 0
-}
-
-// 客户端向服务器发送删除邮件请求
-type C2SMailRemove struct {
-	MailId           *int32 `protobuf:"varint,1,opt,name=MailId" json:"MailId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SMailRemove) Reset()                    { *m = C2SMailRemove{} }
-func (m *C2SMailRemove) String() string            { return proto.CompactTextString(m) }
-func (*C2SMailRemove) ProtoMessage()               {}
-func (*C2SMailRemove) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{51} }
-
-func (m *C2SMailRemove) GetMailId() int32 {
-	if m != nil && m.MailId != nil {
-		return *m.MailId
-	}
-	return 0
-}
-
-// 客户端向服务器设置邮件已读标志
-type C2SSetMailRead struct {
-	MailId           *int32 `protobuf:"varint,1,opt,name=MailId" json:"MailId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SSetMailRead) Reset()                    { *m = C2SSetMailRead{} }
-func (m *C2SSetMailRead) String() string            { return proto.CompactTextString(m) }
-func (*C2SSetMailRead) ProtoMessage()               {}
-func (*C2SSetMailRead) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{52} }
-
-func (m *C2SSetMailRead) GetMailId() int32 {
-	if m != nil && m.MailId != nil {
-		return *m.MailId
-	}
-	return 0
-}
-
-// 客户端向服务器同意帮助
-type C2SAgreeMailHelpReq struct {
-	MailId           *int32 `protobuf:"varint,1,opt,name=MailId" json:"MailId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SAgreeMailHelpReq) Reset()                    { *m = C2SAgreeMailHelpReq{} }
-func (m *C2SAgreeMailHelpReq) String() string            { return proto.CompactTextString(m) }
-func (*C2SAgreeMailHelpReq) ProtoMessage()               {}
-func (*C2SAgreeMailHelpReq) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{53} }
-
-func (m *C2SAgreeMailHelpReq) GetMailId() int32 {
-	if m != nil && m.MailId != nil {
-		return *m.MailId
-	}
-	return 0
-}
-
-// 服务器向客户端发送单条公告信息
-type S2CNoticeAdd struct {
-	NoticeId         *int32  `protobuf:"varint,1,opt,name=NoticeId" json:"NoticeId,omitempty"`
-	Content          *string `protobuf:"bytes,2,opt,name=Content" json:"Content,omitempty"`
-	LastSec          *int32  `protobuf:"varint,3,opt,name=LastSec" json:"LastSec,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *S2CNoticeAdd) Reset()                    { *m = S2CNoticeAdd{} }
-func (m *S2CNoticeAdd) String() string            { return proto.CompactTextString(m) }
-func (*S2CNoticeAdd) ProtoMessage()               {}
-func (*S2CNoticeAdd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{54} }
-
-func (m *S2CNoticeAdd) GetNoticeId() int32 {
-	if m != nil && m.NoticeId != nil {
-		return *m.NoticeId
-	}
-	return 0
-}
-
-func (m *S2CNoticeAdd) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
+		return m.Acc
 	}
 	return ""
 }
 
-func (m *S2CNoticeAdd) GetLastSec() int32 {
-	if m != nil && m.LastSec != nil {
-		return *m.LastSec
-	}
-	return 0
-}
-
-// 服务器向客户端发送公告信息
-type S2CNoticeList struct {
-	NoticeList       []*S2CNoticeAdd `protobuf:"bytes,1,rep,name=NoticeList" json:"NoticeList,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
-}
-
-func (m *S2CNoticeList) Reset()                    { *m = S2CNoticeList{} }
-func (m *S2CNoticeList) String() string            { return proto.CompactTextString(m) }
-func (*S2CNoticeList) ProtoMessage()               {}
-func (*S2CNoticeList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{55} }
-
-func (m *S2CNoticeList) GetNoticeList() []*S2CNoticeAdd {
+func (m *S2CLoginResponse) GetToken() string {
 	if m != nil {
-		return m.NoticeList
-	}
-	return nil
-}
-
-// 客户端向服务器存储设置
-type C2SSaveOptions struct {
-	Values           []int32 `protobuf:"varint,1,rep,name=Values" json:"Values,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2SSaveOptions) Reset()                    { *m = C2SSaveOptions{} }
-func (m *C2SSaveOptions) String() string            { return proto.CompactTextString(m) }
-func (*C2SSaveOptions) ProtoMessage()               {}
-func (*C2SSaveOptions) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{56} }
-
-func (m *C2SSaveOptions) GetValues() []int32 {
-	if m != nil {
-		return m.Values
-	}
-	return nil
-}
-
-// 客户端向服务器请存储的设置
-type C2SGetOptions struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetOptions) Reset()                    { *m = C2SGetOptions{} }
-func (m *C2SGetOptions) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetOptions) ProtoMessage()               {}
-func (*C2SGetOptions) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{57} }
-
-// 服务器向客户端返回设置值
-type S2CRetOptions struct {
-	Values           []int32 `protobuf:"varint,1,rep,name=Values" json:"Values,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *S2CRetOptions) Reset()                    { *m = S2CRetOptions{} }
-func (m *S2CRetOptions) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetOptions) ProtoMessage()               {}
-func (*S2CRetOptions) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{58} }
-
-func (m *S2CRetOptions) GetValues() []int32 {
-	if m != nil {
-		return m.Values
-	}
-	return nil
-}
-
-// 日常任务数据
-type DialyTaskData struct {
-	TaskId           *int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
-	TaskValue        *int32 `protobuf:"varint,2,opt,name=TaskValue" json:"TaskValue,omitempty"`
-	TaskState        *int32 `protobuf:"varint,3,opt,name=TaskState" json:"TaskState,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *DialyTaskData) Reset()                    { *m = DialyTaskData{} }
-func (m *DialyTaskData) String() string            { return proto.CompactTextString(m) }
-func (*DialyTaskData) ProtoMessage()               {}
-func (*DialyTaskData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{59} }
-
-func (m *DialyTaskData) GetTaskId() int32 {
-	if m != nil && m.TaskId != nil {
-		return *m.TaskId
-	}
-	return 0
-}
-
-func (m *DialyTaskData) GetTaskValue() int32 {
-	if m != nil && m.TaskValue != nil {
-		return *m.TaskValue
-	}
-	return 0
-}
-
-func (m *DialyTaskData) GetTaskState() int32 {
-	if m != nil && m.TaskState != nil {
-		return *m.TaskState
-	}
-	return 0
-}
-
-// 客户端向服务器请求日常任务数据
-type C2SGetDialyTaskInfo struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetDialyTaskInfo) Reset()                    { *m = C2SGetDialyTaskInfo{} }
-func (m *C2SGetDialyTaskInfo) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetDialyTaskInfo) ProtoMessage()               {}
-func (*C2SGetDialyTaskInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{60} }
-
-// 服务器向客户端发送任务数据
-type S2CSyncDialyTask struct {
-	TaskList         []*DialyTaskData `protobuf:"bytes,1,rep,name=TaskList" json:"TaskList,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
-}
-
-func (m *S2CSyncDialyTask) Reset()                    { *m = S2CSyncDialyTask{} }
-func (m *S2CSyncDialyTask) String() string            { return proto.CompactTextString(m) }
-func (*S2CSyncDialyTask) ProtoMessage()               {}
-func (*S2CSyncDialyTask) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{61} }
-
-func (m *S2CSyncDialyTask) GetTaskList() []*DialyTaskData {
-	if m != nil {
-		return m.TaskList
-	}
-	return nil
-}
-
-// 服务器向客户端通知任务值变化
-type S2CNotifyTaskValueChg struct {
-	TaskId           *int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
-	TaskValue        *int32 `protobuf:"varint,2,opt,name=TaskValue" json:"TaskValue,omitempty"`
-	TaskState        *int32 `protobuf:"varint,3,opt,name=TaskState" json:"TaskState,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CNotifyTaskValueChg) Reset()                    { *m = S2CNotifyTaskValueChg{} }
-func (m *S2CNotifyTaskValueChg) String() string            { return proto.CompactTextString(m) }
-func (*S2CNotifyTaskValueChg) ProtoMessage()               {}
-func (*S2CNotifyTaskValueChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{62} }
-
-func (m *S2CNotifyTaskValueChg) GetTaskId() int32 {
-	if m != nil && m.TaskId != nil {
-		return *m.TaskId
-	}
-	return 0
-}
-
-func (m *S2CNotifyTaskValueChg) GetTaskValue() int32 {
-	if m != nil && m.TaskValue != nil {
-		return *m.TaskValue
-	}
-	return 0
-}
-
-func (m *S2CNotifyTaskValueChg) GetTaskState() int32 {
-	if m != nil && m.TaskState != nil {
-		return *m.TaskState
-	}
-	return 0
-}
-
-// 成就数据
-type AchieveData struct {
-	AchieveId        *int32 `protobuf:"varint,1,opt,name=AchieveId" json:"AchieveId,omitempty"`
-	AchieveValue     *int32 `protobuf:"varint,2,opt,name=AchieveValue" json:"AchieveValue,omitempty"`
-	AchieveState     *int32 `protobuf:"varint,3,opt,name=AchieveState" json:"AchieveState,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *AchieveData) Reset()                    { *m = AchieveData{} }
-func (m *AchieveData) String() string            { return proto.CompactTextString(m) }
-func (*AchieveData) ProtoMessage()               {}
-func (*AchieveData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{63} }
-
-func (m *AchieveData) GetAchieveId() int32 {
-	if m != nil && m.AchieveId != nil {
-		return *m.AchieveId
-	}
-	return 0
-}
-
-func (m *AchieveData) GetAchieveValue() int32 {
-	if m != nil && m.AchieveValue != nil {
-		return *m.AchieveValue
-	}
-	return 0
-}
-
-func (m *AchieveData) GetAchieveState() int32 {
-	if m != nil && m.AchieveState != nil {
-		return *m.AchieveState
-	}
-	return 0
-}
-
-// 客户端向服务器请求成就数据
-type C2SGetAchieve struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetAchieve) Reset()                    { *m = C2SGetAchieve{} }
-func (m *C2SGetAchieve) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetAchieve) ProtoMessage()               {}
-func (*C2SGetAchieve) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{64} }
-
-// 服务器向客户端发送成就数据
-type S2CSyncAchieveData struct {
-	AchieveList      []*AchieveData `protobuf:"bytes,1,rep,name=AchieveList" json:"AchieveList,omitempty"`
-	XXX_unrecognized []byte         `json:"-"`
-}
-
-func (m *S2CSyncAchieveData) Reset()                    { *m = S2CSyncAchieveData{} }
-func (m *S2CSyncAchieveData) String() string            { return proto.CompactTextString(m) }
-func (*S2CSyncAchieveData) ProtoMessage()               {}
-func (*S2CSyncAchieveData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{65} }
-
-func (m *S2CSyncAchieveData) GetAchieveList() []*AchieveData {
-	if m != nil {
-		return m.AchieveList
-	}
-	return nil
-}
-
-// 服务器向客户端通知成就值变化
-type S2CNotifyAchieveValueChg struct {
-	AchieveId        *int32 `protobuf:"varint,1,opt,name=AchieveId" json:"AchieveId,omitempty"`
-	AchieveValue     *int32 `protobuf:"varint,2,opt,name=AchieveValue" json:"AchieveValue,omitempty"`
-	AchieveState     *int32 `protobuf:"varint,3,opt,name=AchieveState" json:"AchieveState,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CNotifyAchieveValueChg) Reset()                    { *m = S2CNotifyAchieveValueChg{} }
-func (m *S2CNotifyAchieveValueChg) String() string            { return proto.CompactTextString(m) }
-func (*S2CNotifyAchieveValueChg) ProtoMessage()               {}
-func (*S2CNotifyAchieveValueChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{66} }
-
-func (m *S2CNotifyAchieveValueChg) GetAchieveId() int32 {
-	if m != nil && m.AchieveId != nil {
-		return *m.AchieveId
-	}
-	return 0
-}
-
-func (m *S2CNotifyAchieveValueChg) GetAchieveValue() int32 {
-	if m != nil && m.AchieveValue != nil {
-		return *m.AchieveValue
-	}
-	return 0
-}
-
-func (m *S2CNotifyAchieveValueChg) GetAchieveState() int32 {
-	if m != nil && m.AchieveState != nil {
-		return *m.AchieveState
-	}
-	return 0
-}
-
-// 客户端向服务器请求日常任务奖励
-type C2SGetTaskReward struct {
-	TaskId           *int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetTaskReward) Reset()                    { *m = C2SGetTaskReward{} }
-func (m *C2SGetTaskReward) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetTaskReward) ProtoMessage()               {}
-func (*C2SGetTaskReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{67} }
-
-func (m *C2SGetTaskReward) GetTaskId() int32 {
-	if m != nil && m.TaskId != nil {
-		return *m.TaskId
-	}
-	return 0
-}
-
-// 服务器向客户端发送任务结果
-type S2CRetTaskReward struct {
-	TaskId           *int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
-	Coin             *int32 `protobuf:"varint,2,opt,name=Coin" json:"Coin,omitempty"`
-	Diamond          *int32 `protobuf:"varint,3,opt,name=Diamond" json:"Diamond,omitempty"`
-	Exp              *int32 `protobuf:"varint,4,opt,name=Exp" json:"Exp,omitempty"`
-	CurLvl           *int32 `protobuf:"varint,5,opt,name=CurLvl" json:"CurLvl,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetTaskReward) Reset()                    { *m = S2CRetTaskReward{} }
-func (m *S2CRetTaskReward) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetTaskReward) ProtoMessage()               {}
-func (*S2CRetTaskReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{68} }
-
-func (m *S2CRetTaskReward) GetTaskId() int32 {
-	if m != nil && m.TaskId != nil {
-		return *m.TaskId
-	}
-	return 0
-}
-
-func (m *S2CRetTaskReward) GetCoin() int32 {
-	if m != nil && m.Coin != nil {
-		return *m.Coin
-	}
-	return 0
-}
-
-func (m *S2CRetTaskReward) GetDiamond() int32 {
-	if m != nil && m.Diamond != nil {
-		return *m.Diamond
-	}
-	return 0
-}
-
-func (m *S2CRetTaskReward) GetExp() int32 {
-	if m != nil && m.Exp != nil {
-		return *m.Exp
-	}
-	return 0
-}
-
-func (m *S2CRetTaskReward) GetCurLvl() int32 {
-	if m != nil && m.CurLvl != nil {
-		return *m.CurLvl
-	}
-	return 0
-}
-
-// 客户端向服务器请求成就奖励
-type C2SGetAchieveReward struct {
-	AchieveReward    *int32 `protobuf:"varint,1,opt,name=AchieveReward" json:"AchieveReward,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetAchieveReward) Reset()                    { *m = C2SGetAchieveReward{} }
-func (m *C2SGetAchieveReward) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetAchieveReward) ProtoMessage()               {}
-func (*C2SGetAchieveReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{69} }
-
-func (m *C2SGetAchieveReward) GetAchieveReward() int32 {
-	if m != nil && m.AchieveReward != nil {
-		return *m.AchieveReward
-	}
-	return 0
-}
-
-// 服务器向客户端完成成就
-type S2CRetAchieveReward struct {
-	TaskId           *int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
-	Coin             *int32 `protobuf:"varint,2,opt,name=Coin" json:"Coin,omitempty"`
-	Diamond          *int32 `protobuf:"varint,3,opt,name=Diamond" json:"Diamond,omitempty"`
-	Exp              *int32 `protobuf:"varint,4,opt,name=Exp" json:"Exp,omitempty"`
-	CurLvl           *int32 `protobuf:"varint,5,opt,name=CurLvl" json:"CurLvl,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetAchieveReward) Reset()                    { *m = S2CRetAchieveReward{} }
-func (m *S2CRetAchieveReward) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetAchieveReward) ProtoMessage()               {}
-func (*S2CRetAchieveReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{70} }
-
-func (m *S2CRetAchieveReward) GetTaskId() int32 {
-	if m != nil && m.TaskId != nil {
-		return *m.TaskId
-	}
-	return 0
-}
-
-func (m *S2CRetAchieveReward) GetCoin() int32 {
-	if m != nil && m.Coin != nil {
-		return *m.Coin
-	}
-	return 0
-}
-
-func (m *S2CRetAchieveReward) GetDiamond() int32 {
-	if m != nil && m.Diamond != nil {
-		return *m.Diamond
-	}
-	return 0
-}
-
-func (m *S2CRetAchieveReward) GetExp() int32 {
-	if m != nil && m.Exp != nil {
-		return *m.Exp
-	}
-	return 0
-}
-
-func (m *S2CRetAchieveReward) GetCurLvl() int32 {
-	if m != nil && m.CurLvl != nil {
-		return *m.CurLvl
-	}
-	return 0
-}
-
-// 客户端请求修改昵称
-type C2SChgName struct {
-	Name             *string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2SChgName) Reset()                    { *m = C2SChgName{} }
-func (m *C2SChgName) String() string            { return proto.CompactTextString(m) }
-func (*C2SChgName) ProtoMessage()               {}
-func (*C2SChgName) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{71} }
-
-func (m *C2SChgName) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+		return m.Token
 	}
 	return ""
 }
 
-// 服务器返回
-type S2CChgName struct {
-	Name             *string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
-	ChgNameCount     *int32  `protobuf:"varint,2,opt,name=ChgNameCount" json:"ChgNameCount,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+func (m *S2CLoginResponse) GetServers() []*ServerInfo {
+	if m != nil {
+		return m.Servers
+	}
+	return nil
 }
 
-func (m *S2CChgName) Reset()                    { *m = S2CChgName{} }
-func (m *S2CChgName) String() string            { return proto.CompactTextString(m) }
-func (*S2CChgName) ProtoMessage()               {}
-func (*S2CChgName) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{72} }
+// / 其它地方登录
+type S2COtherPlaceLogin struct {
+}
 
-func (m *S2CChgName) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+func (m *S2COtherPlaceLogin) Reset()                    { *m = S2COtherPlaceLogin{} }
+func (m *S2COtherPlaceLogin) String() string            { return proto.CompactTextString(m) }
+func (*S2COtherPlaceLogin) ProtoMessage()               {}
+func (*S2COtherPlaceLogin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+
+// 选择服务器
+type C2SSelectServerRequest struct {
+	Acc      string `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
+	Token    string `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
+	ServerId int32  `protobuf:"varint,3,opt,name=ServerId" json:"ServerId,omitempty"`
+}
+
+func (m *C2SSelectServerRequest) Reset()                    { *m = C2SSelectServerRequest{} }
+func (m *C2SSelectServerRequest) String() string            { return proto.CompactTextString(m) }
+func (*C2SSelectServerRequest) ProtoMessage()               {}
+func (*C2SSelectServerRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+
+func (m *C2SSelectServerRequest) GetAcc() string {
+	if m != nil {
+		return m.Acc
 	}
 	return ""
 }
 
-func (m *S2CChgName) GetChgNameCount() int32 {
-	if m != nil && m.ChgNameCount != nil {
-		return *m.ChgNameCount
-	}
-	return 0
-}
-
-// 客户端请求更改头像
-type C2SChangeHead struct {
-	NewHead          *string `protobuf:"bytes,1,opt,name=NewHead" json:"NewHead,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2SChangeHead) Reset()                    { *m = C2SChangeHead{} }
-func (m *C2SChangeHead) String() string            { return proto.CompactTextString(m) }
-func (*C2SChangeHead) ProtoMessage()               {}
-func (*C2SChangeHead) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{73} }
-
-func (m *C2SChangeHead) GetNewHead() string {
-	if m != nil && m.NewHead != nil {
-		return *m.NewHead
+func (m *C2SSelectServerRequest) GetToken() string {
+	if m != nil {
+		return m.Token
 	}
 	return ""
 }
 
-// 服务器返回
-type S2CChangeHead struct {
-	NewHead          *string `protobuf:"bytes,1,opt,name=NewHead" json:"NewHead,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+func (m *C2SSelectServerRequest) GetServerId() int32 {
+	if m != nil {
+		return m.ServerId
+	}
+	return 0
 }
 
-func (m *S2CChangeHead) Reset()                    { *m = S2CChangeHead{} }
-func (m *S2CChangeHead) String() string            { return proto.CompactTextString(m) }
-func (*S2CChangeHead) ProtoMessage()               {}
-func (*S2CChangeHead) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{74} }
+// 选择服务器返回
+type S2CSelectServerResponse struct {
+	Acc   string `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
+	Token string `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
+	IP    string `protobuf:"bytes,3,opt,name=IP" json:"IP,omitempty"`
+}
 
-func (m *S2CChangeHead) GetNewHead() string {
-	if m != nil && m.NewHead != nil {
-		return *m.NewHead
+func (m *S2CSelectServerResponse) Reset()                    { *m = S2CSelectServerResponse{} }
+func (m *S2CSelectServerResponse) String() string            { return proto.CompactTextString(m) }
+func (*S2CSelectServerResponse) ProtoMessage()               {}
+func (*S2CSelectServerResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+
+func (m *S2CSelectServerResponse) GetAcc() string {
+	if m != nil {
+		return m.Acc
 	}
 	return ""
 }
 
-// 客户端向服务器查询玩家信息
-type C2SGetPlayerInfo struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetPlayerInfo) Reset()                    { *m = C2SGetPlayerInfo{} }
-func (m *C2SGetPlayerInfo) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetPlayerInfo) ProtoMessage()               {}
-func (*C2SGetPlayerInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{75} }
-
-func (m *C2SGetPlayerInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-type OtherPlayerBaseInfo struct {
-	PlayerId           *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	MatchScore         *int32  `protobuf:"varint,2,opt,name=MatchScore" json:"MatchScore,omitempty"`
-	Coins              *int32  `protobuf:"varint,3,opt,name=Coins" json:"Coins,omitempty"`
-	Diamonds           *int32  `protobuf:"varint,4,opt,name=Diamonds" json:"Diamonds,omitempty"`
-	CurUseCardTeam     *int32  `protobuf:"varint,5,opt,name=CurUseCardTeam" json:"CurUseCardTeam,omitempty"`
-	MyLvl              *int32  `protobuf:"varint,6,opt,name=MyLvl" json:"MyLvl,omitempty"`
-	ArenaLvl           *int32  `protobuf:"varint,7,opt,name=ArenaLvl" json:"ArenaLvl,omitempty"`
-	CurLegBestScore    *int32  `protobuf:"varint,8,opt,name=CurLegBestScore" json:"CurLegBestScore,omitempty"`
-	LastLegBestScore   *int32  `protobuf:"varint,9,opt,name=LastLegBestScore" json:"LastLegBestScore,omitempty"`
-	CurLegScore        *int32  `protobuf:"varint,10,opt,name=CurLegScore" json:"CurLegScore,omitempty"`
-	WinCount           *int32  `protobuf:"varint,11,opt,name=WinCount" json:"WinCount,omitempty"`
-	OfenCardCfgId      *int32  `protobuf:"varint,12,opt,name=OfenCardCfgId" json:"OfenCardCfgId,omitempty"`
-	DonateCount        *int32  `protobuf:"varint,13,opt,name=DonateCount" json:"DonateCount,omitempty"`
-	CheModWinCount     *int32  `protobuf:"varint,14,opt,name=CheModWinCount" json:"CheModWinCount,omitempty"`
-	CheModeOfenCardCfg *int32  `protobuf:"varint,15,opt,name=CheModeOfenCardCfg" json:"CheModeOfenCardCfg,omitempty"`
-	ThreeTowerCount    *int32  `protobuf:"varint,16,opt,name=ThreeTowerCount" json:"ThreeTowerCount,omitempty"`
-	Camp               *int32  `protobuf:"varint,17,opt,name=Camp" json:"Camp,omitempty"`
-	TongName           *string `protobuf:"bytes,18,opt,name=TongName" json:"TongName,omitempty"`
-	TongIcon           *int32  `protobuf:"varint,19,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	FightCardIds       []int32 `protobuf:"varint,20,rep,name=FightCardIds" json:"FightCardIds,omitempty"`
-	FightCardLvls      []int32 `protobuf:"varint,21,rep,name=FightCardLvls" json:"FightCardLvls,omitempty"`
-	CurCardGetNum      *int32  `protobuf:"varint,22,opt,name=CurCardGetNum" json:"CurCardGetNum,omitempty"`
-	IfCaptain          *int32  `protobuf:"varint,23,opt,name=IfCaptain" json:"IfCaptain,omitempty"`
-	XXX_unrecognized   []byte  `json:"-"`
-}
-
-func (m *OtherPlayerBaseInfo) Reset()                    { *m = OtherPlayerBaseInfo{} }
-func (m *OtherPlayerBaseInfo) String() string            { return proto.CompactTextString(m) }
-func (*OtherPlayerBaseInfo) ProtoMessage()               {}
-func (*OtherPlayerBaseInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{76} }
-
-func (m *OtherPlayerBaseInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetMatchScore() int32 {
-	if m != nil && m.MatchScore != nil {
-		return *m.MatchScore
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCoins() int32 {
-	if m != nil && m.Coins != nil {
-		return *m.Coins
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetDiamonds() int32 {
-	if m != nil && m.Diamonds != nil {
-		return *m.Diamonds
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCurUseCardTeam() int32 {
-	if m != nil && m.CurUseCardTeam != nil {
-		return *m.CurUseCardTeam
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetMyLvl() int32 {
-	if m != nil && m.MyLvl != nil {
-		return *m.MyLvl
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetArenaLvl() int32 {
-	if m != nil && m.ArenaLvl != nil {
-		return *m.ArenaLvl
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCurLegBestScore() int32 {
-	if m != nil && m.CurLegBestScore != nil {
-		return *m.CurLegBestScore
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetLastLegBestScore() int32 {
-	if m != nil && m.LastLegBestScore != nil {
-		return *m.LastLegBestScore
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCurLegScore() int32 {
-	if m != nil && m.CurLegScore != nil {
-		return *m.CurLegScore
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetWinCount() int32 {
-	if m != nil && m.WinCount != nil {
-		return *m.WinCount
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetOfenCardCfgId() int32 {
-	if m != nil && m.OfenCardCfgId != nil {
-		return *m.OfenCardCfgId
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetDonateCount() int32 {
-	if m != nil && m.DonateCount != nil {
-		return *m.DonateCount
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCheModWinCount() int32 {
-	if m != nil && m.CheModWinCount != nil {
-		return *m.CheModWinCount
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCheModeOfenCardCfg() int32 {
-	if m != nil && m.CheModeOfenCardCfg != nil {
-		return *m.CheModeOfenCardCfg
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetThreeTowerCount() int32 {
-	if m != nil && m.ThreeTowerCount != nil {
-		return *m.ThreeTowerCount
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
+func (m *S2CSelectServerResponse) GetToken() string {
+	if m != nil {
+		return m.Token
 	}
 	return ""
 }
 
-func (m *OtherPlayerBaseInfo) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetFightCardIds() []int32 {
+func (m *S2CSelectServerResponse) GetIP() string {
 	if m != nil {
-		return m.FightCardIds
-	}
-	return nil
-}
-
-func (m *OtherPlayerBaseInfo) GetFightCardLvls() []int32 {
-	if m != nil {
-		return m.FightCardLvls
-	}
-	return nil
-}
-
-func (m *OtherPlayerBaseInfo) GetCurCardGetNum() int32 {
-	if m != nil && m.CurCardGetNum != nil {
-		return *m.CurCardGetNum
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetIfCaptain() int32 {
-	if m != nil && m.IfCaptain != nil {
-		return *m.IfCaptain
-	}
-	return 0
-}
-
-// 服务器向客户端返回玩家信息
-type S2CRetPlayerInfo struct {
-	BaseInfo         *OtherPlayerBaseInfo `protobuf:"bytes,1,opt,name=BaseInfo" json:"BaseInfo,omitempty"`
-	XXX_unrecognized []byte               `json:"-"`
-}
-
-func (m *S2CRetPlayerInfo) Reset()                    { *m = S2CRetPlayerInfo{} }
-func (m *S2CRetPlayerInfo) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetPlayerInfo) ProtoMessage()               {}
-func (*S2CRetPlayerInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{77} }
-
-func (m *S2CRetPlayerInfo) GetBaseInfo() *OtherPlayerBaseInfo {
-	if m != nil {
-		return m.BaseInfo
-	}
-	return nil
-}
-
-// 服务器向客户端同步签到状态
-type S2CSyncSignInfo struct {
-	CurSignSum           *int32  `protobuf:"varint,1,opt,name=CurSignSum" json:"CurSignSum,omitempty"`
-	CurSignDays          []int32 `protobuf:"varint,2,rep,name=CurSignDays" json:"CurSignDays,omitempty"`
-	CurGetSignSumRewards []int32 `protobuf:"varint,3,rep,name=CurGetSignSumRewards" json:"CurGetSignSumRewards,omitempty"`
-	XXX_unrecognized     []byte  `json:"-"`
-}
-
-func (m *S2CSyncSignInfo) Reset()                    { *m = S2CSyncSignInfo{} }
-func (m *S2CSyncSignInfo) String() string            { return proto.CompactTextString(m) }
-func (*S2CSyncSignInfo) ProtoMessage()               {}
-func (*S2CSyncSignInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{78} }
-
-func (m *S2CSyncSignInfo) GetCurSignSum() int32 {
-	if m != nil && m.CurSignSum != nil {
-		return *m.CurSignSum
-	}
-	return 0
-}
-
-func (m *S2CSyncSignInfo) GetCurSignDays() []int32 {
-	if m != nil {
-		return m.CurSignDays
-	}
-	return nil
-}
-
-func (m *S2CSyncSignInfo) GetCurGetSignSumRewards() []int32 {
-	if m != nil {
-		return m.CurGetSignSumRewards
-	}
-	return nil
-}
-
-// 客户端向服务器请求签到
-type C2SDaySign struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SDaySign) Reset()                    { *m = C2SDaySign{} }
-func (m *C2SDaySign) String() string            { return proto.CompactTextString(m) }
-func (*C2SDaySign) ProtoMessage()               {}
-func (*C2SDaySign) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{79} }
-
-// 服务器向客户端回复签到
-type S2CDaySign struct {
-	SignDay          *int32        `protobuf:"varint,1,opt,name=SignDay" json:"SignDay,omitempty"`
-	CurCoin          *int32        `protobuf:"varint,2,opt,name=CurCoin" json:"CurCoin,omitempty"`
-	CurDiamond       *int32        `protobuf:"varint,3,opt,name=CurDiamond" json:"CurDiamond,omitempty"`
-	CurCardToken1    *int32        `protobuf:"varint,4,opt,name=CurCardToken1" json:"CurCardToken1,omitempty"`
-	CurCardToken2    *int32        `protobuf:"varint,5,opt,name=CurCardToken2" json:"CurCardToken2,omitempty"`
-	CurCardToken3    *int32        `protobuf:"varint,6,opt,name=CurCardToken3" json:"CurCardToken3,omitempty"`
-	CurCardToken4    *int32        `protobuf:"varint,7,opt,name=CurCardToken4" json:"CurCardToken4,omitempty"`
-	ChestOpen        *S2COpenChest `protobuf:"bytes,8,opt,name=ChestOpen" json:"ChestOpen,omitempty"`
-	CardCfgId        *int32        `protobuf:"varint,9,opt,name=CardCfgId" json:"CardCfgId,omitempty"`
-	CurCardNum       *int32        `protobuf:"varint,10,opt,name=CurCardNum" json:"CurCardNum,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *S2CDaySign) Reset()                    { *m = S2CDaySign{} }
-func (m *S2CDaySign) String() string            { return proto.CompactTextString(m) }
-func (*S2CDaySign) ProtoMessage()               {}
-func (*S2CDaySign) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{80} }
-
-func (m *S2CDaySign) GetSignDay() int32 {
-	if m != nil && m.SignDay != nil {
-		return *m.SignDay
-	}
-	return 0
-}
-
-func (m *S2CDaySign) GetCurCoin() int32 {
-	if m != nil && m.CurCoin != nil {
-		return *m.CurCoin
-	}
-	return 0
-}
-
-func (m *S2CDaySign) GetCurDiamond() int32 {
-	if m != nil && m.CurDiamond != nil {
-		return *m.CurDiamond
-	}
-	return 0
-}
-
-func (m *S2CDaySign) GetCurCardToken1() int32 {
-	if m != nil && m.CurCardToken1 != nil {
-		return *m.CurCardToken1
-	}
-	return 0
-}
-
-func (m *S2CDaySign) GetCurCardToken2() int32 {
-	if m != nil && m.CurCardToken2 != nil {
-		return *m.CurCardToken2
-	}
-	return 0
-}
-
-func (m *S2CDaySign) GetCurCardToken3() int32 {
-	if m != nil && m.CurCardToken3 != nil {
-		return *m.CurCardToken3
-	}
-	return 0
-}
-
-func (m *S2CDaySign) GetCurCardToken4() int32 {
-	if m != nil && m.CurCardToken4 != nil {
-		return *m.CurCardToken4
-	}
-	return 0
-}
-
-func (m *S2CDaySign) GetChestOpen() *S2COpenChest {
-	if m != nil {
-		return m.ChestOpen
-	}
-	return nil
-}
-
-func (m *S2CDaySign) GetCardCfgId() int32 {
-	if m != nil && m.CardCfgId != nil {
-		return *m.CardCfgId
-	}
-	return 0
-}
-
-func (m *S2CDaySign) GetCurCardNum() int32 {
-	if m != nil && m.CurCardNum != nil {
-		return *m.CurCardNum
-	}
-	return 0
-}
-
-// 客户端向服务器请求领取累计签到奖励
-type C2SGetDaySignSumReward struct {
-	SumNum           *int32 `protobuf:"varint,1,opt,name=SumNum" json:"SumNum,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetDaySignSumReward) Reset()                    { *m = C2SGetDaySignSumReward{} }
-func (m *C2SGetDaySignSumReward) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetDaySignSumReward) ProtoMessage()               {}
-func (*C2SGetDaySignSumReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{81} }
-
-func (m *C2SGetDaySignSumReward) GetSumNum() int32 {
-	if m != nil && m.SumNum != nil {
-		return *m.SumNum
-	}
-	return 0
-}
-
-// 服务器向客户端返回累计签到领取的奖励
-type S2CRetDaySignSumReward struct {
-	Rewards          *S2COpenChest `protobuf:"bytes,1,opt,name=Rewards" json:"Rewards,omitempty"`
-	SumNum           *int32        `protobuf:"varint,2,opt,name=SumNum" json:"SumNum,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *S2CRetDaySignSumReward) Reset()                    { *m = S2CRetDaySignSumReward{} }
-func (m *S2CRetDaySignSumReward) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetDaySignSumReward) ProtoMessage()               {}
-func (*S2CRetDaySignSumReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{82} }
-
-func (m *S2CRetDaySignSumReward) GetRewards() *S2COpenChest {
-	if m != nil {
-		return m.Rewards
-	}
-	return nil
-}
-
-func (m *S2CRetDaySignSumReward) GetSumNum() int32 {
-	if m != nil && m.SumNum != nil {
-		return *m.SumNum
-	}
-	return 0
-}
-
-// 服务器向客户端同步首充状态
-type S2CSyncFirstPayState struct {
-	CurState         *int32 `protobuf:"varint,1,opt,name=CurState" json:"CurState,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CSyncFirstPayState) Reset()                    { *m = S2CSyncFirstPayState{} }
-func (m *S2CSyncFirstPayState) String() string            { return proto.CompactTextString(m) }
-func (*S2CSyncFirstPayState) ProtoMessage()               {}
-func (*S2CSyncFirstPayState) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{83} }
-
-func (m *S2CSyncFirstPayState) GetCurState() int32 {
-	if m != nil && m.CurState != nil {
-		return *m.CurState
-	}
-	return 0
-}
-
-// 客户端向服务器请求领取首充奖励
-type C2SGetFirstPayReward struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetFirstPayReward) Reset()                    { *m = C2SGetFirstPayReward{} }
-func (m *C2SGetFirstPayReward) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetFirstPayReward) ProtoMessage()               {}
-func (*C2SGetFirstPayReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{84} }
-
-// 服务器向客户端回复首充奖励
-type S2CRetFirstPayReward struct {
-	Rewards          *S2COpenChest `protobuf:"bytes,1,opt,name=Rewards" json:"Rewards,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *S2CRetFirstPayReward) Reset()                    { *m = S2CRetFirstPayReward{} }
-func (m *S2CRetFirstPayReward) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetFirstPayReward) ProtoMessage()               {}
-func (*S2CRetFirstPayReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{85} }
-
-func (m *S2CRetFirstPayReward) GetRewards() *S2COpenChest {
-	if m != nil {
-		return m.Rewards
-	}
-	return nil
-}
-
-// 活动数据
-type ActivityData struct {
-	ActivityId       *int32 `protobuf:"varint,1,opt,name=ActivityId" json:"ActivityId,omitempty"`
-	ActivityValue    *int32 `protobuf:"varint,2,opt,name=ActivityValue" json:"ActivityValue,omitempty"`
-	RewardUnix       *int32 `protobuf:"varint,3,opt,name=RewardUnix" json:"RewardUnix,omitempty"`
-	LeftDays         *int32 `protobuf:"varint,4,opt,name=LeftDays" json:"LeftDays,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *ActivityData) Reset()                    { *m = ActivityData{} }
-func (m *ActivityData) String() string            { return proto.CompactTextString(m) }
-func (*ActivityData) ProtoMessage()               {}
-func (*ActivityData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{86} }
-
-func (m *ActivityData) GetActivityId() int32 {
-	if m != nil && m.ActivityId != nil {
-		return *m.ActivityId
-	}
-	return 0
-}
-
-func (m *ActivityData) GetActivityValue() int32 {
-	if m != nil && m.ActivityValue != nil {
-		return *m.ActivityValue
-	}
-	return 0
-}
-
-func (m *ActivityData) GetRewardUnix() int32 {
-	if m != nil && m.RewardUnix != nil {
-		return *m.RewardUnix
-	}
-	return 0
-}
-
-func (m *ActivityData) GetLeftDays() int32 {
-	if m != nil && m.LeftDays != nil {
-		return *m.LeftDays
-	}
-	return 0
-}
-
-// 服务器向客户端同步七天活动信息
-type S2CSyncSevenActivity struct {
-	ActivityList     []*ActivityData `protobuf:"bytes,1,rep,name=ActivityList" json:"ActivityList,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
-}
-
-func (m *S2CSyncSevenActivity) Reset()                    { *m = S2CSyncSevenActivity{} }
-func (m *S2CSyncSevenActivity) String() string            { return proto.CompactTextString(m) }
-func (*S2CSyncSevenActivity) ProtoMessage()               {}
-func (*S2CSyncSevenActivity) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{87} }
-
-func (m *S2CSyncSevenActivity) GetActivityList() []*ActivityData {
-	if m != nil {
-		return m.ActivityList
-	}
-	return nil
-}
-
-// 服务器向客户端通知七天活动值改变
-type S2CNotifySevenActValueChg struct {
-	ActivityId       *int32 `protobuf:"varint,1,opt,name=ActivityId" json:"ActivityId,omitempty"`
-	ActivityValue    *int32 `protobuf:"varint,2,opt,name=ActivityValue" json:"ActivityValue,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CNotifySevenActValueChg) Reset()                    { *m = S2CNotifySevenActValueChg{} }
-func (m *S2CNotifySevenActValueChg) String() string            { return proto.CompactTextString(m) }
-func (*S2CNotifySevenActValueChg) ProtoMessage()               {}
-func (*S2CNotifySevenActValueChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{88} }
-
-func (m *S2CNotifySevenActValueChg) GetActivityId() int32 {
-	if m != nil && m.ActivityId != nil {
-		return *m.ActivityId
-	}
-	return 0
-}
-
-func (m *S2CNotifySevenActValueChg) GetActivityValue() int32 {
-	if m != nil && m.ActivityValue != nil {
-		return *m.ActivityValue
-	}
-	return 0
-}
-
-// 客户端向服务器请求领取七天活动奖励
-type C2SGetSevenActReward struct {
-	ActivityId       *int32 `protobuf:"varint,1,opt,name=ActivityId" json:"ActivityId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetSevenActReward) Reset()                    { *m = C2SGetSevenActReward{} }
-func (m *C2SGetSevenActReward) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetSevenActReward) ProtoMessage()               {}
-func (*C2SGetSevenActReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{89} }
-
-func (m *C2SGetSevenActReward) GetActivityId() int32 {
-	if m != nil && m.ActivityId != nil {
-		return *m.ActivityId
-	}
-	return 0
-}
-
-// 服务器向客户端返回七天任务奖励
-type S2CRetSevenActReward struct {
-	ActivityId       *int32        `protobuf:"varint,1,opt,name=ActivityId" json:"ActivityId,omitempty"`
-	Rewards          *S2COpenChest `protobuf:"bytes,2,opt,name=Rewards" json:"Rewards,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *S2CRetSevenActReward) Reset()                    { *m = S2CRetSevenActReward{} }
-func (m *S2CRetSevenActReward) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetSevenActReward) ProtoMessage()               {}
-func (*S2CRetSevenActReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{90} }
-
-func (m *S2CRetSevenActReward) GetActivityId() int32 {
-	if m != nil && m.ActivityId != nil {
-		return *m.ActivityId
-	}
-	return 0
-}
-
-func (m *S2CRetSevenActReward) GetRewards() *S2COpenChest {
-	if m != nil {
-		return m.Rewards
-	}
-	return nil
-}
-
-// 服务器向客户端同步引导数据
-type S2CSyncGuideData struct {
-	GuideIds         []int32 `protobuf:"varint,1,rep,name=GuideIds" json:"GuideIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *S2CSyncGuideData) Reset()                    { *m = S2CSyncGuideData{} }
-func (m *S2CSyncGuideData) String() string            { return proto.CompactTextString(m) }
-func (*S2CSyncGuideData) ProtoMessage()               {}
-func (*S2CSyncGuideData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{91} }
-
-func (m *S2CSyncGuideData) GetGuideIds() []int32 {
-	if m != nil {
-		return m.GuideIds
-	}
-	return nil
-}
-
-// 客户端向服务器存储引导数据
-type C2SSaveGuideData struct {
-	GuideId          *int32 `protobuf:"varint,1,opt,name=GuideId" json:"GuideId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SSaveGuideData) Reset()                    { *m = C2SSaveGuideData{} }
-func (m *C2SSaveGuideData) String() string            { return proto.CompactTextString(m) }
-func (*C2SSaveGuideData) ProtoMessage()               {}
-func (*C2SSaveGuideData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{92} }
-
-func (m *C2SSaveGuideData) GetGuideId() int32 {
-	if m != nil && m.GuideId != nil {
-		return *m.GuideId
-	}
-	return 0
-}
-
-// 服务器向客户端返回引导存储
-type S2CRetSaveGuideData struct {
-	GuideId          *int32 `protobuf:"varint,1,opt,name=GuideId" json:"GuideId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CRetSaveGuideData) Reset()                    { *m = S2CRetSaveGuideData{} }
-func (m *S2CRetSaveGuideData) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetSaveGuideData) ProtoMessage()               {}
-func (*S2CRetSaveGuideData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{93} }
-
-func (m *S2CRetSaveGuideData) GetGuideId() int32 {
-	if m != nil && m.GuideId != nil {
-		return *m.GuideId
-	}
-	return 0
-}
-
-// 抽奖
-type C2SDraw struct {
-	DrawType         *int32 `protobuf:"varint,1,opt,name=DrawType" json:"DrawType,omitempty"`
-	DrawCount        *int32 `protobuf:"varint,2,opt,name=DrawCount" json:"DrawCount,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SDraw) Reset()                    { *m = C2SDraw{} }
-func (m *C2SDraw) String() string            { return proto.CompactTextString(m) }
-func (*C2SDraw) ProtoMessage()               {}
-func (*C2SDraw) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{94} }
-
-func (m *C2SDraw) GetDrawType() int32 {
-	if m != nil && m.DrawType != nil {
-		return *m.DrawType
-	}
-	return 0
-}
-
-func (m *C2SDraw) GetDrawCount() int32 {
-	if m != nil && m.DrawCount != nil {
-		return *m.DrawCount
-	}
-	return 0
-}
-
-// 服务器返回抽奖结果
-type S2CDrawResult struct {
-	Items            []*ItemInfo `protobuf:"bytes,1,rep,name=Items" json:"Items,omitempty"`
-	IsFirst          *bool       `protobuf:"varint,2,opt,name=IsFirst" json:"IsFirst,omitempty"`
-	XXX_unrecognized []byte      `json:"-"`
-}
-
-func (m *S2CDrawResult) Reset()                    { *m = S2CDrawResult{} }
-func (m *S2CDrawResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CDrawResult) ProtoMessage()               {}
-func (*S2CDrawResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{95} }
-
-func (m *S2CDrawResult) GetItems() []*ItemInfo {
-	if m != nil {
-		return m.Items
-	}
-	return nil
-}
-
-func (m *S2CDrawResult) GetIsFirst() bool {
-	if m != nil && m.IsFirst != nil {
-		return *m.IsFirst
-	}
-	return false
-}
-
-// 拉取资源物品属性(Other表里配置的属性，像金币，钻石，体力，魅力值，猫粮等)
-type C2SItemResource struct {
-	ResourceIds      []int32 `protobuf:"varint,1,rep,name=ResourceIds" json:"ResourceIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2SItemResource) Reset()                    { *m = C2SItemResource{} }
-func (m *C2SItemResource) String() string            { return proto.CompactTextString(m) }
-func (*C2SItemResource) ProtoMessage()               {}
-func (*C2SItemResource) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{96} }
-
-func (m *C2SItemResource) GetResourceIds() []int32 {
-	if m != nil {
-		return m.ResourceIds
-	}
-	return nil
-}
-
-// 资源物品属性
-type S2CItemResourceValue struct {
-	ResourceId       *int32 `protobuf:"varint,1,opt,name=ResourceId" json:"ResourceId,omitempty"`
-	ResourceValue    *int32 `protobuf:"varint,2,opt,name=ResourceValue" json:"ResourceValue,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CItemResourceValue) Reset()                    { *m = S2CItemResourceValue{} }
-func (m *S2CItemResourceValue) String() string            { return proto.CompactTextString(m) }
-func (*S2CItemResourceValue) ProtoMessage()               {}
-func (*S2CItemResourceValue) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{97} }
-
-func (m *S2CItemResourceValue) GetResourceId() int32 {
-	if m != nil && m.ResourceId != nil {
-		return *m.ResourceId
-	}
-	return 0
-}
-
-func (m *S2CItemResourceValue) GetResourceValue() int32 {
-	if m != nil && m.ResourceValue != nil {
-		return *m.ResourceValue
-	}
-	return 0
-}
-
-// 拉取资源物品属性返回
-type S2CItemResourceResult struct {
-	Items            []*S2CItemResourceValue `protobuf:"bytes,2,rep,name=items" json:"items,omitempty"`
-	XXX_unrecognized []byte                  `json:"-"`
-}
-
-func (m *S2CItemResourceResult) Reset()                    { *m = S2CItemResourceResult{} }
-func (m *S2CItemResourceResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CItemResourceResult) ProtoMessage()               {}
-func (*S2CItemResourceResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{98} }
-
-func (m *S2CItemResourceResult) GetItems() []*S2CItemResourceValue {
-	if m != nil {
-		return m.Items
-	}
-	return nil
-}
-
-// 请求商店商品
-type C2SShopItems struct {
-	ShopId           *int32 `protobuf:"varint,1,opt,name=shop_id,json=shopId" json:"shop_id,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SShopItems) Reset()                    { *m = C2SShopItems{} }
-func (m *C2SShopItems) String() string            { return proto.CompactTextString(m) }
-func (*C2SShopItems) ProtoMessage()               {}
-func (*C2SShopItems) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{99} }
-
-func (m *C2SShopItems) GetShopId() int32 {
-	if m != nil && m.ShopId != nil {
-		return *m.ShopId
-	}
-	return 0
-}
-
-type S2CShopItem struct {
-	ItemId           *int32 `protobuf:"varint,1,opt,name=item_id,json=itemId" json:"item_id,omitempty"`
-	LeftNum          *int32 `protobuf:"varint,2,opt,name=left_num,json=leftNum" json:"left_num,omitempty"`
-	RemainSeconds    *int32 `protobuf:"varint,3,opt,name=remain_seconds,json=remainSeconds" json:"remain_seconds,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CShopItem) Reset()                    { *m = S2CShopItem{} }
-func (m *S2CShopItem) String() string            { return proto.CompactTextString(m) }
-func (*S2CShopItem) ProtoMessage()               {}
-func (*S2CShopItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{100} }
-
-func (m *S2CShopItem) GetItemId() int32 {
-	if m != nil && m.ItemId != nil {
-		return *m.ItemId
-	}
-	return 0
-}
-
-func (m *S2CShopItem) GetLeftNum() int32 {
-	if m != nil && m.LeftNum != nil {
-		return *m.LeftNum
-	}
-	return 0
-}
-
-func (m *S2CShopItem) GetRemainSeconds() int32 {
-	if m != nil && m.RemainSeconds != nil {
-		return *m.RemainSeconds
-	}
-	return 0
-}
-
-type S2CShopItemsResult struct {
-	ShopId           *int32         `protobuf:"varint,1,opt,name=shop_id,json=shopId" json:"shop_id,omitempty"`
-	Items            []*S2CShopItem `protobuf:"bytes,2,rep,name=items" json:"items,omitempty"`
-	XXX_unrecognized []byte         `json:"-"`
-}
-
-func (m *S2CShopItemsResult) Reset()                    { *m = S2CShopItemsResult{} }
-func (m *S2CShopItemsResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CShopItemsResult) ProtoMessage()               {}
-func (*S2CShopItemsResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{101} }
-
-func (m *S2CShopItemsResult) GetShopId() int32 {
-	if m != nil && m.ShopId != nil {
-		return *m.ShopId
-	}
-	return 0
-}
-
-func (m *S2CShopItemsResult) GetItems() []*S2CShopItem {
-	if m != nil {
-		return m.Items
-	}
-	return nil
-}
-
-// 购买商店物品
-type C2SBuyShopItem struct {
-	ItemId           *int32 `protobuf:"varint,1,opt,name=item_id,json=itemId" json:"item_id,omitempty"`
-	ItemNum          *int32 `protobuf:"varint,2,opt,name=item_num,json=itemNum" json:"item_num,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SBuyShopItem) Reset()                    { *m = C2SBuyShopItem{} }
-func (m *C2SBuyShopItem) String() string            { return proto.CompactTextString(m) }
-func (*C2SBuyShopItem) ProtoMessage()               {}
-func (*C2SBuyShopItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{102} }
-
-func (m *C2SBuyShopItem) GetItemId() int32 {
-	if m != nil && m.ItemId != nil {
-		return *m.ItemId
-	}
-	return 0
-}
-
-func (m *C2SBuyShopItem) GetItemNum() int32 {
-	if m != nil && m.ItemNum != nil {
-		return *m.ItemNum
-	}
-	return 0
-}
-
-// 购买返回的物品
-type S2CBuyShopItemResult struct {
-	ShopId           *int32        `protobuf:"varint,1,opt,name=shop_id,json=shopId" json:"shop_id,omitempty"`
-	ItemId           *int32        `protobuf:"varint,2,opt,name=item_id,json=itemId" json:"item_id,omitempty"`
-	ItemNum          *int32        `protobuf:"varint,3,opt,name=item_num,json=itemNum" json:"item_num,omitempty"`
-	AddItem          *ItemInfo     `protobuf:"bytes,4,opt,name=add_item,json=addItem" json:"add_item,omitempty"`
-	CostRes          *ResourceInfo `protobuf:"bytes,5,opt,name=cost_res,json=costRes" json:"cost_res,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *S2CBuyShopItemResult) Reset()                    { *m = S2CBuyShopItemResult{} }
-func (m *S2CBuyShopItemResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CBuyShopItemResult) ProtoMessage()               {}
-func (*S2CBuyShopItemResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{103} }
-
-func (m *S2CBuyShopItemResult) GetShopId() int32 {
-	if m != nil && m.ShopId != nil {
-		return *m.ShopId
-	}
-	return 0
-}
-
-func (m *S2CBuyShopItemResult) GetItemId() int32 {
-	if m != nil && m.ItemId != nil {
-		return *m.ItemId
-	}
-	return 0
-}
-
-func (m *S2CBuyShopItemResult) GetItemNum() int32 {
-	if m != nil && m.ItemNum != nil {
-		return *m.ItemNum
-	}
-	return 0
-}
-
-func (m *S2CBuyShopItemResult) GetAddItem() *ItemInfo {
-	if m != nil {
-		return m.AddItem
-	}
-	return nil
-}
-
-func (m *S2CBuyShopItemResult) GetCostRes() *ResourceInfo {
-	if m != nil {
-		return m.CostRes
-	}
-	return nil
-}
-
-// 通知客户端商店需要刷新
-type S2CShopNeedRefreshNotify struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CShopNeedRefreshNotify) Reset()                    { *m = S2CShopNeedRefreshNotify{} }
-func (m *S2CShopNeedRefreshNotify) String() string            { return proto.CompactTextString(m) }
-func (*S2CShopNeedRefreshNotify) ProtoMessage()               {}
-func (*S2CShopNeedRefreshNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{104} }
-
-// 出售物品
-type C2SSellItem struct {
-	ItemId           *int32 `protobuf:"varint,1,opt,name=ItemId" json:"ItemId,omitempty"`
-	ItemNum          *int32 `protobuf:"varint,2,opt,name=ItemNum" json:"ItemNum,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SSellItem) Reset()                    { *m = C2SSellItem{} }
-func (m *C2SSellItem) String() string            { return proto.CompactTextString(m) }
-func (*C2SSellItem) ProtoMessage()               {}
-func (*C2SSellItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{105} }
-
-func (m *C2SSellItem) GetItemId() int32 {
-	if m != nil && m.ItemId != nil {
-		return *m.ItemId
-	}
-	return 0
-}
-
-func (m *C2SSellItem) GetItemNum() int32 {
-	if m != nil && m.ItemNum != nil {
-		return *m.ItemNum
-	}
-	return 0
-}
-
-type S2CSellItemResult struct {
-	ItemId           *int32 `protobuf:"varint,1,opt,name=ItemId" json:"ItemId,omitempty"`
-	ItemNum          *int32 `protobuf:"varint,2,opt,name=ItemNum" json:"ItemNum,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CSellItemResult) Reset()                    { *m = S2CSellItemResult{} }
-func (m *S2CSellItemResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CSellItemResult) ProtoMessage()               {}
-func (*S2CSellItemResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{106} }
-
-func (m *S2CSellItemResult) GetItemId() int32 {
-	if m != nil && m.ItemId != nil {
-		return *m.ItemId
-	}
-	return 0
-}
-
-func (m *S2CSellItemResult) GetItemNum() int32 {
-	if m != nil && m.ItemNum != nil {
-		return *m.ItemNum
-	}
-	return 0
-}
-
-// 关卡开始
-type C2SStageBegin struct {
-	StageId          *int32  `protobuf:"varint,1,opt,name=StageId" json:"StageId,omitempty"`
-	CatId            *int32  `protobuf:"varint,2,opt,name=CatId" json:"CatId,omitempty"`
-	ItemIds          []int32 `protobuf:"varint,3,rep,name=ItemIds" json:"ItemIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2SStageBegin) Reset()                    { *m = C2SStageBegin{} }
-func (m *C2SStageBegin) String() string            { return proto.CompactTextString(m) }
-func (*C2SStageBegin) ProtoMessage()               {}
-func (*C2SStageBegin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{107} }
-
-func (m *C2SStageBegin) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
-	}
-	return 0
-}
-
-func (m *C2SStageBegin) GetCatId() int32 {
-	if m != nil && m.CatId != nil {
-		return *m.CatId
-	}
-	return 0
-}
-
-func (m *C2SStageBegin) GetItemIds() []int32 {
-	if m != nil {
-		return m.ItemIds
-	}
-	return nil
-}
-
-type S2CStageBeginResult struct {
-	StageId          *int32 `protobuf:"varint,1,opt,name=StageId" json:"StageId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CStageBeginResult) Reset()                    { *m = S2CStageBeginResult{} }
-func (m *S2CStageBeginResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CStageBeginResult) ProtoMessage()               {}
-func (*S2CStageBeginResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{108} }
-
-func (m *S2CStageBeginResult) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
-	}
-	return 0
-}
-
-// 好友信息
-type FriendInfo struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Head             *string `protobuf:"bytes,3,opt,name=Head" json:"Head,omitempty"`
-	Level            *int32  `protobuf:"varint,4,opt,name=Level" json:"Level,omitempty"`
-	VipLevel         *int32  `protobuf:"varint,5,opt,name=VipLevel" json:"VipLevel,omitempty"`
-	LastLogin        *int32  `protobuf:"varint,6,opt,name=LastLogin" json:"LastLogin,omitempty"`
-	FriendPoints     *int32  `protobuf:"varint,7,opt,name=FriendPoints" json:"FriendPoints,omitempty"`
-	LeftGiveSeconds  *int32  `protobuf:"varint,8,opt,name=LeftGiveSeconds" json:"LeftGiveSeconds,omitempty"`
-	UnreadMessageNum *int32  `protobuf:"varint,9,opt,name=UnreadMessageNum" json:"UnreadMessageNum,omitempty"`
-	Zan              *int32  `protobuf:"varint,10,opt,name=Zan" json:"Zan,omitempty"`
-	IsZanToday       *bool   `protobuf:"varint,11,opt,name=IsZanToday" json:"IsZanToday,omitempty"`
-	IsOnline         *bool   `protobuf:"varint,12,opt,name=IsOnline" json:"IsOnline,omitempty"`
-	FosteredCatNum   *int32  `protobuf:"varint,14,opt,name=FosteredCatNum" json:"FosteredCatNum,omitempty"`
-	CanFosterCatNum  *int32  `protobuf:"varint,15,opt,name=CanFosterCatNum" json:"CanFosterCatNum,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *FriendInfo) Reset()                    { *m = FriendInfo{} }
-func (m *FriendInfo) String() string            { return proto.CompactTextString(m) }
-func (*FriendInfo) ProtoMessage()               {}
-func (*FriendInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{109} }
-
-func (m *FriendInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *FriendInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+		return m.IP
 	}
 	return ""
 }
 
-func (m *FriendInfo) GetHead() string {
-	if m != nil && m.Head != nil {
-		return *m.Head
+type C2S_MSG_DATA struct {
+	PlayerId int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	Token    string `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
+	MsgCode  int32  `protobuf:"varint,3,opt,name=MsgCode" json:"MsgCode,omitempty"`
+	Data     []byte `protobuf:"bytes,4,opt,name=Data,proto3" json:"Data,omitempty"`
+}
+
+func (m *C2S_MSG_DATA) Reset()                    { *m = C2S_MSG_DATA{} }
+func (m *C2S_MSG_DATA) String() string            { return proto.CompactTextString(m) }
+func (*C2S_MSG_DATA) ProtoMessage()               {}
+func (*C2S_MSG_DATA) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+
+func (m *C2S_MSG_DATA) GetPlayerId() int32 {
+	if m != nil {
+		return m.PlayerId
+	}
+	return 0
+}
+
+func (m *C2S_MSG_DATA) GetToken() string {
+	if m != nil {
+		return m.Token
 	}
 	return ""
 }
 
-func (m *FriendInfo) GetLevel() int32 {
-	if m != nil && m.Level != nil {
-		return *m.Level
+func (m *C2S_MSG_DATA) GetMsgCode() int32 {
+	if m != nil {
+		return m.MsgCode
 	}
 	return 0
 }
 
-func (m *FriendInfo) GetVipLevel() int32 {
-	if m != nil && m.VipLevel != nil {
-		return *m.VipLevel
+func (m *C2S_MSG_DATA) GetData() []byte {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
+type S2C_MSG_DATA struct {
+	ErrorCode int32  `protobuf:"varint,1,opt,name=ErrorCode" json:"ErrorCode,omitempty"`
+	ErrorMsg  string `protobuf:"bytes,2,opt,name=ErrorMsg" json:"ErrorMsg,omitempty"`
+	Data      []byte `protobuf:"bytes,3,opt,name=Data,proto3" json:"Data,omitempty"`
+}
+
+func (m *S2C_MSG_DATA) Reset()                    { *m = S2C_MSG_DATA{} }
+func (m *S2C_MSG_DATA) String() string            { return proto.CompactTextString(m) }
+func (*S2C_MSG_DATA) ProtoMessage()               {}
+func (*S2C_MSG_DATA) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+
+func (m *S2C_MSG_DATA) GetErrorCode() int32 {
+	if m != nil {
+		return m.ErrorCode
 	}
 	return 0
 }
 
-func (m *FriendInfo) GetLastLogin() int32 {
-	if m != nil && m.LastLogin != nil {
-		return *m.LastLogin
+func (m *S2C_MSG_DATA) GetErrorMsg() string {
+	if m != nil {
+		return m.ErrorMsg
+	}
+	return ""
+}
+
+func (m *S2C_MSG_DATA) GetData() []byte {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
+// 进入游戏服务器
+type C2SEnterGameRequest struct {
+	Acc   string `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
+	Token string `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
+}
+
+func (m *C2SEnterGameRequest) Reset()                    { *m = C2SEnterGameRequest{} }
+func (m *C2SEnterGameRequest) String() string            { return proto.CompactTextString(m) }
+func (*C2SEnterGameRequest) ProtoMessage()               {}
+func (*C2SEnterGameRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+
+func (m *C2SEnterGameRequest) GetAcc() string {
+	if m != nil {
+		return m.Acc
+	}
+	return ""
+}
+
+func (m *C2SEnterGameRequest) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
+type S2CEnterGameResponse struct {
+	Acc      string `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
+	PlayerId int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
+}
+
+func (m *S2CEnterGameResponse) Reset()                    { *m = S2CEnterGameResponse{} }
+func (m *S2CEnterGameResponse) String() string            { return proto.CompactTextString(m) }
+func (*S2CEnterGameResponse) ProtoMessage()               {}
+func (*S2CEnterGameResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
+
+func (m *S2CEnterGameResponse) GetAcc() string {
+	if m != nil {
+		return m.Acc
+	}
+	return ""
+}
+
+func (m *S2CEnterGameResponse) GetPlayerId() int32 {
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
-func (m *FriendInfo) GetFriendPoints() int32 {
-	if m != nil && m.FriendPoints != nil {
-		return *m.FriendPoints
-	}
-	return 0
+type S2CEnterGameCompleteNotify struct {
 }
 
-func (m *FriendInfo) GetLeftGiveSeconds() int32 {
-	if m != nil && m.LeftGiveSeconds != nil {
-		return *m.LeftGiveSeconds
-	}
-	return 0
-}
-
-func (m *FriendInfo) GetUnreadMessageNum() int32 {
-	if m != nil && m.UnreadMessageNum != nil {
-		return *m.UnreadMessageNum
-	}
-	return 0
-}
-
-func (m *FriendInfo) GetZan() int32 {
-	if m != nil && m.Zan != nil {
-		return *m.Zan
-	}
-	return 0
-}
-
-func (m *FriendInfo) GetIsZanToday() bool {
-	if m != nil && m.IsZanToday != nil {
-		return *m.IsZanToday
-	}
-	return false
-}
-
-func (m *FriendInfo) GetIsOnline() bool {
-	if m != nil && m.IsOnline != nil {
-		return *m.IsOnline
-	}
-	return false
-}
-
-func (m *FriendInfo) GetFosteredCatNum() int32 {
-	if m != nil && m.FosteredCatNum != nil {
-		return *m.FosteredCatNum
-	}
-	return 0
-}
-
-func (m *FriendInfo) GetCanFosterCatNum() int32 {
-	if m != nil && m.CanFosterCatNum != nil {
-		return *m.CanFosterCatNum
-	}
-	return 0
-}
+func (m *S2CEnterGameCompleteNotify) Reset()                    { *m = S2CEnterGameCompleteNotify{} }
+func (m *S2CEnterGameCompleteNotify) String() string            { return proto.CompactTextString(m) }
+func (*S2CEnterGameCompleteNotify) ProtoMessage()               {}
+func (*S2CEnterGameCompleteNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
 
 // 按昵称查找好友信息
 type C2SFriendSearch struct {
-	Key              *string `protobuf:"bytes,1,opt,name=Key" json:"Key,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Key string `protobuf:"bytes,1,opt,name=Key" json:"Key,omitempty"`
 }
 
 func (m *C2SFriendSearch) Reset()                    { *m = C2SFriendSearch{} }
 func (m *C2SFriendSearch) String() string            { return proto.CompactTextString(m) }
 func (*C2SFriendSearch) ProtoMessage()               {}
-func (*C2SFriendSearch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{110} }
+func (*C2SFriendSearch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
 
 func (m *C2SFriendSearch) GetKey() string {
-	if m != nil && m.Key != nil {
-		return *m.Key
+	if m != nil {
+		return m.Key
 	}
 	return ""
 }
 
 // 按ID查找好友
 type C2SFriendSearchById struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *C2SFriendSearchById) Reset()                    { *m = C2SFriendSearchById{} }
 func (m *C2SFriendSearchById) String() string            { return proto.CompactTextString(m) }
 func (*C2SFriendSearchById) ProtoMessage()               {}
-func (*C2SFriendSearchById) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{111} }
+func (*C2SFriendSearchById) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
 
 func (m *C2SFriendSearchById) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // 返回好友信息
 type S2CFriendSearchResult struct {
-	Result           []*FriendInfo `protobuf:"bytes,1,rep,name=Result" json:"Result,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
+	Result []*FriendInfo `protobuf:"bytes,1,rep,name=Result" json:"Result,omitempty"`
 }
 
 func (m *S2CFriendSearchResult) Reset()                    { *m = S2CFriendSearchResult{} }
 func (m *S2CFriendSearchResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CFriendSearchResult) ProtoMessage()               {}
-func (*S2CFriendSearchResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{112} }
+func (*S2CFriendSearchResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
 
 func (m *S2CFriendSearchResult) GetResult() []*FriendInfo {
 	if m != nil {
@@ -3900,81 +969,78 @@ func (m *S2CFriendSearchResult) GetResult() []*FriendInfo {
 
 // 客户端向服务器获取好友相关列表
 type C2SGetFriendList struct {
-	HasFoster        *bool  `protobuf:"varint,1,opt,name=HasFoster" json:"HasFoster,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	HasFoster bool `protobuf:"varint,1,opt,name=HasFoster" json:"HasFoster,omitempty"`
 }
 
 func (m *C2SGetFriendList) Reset()                    { *m = C2SGetFriendList{} }
 func (m *C2SGetFriendList) String() string            { return proto.CompactTextString(m) }
 func (*C2SGetFriendList) ProtoMessage()               {}
-func (*C2SGetFriendList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{113} }
+func (*C2SGetFriendList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
 
 func (m *C2SGetFriendList) GetHasFoster() bool {
-	if m != nil && m.HasFoster != nil {
-		return *m.HasFoster
+	if m != nil {
+		return m.HasFoster
 	}
 	return false
 }
 
 // 加好友请求信息
 type FriendReq struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	Head             *string `protobuf:"bytes,4,opt,name=Head" json:"Head,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	PlayerId int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	Name     string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
+	Score    int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
+	Head     string `protobuf:"bytes,4,opt,name=Head" json:"Head,omitempty"`
 }
 
 func (m *FriendReq) Reset()                    { *m = FriendReq{} }
 func (m *FriendReq) String() string            { return proto.CompactTextString(m) }
 func (*FriendReq) ProtoMessage()               {}
-func (*FriendReq) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{114} }
+func (*FriendReq) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
 
 func (m *FriendReq) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 func (m *FriendReq) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+	if m != nil {
+		return m.Name
 	}
 	return ""
 }
 
 func (m *FriendReq) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
+	if m != nil {
+		return m.Score
 	}
 	return 0
 }
 
 func (m *FriendReq) GetHead() string {
-	if m != nil && m.Head != nil {
-		return *m.Head
+	if m != nil {
+		return m.Head
 	}
 	return ""
 }
 
 // 服务器向客户端返回好友列表
 type S2CRetFriendListResult struct {
-	FriendType        *int32        `protobuf:"varint,1,opt,name=FriendType" json:"FriendType,omitempty"`
+	FriendType        int32         `protobuf:"varint,1,opt,name=FriendType" json:"FriendType,omitempty"`
 	FriendList        []*FriendInfo `protobuf:"bytes,2,rep,name=FriendList" json:"FriendList,omitempty"`
 	Reqs              []*FriendReq  `protobuf:"bytes,3,rep,name=Reqs" json:"Reqs,omitempty"`
-	LeftGivePointsNum *int32        `protobuf:"varint,4,opt,name=LeftGivePointsNum" json:"LeftGivePointsNum,omitempty"`
-	XXX_unrecognized  []byte        `json:"-"`
+	LeftGivePointsNum int32         `protobuf:"varint,4,opt,name=LeftGivePointsNum" json:"LeftGivePointsNum,omitempty"`
 }
 
 func (m *S2CRetFriendListResult) Reset()                    { *m = S2CRetFriendListResult{} }
 func (m *S2CRetFriendListResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CRetFriendListResult) ProtoMessage()               {}
-func (*S2CRetFriendListResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{115} }
+func (*S2CRetFriendListResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
 
 func (m *S2CRetFriendListResult) GetFriendType() int32 {
-	if m != nil && m.FriendType != nil {
-		return *m.FriendType
+	if m != nil {
+		return m.FriendType
 	}
 	return 0
 }
@@ -3994,27 +1060,26 @@ func (m *S2CRetFriendListResult) GetReqs() []*FriendReq {
 }
 
 func (m *S2CRetFriendListResult) GetLeftGivePointsNum() int32 {
-	if m != nil && m.LeftGivePointsNum != nil {
-		return *m.LeftGivePointsNum
+	if m != nil {
+		return m.LeftGivePointsNum
 	}
 	return 0
 }
 
 // 服务器通知好友状态
 type S2CFriendStateNotify struct {
-	StateType        *int32      `protobuf:"varint,1,opt,name=StateType" json:"StateType,omitempty"`
-	Info             *FriendInfo `protobuf:"bytes,2,opt,name=Info" json:"Info,omitempty"`
-	XXX_unrecognized []byte      `json:"-"`
+	StateType int32       `protobuf:"varint,1,opt,name=StateType" json:"StateType,omitempty"`
+	Info      *FriendInfo `protobuf:"bytes,2,opt,name=Info" json:"Info,omitempty"`
 }
 
 func (m *S2CFriendStateNotify) Reset()                    { *m = S2CFriendStateNotify{} }
 func (m *S2CFriendStateNotify) String() string            { return proto.CompactTextString(m) }
 func (*S2CFriendStateNotify) ProtoMessage()               {}
-func (*S2CFriendStateNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{116} }
+func (*S2CFriendStateNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
 
 func (m *S2CFriendStateNotify) GetStateType() int32 {
-	if m != nil && m.StateType != nil {
-		return *m.StateType
+	if m != nil {
+		return m.StateType
 	}
 	return 0
 }
@@ -4028,14 +1093,13 @@ func (m *S2CFriendStateNotify) GetInfo() *FriendInfo {
 
 // 服务器通知好友请求
 type S2CFriendReqNotify struct {
-	Req              *FriendReq `protobuf:"bytes,1,opt,name=Req" json:"Req,omitempty"`
-	XXX_unrecognized []byte     `json:"-"`
+	Req *FriendReq `protobuf:"bytes,1,opt,name=Req" json:"Req,omitempty"`
 }
 
 func (m *S2CFriendReqNotify) Reset()                    { *m = S2CFriendReqNotify{} }
 func (m *S2CFriendReqNotify) String() string            { return proto.CompactTextString(m) }
 func (*S2CFriendReqNotify) ProtoMessage()               {}
-func (*S2CFriendReqNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{117} }
+func (*S2CFriendReqNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
 
 func (m *S2CFriendReqNotify) GetReq() *FriendReq {
 	if m != nil {
@@ -4046,232 +1110,222 @@ func (m *S2CFriendReqNotify) GetReq() *FriendReq {
 
 // 客户端通过Id加好友
 type C2SAddFriendByPId struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *C2SAddFriendByPId) Reset()                    { *m = C2SAddFriendByPId{} }
 func (m *C2SAddFriendByPId) String() string            { return proto.CompactTextString(m) }
 func (*C2SAddFriendByPId) ProtoMessage()               {}
-func (*C2SAddFriendByPId) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{118} }
+func (*C2SAddFriendByPId) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
 
 func (m *C2SAddFriendByPId) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // 客户端通过昵称加好友
 type C2SAddFriendByName struct {
-	Name             *string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Name string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
 }
 
 func (m *C2SAddFriendByName) Reset()                    { *m = C2SAddFriendByName{} }
 func (m *C2SAddFriendByName) String() string            { return proto.CompactTextString(m) }
 func (*C2SAddFriendByName) ProtoMessage()               {}
-func (*C2SAddFriendByName) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{119} }
+func (*C2SAddFriendByName) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{25} }
 
 func (m *C2SAddFriendByName) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+	if m != nil {
+		return m.Name
 	}
 	return ""
 }
 
 // 服务器回复添加好友
 type S2CAddFriendResult struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *S2CAddFriendResult) Reset()                    { *m = S2CAddFriendResult{} }
 func (m *S2CAddFriendResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CAddFriendResult) ProtoMessage()               {}
-func (*S2CAddFriendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{120} }
+func (*S2CAddFriendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{26} }
 
 func (m *S2CAddFriendResult) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // 客户端同意加好友
 type C2SAgreeFriend struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *C2SAgreeFriend) Reset()                    { *m = C2SAgreeFriend{} }
 func (m *C2SAgreeFriend) String() string            { return proto.CompactTextString(m) }
 func (*C2SAgreeFriend) ProtoMessage()               {}
-func (*C2SAgreeFriend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{121} }
+func (*C2SAgreeFriend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{27} }
 
 func (m *C2SAgreeFriend) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // 服务器返回增加好友回复
 type S2CAgreeFriendResult struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	Level            *int32  `protobuf:"varint,4,opt,name=Level" json:"Level,omitempty"`
-	Head             *string `protobuf:"bytes,5,opt,name=Head" json:"Head,omitempty"`
-	VipLevel         *int32  `protobuf:"varint,6,opt,name=VipLevel" json:"VipLevel,omitempty"`
-	LastLogin        *int32  `protobuf:"varint,7,opt,name=LastLogin" json:"LastLogin,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	PlayerId  int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	Name      string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
+	Score     int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
+	Level     int32  `protobuf:"varint,4,opt,name=Level" json:"Level,omitempty"`
+	Head      string `protobuf:"bytes,5,opt,name=Head" json:"Head,omitempty"`
+	VipLevel  int32  `protobuf:"varint,6,opt,name=VipLevel" json:"VipLevel,omitempty"`
+	LastLogin int32  `protobuf:"varint,7,opt,name=LastLogin" json:"LastLogin,omitempty"`
 }
 
 func (m *S2CAgreeFriendResult) Reset()                    { *m = S2CAgreeFriendResult{} }
 func (m *S2CAgreeFriendResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CAgreeFriendResult) ProtoMessage()               {}
-func (*S2CAgreeFriendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{122} }
+func (*S2CAgreeFriendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{28} }
 
 func (m *S2CAgreeFriendResult) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 func (m *S2CAgreeFriendResult) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+	if m != nil {
+		return m.Name
 	}
 	return ""
 }
 
 func (m *S2CAgreeFriendResult) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
+	if m != nil {
+		return m.Score
 	}
 	return 0
 }
 
 func (m *S2CAgreeFriendResult) GetLevel() int32 {
-	if m != nil && m.Level != nil {
-		return *m.Level
+	if m != nil {
+		return m.Level
 	}
 	return 0
 }
 
 func (m *S2CAgreeFriendResult) GetHead() string {
-	if m != nil && m.Head != nil {
-		return *m.Head
+	if m != nil {
+		return m.Head
 	}
 	return ""
 }
 
 func (m *S2CAgreeFriendResult) GetVipLevel() int32 {
-	if m != nil && m.VipLevel != nil {
-		return *m.VipLevel
+	if m != nil {
+		return m.VipLevel
 	}
 	return 0
 }
 
 func (m *S2CAgreeFriendResult) GetLastLogin() int32 {
-	if m != nil && m.LastLogin != nil {
-		return *m.LastLogin
+	if m != nil {
+		return m.LastLogin
 	}
 	return 0
 }
 
 // 客户端拒绝加好友
 type C2SRefuseFriend struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *C2SRefuseFriend) Reset()                    { *m = C2SRefuseFriend{} }
 func (m *C2SRefuseFriend) String() string            { return proto.CompactTextString(m) }
 func (*C2SRefuseFriend) ProtoMessage()               {}
-func (*C2SRefuseFriend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{123} }
+func (*C2SRefuseFriend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{29} }
 
 func (m *C2SRefuseFriend) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // 服务器通知拒绝加好友
 type S2CRefuseFriendResult struct {
-	Name             *string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
-	PlayerId         *int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Name     string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
+	PlayerId int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *S2CRefuseFriendResult) Reset()                    { *m = S2CRefuseFriendResult{} }
 func (m *S2CRefuseFriendResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CRefuseFriendResult) ProtoMessage()               {}
-func (*S2CRefuseFriendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{124} }
+func (*S2CRefuseFriendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{30} }
 
 func (m *S2CRefuseFriendResult) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+	if m != nil {
+		return m.Name
 	}
 	return ""
 }
 
 func (m *S2CRefuseFriendResult) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // 客户端删除好友
 type C2SRemoveFriend struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *C2SRemoveFriend) Reset()                    { *m = C2SRemoveFriend{} }
 func (m *C2SRemoveFriend) String() string            { return proto.CompactTextString(m) }
 func (*C2SRemoveFriend) ProtoMessage()               {}
-func (*C2SRemoveFriend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{125} }
+func (*C2SRemoveFriend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{31} }
 
 func (m *C2SRemoveFriend) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // 服务器通知客户端删除好友
 type S2CRemoveFriendResult struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *S2CRemoveFriendResult) Reset()                    { *m = S2CRemoveFriendResult{} }
 func (m *S2CRemoveFriendResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CRemoveFriendResult) ProtoMessage()               {}
-func (*S2CRemoveFriendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{126} }
+func (*S2CRemoveFriendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{32} }
 
 func (m *S2CRemoveFriendResult) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // 赠送友情点
 type C2SGiveFriendPoints struct {
-	FriendId         []int32 `protobuf:"varint,1,rep,name=FriendId" json:"FriendId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	FriendId []int32 `protobuf:"varint,1,rep,packed,name=FriendId" json:"FriendId,omitempty"`
 }
 
 func (m *C2SGiveFriendPoints) Reset()                    { *m = C2SGiveFriendPoints{} }
 func (m *C2SGiveFriendPoints) String() string            { return proto.CompactTextString(m) }
 func (*C2SGiveFriendPoints) ProtoMessage()               {}
-func (*C2SGiveFriendPoints) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{127} }
+func (*C2SGiveFriendPoints) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{33} }
 
 func (m *C2SGiveFriendPoints) GetFriendId() []int32 {
 	if m != nil {
@@ -4281,72 +1335,70 @@ func (m *C2SGiveFriendPoints) GetFriendId() []int32 {
 }
 
 type FriendPointsResult struct {
-	FriendId         *int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
-	Points           *int32 `protobuf:"varint,2,opt,name=Points" json:"Points,omitempty"`
-	Error            *int32 `protobuf:"varint,3,opt,name=Error" json:"Error,omitempty"`
-	RemainSeconds    *int32 `protobuf:"varint,4,opt,name=RemainSeconds" json:"RemainSeconds,omitempty"`
-	IsTodayGive      *bool  `protobuf:"varint,5,opt,name=IsTodayGive" json:"IsTodayGive,omitempty"`
-	BackPoints       *int32 `protobuf:"varint,6,opt,name=BackPoints" json:"BackPoints,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	FriendId      int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
+	Points        int32 `protobuf:"varint,2,opt,name=Points" json:"Points,omitempty"`
+	Error         int32 `protobuf:"varint,3,opt,name=Error" json:"Error,omitempty"`
+	RemainSeconds int32 `protobuf:"varint,4,opt,name=RemainSeconds" json:"RemainSeconds,omitempty"`
+	IsTodayGive   bool  `protobuf:"varint,5,opt,name=IsTodayGive" json:"IsTodayGive,omitempty"`
+	BackPoints    int32 `protobuf:"varint,6,opt,name=BackPoints" json:"BackPoints,omitempty"`
 }
 
 func (m *FriendPointsResult) Reset()                    { *m = FriendPointsResult{} }
 func (m *FriendPointsResult) String() string            { return proto.CompactTextString(m) }
 func (*FriendPointsResult) ProtoMessage()               {}
-func (*FriendPointsResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{128} }
+func (*FriendPointsResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{34} }
 
 func (m *FriendPointsResult) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
+	if m != nil {
+		return m.FriendId
 	}
 	return 0
 }
 
 func (m *FriendPointsResult) GetPoints() int32 {
-	if m != nil && m.Points != nil {
-		return *m.Points
+	if m != nil {
+		return m.Points
 	}
 	return 0
 }
 
 func (m *FriendPointsResult) GetError() int32 {
-	if m != nil && m.Error != nil {
-		return *m.Error
+	if m != nil {
+		return m.Error
 	}
 	return 0
 }
 
 func (m *FriendPointsResult) GetRemainSeconds() int32 {
-	if m != nil && m.RemainSeconds != nil {
-		return *m.RemainSeconds
+	if m != nil {
+		return m.RemainSeconds
 	}
 	return 0
 }
 
 func (m *FriendPointsResult) GetIsTodayGive() bool {
-	if m != nil && m.IsTodayGive != nil {
-		return *m.IsTodayGive
+	if m != nil {
+		return m.IsTodayGive
 	}
 	return false
 }
 
 func (m *FriendPointsResult) GetBackPoints() int32 {
-	if m != nil && m.BackPoints != nil {
-		return *m.BackPoints
+	if m != nil {
+		return m.BackPoints
 	}
 	return 0
 }
 
 type S2CGiveFriendPointsResult struct {
 	PointsData        []*FriendPointsResult `protobuf:"bytes,1,rep,name=PointsData" json:"PointsData,omitempty"`
-	LeftGivePointsNum *int32                `protobuf:"varint,2,opt,name=LeftGivePointsNum" json:"LeftGivePointsNum,omitempty"`
-	XXX_unrecognized  []byte                `json:"-"`
+	LeftGivePointsNum int32                 `protobuf:"varint,2,opt,name=LeftGivePointsNum" json:"LeftGivePointsNum,omitempty"`
 }
 
 func (m *S2CGiveFriendPointsResult) Reset()                    { *m = S2CGiveFriendPointsResult{} }
 func (m *S2CGiveFriendPointsResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CGiveFriendPointsResult) ProtoMessage()               {}
-func (*S2CGiveFriendPointsResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{129} }
+func (*S2CGiveFriendPointsResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{35} }
 
 func (m *S2CGiveFriendPointsResult) GetPointsData() []*FriendPointsResult {
 	if m != nil {
@@ -4356,22 +1408,21 @@ func (m *S2CGiveFriendPointsResult) GetPointsData() []*FriendPointsResult {
 }
 
 func (m *S2CGiveFriendPointsResult) GetLeftGivePointsNum() int32 {
-	if m != nil && m.LeftGivePointsNum != nil {
-		return *m.LeftGivePointsNum
+	if m != nil {
+		return m.LeftGivePointsNum
 	}
 	return 0
 }
 
 // 收取友情点
 type C2SGetFriendPoints struct {
-	FriendId         []int32 `protobuf:"varint,1,rep,name=FriendId" json:"FriendId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	FriendId []int32 `protobuf:"varint,1,rep,packed,name=FriendId" json:"FriendId,omitempty"`
 }
 
 func (m *C2SGetFriendPoints) Reset()                    { *m = C2SGetFriendPoints{} }
 func (m *C2SGetFriendPoints) String() string            { return proto.CompactTextString(m) }
 func (*C2SGetFriendPoints) ProtoMessage()               {}
-func (*C2SGetFriendPoints) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{130} }
+func (*C2SGetFriendPoints) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{36} }
 
 func (m *C2SGetFriendPoints) GetFriendId() []int32 {
 	if m != nil {
@@ -4381,39 +1432,37 @@ func (m *C2SGetFriendPoints) GetFriendId() []int32 {
 }
 
 type FriendPoints struct {
-	FriendId         *int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
-	Points           *int32 `protobuf:"varint,2,opt,name=Points" json:"Points,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	FriendId int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
+	Points   int32 `protobuf:"varint,2,opt,name=Points" json:"Points,omitempty"`
 }
 
 func (m *FriendPoints) Reset()                    { *m = FriendPoints{} }
 func (m *FriendPoints) String() string            { return proto.CompactTextString(m) }
 func (*FriendPoints) ProtoMessage()               {}
-func (*FriendPoints) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{131} }
+func (*FriendPoints) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{37} }
 
 func (m *FriendPoints) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
+	if m != nil {
+		return m.FriendId
 	}
 	return 0
 }
 
 func (m *FriendPoints) GetPoints() int32 {
-	if m != nil && m.Points != nil {
-		return *m.Points
+	if m != nil {
+		return m.Points
 	}
 	return 0
 }
 
 type S2CGetFriendPointsResult struct {
-	PointsData       []*FriendPoints `protobuf:"bytes,1,rep,name=PointsData" json:"PointsData,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
+	PointsData []*FriendPoints `protobuf:"bytes,1,rep,name=PointsData" json:"PointsData,omitempty"`
 }
 
 func (m *S2CGetFriendPointsResult) Reset()                    { *m = S2CGetFriendPointsResult{} }
 func (m *S2CGetFriendPointsResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CGetFriendPointsResult) ProtoMessage()               {}
-func (*S2CGetFriendPointsResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{132} }
+func (*S2CGetFriendPointsResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{38} }
 
 func (m *S2CGetFriendPointsResult) GetPointsData() []*FriendPoints {
 	if m != nil {
@@ -4424,19 +1473,18 @@ func (m *S2CGetFriendPointsResult) GetPointsData() []*FriendPoints {
 
 // 客户端给好友发送消息
 type C2SFriendChat struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Content          []byte `protobuf:"bytes,2,opt,name=Content" json:"Content,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	Content  []byte `protobuf:"bytes,2,opt,name=Content,proto3" json:"Content,omitempty"`
 }
 
 func (m *C2SFriendChat) Reset()                    { *m = C2SFriendChat{} }
 func (m *C2SFriendChat) String() string            { return proto.CompactTextString(m) }
 func (*C2SFriendChat) ProtoMessage()               {}
-func (*C2SFriendChat) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{133} }
+func (*C2SFriendChat) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{39} }
 
 func (m *C2SFriendChat) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
@@ -4449,19 +1497,18 @@ func (m *C2SFriendChat) GetContent() []byte {
 }
 
 type S2CFriendChatResult struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Content          []byte `protobuf:"bytes,2,opt,name=Content" json:"Content,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	Content  []byte `protobuf:"bytes,2,opt,name=Content,proto3" json:"Content,omitempty"`
 }
 
 func (m *S2CFriendChatResult) Reset()                    { *m = S2CFriendChatResult{} }
 func (m *S2CFriendChatResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CFriendChatResult) ProtoMessage()               {}
-func (*S2CFriendChatResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{134} }
+func (*S2CFriendChatResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{40} }
 
 func (m *S2CFriendChatResult) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
@@ -4475,14 +1522,13 @@ func (m *S2CFriendChatResult) GetContent() []byte {
 
 // 获取好友未读消息数量
 type C2SFriendGetUnreadMessageNum struct {
-	FriendIds        []int32 `protobuf:"varint,1,rep,name=FriendIds" json:"FriendIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	FriendIds []int32 `protobuf:"varint,1,rep,packed,name=FriendIds" json:"FriendIds,omitempty"`
 }
 
 func (m *C2SFriendGetUnreadMessageNum) Reset()                    { *m = C2SFriendGetUnreadMessageNum{} }
 func (m *C2SFriendGetUnreadMessageNum) String() string            { return proto.CompactTextString(m) }
 func (*C2SFriendGetUnreadMessageNum) ProtoMessage()               {}
-func (*C2SFriendGetUnreadMessageNum) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{135} }
+func (*C2SFriendGetUnreadMessageNum) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{41} }
 
 func (m *C2SFriendGetUnreadMessageNum) GetFriendIds() []int32 {
 	if m != nil {
@@ -4492,40 +1538,38 @@ func (m *C2SFriendGetUnreadMessageNum) GetFriendIds() []int32 {
 }
 
 type FriendUnreadMessageNumData struct {
-	FriendId         *int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
-	MessageNum       *int32 `protobuf:"varint,2,opt,name=MessageNum" json:"MessageNum,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	FriendId   int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
+	MessageNum int32 `protobuf:"varint,2,opt,name=MessageNum" json:"MessageNum,omitempty"`
 }
 
 func (m *FriendUnreadMessageNumData) Reset()                    { *m = FriendUnreadMessageNumData{} }
 func (m *FriendUnreadMessageNumData) String() string            { return proto.CompactTextString(m) }
 func (*FriendUnreadMessageNumData) ProtoMessage()               {}
-func (*FriendUnreadMessageNumData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{136} }
+func (*FriendUnreadMessageNumData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{42} }
 
 func (m *FriendUnreadMessageNumData) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
+	if m != nil {
+		return m.FriendId
 	}
 	return 0
 }
 
 func (m *FriendUnreadMessageNumData) GetMessageNum() int32 {
-	if m != nil && m.MessageNum != nil {
-		return *m.MessageNum
+	if m != nil {
+		return m.MessageNum
 	}
 	return 0
 }
 
 type S2CFriendGetUnreadMessageNumResult struct {
-	Data             []*FriendUnreadMessageNumData `protobuf:"bytes,1,rep,name=Data" json:"Data,omitempty"`
-	XXX_unrecognized []byte                        `json:"-"`
+	Data []*FriendUnreadMessageNumData `protobuf:"bytes,1,rep,name=Data" json:"Data,omitempty"`
 }
 
 func (m *S2CFriendGetUnreadMessageNumResult) Reset()         { *m = S2CFriendGetUnreadMessageNumResult{} }
 func (m *S2CFriendGetUnreadMessageNumResult) String() string { return proto.CompactTextString(m) }
 func (*S2CFriendGetUnreadMessageNumResult) ProtoMessage()    {}
 func (*S2CFriendGetUnreadMessageNumResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor0, []int{137}
+	return fileDescriptor0, []int{43}
 }
 
 func (m *S2CFriendGetUnreadMessageNumResult) GetData() []*FriendUnreadMessageNumData {
@@ -4537,32 +1581,30 @@ func (m *S2CFriendGetUnreadMessageNumResult) GetData() []*FriendUnreadMessageNum
 
 // 拉取好友未读聊天消息
 type C2SFriendPullUnreadMessage struct {
-	FriendId         *int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	FriendId int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
 }
 
 func (m *C2SFriendPullUnreadMessage) Reset()                    { *m = C2SFriendPullUnreadMessage{} }
 func (m *C2SFriendPullUnreadMessage) String() string            { return proto.CompactTextString(m) }
 func (*C2SFriendPullUnreadMessage) ProtoMessage()               {}
-func (*C2SFriendPullUnreadMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{138} }
+func (*C2SFriendPullUnreadMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{44} }
 
 func (m *C2SFriendPullUnreadMessage) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
+	if m != nil {
+		return m.FriendId
 	}
 	return 0
 }
 
 type FriendChatData struct {
-	Content          []byte `protobuf:"bytes,1,opt,name=Content" json:"Content,omitempty"`
-	SendTime         *int32 `protobuf:"varint,2,opt,name=SendTime" json:"SendTime,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	Content  []byte `protobuf:"bytes,1,opt,name=Content,proto3" json:"Content,omitempty"`
+	SendTime int32  `protobuf:"varint,2,opt,name=SendTime" json:"SendTime,omitempty"`
 }
 
 func (m *FriendChatData) Reset()                    { *m = FriendChatData{} }
 func (m *FriendChatData) String() string            { return proto.CompactTextString(m) }
 func (*FriendChatData) ProtoMessage()               {}
-func (*FriendChatData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{139} }
+func (*FriendChatData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{45} }
 
 func (m *FriendChatData) GetContent() []byte {
 	if m != nil {
@@ -4572,28 +1614,27 @@ func (m *FriendChatData) GetContent() []byte {
 }
 
 func (m *FriendChatData) GetSendTime() int32 {
-	if m != nil && m.SendTime != nil {
-		return *m.SendTime
+	if m != nil {
+		return m.SendTime
 	}
 	return 0
 }
 
 type S2CFriendPullUnreadMessageResult struct {
-	FriendId         *int32            `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
-	Data             []*FriendChatData `protobuf:"bytes,2,rep,name=Data" json:"Data,omitempty"`
-	XXX_unrecognized []byte            `json:"-"`
+	FriendId int32             `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
+	Data     []*FriendChatData `protobuf:"bytes,2,rep,name=Data" json:"Data,omitempty"`
 }
 
 func (m *S2CFriendPullUnreadMessageResult) Reset()         { *m = S2CFriendPullUnreadMessageResult{} }
 func (m *S2CFriendPullUnreadMessageResult) String() string { return proto.CompactTextString(m) }
 func (*S2CFriendPullUnreadMessageResult) ProtoMessage()    {}
 func (*S2CFriendPullUnreadMessageResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor0, []int{140}
+	return fileDescriptor0, []int{46}
 }
 
 func (m *S2CFriendPullUnreadMessageResult) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
+	if m != nil {
+		return m.FriendId
 	}
 	return 0
 }
@@ -4607,86 +1648,82 @@ func (m *S2CFriendPullUnreadMessageResult) GetData() []*FriendChatData {
 
 // 确认聊天未读消息
 type C2SFriendConfirmUnreadMessage struct {
-	FriendId         *int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
-	MessageNum       *int32 `protobuf:"varint,2,opt,name=MessageNum" json:"MessageNum,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	FriendId   int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
+	MessageNum int32 `protobuf:"varint,2,opt,name=MessageNum" json:"MessageNum,omitempty"`
 }
 
 func (m *C2SFriendConfirmUnreadMessage) Reset()                    { *m = C2SFriendConfirmUnreadMessage{} }
 func (m *C2SFriendConfirmUnreadMessage) String() string            { return proto.CompactTextString(m) }
 func (*C2SFriendConfirmUnreadMessage) ProtoMessage()               {}
-func (*C2SFriendConfirmUnreadMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{141} }
+func (*C2SFriendConfirmUnreadMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{47} }
 
 func (m *C2SFriendConfirmUnreadMessage) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
+	if m != nil {
+		return m.FriendId
 	}
 	return 0
 }
 
 func (m *C2SFriendConfirmUnreadMessage) GetMessageNum() int32 {
-	if m != nil && m.MessageNum != nil {
-		return *m.MessageNum
+	if m != nil {
+		return m.MessageNum
 	}
 	return 0
 }
 
 type S2CFriendConfirmUnreadMessageResult struct {
-	FriendId         *int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
-	MessageNum       *int32 `protobuf:"varint,2,opt,name=MessageNum" json:"MessageNum,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	FriendId   int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
+	MessageNum int32 `protobuf:"varint,2,opt,name=MessageNum" json:"MessageNum,omitempty"`
 }
 
 func (m *S2CFriendConfirmUnreadMessageResult) Reset()         { *m = S2CFriendConfirmUnreadMessageResult{} }
 func (m *S2CFriendConfirmUnreadMessageResult) String() string { return proto.CompactTextString(m) }
 func (*S2CFriendConfirmUnreadMessageResult) ProtoMessage()    {}
 func (*S2CFriendConfirmUnreadMessageResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor0, []int{142}
+	return fileDescriptor0, []int{48}
 }
 
 func (m *S2CFriendConfirmUnreadMessageResult) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
+	if m != nil {
+		return m.FriendId
 	}
 	return 0
 }
 
 func (m *S2CFriendConfirmUnreadMessageResult) GetMessageNum() int32 {
-	if m != nil && m.MessageNum != nil {
-		return *m.MessageNum
+	if m != nil {
+		return m.MessageNum
 	}
 	return 0
 }
 
 // 客户端请求好友在线状态
 type C2SGetOnlineFriends struct {
-	Key              *int32 `protobuf:"varint,1,opt,name=Key" json:"Key,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	Key int32 `protobuf:"varint,1,opt,name=Key" json:"Key,omitempty"`
 }
 
 func (m *C2SGetOnlineFriends) Reset()                    { *m = C2SGetOnlineFriends{} }
 func (m *C2SGetOnlineFriends) String() string            { return proto.CompactTextString(m) }
 func (*C2SGetOnlineFriends) ProtoMessage()               {}
-func (*C2SGetOnlineFriends) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{143} }
+func (*C2SGetOnlineFriends) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{49} }
 
 func (m *C2SGetOnlineFriends) GetKey() int32 {
-	if m != nil && m.Key != nil {
-		return *m.Key
+	if m != nil {
+		return m.Key
 	}
 	return 0
 }
 
 // 服务器返回在线好友
 type S2CRetOnlineFriends struct {
-	PlayerIds        []int32 `protobuf:"varint,1,rep,name=PlayerIds" json:"PlayerIds,omitempty"`
-	Key              *int32  `protobuf:"varint,2,opt,name=Key" json:"Key,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	PlayerIds []int32 `protobuf:"varint,1,rep,packed,name=PlayerIds" json:"PlayerIds,omitempty"`
+	Key       int32   `protobuf:"varint,2,opt,name=Key" json:"Key,omitempty"`
 }
 
 func (m *S2CRetOnlineFriends) Reset()                    { *m = S2CRetOnlineFriends{} }
 func (m *S2CRetOnlineFriends) String() string            { return proto.CompactTextString(m) }
 func (*S2CRetOnlineFriends) ProtoMessage()               {}
-func (*S2CRetOnlineFriends) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{144} }
+func (*S2CRetOnlineFriends) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{50} }
 
 func (m *S2CRetOnlineFriends) GetPlayerIds() []int32 {
 	if m != nil {
@@ -4696,567 +1733,473 @@ func (m *S2CRetOnlineFriends) GetPlayerIds() []int32 {
 }
 
 func (m *S2CRetOnlineFriends) GetKey() int32 {
-	if m != nil && m.Key != nil {
-		return *m.Key
+	if m != nil {
+		return m.Key
 	}
 	return 0
 }
 
-type NotifyState struct {
-	NewMailState     *int32 `protobuf:"varint,1,opt,name=NewMailState" json:"NewMailState,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+// //////////////// shop ///////////////////////
+// 请求商店商品
+type C2SShopItems struct {
+	ShopId int32 `protobuf:"varint,1,opt,name=shop_id,json=shopId" json:"shop_id,omitempty"`
 }
 
-func (m *NotifyState) Reset()                    { *m = NotifyState{} }
-func (m *NotifyState) String() string            { return proto.CompactTextString(m) }
-func (*NotifyState) ProtoMessage()               {}
-func (*NotifyState) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{145} }
+func (m *C2SShopItems) Reset()                    { *m = C2SShopItems{} }
+func (m *C2SShopItems) String() string            { return proto.CompactTextString(m) }
+func (*C2SShopItems) ProtoMessage()               {}
+func (*C2SShopItems) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{51} }
 
-func (m *NotifyState) GetNewMailState() int32 {
-	if m != nil && m.NewMailState != nil {
-		return *m.NewMailState
+func (m *C2SShopItems) GetShopId() int32 {
+	if m != nil {
+		return m.ShopId
 	}
 	return 0
 }
 
-// 拉取图鉴
-type C2SGetHandbook struct {
-	XXX_unrecognized []byte `json:"-"`
+type S2CShopItem struct {
+	ItemId        int32 `protobuf:"varint,1,opt,name=item_id,json=itemId" json:"item_id,omitempty"`
+	LeftNum       int32 `protobuf:"varint,2,opt,name=left_num,json=leftNum" json:"left_num,omitempty"`
+	RemainSeconds int32 `protobuf:"varint,3,opt,name=remain_seconds,json=remainSeconds" json:"remain_seconds,omitempty"`
 }
 
-func (m *C2SGetHandbook) Reset()                    { *m = C2SGetHandbook{} }
-func (m *C2SGetHandbook) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetHandbook) ProtoMessage()               {}
-func (*C2SGetHandbook) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{146} }
+func (m *S2CShopItem) Reset()                    { *m = S2CShopItem{} }
+func (m *S2CShopItem) String() string            { return proto.CompactTextString(m) }
+func (*S2CShopItem) ProtoMessage()               {}
+func (*S2CShopItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{52} }
 
-type S2CGetHandbookResult struct {
-	Items            []int32 `protobuf:"varint,1,rep,name=Items" json:"Items,omitempty"`
-	AwardSuitId      []int32 `protobuf:"varint,2,rep,name=AwardSuitId" json:"AwardSuitId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+func (m *S2CShopItem) GetItemId() int32 {
+	if m != nil {
+		return m.ItemId
+	}
+	return 0
 }
 
-func (m *S2CGetHandbookResult) Reset()                    { *m = S2CGetHandbookResult{} }
-func (m *S2CGetHandbookResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CGetHandbookResult) ProtoMessage()               {}
-func (*S2CGetHandbookResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{147} }
+func (m *S2CShopItem) GetLeftNum() int32 {
+	if m != nil {
+		return m.LeftNum
+	}
+	return 0
+}
 
-func (m *S2CGetHandbookResult) GetItems() []int32 {
+func (m *S2CShopItem) GetRemainSeconds() int32 {
+	if m != nil {
+		return m.RemainSeconds
+	}
+	return 0
+}
+
+type S2CShopItemsResult struct {
+	ShopId int32          `protobuf:"varint,1,opt,name=shop_id,json=shopId" json:"shop_id,omitempty"`
+	Items  []*S2CShopItem `protobuf:"bytes,2,rep,name=items" json:"items,omitempty"`
+}
+
+func (m *S2CShopItemsResult) Reset()                    { *m = S2CShopItemsResult{} }
+func (m *S2CShopItemsResult) String() string            { return proto.CompactTextString(m) }
+func (*S2CShopItemsResult) ProtoMessage()               {}
+func (*S2CShopItemsResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{53} }
+
+func (m *S2CShopItemsResult) GetShopId() int32 {
+	if m != nil {
+		return m.ShopId
+	}
+	return 0
+}
+
+func (m *S2CShopItemsResult) GetItems() []*S2CShopItem {
 	if m != nil {
 		return m.Items
 	}
 	return nil
 }
 
-func (m *S2CGetHandbookResult) GetAwardSuitId() []int32 {
+// 购买商店物品
+type C2SBuyShopItem struct {
+	ItemId  int32 `protobuf:"varint,1,opt,name=item_id,json=itemId" json:"item_id,omitempty"`
+	ItemNum int32 `protobuf:"varint,2,opt,name=item_num,json=itemNum" json:"item_num,omitempty"`
+}
+
+func (m *C2SBuyShopItem) Reset()                    { *m = C2SBuyShopItem{} }
+func (m *C2SBuyShopItem) String() string            { return proto.CompactTextString(m) }
+func (*C2SBuyShopItem) ProtoMessage()               {}
+func (*C2SBuyShopItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{54} }
+
+func (m *C2SBuyShopItem) GetItemId() int32 {
 	if m != nil {
-		return m.AwardSuitId
+		return m.ItemId
+	}
+	return 0
+}
+
+func (m *C2SBuyShopItem) GetItemNum() int32 {
+	if m != nil {
+		return m.ItemNum
+	}
+	return 0
+}
+
+// 购买返回的物品
+type S2CBuyShopItemResult struct {
+	ShopId  int32     `protobuf:"varint,1,opt,name=shop_id,json=shopId" json:"shop_id,omitempty"`
+	ItemId  int32     `protobuf:"varint,2,opt,name=item_id,json=itemId" json:"item_id,omitempty"`
+	ItemNum int32     `protobuf:"varint,3,opt,name=item_num,json=itemNum" json:"item_num,omitempty"`
+	AddItem *ItemInfo `protobuf:"bytes,4,opt,name=add_item,json=addItem" json:"add_item,omitempty"`
+}
+
+func (m *S2CBuyShopItemResult) Reset()                    { *m = S2CBuyShopItemResult{} }
+func (m *S2CBuyShopItemResult) String() string            { return proto.CompactTextString(m) }
+func (*S2CBuyShopItemResult) ProtoMessage()               {}
+func (*S2CBuyShopItemResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{55} }
+
+func (m *S2CBuyShopItemResult) GetShopId() int32 {
+	if m != nil {
+		return m.ShopId
+	}
+	return 0
+}
+
+func (m *S2CBuyShopItemResult) GetItemId() int32 {
+	if m != nil {
+		return m.ItemId
+	}
+	return 0
+}
+
+func (m *S2CBuyShopItemResult) GetItemNum() int32 {
+	if m != nil {
+		return m.ItemNum
+	}
+	return 0
+}
+
+func (m *S2CBuyShopItemResult) GetAddItem() *ItemInfo {
+	if m != nil {
+		return m.AddItem
 	}
 	return nil
 }
 
-// 新图鉴物品
-type S2CNewHandbookItemNotify struct {
-	ItemId           *int32 `protobuf:"varint,1,opt,name=ItemId" json:"ItemId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+// 通知客户端商店需要刷新
+type S2CShopNeedRefreshNotify struct {
 }
 
-func (m *S2CNewHandbookItemNotify) Reset()                    { *m = S2CNewHandbookItemNotify{} }
-func (m *S2CNewHandbookItemNotify) String() string            { return proto.CompactTextString(m) }
-func (*S2CNewHandbookItemNotify) ProtoMessage()               {}
-func (*S2CNewHandbookItemNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{148} }
+func (m *S2CShopNeedRefreshNotify) Reset()                    { *m = S2CShopNeedRefreshNotify{} }
+func (m *S2CShopNeedRefreshNotify) String() string            { return proto.CompactTextString(m) }
+func (*S2CShopNeedRefreshNotify) ProtoMessage()               {}
+func (*S2CShopNeedRefreshNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{56} }
 
-func (m *S2CNewHandbookItemNotify) GetItemId() int32 {
-	if m != nil && m.ItemId != nil {
-		return *m.ItemId
+// 日常任务数据
+type DialyTaskData struct {
+	TaskId    int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
+	TaskValue int32 `protobuf:"varint,2,opt,name=TaskValue" json:"TaskValue,omitempty"`
+	TaskState int32 `protobuf:"varint,3,opt,name=TaskState" json:"TaskState,omitempty"`
+}
+
+func (m *DialyTaskData) Reset()                    { *m = DialyTaskData{} }
+func (m *DialyTaskData) String() string            { return proto.CompactTextString(m) }
+func (*DialyTaskData) ProtoMessage()               {}
+func (*DialyTaskData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{57} }
+
+func (m *DialyTaskData) GetTaskId() int32 {
+	if m != nil {
+		return m.TaskId
 	}
 	return 0
 }
 
-// 头像列表
-type C2SGetHead struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetHead) Reset()                    { *m = C2SGetHead{} }
-func (m *C2SGetHead) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetHead) ProtoMessage()               {}
-func (*C2SGetHead) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{149} }
-
-type S2CGetHeadResult struct {
-	Items            []int32 `protobuf:"varint,1,rep,name=Items" json:"Items,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *S2CGetHeadResult) Reset()                    { *m = S2CGetHeadResult{} }
-func (m *S2CGetHeadResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CGetHeadResult) ProtoMessage()               {}
-func (*S2CGetHeadResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{150} }
-
-func (m *S2CGetHeadResult) GetItems() []int32 {
+func (m *DialyTaskData) GetTaskValue() int32 {
 	if m != nil {
-		return m.Items
+		return m.TaskValue
+	}
+	return 0
+}
+
+func (m *DialyTaskData) GetTaskState() int32 {
+	if m != nil {
+		return m.TaskState
+	}
+	return 0
+}
+
+// 客户端向服务器请求日常任务数据
+type C2SGetDialyTaskInfo struct {
+}
+
+func (m *C2SGetDialyTaskInfo) Reset()                    { *m = C2SGetDialyTaskInfo{} }
+func (m *C2SGetDialyTaskInfo) String() string            { return proto.CompactTextString(m) }
+func (*C2SGetDialyTaskInfo) ProtoMessage()               {}
+func (*C2SGetDialyTaskInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{58} }
+
+// 服务器向客户端发送任务数据
+type S2CSyncDialyTask struct {
+	TaskList []*DialyTaskData `protobuf:"bytes,1,rep,name=TaskList" json:"TaskList,omitempty"`
+}
+
+func (m *S2CSyncDialyTask) Reset()                    { *m = S2CSyncDialyTask{} }
+func (m *S2CSyncDialyTask) String() string            { return proto.CompactTextString(m) }
+func (*S2CSyncDialyTask) ProtoMessage()               {}
+func (*S2CSyncDialyTask) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{59} }
+
+func (m *S2CSyncDialyTask) GetTaskList() []*DialyTaskData {
+	if m != nil {
+		return m.TaskList
 	}
 	return nil
 }
 
-// 新头像
-type S2CNewHeadNotify struct {
-	ItemId           *int32 `protobuf:"varint,1,opt,name=ItemId" json:"ItemId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+// 服务器向客户端通知任务值变化
+type S2CNotifyTaskValueChg struct {
+	TaskId    int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
+	TaskValue int32 `protobuf:"varint,2,opt,name=TaskValue" json:"TaskValue,omitempty"`
+	TaskState int32 `protobuf:"varint,3,opt,name=TaskState" json:"TaskState,omitempty"`
 }
 
-func (m *S2CNewHeadNotify) Reset()                    { *m = S2CNewHeadNotify{} }
-func (m *S2CNewHeadNotify) String() string            { return proto.CompactTextString(m) }
-func (*S2CNewHeadNotify) ProtoMessage()               {}
-func (*S2CNewHeadNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{151} }
+func (m *S2CNotifyTaskValueChg) Reset()                    { *m = S2CNotifyTaskValueChg{} }
+func (m *S2CNotifyTaskValueChg) String() string            { return proto.CompactTextString(m) }
+func (*S2CNotifyTaskValueChg) ProtoMessage()               {}
+func (*S2CNotifyTaskValueChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{60} }
 
-func (m *S2CNewHeadNotify) GetItemId() int32 {
-	if m != nil && m.ItemId != nil {
-		return *m.ItemId
-	}
-	return 0
-}
-
-// 套装图鉴领奖
-type C2SGetSuitHandbookReward struct {
-	SuitId           *int32 `protobuf:"varint,1,opt,name=SuitId" json:"SuitId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetSuitHandbookReward) Reset()                    { *m = C2SGetSuitHandbookReward{} }
-func (m *C2SGetSuitHandbookReward) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetSuitHandbookReward) ProtoMessage()               {}
-func (*C2SGetSuitHandbookReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{152} }
-
-func (m *C2SGetSuitHandbookReward) GetSuitId() int32 {
-	if m != nil && m.SuitId != nil {
-		return *m.SuitId
-	}
-	return 0
-}
-
-type S2CGetSuitHandbookRewardResult struct {
-	Rewards          []*ItemInfo `protobuf:"bytes,1,rep,name=Rewards" json:"Rewards,omitempty"`
-	XXX_unrecognized []byte      `json:"-"`
-}
-
-func (m *S2CGetSuitHandbookRewardResult) Reset()         { *m = S2CGetSuitHandbookRewardResult{} }
-func (m *S2CGetSuitHandbookRewardResult) String() string { return proto.CompactTextString(m) }
-func (*S2CGetSuitHandbookRewardResult) ProtoMessage()    {}
-func (*S2CGetSuitHandbookRewardResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor0, []int{153}
-}
-
-func (m *S2CGetSuitHandbookRewardResult) GetRewards() []*ItemInfo {
+func (m *S2CNotifyTaskValueChg) GetTaskId() int32 {
 	if m != nil {
-		return m.Rewards
+		return m.TaskId
+	}
+	return 0
+}
+
+func (m *S2CNotifyTaskValueChg) GetTaskValue() int32 {
+	if m != nil {
+		return m.TaskValue
+	}
+	return 0
+}
+
+func (m *S2CNotifyTaskValueChg) GetTaskState() int32 {
+	if m != nil {
+		return m.TaskState
+	}
+	return 0
+}
+
+// 成就数据
+type AchieveData struct {
+	AchieveId    int32 `protobuf:"varint,1,opt,name=AchieveId" json:"AchieveId,omitempty"`
+	AchieveValue int32 `protobuf:"varint,2,opt,name=AchieveValue" json:"AchieveValue,omitempty"`
+	AchieveState int32 `protobuf:"varint,3,opt,name=AchieveState" json:"AchieveState,omitempty"`
+}
+
+func (m *AchieveData) Reset()                    { *m = AchieveData{} }
+func (m *AchieveData) String() string            { return proto.CompactTextString(m) }
+func (*AchieveData) ProtoMessage()               {}
+func (*AchieveData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{61} }
+
+func (m *AchieveData) GetAchieveId() int32 {
+	if m != nil {
+		return m.AchieveId
+	}
+	return 0
+}
+
+func (m *AchieveData) GetAchieveValue() int32 {
+	if m != nil {
+		return m.AchieveValue
+	}
+	return 0
+}
+
+func (m *AchieveData) GetAchieveState() int32 {
+	if m != nil {
+		return m.AchieveState
+	}
+	return 0
+}
+
+// 客户端向服务器请求成就数据
+type C2SGetAchieve struct {
+}
+
+func (m *C2SGetAchieve) Reset()                    { *m = C2SGetAchieve{} }
+func (m *C2SGetAchieve) String() string            { return proto.CompactTextString(m) }
+func (*C2SGetAchieve) ProtoMessage()               {}
+func (*C2SGetAchieve) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{62} }
+
+// 服务器向客户端发送成就数据
+type S2CSyncAchieveData struct {
+	AchieveList []*AchieveData `protobuf:"bytes,1,rep,name=AchieveList" json:"AchieveList,omitempty"`
+}
+
+func (m *S2CSyncAchieveData) Reset()                    { *m = S2CSyncAchieveData{} }
+func (m *S2CSyncAchieveData) String() string            { return proto.CompactTextString(m) }
+func (*S2CSyncAchieveData) ProtoMessage()               {}
+func (*S2CSyncAchieveData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{63} }
+
+func (m *S2CSyncAchieveData) GetAchieveList() []*AchieveData {
+	if m != nil {
+		return m.AchieveList
 	}
 	return nil
 }
 
-type ActivityInfo struct {
-	CfgId            *int32  `protobuf:"varint,1,opt,name=CfgId" json:"CfgId,omitempty"`
-	States           []int32 `protobuf:"varint,2,rep,name=States" json:"States,omitempty"`
-	Vals             []int32 `protobuf:"varint,3,rep,name=Vals" json:"Vals,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+// 服务器向客户端通知成就值变化
+type S2CNotifyAchieveValueChg struct {
+	AchieveId    int32 `protobuf:"varint,1,opt,name=AchieveId" json:"AchieveId,omitempty"`
+	AchieveValue int32 `protobuf:"varint,2,opt,name=AchieveValue" json:"AchieveValue,omitempty"`
+	AchieveState int32 `protobuf:"varint,3,opt,name=AchieveState" json:"AchieveState,omitempty"`
 }
 
-func (m *ActivityInfo) Reset()                    { *m = ActivityInfo{} }
-func (m *ActivityInfo) String() string            { return proto.CompactTextString(m) }
-func (*ActivityInfo) ProtoMessage()               {}
-func (*ActivityInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{154} }
+func (m *S2CNotifyAchieveValueChg) Reset()                    { *m = S2CNotifyAchieveValueChg{} }
+func (m *S2CNotifyAchieveValueChg) String() string            { return proto.CompactTextString(m) }
+func (*S2CNotifyAchieveValueChg) ProtoMessage()               {}
+func (*S2CNotifyAchieveValueChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{64} }
 
-func (m *ActivityInfo) GetCfgId() int32 {
-	if m != nil && m.CfgId != nil {
-		return *m.CfgId
-	}
-	return 0
-}
-
-func (m *ActivityInfo) GetStates() []int32 {
+func (m *S2CNotifyAchieveValueChg) GetAchieveId() int32 {
 	if m != nil {
-		return m.States
+		return m.AchieveId
 	}
-	return nil
+	return 0
 }
 
-func (m *ActivityInfo) GetVals() []int32 {
+func (m *S2CNotifyAchieveValueChg) GetAchieveValue() int32 {
 	if m != nil {
-		return m.Vals
+		return m.AchieveValue
 	}
-	return nil
+	return 0
 }
 
-type C2SGetAllActivityInfos struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SGetAllActivityInfos) Reset()                    { *m = C2SGetAllActivityInfos{} }
-func (m *C2SGetAllActivityInfos) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetAllActivityInfos) ProtoMessage()               {}
-func (*C2SGetAllActivityInfos) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{155} }
-
-type ActivityInfosUpdate struct {
-	Activityinfos    []*ActivityInfo `protobuf:"bytes,1,rep,name=Activityinfos" json:"Activityinfos,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
-}
-
-func (m *ActivityInfosUpdate) Reset()                    { *m = ActivityInfosUpdate{} }
-func (m *ActivityInfosUpdate) String() string            { return proto.CompactTextString(m) }
-func (*ActivityInfosUpdate) ProtoMessage()               {}
-func (*ActivityInfosUpdate) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{156} }
-
-func (m *ActivityInfosUpdate) GetActivityinfos() []*ActivityInfo {
+func (m *S2CNotifyAchieveValueChg) GetAchieveState() int32 {
 	if m != nil {
-		return m.Activityinfos
-	}
-	return nil
-}
-
-type C2SGetActivityReward struct {
-	ActivityCfgId    *int32  `protobuf:"varint,1,opt,name=ActivityCfgId" json:"ActivityCfgId,omitempty"`
-	ExtraParams      []int32 `protobuf:"varint,2,rep,name=ExtraParams" json:"ExtraParams,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *C2SGetActivityReward) Reset()                    { *m = C2SGetActivityReward{} }
-func (m *C2SGetActivityReward) String() string            { return proto.CompactTextString(m) }
-func (*C2SGetActivityReward) ProtoMessage()               {}
-func (*C2SGetActivityReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{157} }
-
-func (m *C2SGetActivityReward) GetActivityCfgId() int32 {
-	if m != nil && m.ActivityCfgId != nil {
-		return *m.ActivityCfgId
+		return m.AchieveState
 	}
 	return 0
 }
 
-func (m *C2SGetActivityReward) GetExtraParams() []int32 {
+// 客户端向服务器请求日常任务奖励
+type C2SGetTaskReward struct {
+	TaskId int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
+}
+
+func (m *C2SGetTaskReward) Reset()                    { *m = C2SGetTaskReward{} }
+func (m *C2SGetTaskReward) String() string            { return proto.CompactTextString(m) }
+func (*C2SGetTaskReward) ProtoMessage()               {}
+func (*C2SGetTaskReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{65} }
+
+func (m *C2SGetTaskReward) GetTaskId() int32 {
 	if m != nil {
-		return m.ExtraParams
-	}
-	return nil
-}
-
-type S2CRetActivityReward struct {
-	ActivityCfgId    *int32   `protobuf:"varint,1,opt,name=ActivityCfgId" json:"ActivityCfgId,omitempty"`
-	Rewards          []*IdNum `protobuf:"bytes,2,rep,name=Rewards" json:"Rewards,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
-}
-
-func (m *S2CRetActivityReward) Reset()                    { *m = S2CRetActivityReward{} }
-func (m *S2CRetActivityReward) String() string            { return proto.CompactTextString(m) }
-func (*S2CRetActivityReward) ProtoMessage()               {}
-func (*S2CRetActivityReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{158} }
-
-func (m *S2CRetActivityReward) GetActivityCfgId() int32 {
-	if m != nil && m.ActivityCfgId != nil {
-		return *m.ActivityCfgId
+		return m.TaskId
 	}
 	return 0
 }
 
-func (m *S2CRetActivityReward) GetRewards() []*IdNum {
+// 服务器向客户端发送任务结果
+type S2CRetTaskReward struct {
+	TaskId  int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
+	Coin    int32 `protobuf:"varint,2,opt,name=Coin" json:"Coin,omitempty"`
+	Diamond int32 `protobuf:"varint,3,opt,name=Diamond" json:"Diamond,omitempty"`
+	Exp     int32 `protobuf:"varint,4,opt,name=Exp" json:"Exp,omitempty"`
+	CurLvl  int32 `protobuf:"varint,5,opt,name=CurLvl" json:"CurLvl,omitempty"`
+}
+
+func (m *S2CRetTaskReward) Reset()                    { *m = S2CRetTaskReward{} }
+func (m *S2CRetTaskReward) String() string            { return proto.CompactTextString(m) }
+func (*S2CRetTaskReward) ProtoMessage()               {}
+func (*S2CRetTaskReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{66} }
+
+func (m *S2CRetTaskReward) GetTaskId() int32 {
 	if m != nil {
-		return m.Rewards
-	}
-	return nil
-}
-
-// ----------------------------------------------------------------------------
-type C2SZanPlayer struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SZanPlayer) Reset()                    { *m = C2SZanPlayer{} }
-func (m *C2SZanPlayer) String() string            { return proto.CompactTextString(m) }
-func (*C2SZanPlayer) ProtoMessage()               {}
-func (*C2SZanPlayer) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{159} }
-
-func (m *C2SZanPlayer) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+		return m.TaskId
 	}
 	return 0
 }
 
-type S2CZanPlayerResult struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TotalZan         *int32 `protobuf:"varint,2,opt,name=TotalZan" json:"TotalZan,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *S2CZanPlayerResult) Reset()                    { *m = S2CZanPlayerResult{} }
-func (m *S2CZanPlayerResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CZanPlayerResult) ProtoMessage()               {}
-func (*S2CZanPlayerResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{160} }
-
-func (m *S2CZanPlayerResult) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *S2CZanPlayerResult) GetTotalZan() int32 {
-	if m != nil && m.TotalZan != nil {
-		return *m.TotalZan
-	}
-	return 0
-}
-
-// ----------------------------------------------------------------------------
-// 排行项信息
-type RankingListItemInfo struct {
-	Rank                  *int32  `protobuf:"varint,1,opt,name=Rank" json:"Rank,omitempty"`
-	PlayerId              *int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName            *string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	PlayerLevel           *int32  `protobuf:"varint,4,opt,name=PlayerLevel" json:"PlayerLevel,omitempty"`
-	PlayerHead            *string `protobuf:"bytes,5,opt,name=PlayerHead" json:"PlayerHead,omitempty"`
-	PlayerStageTotalScore *int32  `protobuf:"varint,6,opt,name=PlayerStageTotalScore" json:"PlayerStageTotalScore,omitempty"`
-	PlayerStageId         *int32  `protobuf:"varint,7,opt,name=PlayerStageId" json:"PlayerStageId,omitempty"`
-	PlayerStageScore      *int32  `protobuf:"varint,8,opt,name=PlayerStageScore" json:"PlayerStageScore,omitempty"`
-	PlayerCharm           *int32  `protobuf:"varint,9,opt,name=PlayerCharm" json:"PlayerCharm,omitempty"`
-	PlayerZaned           *int32  `protobuf:"varint,10,opt,name=PlayerZaned" json:"PlayerZaned,omitempty"`
-	CatId                 *int32  `protobuf:"varint,11,opt,name=CatId" json:"CatId,omitempty"`
-	CatTableId            *int32  `protobuf:"varint,12,opt,name=CatTableId" json:"CatTableId,omitempty"`
-	CatNick               *string `protobuf:"bytes,13,opt,name=CatNick" json:"CatNick,omitempty"`
-	CatOuqi               *int32  `protobuf:"varint,14,opt,name=CatOuqi" json:"CatOuqi,omitempty"`
-	CatLevel              *int32  `protobuf:"varint,15,opt,name=CatLevel" json:"CatLevel,omitempty"`
-	CatStar               *int32  `protobuf:"varint,16,opt,name=CatStar" json:"CatStar,omitempty"`
-	IsZaned               *bool   `protobuf:"varint,17,opt,name=IsZaned" json:"IsZaned,omitempty"`
-	IsFriend              *bool   `protobuf:"varint,18,opt,name=IsFriend" json:"IsFriend,omitempty"`
-	XXX_unrecognized      []byte  `json:"-"`
-}
-
-func (m *RankingListItemInfo) Reset()                    { *m = RankingListItemInfo{} }
-func (m *RankingListItemInfo) String() string            { return proto.CompactTextString(m) }
-func (*RankingListItemInfo) ProtoMessage()               {}
-func (*RankingListItemInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{161} }
-
-func (m *RankingListItemInfo) GetRank() int32 {
-	if m != nil && m.Rank != nil {
-		return *m.Rank
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *RankingListItemInfo) GetPlayerLevel() int32 {
-	if m != nil && m.PlayerLevel != nil {
-		return *m.PlayerLevel
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetPlayerHead() string {
-	if m != nil && m.PlayerHead != nil {
-		return *m.PlayerHead
-	}
-	return ""
-}
-
-func (m *RankingListItemInfo) GetPlayerStageTotalScore() int32 {
-	if m != nil && m.PlayerStageTotalScore != nil {
-		return *m.PlayerStageTotalScore
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetPlayerStageId() int32 {
-	if m != nil && m.PlayerStageId != nil {
-		return *m.PlayerStageId
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetPlayerStageScore() int32 {
-	if m != nil && m.PlayerStageScore != nil {
-		return *m.PlayerStageScore
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetPlayerCharm() int32 {
-	if m != nil && m.PlayerCharm != nil {
-		return *m.PlayerCharm
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetPlayerZaned() int32 {
-	if m != nil && m.PlayerZaned != nil {
-		return *m.PlayerZaned
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetCatId() int32 {
-	if m != nil && m.CatId != nil {
-		return *m.CatId
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetCatTableId() int32 {
-	if m != nil && m.CatTableId != nil {
-		return *m.CatTableId
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetCatNick() string {
-	if m != nil && m.CatNick != nil {
-		return *m.CatNick
-	}
-	return ""
-}
-
-func (m *RankingListItemInfo) GetCatOuqi() int32 {
-	if m != nil && m.CatOuqi != nil {
-		return *m.CatOuqi
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetCatLevel() int32 {
-	if m != nil && m.CatLevel != nil {
-		return *m.CatLevel
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetCatStar() int32 {
-	if m != nil && m.CatStar != nil {
-		return *m.CatStar
-	}
-	return 0
-}
-
-func (m *RankingListItemInfo) GetIsZaned() bool {
-	if m != nil && m.IsZaned != nil {
-		return *m.IsZaned
-	}
-	return false
-}
-
-func (m *RankingListItemInfo) GetIsFriend() bool {
-	if m != nil && m.IsFriend != nil {
-		return *m.IsFriend
-	}
-	return false
-}
-
-// 请求排行榜
-type C2SPullRankingList struct {
-	RankType         *int32 `protobuf:"varint,1,opt,name=RankType" json:"RankType,omitempty"`
-	StartRank        *int32 `protobuf:"varint,2,opt,name=StartRank" json:"StartRank,omitempty"`
-	RankNum          *int32 `protobuf:"varint,3,opt,name=RankNum" json:"RankNum,omitempty"`
-	Param            *int32 `protobuf:"varint,4,opt,name=Param" json:"Param,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *C2SPullRankingList) Reset()                    { *m = C2SPullRankingList{} }
-func (m *C2SPullRankingList) String() string            { return proto.CompactTextString(m) }
-func (*C2SPullRankingList) ProtoMessage()               {}
-func (*C2SPullRankingList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{162} }
-
-func (m *C2SPullRankingList) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-func (m *C2SPullRankingList) GetStartRank() int32 {
-	if m != nil && m.StartRank != nil {
-		return *m.StartRank
-	}
-	return 0
-}
-
-func (m *C2SPullRankingList) GetRankNum() int32 {
-	if m != nil && m.RankNum != nil {
-		return *m.RankNum
-	}
-	return 0
-}
-
-func (m *C2SPullRankingList) GetParam() int32 {
-	if m != nil && m.Param != nil {
-		return *m.Param
-	}
-	return 0
-}
-
-// 返回排行榜
-type S2CPullRankingListResult struct {
-	RankType         *int32                 `protobuf:"varint,1,opt,name=RankType" json:"RankType,omitempty"`
-	StartRank        *int32                 `protobuf:"varint,2,opt,name=StartRank" json:"StartRank,omitempty"`
-	ItemList         []*RankingListItemInfo `protobuf:"bytes,3,rep,name=ItemList" json:"ItemList,omitempty"`
-	SelfRank         *int32                 `protobuf:"varint,4,opt,name=SelfRank" json:"SelfRank,omitempty"`
-	SelfValue1       *int32                 `protobuf:"varint,5,opt,name=SelfValue1" json:"SelfValue1,omitempty"`
-	SelfValue2       *int32                 `protobuf:"varint,6,opt,name=SelfValue2" json:"SelfValue2,omitempty"`
-	XXX_unrecognized []byte                 `json:"-"`
-}
-
-func (m *S2CPullRankingListResult) Reset()                    { *m = S2CPullRankingListResult{} }
-func (m *S2CPullRankingListResult) String() string            { return proto.CompactTextString(m) }
-func (*S2CPullRankingListResult) ProtoMessage()               {}
-func (*S2CPullRankingListResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{163} }
-
-func (m *S2CPullRankingListResult) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-func (m *S2CPullRankingListResult) GetStartRank() int32 {
-	if m != nil && m.StartRank != nil {
-		return *m.StartRank
-	}
-	return 0
-}
-
-func (m *S2CPullRankingListResult) GetItemList() []*RankingListItemInfo {
+func (m *S2CRetTaskReward) GetCoin() int32 {
 	if m != nil {
-		return m.ItemList
-	}
-	return nil
-}
-
-func (m *S2CPullRankingListResult) GetSelfRank() int32 {
-	if m != nil && m.SelfRank != nil {
-		return *m.SelfRank
+		return m.Coin
 	}
 	return 0
 }
 
-func (m *S2CPullRankingListResult) GetSelfValue1() int32 {
-	if m != nil && m.SelfValue1 != nil {
-		return *m.SelfValue1
+func (m *S2CRetTaskReward) GetDiamond() int32 {
+	if m != nil {
+		return m.Diamond
 	}
 	return 0
 }
 
-func (m *S2CPullRankingListResult) GetSelfValue2() int32 {
-	if m != nil && m.SelfValue2 != nil {
-		return *m.SelfValue2
+func (m *S2CRetTaskReward) GetExp() int32 {
+	if m != nil {
+		return m.Exp
+	}
+	return 0
+}
+
+func (m *S2CRetTaskReward) GetCurLvl() int32 {
+	if m != nil {
+		return m.CurLvl
+	}
+	return 0
+}
+
+// 客户端向服务器请求成就奖励
+type C2SGetAchieveReward struct {
+	AchieveReward int32 `protobuf:"varint,1,opt,name=AchieveReward" json:"AchieveReward,omitempty"`
+}
+
+func (m *C2SGetAchieveReward) Reset()                    { *m = C2SGetAchieveReward{} }
+func (m *C2SGetAchieveReward) String() string            { return proto.CompactTextString(m) }
+func (*C2SGetAchieveReward) ProtoMessage()               {}
+func (*C2SGetAchieveReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{67} }
+
+func (m *C2SGetAchieveReward) GetAchieveReward() int32 {
+	if m != nil {
+		return m.AchieveReward
+	}
+	return 0
+}
+
+// 服务器向客户端完成成就
+type S2CRetAchieveReward struct {
+	TaskId  int32 `protobuf:"varint,1,opt,name=TaskId" json:"TaskId,omitempty"`
+	Coin    int32 `protobuf:"varint,2,opt,name=Coin" json:"Coin,omitempty"`
+	Diamond int32 `protobuf:"varint,3,opt,name=Diamond" json:"Diamond,omitempty"`
+	Exp     int32 `protobuf:"varint,4,opt,name=Exp" json:"Exp,omitempty"`
+	CurLvl  int32 `protobuf:"varint,5,opt,name=CurLvl" json:"CurLvl,omitempty"`
+}
+
+func (m *S2CRetAchieveReward) Reset()                    { *m = S2CRetAchieveReward{} }
+func (m *S2CRetAchieveReward) String() string            { return proto.CompactTextString(m) }
+func (*S2CRetAchieveReward) ProtoMessage()               {}
+func (*S2CRetAchieveReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{68} }
+
+func (m *S2CRetAchieveReward) GetTaskId() int32 {
+	if m != nil {
+		return m.TaskId
+	}
+	return 0
+}
+
+func (m *S2CRetAchieveReward) GetCoin() int32 {
+	if m != nil {
+		return m.Coin
+	}
+	return 0
+}
+
+func (m *S2CRetAchieveReward) GetDiamond() int32 {
+	if m != nil {
+		return m.Diamond
+	}
+	return 0
+}
+
+func (m *S2CRetAchieveReward) GetExp() int32 {
+	if m != nil {
+		return m.Exp
+	}
+	return 0
+}
+
+func (m *S2CRetAchieveReward) GetCurLvl() int32 {
+	if m != nil {
+		return m.CurLvl
 	}
 	return 0
 }
@@ -5264,14 +2207,13 @@ func (m *S2CPullRankingListResult) GetSelfValue2() int32 {
 // ----------------------------------------------------------------------------
 // 发送世界聊天消息
 type C2SWorldChatSend struct {
-	Content          []byte `protobuf:"bytes,1,opt,name=Content" json:"Content,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	Content []byte `protobuf:"bytes,1,opt,name=Content,proto3" json:"Content,omitempty"`
 }
 
 func (m *C2SWorldChatSend) Reset()                    { *m = C2SWorldChatSend{} }
 func (m *C2SWorldChatSend) String() string            { return proto.CompactTextString(m) }
 func (*C2SWorldChatSend) ProtoMessage()               {}
-func (*C2SWorldChatSend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{164} }
+func (*C2SWorldChatSend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{69} }
 
 func (m *C2SWorldChatSend) GetContent() []byte {
 	if m != nil {
@@ -5281,14 +2223,13 @@ func (m *C2SWorldChatSend) GetContent() []byte {
 }
 
 type S2CWorldChatSendResult struct {
-	Content          []byte `protobuf:"bytes,1,opt,name=Content" json:"Content,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	Content []byte `protobuf:"bytes,1,opt,name=Content,proto3" json:"Content,omitempty"`
 }
 
 func (m *S2CWorldChatSendResult) Reset()                    { *m = S2CWorldChatSendResult{} }
 func (m *S2CWorldChatSendResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CWorldChatSendResult) ProtoMessage()               {}
-func (*S2CWorldChatSendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{165} }
+func (*S2CWorldChatSendResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{70} }
 
 func (m *S2CWorldChatSendResult) GetContent() []byte {
 	if m != nil {
@@ -5299,30 +2240,28 @@ func (m *S2CWorldChatSendResult) GetContent() []byte {
 
 // 拉取世界聊天消息
 type C2SWorldChatMsgPull struct {
-	XXX_unrecognized []byte `json:"-"`
 }
 
 func (m *C2SWorldChatMsgPull) Reset()                    { *m = C2SWorldChatMsgPull{} }
 func (m *C2SWorldChatMsgPull) String() string            { return proto.CompactTextString(m) }
 func (*C2SWorldChatMsgPull) ProtoMessage()               {}
-func (*C2SWorldChatMsgPull) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{166} }
+func (*C2SWorldChatMsgPull) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{71} }
 
 type WorldChatItem struct {
-	Content          []byte  `protobuf:"bytes,1,opt,name=Content" json:"Content,omitempty"`
-	PlayerId         *int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	PlayerHead       *string `protobuf:"bytes,4,opt,name=PlayerHead" json:"PlayerHead,omitempty"`
-	PlayerLevel      *int32  `protobuf:"varint,5,opt,name=PlayerLevel" json:"PlayerLevel,omitempty"`
-	IsZaned          *int32  `protobuf:"varint,6,opt,name=IsZaned" json:"IsZaned,omitempty"`
-	IsFriend         *int32  `protobuf:"varint,7,opt,name=IsFriend" json:"IsFriend,omitempty"`
-	SendTime         *int32  `protobuf:"varint,8,opt,name=SendTime" json:"SendTime,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Content     []byte `protobuf:"bytes,1,opt,name=Content,proto3" json:"Content,omitempty"`
+	PlayerId    int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	PlayerName  string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
+	PlayerHead  string `protobuf:"bytes,4,opt,name=PlayerHead" json:"PlayerHead,omitempty"`
+	PlayerLevel int32  `protobuf:"varint,5,opt,name=PlayerLevel" json:"PlayerLevel,omitempty"`
+	IsZaned     int32  `protobuf:"varint,6,opt,name=IsZaned" json:"IsZaned,omitempty"`
+	IsFriend    int32  `protobuf:"varint,7,opt,name=IsFriend" json:"IsFriend,omitempty"`
+	SendTime    int32  `protobuf:"varint,8,opt,name=SendTime" json:"SendTime,omitempty"`
 }
 
 func (m *WorldChatItem) Reset()                    { *m = WorldChatItem{} }
 func (m *WorldChatItem) String() string            { return proto.CompactTextString(m) }
 func (*WorldChatItem) ProtoMessage()               {}
-func (*WorldChatItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{167} }
+func (*WorldChatItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{72} }
 
 func (m *WorldChatItem) GetContent() []byte {
 	if m != nil {
@@ -5332,63 +2271,62 @@ func (m *WorldChatItem) GetContent() []byte {
 }
 
 func (m *WorldChatItem) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 func (m *WorldChatItem) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
+	if m != nil {
+		return m.PlayerName
 	}
 	return ""
 }
 
 func (m *WorldChatItem) GetPlayerHead() string {
-	if m != nil && m.PlayerHead != nil {
-		return *m.PlayerHead
+	if m != nil {
+		return m.PlayerHead
 	}
 	return ""
 }
 
 func (m *WorldChatItem) GetPlayerLevel() int32 {
-	if m != nil && m.PlayerLevel != nil {
-		return *m.PlayerLevel
+	if m != nil {
+		return m.PlayerLevel
 	}
 	return 0
 }
 
 func (m *WorldChatItem) GetIsZaned() int32 {
-	if m != nil && m.IsZaned != nil {
-		return *m.IsZaned
+	if m != nil {
+		return m.IsZaned
 	}
 	return 0
 }
 
 func (m *WorldChatItem) GetIsFriend() int32 {
-	if m != nil && m.IsFriend != nil {
-		return *m.IsFriend
+	if m != nil {
+		return m.IsFriend
 	}
 	return 0
 }
 
 func (m *WorldChatItem) GetSendTime() int32 {
-	if m != nil && m.SendTime != nil {
-		return *m.SendTime
+	if m != nil {
+		return m.SendTime
 	}
 	return 0
 }
 
 type S2CWorldChatMsgPullResult struct {
-	Items            []*WorldChatItem `protobuf:"bytes,1,rep,name=Items" json:"Items,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
+	Items []*WorldChatItem `protobuf:"bytes,1,rep,name=Items" json:"Items,omitempty"`
 }
 
 func (m *S2CWorldChatMsgPullResult) Reset()                    { *m = S2CWorldChatMsgPullResult{} }
 func (m *S2CWorldChatMsgPullResult) String() string            { return proto.CompactTextString(m) }
 func (*S2CWorldChatMsgPullResult) ProtoMessage()               {}
-func (*S2CWorldChatMsgPullResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{168} }
+func (*S2CWorldChatMsgPullResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{73} }
 
 func (m *S2CWorldChatMsgPullResult) GetItems() []*WorldChatItem {
 	if m != nil {
@@ -5399,266 +2337,89 @@ func (m *S2CWorldChatMsgPullResult) GetItems() []*WorldChatItem {
 
 // 返回世界聊天封禁时间
 type S2CWorldChatForbid struct {
-	EndTime          *string `protobuf:"bytes,1,opt,name=EndTime" json:"EndTime,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	EndTime string `protobuf:"bytes,1,opt,name=EndTime" json:"EndTime,omitempty"`
 }
 
 func (m *S2CWorldChatForbid) Reset()                    { *m = S2CWorldChatForbid{} }
 func (m *S2CWorldChatForbid) String() string            { return proto.CompactTextString(m) }
 func (*S2CWorldChatForbid) ProtoMessage()               {}
-func (*S2CWorldChatForbid) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{169} }
+func (*S2CWorldChatForbid) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{74} }
 
 func (m *S2CWorldChatForbid) GetEndTime() string {
-	if m != nil && m.EndTime != nil {
-		return *m.EndTime
-	}
-	return ""
-}
-
-// ----------------------------------------------------------------------------
-// 系统公告项
-type AnouncementItem struct {
-	MsgType             *int32  `protobuf:"varint,1,opt,name=MsgType" json:"MsgType,omitempty"`
-	PlayerId            *int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName          *string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	PlayerLevel         *int32  `protobuf:"varint,4,opt,name=PlayerLevel" json:"PlayerLevel,omitempty"`
-	SendTime            *int32  `protobuf:"varint,5,opt,name=SendTime" json:"SendTime,omitempty"`
-	FosterCardTableId   *int32  `protobuf:"varint,6,opt,name=FosterCardTableId" json:"FosterCardTableId,omitempty"`
-	FormulaTableId      *int32  `protobuf:"varint,7,opt,name=FormulaTableId" json:"FormulaTableId,omitempty"`
-	BuildingTableId     *int32  `protobuf:"varint,8,opt,name=BuildingTableId" json:"BuildingTableId,omitempty"`
-	SSRCatTableId       *int32  `protobuf:"varint,9,opt,name=SSRCatTableId" json:"SSRCatTableId,omitempty"`
-	RankType            *int32  `protobuf:"varint,10,opt,name=RankType" json:"RankType,omitempty"`
-	StageId             *int32  `protobuf:"varint,11,opt,name=StageId" json:"StageId,omitempty"`
-	CatFullLevelTableId *int32  `protobuf:"varint,12,opt,name=CatFullLevelTableId" json:"CatFullLevelTableId,omitempty"`
-	Content             *string `protobuf:"bytes,13,opt,name=Content" json:"Content,omitempty"`
-	XXX_unrecognized    []byte  `json:"-"`
-}
-
-func (m *AnouncementItem) Reset()                    { *m = AnouncementItem{} }
-func (m *AnouncementItem) String() string            { return proto.CompactTextString(m) }
-func (*AnouncementItem) ProtoMessage()               {}
-func (*AnouncementItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{170} }
-
-func (m *AnouncementItem) GetMsgType() int32 {
-	if m != nil && m.MsgType != nil {
-		return *m.MsgType
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *AnouncementItem) GetPlayerLevel() int32 {
-	if m != nil && m.PlayerLevel != nil {
-		return *m.PlayerLevel
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetSendTime() int32 {
-	if m != nil && m.SendTime != nil {
-		return *m.SendTime
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetFosterCardTableId() int32 {
-	if m != nil && m.FosterCardTableId != nil {
-		return *m.FosterCardTableId
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetFormulaTableId() int32 {
-	if m != nil && m.FormulaTableId != nil {
-		return *m.FormulaTableId
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetBuildingTableId() int32 {
-	if m != nil && m.BuildingTableId != nil {
-		return *m.BuildingTableId
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetSSRCatTableId() int32 {
-	if m != nil && m.SSRCatTableId != nil {
-		return *m.SSRCatTableId
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetCatFullLevelTableId() int32 {
-	if m != nil && m.CatFullLevelTableId != nil {
-		return *m.CatFullLevelTableId
-	}
-	return 0
-}
-
-func (m *AnouncementItem) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-// 系统公告通知
-type S2CAnouncementNotify struct {
-	Items            []*AnouncementItem `protobuf:"bytes,1,rep,name=Items" json:"Items,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
-}
-
-func (m *S2CAnouncementNotify) Reset()                    { *m = S2CAnouncementNotify{} }
-func (m *S2CAnouncementNotify) String() string            { return proto.CompactTextString(m) }
-func (*S2CAnouncementNotify) ProtoMessage()               {}
-func (*S2CAnouncementNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{171} }
-
-func (m *S2CAnouncementNotify) GetItems() []*AnouncementItem {
 	if m != nil {
-		return m.Items
+		return m.EndTime
+	}
+	return ""
+}
+
+// 服务器向客户端同步引导数据
+type S2CSyncGuideData struct {
+	GuideIds []int32 `protobuf:"varint,1,rep,packed,name=GuideIds" json:"GuideIds,omitempty"`
+}
+
+func (m *S2CSyncGuideData) Reset()                    { *m = S2CSyncGuideData{} }
+func (m *S2CSyncGuideData) String() string            { return proto.CompactTextString(m) }
+func (*S2CSyncGuideData) ProtoMessage()               {}
+func (*S2CSyncGuideData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{75} }
+
+func (m *S2CSyncGuideData) GetGuideIds() []int32 {
+	if m != nil {
+		return m.GuideIds
 	}
 	return nil
 }
 
+// 客户端向服务器存储引导数据
+type C2SSaveGuideData struct {
+	GuideId int32 `protobuf:"varint,1,opt,name=GuideId" json:"GuideId,omitempty"`
+}
+
+func (m *C2SSaveGuideData) Reset()                    { *m = C2SSaveGuideData{} }
+func (m *C2SSaveGuideData) String() string            { return proto.CompactTextString(m) }
+func (*C2SSaveGuideData) ProtoMessage()               {}
+func (*C2SSaveGuideData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{76} }
+
+func (m *C2SSaveGuideData) GetGuideId() int32 {
+	if m != nil {
+		return m.GuideId
+	}
+	return 0
+}
+
+// 服务器向客户端返回引导存储
+type S2CRetSaveGuideData struct {
+	GuideId int32 `protobuf:"varint,1,opt,name=GuideId" json:"GuideId,omitempty"`
+}
+
+func (m *S2CRetSaveGuideData) Reset()                    { *m = S2CRetSaveGuideData{} }
+func (m *S2CRetSaveGuideData) String() string            { return proto.CompactTextString(m) }
+func (*S2CRetSaveGuideData) ProtoMessage()               {}
+func (*S2CRetSaveGuideData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{77} }
+
+func (m *S2CRetSaveGuideData) GetGuideId() int32 {
+	if m != nil {
+		return m.GuideId
+	}
+	return 0
+}
+
 func init() {
-	proto.RegisterType((*C2S_MSG_DATA)(nil), "msg.client_message.C2S_MSG_DATA")
-	proto.RegisterType((*S2C_MSG_DATA)(nil), "msg.client_message.S2C_MSG_DATA")
 	proto.RegisterType((*C2S_TEST_COMMAND)(nil), "msg.client_message.C2S_TEST_COMMAND")
-	proto.RegisterType((*IdNum)(nil), "msg.client_message.IdNum")
 	proto.RegisterType((*ItemInfo)(nil), "msg.client_message.ItemInfo")
-	proto.RegisterType((*ResourceInfo)(nil), "msg.client_message.ResourceInfo")
-	proto.RegisterType((*StageInfo)(nil), "msg.client_message.StageInfo")
-	proto.RegisterType((*HeartBeat)(nil), "msg.client_message.HeartBeat")
-	proto.RegisterType((*S2CItemsInfoUpdate)(nil), "msg.client_message.S2CItemsInfoUpdate")
-	proto.RegisterType((*C2SLoginRequest)(nil), "msg.client_message.C2SLoginRequest")
-	proto.RegisterType((*S2CLoginResponse)(nil), "msg.client_message.S2CLoginResponse")
-	proto.RegisterType((*S2COtherPlaceLogin)(nil), "msg.client_message.S2COtherPlaceLogin")
-	proto.RegisterType((*C2SGetInfo)(nil), "msg.client_message.C2SGetInfo")
-	proto.RegisterType((*C2SGetBaseInfo)(nil), "msg.client_message.C2SGetBaseInfo")
-	proto.RegisterType((*S2CRetBaseInfo)(nil), "msg.client_message.S2CRetBaseInfo")
-	proto.RegisterType((*C2SGetItemInfos)(nil), "msg.client_message.C2SGetItemInfos")
-	proto.RegisterType((*S2CRetItemInfos)(nil), "msg.client_message.S2CRetItemInfos")
-	proto.RegisterType((*C2SGetStageInfos)(nil), "msg.client_message.C2SGetStageInfos")
-	proto.RegisterType((*S2CRetStageInfos)(nil), "msg.client_message.S2CRetStageInfos")
-	proto.RegisterType((*C2SGetCoin)(nil), "msg.client_message.C2SGetCoin")
-	proto.RegisterType((*S2CRetCoin)(nil), "msg.client_message.S2CRetCoin")
-	proto.RegisterType((*C2SGetDiamond)(nil), "msg.client_message.C2SGetDiamond")
-	proto.RegisterType((*S2CRetDiamond)(nil), "msg.client_message.S2CRetDiamond")
-	proto.RegisterType((*C2SGetCharmVal)(nil), "msg.client_message.C2SGetCharmVal")
-	proto.RegisterType((*S2CRetCharmVal)(nil), "msg.client_message.S2CRetCharmVal")
-	proto.RegisterType((*C2SGetZan)(nil), "msg.client_message.C2SGetZan")
-	proto.RegisterType((*S2CRetZan)(nil), "msg.client_message.S2CRetZan")
-	proto.RegisterType((*C2SGetSpirit)(nil), "msg.client_message.C2SGetSpirit")
-	proto.RegisterType((*S2CRetSpirit)(nil), "msg.client_message.S2CRetSpirit")
-	proto.RegisterType((*C2SStagePass)(nil), "msg.client_message.C2SStagePass")
+	proto.RegisterType((*FriendInfo)(nil), "msg.client_message.FriendInfo")
 	proto.RegisterType((*PlayerStageInfo)(nil), "msg.client_message.PlayerStageInfo")
 	proto.RegisterType((*S2CStagePass)(nil), "msg.client_message.S2CStagePass")
-	proto.RegisterType((*C2SChapterUnlock)(nil), "msg.client_message.C2SChapterUnlock")
-	proto.RegisterType((*S2CChapterUnlock)(nil), "msg.client_message.S2CChapterUnlock")
-	proto.RegisterType((*C2SGetCurHelpReqPIds)(nil), "msg.client_message.C2SGetCurHelpReqPIds")
-	proto.RegisterType((*S2CRetCurHelpReqPIds)(nil), "msg.client_message.S2CRetCurHelpReqPIds")
-	proto.RegisterType((*S2CRetDayHelpUnlockCount)(nil), "msg.client_message.S2CRetDayHelpUnlockCount")
-	proto.RegisterType((*S2COpenChest)(nil), "msg.client_message.S2COpenChest")
-	proto.RegisterType((*C2SBuyChest)(nil), "msg.client_message.C2SBuyChest")
-	proto.RegisterType((*S2CBuyChest)(nil), "msg.client_message.S2CBuyChest")
-	proto.RegisterType((*C2SUseItem)(nil), "msg.client_message.C2SUseItem")
-	proto.RegisterType((*S2CUseItem)(nil), "msg.client_message.S2CUseItem")
-	proto.RegisterType((*C2SPayOrder)(nil), "msg.client_message.C2SPayOrder")
-	proto.RegisterType((*S2CPayOrder)(nil), "msg.client_message.S2CPayOrder")
-	proto.RegisterType((*C2SRankInfo)(nil), "msg.client_message.C2SRankInfo")
-	proto.RegisterType((*SmallRankRecord)(nil), "msg.client_message.SmallRankRecord")
-	proto.RegisterType((*S2CRankItems)(nil), "msg.client_message.S2CRankItems")
-	proto.RegisterType((*C2SGetMailList)(nil), "msg.client_message.C2SGetMailList")
-	proto.RegisterType((*MailInfo)(nil), "msg.client_message.MailInfo")
-	proto.RegisterType((*S2CMailList)(nil), "msg.client_message.S2CMailList")
-	proto.RegisterType((*C2SGetMailAttach)(nil), "msg.client_message.C2SGetMailAttach")
-	proto.RegisterType((*C2SMailRemove)(nil), "msg.client_message.C2SMailRemove")
-	proto.RegisterType((*C2SSetMailRead)(nil), "msg.client_message.C2SSetMailRead")
-	proto.RegisterType((*C2SAgreeMailHelpReq)(nil), "msg.client_message.C2SAgreeMailHelpReq")
-	proto.RegisterType((*S2CNoticeAdd)(nil), "msg.client_message.S2CNoticeAdd")
-	proto.RegisterType((*S2CNoticeList)(nil), "msg.client_message.S2CNoticeList")
-	proto.RegisterType((*C2SSaveOptions)(nil), "msg.client_message.C2SSaveOptions")
-	proto.RegisterType((*C2SGetOptions)(nil), "msg.client_message.C2SGetOptions")
-	proto.RegisterType((*S2CRetOptions)(nil), "msg.client_message.S2CRetOptions")
-	proto.RegisterType((*DialyTaskData)(nil), "msg.client_message.DialyTaskData")
-	proto.RegisterType((*C2SGetDialyTaskInfo)(nil), "msg.client_message.C2SGetDialyTaskInfo")
-	proto.RegisterType((*S2CSyncDialyTask)(nil), "msg.client_message.S2CSyncDialyTask")
-	proto.RegisterType((*S2CNotifyTaskValueChg)(nil), "msg.client_message.S2CNotifyTaskValueChg")
-	proto.RegisterType((*AchieveData)(nil), "msg.client_message.AchieveData")
-	proto.RegisterType((*C2SGetAchieve)(nil), "msg.client_message.C2SGetAchieve")
-	proto.RegisterType((*S2CSyncAchieveData)(nil), "msg.client_message.S2CSyncAchieveData")
-	proto.RegisterType((*S2CNotifyAchieveValueChg)(nil), "msg.client_message.S2CNotifyAchieveValueChg")
-	proto.RegisterType((*C2SGetTaskReward)(nil), "msg.client_message.C2SGetTaskReward")
-	proto.RegisterType((*S2CRetTaskReward)(nil), "msg.client_message.S2CRetTaskReward")
-	proto.RegisterType((*C2SGetAchieveReward)(nil), "msg.client_message.C2SGetAchieveReward")
-	proto.RegisterType((*S2CRetAchieveReward)(nil), "msg.client_message.S2CRetAchieveReward")
-	proto.RegisterType((*C2SChgName)(nil), "msg.client_message.C2SChgName")
-	proto.RegisterType((*S2CChgName)(nil), "msg.client_message.S2CChgName")
-	proto.RegisterType((*C2SChangeHead)(nil), "msg.client_message.C2SChangeHead")
-	proto.RegisterType((*S2CChangeHead)(nil), "msg.client_message.S2CChangeHead")
-	proto.RegisterType((*C2SGetPlayerInfo)(nil), "msg.client_message.C2SGetPlayerInfo")
-	proto.RegisterType((*OtherPlayerBaseInfo)(nil), "msg.client_message.OtherPlayerBaseInfo")
-	proto.RegisterType((*S2CRetPlayerInfo)(nil), "msg.client_message.S2CRetPlayerInfo")
-	proto.RegisterType((*S2CSyncSignInfo)(nil), "msg.client_message.S2CSyncSignInfo")
-	proto.RegisterType((*C2SDaySign)(nil), "msg.client_message.C2SDaySign")
-	proto.RegisterType((*S2CDaySign)(nil), "msg.client_message.S2CDaySign")
-	proto.RegisterType((*C2SGetDaySignSumReward)(nil), "msg.client_message.C2SGetDaySignSumReward")
-	proto.RegisterType((*S2CRetDaySignSumReward)(nil), "msg.client_message.S2CRetDaySignSumReward")
-	proto.RegisterType((*S2CSyncFirstPayState)(nil), "msg.client_message.S2CSyncFirstPayState")
-	proto.RegisterType((*C2SGetFirstPayReward)(nil), "msg.client_message.C2SGetFirstPayReward")
-	proto.RegisterType((*S2CRetFirstPayReward)(nil), "msg.client_message.S2CRetFirstPayReward")
-	proto.RegisterType((*ActivityData)(nil), "msg.client_message.ActivityData")
-	proto.RegisterType((*S2CSyncSevenActivity)(nil), "msg.client_message.S2CSyncSevenActivity")
-	proto.RegisterType((*S2CNotifySevenActValueChg)(nil), "msg.client_message.S2CNotifySevenActValueChg")
-	proto.RegisterType((*C2SGetSevenActReward)(nil), "msg.client_message.C2SGetSevenActReward")
-	proto.RegisterType((*S2CRetSevenActReward)(nil), "msg.client_message.S2CRetSevenActReward")
-	proto.RegisterType((*S2CSyncGuideData)(nil), "msg.client_message.S2CSyncGuideData")
-	proto.RegisterType((*C2SSaveGuideData)(nil), "msg.client_message.C2SSaveGuideData")
-	proto.RegisterType((*S2CRetSaveGuideData)(nil), "msg.client_message.S2CRetSaveGuideData")
-	proto.RegisterType((*C2SDraw)(nil), "msg.client_message.C2SDraw")
-	proto.RegisterType((*S2CDrawResult)(nil), "msg.client_message.S2CDrawResult")
-	proto.RegisterType((*C2SItemResource)(nil), "msg.client_message.C2SItemResource")
-	proto.RegisterType((*S2CItemResourceValue)(nil), "msg.client_message.S2CItemResourceValue")
-	proto.RegisterType((*S2CItemResourceResult)(nil), "msg.client_message.S2CItemResourceResult")
-	proto.RegisterType((*C2SShopItems)(nil), "msg.client_message.C2SShopItems")
-	proto.RegisterType((*S2CShopItem)(nil), "msg.client_message.S2CShopItem")
-	proto.RegisterType((*S2CShopItemsResult)(nil), "msg.client_message.S2CShopItemsResult")
-	proto.RegisterType((*C2SBuyShopItem)(nil), "msg.client_message.C2SBuyShopItem")
-	proto.RegisterType((*S2CBuyShopItemResult)(nil), "msg.client_message.S2CBuyShopItemResult")
-	proto.RegisterType((*S2CShopNeedRefreshNotify)(nil), "msg.client_message.S2CShopNeedRefreshNotify")
-	proto.RegisterType((*C2SSellItem)(nil), "msg.client_message.C2SSellItem")
-	proto.RegisterType((*S2CSellItemResult)(nil), "msg.client_message.S2CSellItemResult")
-	proto.RegisterType((*C2SStageBegin)(nil), "msg.client_message.C2SStageBegin")
-	proto.RegisterType((*S2CStageBeginResult)(nil), "msg.client_message.S2CStageBeginResult")
-	proto.RegisterType((*FriendInfo)(nil), "msg.client_message.FriendInfo")
+	proto.RegisterType((*C2SLoginRequest)(nil), "msg.client_message.C2SLoginRequest")
+	proto.RegisterType((*ServerInfo)(nil), "msg.client_message.ServerInfo")
+	proto.RegisterType((*S2CLoginResponse)(nil), "msg.client_message.S2CLoginResponse")
+	proto.RegisterType((*S2COtherPlaceLogin)(nil), "msg.client_message.S2COtherPlaceLogin")
+	proto.RegisterType((*C2SSelectServerRequest)(nil), "msg.client_message.C2SSelectServerRequest")
+	proto.RegisterType((*S2CSelectServerResponse)(nil), "msg.client_message.S2CSelectServerResponse")
+	proto.RegisterType((*C2S_MSG_DATA)(nil), "msg.client_message.C2S_MSG_DATA")
+	proto.RegisterType((*S2C_MSG_DATA)(nil), "msg.client_message.S2C_MSG_DATA")
+	proto.RegisterType((*C2SEnterGameRequest)(nil), "msg.client_message.C2SEnterGameRequest")
+	proto.RegisterType((*S2CEnterGameResponse)(nil), "msg.client_message.S2CEnterGameResponse")
+	proto.RegisterType((*S2CEnterGameCompleteNotify)(nil), "msg.client_message.S2CEnterGameCompleteNotify")
 	proto.RegisterType((*C2SFriendSearch)(nil), "msg.client_message.C2SFriendSearch")
 	proto.RegisterType((*C2SFriendSearchById)(nil), "msg.client_message.C2SFriendSearchById")
 	proto.RegisterType((*S2CFriendSearchResult)(nil), "msg.client_message.S2CFriendSearchResult")
@@ -5694,439 +2455,228 @@ func init() {
 	proto.RegisterType((*S2CFriendConfirmUnreadMessageResult)(nil), "msg.client_message.S2CFriendConfirmUnreadMessageResult")
 	proto.RegisterType((*C2SGetOnlineFriends)(nil), "msg.client_message.C2SGetOnlineFriends")
 	proto.RegisterType((*S2CRetOnlineFriends)(nil), "msg.client_message.S2CRetOnlineFriends")
-	proto.RegisterType((*NotifyState)(nil), "msg.client_message.NotifyState")
-	proto.RegisterType((*C2SGetHandbook)(nil), "msg.client_message.C2SGetHandbook")
-	proto.RegisterType((*S2CGetHandbookResult)(nil), "msg.client_message.S2CGetHandbookResult")
-	proto.RegisterType((*S2CNewHandbookItemNotify)(nil), "msg.client_message.S2CNewHandbookItemNotify")
-	proto.RegisterType((*C2SGetHead)(nil), "msg.client_message.C2SGetHead")
-	proto.RegisterType((*S2CGetHeadResult)(nil), "msg.client_message.S2CGetHeadResult")
-	proto.RegisterType((*S2CNewHeadNotify)(nil), "msg.client_message.S2CNewHeadNotify")
-	proto.RegisterType((*C2SGetSuitHandbookReward)(nil), "msg.client_message.C2SGetSuitHandbookReward")
-	proto.RegisterType((*S2CGetSuitHandbookRewardResult)(nil), "msg.client_message.S2CGetSuitHandbookRewardResult")
-	proto.RegisterType((*ActivityInfo)(nil), "msg.client_message.ActivityInfo")
-	proto.RegisterType((*C2SGetAllActivityInfos)(nil), "msg.client_message.C2SGetAllActivityInfos")
-	proto.RegisterType((*ActivityInfosUpdate)(nil), "msg.client_message.ActivityInfosUpdate")
-	proto.RegisterType((*C2SGetActivityReward)(nil), "msg.client_message.C2SGetActivityReward")
-	proto.RegisterType((*S2CRetActivityReward)(nil), "msg.client_message.S2CRetActivityReward")
-	proto.RegisterType((*C2SZanPlayer)(nil), "msg.client_message.C2SZanPlayer")
-	proto.RegisterType((*S2CZanPlayerResult)(nil), "msg.client_message.S2CZanPlayerResult")
-	proto.RegisterType((*RankingListItemInfo)(nil), "msg.client_message.RankingListItemInfo")
-	proto.RegisterType((*C2SPullRankingList)(nil), "msg.client_message.C2SPullRankingList")
-	proto.RegisterType((*S2CPullRankingListResult)(nil), "msg.client_message.S2CPullRankingListResult")
+	proto.RegisterType((*C2SShopItems)(nil), "msg.client_message.C2SShopItems")
+	proto.RegisterType((*S2CShopItem)(nil), "msg.client_message.S2CShopItem")
+	proto.RegisterType((*S2CShopItemsResult)(nil), "msg.client_message.S2CShopItemsResult")
+	proto.RegisterType((*C2SBuyShopItem)(nil), "msg.client_message.C2SBuyShopItem")
+	proto.RegisterType((*S2CBuyShopItemResult)(nil), "msg.client_message.S2CBuyShopItemResult")
+	proto.RegisterType((*S2CShopNeedRefreshNotify)(nil), "msg.client_message.S2CShopNeedRefreshNotify")
+	proto.RegisterType((*DialyTaskData)(nil), "msg.client_message.DialyTaskData")
+	proto.RegisterType((*C2SGetDialyTaskInfo)(nil), "msg.client_message.C2SGetDialyTaskInfo")
+	proto.RegisterType((*S2CSyncDialyTask)(nil), "msg.client_message.S2CSyncDialyTask")
+	proto.RegisterType((*S2CNotifyTaskValueChg)(nil), "msg.client_message.S2CNotifyTaskValueChg")
+	proto.RegisterType((*AchieveData)(nil), "msg.client_message.AchieveData")
+	proto.RegisterType((*C2SGetAchieve)(nil), "msg.client_message.C2SGetAchieve")
+	proto.RegisterType((*S2CSyncAchieveData)(nil), "msg.client_message.S2CSyncAchieveData")
+	proto.RegisterType((*S2CNotifyAchieveValueChg)(nil), "msg.client_message.S2CNotifyAchieveValueChg")
+	proto.RegisterType((*C2SGetTaskReward)(nil), "msg.client_message.C2SGetTaskReward")
+	proto.RegisterType((*S2CRetTaskReward)(nil), "msg.client_message.S2CRetTaskReward")
+	proto.RegisterType((*C2SGetAchieveReward)(nil), "msg.client_message.C2SGetAchieveReward")
+	proto.RegisterType((*S2CRetAchieveReward)(nil), "msg.client_message.S2CRetAchieveReward")
 	proto.RegisterType((*C2SWorldChatSend)(nil), "msg.client_message.C2SWorldChatSend")
 	proto.RegisterType((*S2CWorldChatSendResult)(nil), "msg.client_message.S2CWorldChatSendResult")
 	proto.RegisterType((*C2SWorldChatMsgPull)(nil), "msg.client_message.C2SWorldChatMsgPull")
 	proto.RegisterType((*WorldChatItem)(nil), "msg.client_message.WorldChatItem")
 	proto.RegisterType((*S2CWorldChatMsgPullResult)(nil), "msg.client_message.S2CWorldChatMsgPullResult")
 	proto.RegisterType((*S2CWorldChatForbid)(nil), "msg.client_message.S2CWorldChatForbid")
-	proto.RegisterType((*AnouncementItem)(nil), "msg.client_message.AnouncementItem")
-	proto.RegisterType((*S2CAnouncementNotify)(nil), "msg.client_message.S2CAnouncementNotify")
-	proto.RegisterEnum("msg.client_message.E_VERSION", E_VERSION_name, E_VERSION_value)
+	proto.RegisterType((*S2CSyncGuideData)(nil), "msg.client_message.S2CSyncGuideData")
+	proto.RegisterType((*C2SSaveGuideData)(nil), "msg.client_message.C2SSaveGuideData")
+	proto.RegisterType((*S2CRetSaveGuideData)(nil), "msg.client_message.S2CRetSaveGuideData")
 	proto.RegisterEnum("msg.client_message.E_ERR", E_ERR_name, E_ERR_value)
 }
 
 func init() { proto.RegisterFile("client_message.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 6393 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x3c, 0x5b, 0x74, 0x1c, 0x59,
-	0x71, 0x67, 0xf4, 0xb0, 0xa4, 0x2b, 0x3f, 0x7a, 0xc7, 0x0f, 0x66, 0x8d, 0xd7, 0x68, 0xef, 0x2e,
-	0x6b, 0xad, 0xb3, 0x78, 0x77, 0xe5, 0xe5, 0x91, 0x90, 0x2c, 0xb4, 0x7a, 0x5a, 0xd2, 0x9c, 0x9d,
-	0x87, 0xb6, 0xbb, 0x47, 0xb6, 0x9c, 0x85, 0x39, 0xbd, 0x33, 0x57, 0xd2, 0xe0, 0x51, 0x8f, 0xdc,
-	0xdd, 0x63, 0xaf, 0xf2, 0x91, 0x43, 0xc8, 0x49, 0x20, 0x6f, 0xf2, 0x91, 0x27, 0x90, 0xf0, 0x97,
-	0xaf, 0xfc, 0x91, 0x40, 0x48, 0x3e, 0xf8, 0xca, 0x49, 0x3e, 0xf8, 0x21, 0xef, 0x13, 0x82, 0x4d,
-	0xe4, 0xf5, 0x26, 0x90, 0x10, 0x20, 0x09, 0xb0, 0x09, 0x8f, 0x9c, 0xaa, 0xfb, 0xe8, 0xdb, 0xd3,
-	0x3d, 0x92, 0xec, 0x00, 0xfe, 0x51, 0x57, 0xdd, 0xaa, 0xfb, 0xa8, 0xaa, 0x5b, 0xb7, 0xaa, 0xee,
-	0x1d, 0x93, 0x53, 0xed, 0x5e, 0x97, 0x05, 0x71, 0x6b, 0x9b, 0x45, 0x91, 0xbf, 0xc9, 0x2e, 0xed,
-	0x84, 0xfd, 0xb8, 0x5f, 0x2c, 0x6e, 0x47, 0x9b, 0x97, 0xd2, 0x2d, 0x34, 0x20, 0x47, 0xad, 0x05,
-	0xb7, 0x55, 0x73, 0x97, 0x5b, 0x65, 0xd3, 0x33, 0x8b, 0x67, 0xc9, 0xf4, 0x6a, 0xcf, 0xdf, 0x65,
-	0x61, 0xa5, 0x53, 0x2a, 0xcc, 0x15, 0xe6, 0x27, 0x1d, 0x05, 0x17, 0x4f, 0x91, 0x49, 0xaf, 0x7f,
-	0x9d, 0x05, 0xa5, 0xb1, 0xb9, 0xc2, 0xfc, 0x8c, 0xc3, 0x81, 0x62, 0x89, 0x4c, 0xd5, 0xa2, 0x4d,
-	0xab, 0xdf, 0x61, 0xa5, 0x71, 0x64, 0x90, 0x60, 0xb1, 0x48, 0x26, 0xca, 0x7e, 0xec, 0x97, 0x26,
-	0xe6, 0x0a, 0xf3, 0x47, 0x1d, 0xfc, 0xa6, 0x2f, 0x91, 0xa3, 0xee, 0x82, 0x95, 0x8c, 0x77, 0x8e,
-	0xcc, 0xd8, 0x61, 0xd8, 0x0f, 0x91, 0x9f, 0x0f, 0x98, 0x20, 0x60, 0x36, 0x08, 0xd4, 0xa2, 0x4d,
-	0x31, 0xa8, 0x82, 0x55, 0xef, 0xe3, 0x5a, 0xef, 0xef, 0x20, 0x06, 0xac, 0xc6, 0xb3, 0x5d, 0xaf,
-	0x65, 0x35, 0x6a, 0x35, 0xb3, 0x5e, 0x2e, 0x1a, 0x64, 0xbc, 0xbd, 0xcd, 0x17, 0x33, 0xe3, 0xc0,
-	0x27, 0x70, 0xfa, 0xe1, 0x66, 0x54, 0x1a, 0x9b, 0x1b, 0x9f, 0x9f, 0x71, 0xf0, 0x9b, 0x3e, 0x49,
-	0x26, 0x2b, 0x9d, 0xfa, 0x60, 0xbb, 0x78, 0x9c, 0x8c, 0xa9, 0xa5, 0x8f, 0x55, 0x3a, 0xc0, 0x5e,
-	0x1f, 0x6c, 0xe3, 0xe8, 0x93, 0x0e, 0x7c, 0xd2, 0x2d, 0x32, 0x5d, 0x89, 0xd9, 0x76, 0x25, 0xd8,
-	0xe8, 0xc3, 0xf4, 0xe1, 0xdb, 0xda, 0xd8, 0x54, 0x4c, 0x09, 0x02, 0x44, 0x03, 0x40, 0xc2, 0x2f,
-	0xc1, 0xe2, 0xe3, 0xe4, 0x98, 0xc3, 0xb6, 0xfd, 0x6e, 0xe0, 0xb2, 0x76, 0x3f, 0xe8, 0x44, 0x42,
-	0x74, 0x69, 0x24, 0xbd, 0x4a, 0x8e, 0x3a, 0x2c, 0xea, 0x0f, 0xc2, 0x36, 0xc3, 0xd1, 0x68, 0x02,
-	0x7b, 0xbb, 0x3b, 0x52, 0x5e, 0x29, 0x1c, 0xef, 0x99, 0xc3, 0x6b, 0x7e, 0x6f, 0xc0, 0xc4, 0xc8,
-	0x69, 0x24, 0x6d, 0x92, 0x19, 0x37, 0xf6, 0x37, 0x79, 0xb7, 0x25, 0x32, 0xc5, 0x01, 0xb9, 0x04,
-	0x09, 0x82, 0xa4, 0xdc, 0xd8, 0x0f, 0x45, 0x1f, 0xf8, 0x0d, 0x3a, 0xf1, 0xfa, 0x3b, 0x6e, 0xbb,
-	0x1f, 0x4a, 0x85, 0x2b, 0x98, 0xce, 0x92, 0x99, 0x15, 0xe6, 0x87, 0xf1, 0x22, 0xf3, 0x63, 0xba,
-	0x42, 0x8a, 0xee, 0x82, 0x05, 0x2b, 0x8e, 0x60, 0x98, 0xe6, 0x4e, 0xc7, 0x8f, 0x59, 0x71, 0x81,
-	0x4c, 0x22, 0xaa, 0x54, 0x98, 0x1b, 0x9f, 0x9f, 0x5d, 0x38, 0x77, 0x29, 0x6b, 0x94, 0x97, 0xa4,
-	0x78, 0x1d, 0x4e, 0x4a, 0x5d, 0x72, 0xc2, 0x5a, 0x70, 0xab, 0xfd, 0xcd, 0x6e, 0xe0, 0xb0, 0x1b,
-	0x03, 0x16, 0xc5, 0xa0, 0x16, 0xb3, 0xdd, 0x96, 0x5a, 0x35, 0xdb, 0xed, 0xd1, 0xd6, 0x69, 0x6d,
-	0xf9, 0x41, 0xc0, 0x7a, 0x38, 0xd9, 0x19, 0x47, 0x82, 0x34, 0x26, 0x86, 0xbb, 0x60, 0x89, 0x4e,
-	0xa3, 0x9d, 0x7e, 0x10, 0xb1, 0x9c, 0x5e, 0xf5, 0xfd, 0x30, 0x36, 0xb4, 0x1f, 0x8a, 0x64, 0xa2,
-	0xee, 0x6f, 0x33, 0xd1, 0x31, 0x7e, 0x17, 0xcf, 0x13, 0xe2, 0xb2, 0xf0, 0x26, 0x0b, 0x9b, 0x41,
-	0xf7, 0x15, 0xb4, 0xfc, 0x49, 0x47, 0xc3, 0xd0, 0x53, 0x28, 0x94, 0x46, 0xbc, 0xc5, 0xc2, 0xd5,
-	0x9e, 0xdf, 0x66, 0x38, 0x3e, 0xfd, 0x29, 0x42, 0xac, 0x05, 0x77, 0x99, 0xc5, 0xa8, 0x8f, 0x22,
-	0x99, 0x58, 0xf4, 0x23, 0xae, 0xde, 0x69, 0x07, 0xbf, 0x01, 0x07, 0xb2, 0xc0, 0x39, 0x4c, 0x3b,
-	0xf8, 0x0d, 0x2b, 0x46, 0x45, 0x95, 0x8e, 0x20, 0x92, 0x03, 0xb0, 0xe2, 0xa5, 0x7e, 0xb8, 0x3d,
-	0xe8, 0xf9, 0xa5, 0x69, 0xc4, 0x4b, 0x10, 0xe8, 0x97, 0x07, 0xdd, 0x0e, 0x2b, 0xcd, 0x70, 0x7a,
-	0x04, 0xa8, 0x41, 0x8e, 0xf3, 0xb1, 0x61, 0x1c, 0x18, 0x9f, 0x7e, 0x7e, 0x82, 0x1c, 0x77, 0x17,
-	0x2c, 0x27, 0x41, 0x01, 0xab, 0xd5, 0xef, 0x06, 0x91, 0x30, 0x10, 0x0e, 0x80, 0x70, 0xca, 0x5d,
-	0x7f, 0x1b, 0x0d, 0x58, 0x08, 0x47, 0xc2, 0x20, 0xca, 0xea, 0xcd, 0x9e, 0xb0, 0x10, 0xf8, 0x04,
-	0x8c, 0xfd, 0xca, 0x8e, 0x90, 0x09, 0x7c, 0x16, 0xe7, 0xc8, 0xac, 0x35, 0x08, 0x6b, 0xfe, 0x2b,
-	0x7c, 0x19, 0x93, 0xd8, 0xa2, 0xa3, 0x8a, 0x4f, 0x91, 0x87, 0xac, 0x41, 0xd8, 0x0c, 0x7a, 0xfd,
-	0xf6, 0x75, 0x45, 0x77, 0x04, 0xe9, 0xb2, 0x0d, 0x30, 0x1f, 0x6b, 0xcb, 0x0f, 0xb7, 0xd7, 0xfc,
-	0x5e, 0x69, 0x8a, 0xcf, 0x47, 0xc2, 0xa8, 0xac, 0x6e, 0xfb, 0x3a, 0xca, 0x04, 0x94, 0xd5, 0x6d,
-	0x5f, 0x07, 0xdc, 0x0a, 0xf3, 0x3b, 0x28, 0x8f, 0x19, 0x07, 0xbf, 0x95, 0xc9, 0x13, 0xcd, 0xe4,
-	0x0d, 0x32, 0x7e, 0xcd, 0x0f, 0x4a, 0xb3, 0x7c, 0xe6, 0xd7, 0xfc, 0xa0, 0x78, 0x86, 0x1c, 0x71,
-	0x77, 0xba, 0x61, 0x37, 0x2e, 0x1d, 0x43, 0xa4, 0x80, 0x60, 0x87, 0x2e, 0x85, 0x5d, 0x16, 0x74,
-	0x56, 0xfb, 0xdd, 0x20, 0x8e, 0x4a, 0xc7, 0xf9, 0x0e, 0xd5, 0x71, 0xe0, 0x33, 0xdc, 0xfe, 0xa0,
-	0xe7, 0xc6, 0xfd, 0x80, 0x95, 0x4e, 0x70, 0x9f, 0xa1, 0x10, 0xb0, 0xe2, 0x95, 0x6e, 0x14, 0xf7,
-	0xc3, 0x6e, 0xdb, 0xef, 0xf1, 0x95, 0x85, 0xa5, 0x87, 0xf8, 0x8a, 0x33, 0x0d, 0xb0, 0xdb, 0xc1,
-	0x9e, 0x37, 0x19, 0x18, 0x1f, 0xf8, 0x99, 0x22, 0xdf, 0xed, 0x29, 0x24, 0x4a, 0x51, 0x21, 0x96,
-	0x42, 0x86, 0x94, 0x27, 0x85, 0x14, 0x87, 0x1b, 0x8a, 0xcf, 0x91, 0xd3, 0x09, 0xd2, 0xea, 0x47,
-	0xb1, 0xd0, 0x69, 0xe9, 0x14, 0x72, 0xe4, 0x37, 0x16, 0xe7, 0xc9, 0x89, 0xb2, 0xbf, 0xbb, 0x38,
-	0xd8, 0xf5, 0xba, 0xd5, 0xae, 0xd5, 0x1f, 0x04, 0x71, 0xe9, 0x34, 0xd2, 0x0f, 0xa3, 0xe9, 0x43,
-	0xb8, 0x9b, 0xc1, 0xd8, 0xc5, 0x36, 0x8f, 0xa8, 0x4d, 0x4e, 0x70, 0x83, 0x53, 0xa8, 0x07, 0xf2,
-	0x13, 0x45, 0x74, 0xff, 0xcb, 0x2c, 0x56, 0xbe, 0x2d, 0xa2, 0x5f, 0x2e, 0xe0, 0x3e, 0x77, 0x74,
-	0x64, 0xf1, 0xad, 0xe4, 0x08, 0x42, 0xb2, 0xf7, 0x47, 0xf2, 0x7a, 0x57, 0xf4, 0x8e, 0x20, 0x1e,
-	0xb6, 0xd7, 0xb1, 0x43, 0xda, 0xeb, 0xf8, 0x28, 0x7b, 0x7d, 0x9c, 0x1c, 0xe3, 0x98, 0x2a, 0xdb,
-	0x88, 0x5d, 0xd6, 0x16, 0x7b, 0x23, 0x8d, 0x2c, 0x5e, 0x24, 0x86, 0x62, 0x95, 0x7e, 0x9a, 0x6f,
-	0x95, 0x0c, 0x9e, 0x1e, 0x95, 0x8e, 0x04, 0x36, 0x28, 0x9d, 0x23, 0x84, 0x2f, 0x1d, 0x20, 0xb0,
-	0x6c, 0xf8, 0x2b, 0xb6, 0x30, 0x7e, 0xd3, 0x13, 0xe4, 0x18, 0xa7, 0x17, 0x6a, 0xa4, 0x4f, 0x92,
-	0x63, 0x9c, 0x45, 0xea, 0xb5, 0x44, 0xa6, 0xa4, 0xfe, 0xc5, 0xe1, 0x20, 0x49, 0x95, 0xe3, 0x90,
-	0x7b, 0x8c, 0x3e, 0x25, 0xfd, 0x86, 0xda, 0x75, 0xfa, 0x8e, 0x2c, 0xa4, 0x77, 0x24, 0x1c, 0x16,
-	0x9c, 0xff, 0x9a, 0x1f, 0xd0, 0x47, 0xc8, 0x0c, 0x67, 0x85, 0xdd, 0x25, 0xf6, 0x5b, 0x41, 0xed,
-	0x37, 0x7a, 0x1c, 0xc3, 0x14, 0xd0, 0x2c, 0xee, 0x33, 0xfa, 0x04, 0x86, 0x11, 0x8e, 0x84, 0xb5,
-	0xfd, 0x58, 0xd0, 0xf7, 0x23, 0xfd, 0x78, 0x01, 0x19, 0x51, 0x3c, 0xab, 0x7e, 0x14, 0xed, 0x73,
-	0xd6, 0x71, 0x6f, 0x1a, 0x4a, 0x4f, 0xc6, 0x01, 0xc4, 0x6a, 0x47, 0x1d, 0x07, 0x12, 0xe3, 0x9c,
-	0x38, 0xb4, 0x71, 0xc2, 0x14, 0x1d, 0x16, 0x0d, 0x7a, 0xb1, 0x50, 0x9e, 0x80, 0xe8, 0xc7, 0x0a,
-	0xe4, 0x04, 0x3f, 0x52, 0x92, 0x13, 0xf9, 0x80, 0x28, 0x8c, 0xcf, 0x68, 0x4c, 0x9f, 0x51, 0xde,
-	0x59, 0x24, 0x5c, 0xf0, 0x44, 0xe2, 0x82, 0xe1, 0x14, 0x69, 0xf7, 0x03, 0x9c, 0xc1, 0x8c, 0x83,
-	0xdf, 0x70, 0x62, 0x59, 0x83, 0x28, 0xee, 0x6f, 0x63, 0xcb, 0x11, 0x6c, 0xd1, 0x30, 0xf4, 0x73,
-	0x13, 0x28, 0xeb, 0xef, 0xb7, 0x08, 0xf5, 0x30, 0x62, 0x22, 0x1d, 0x46, 0x14, 0xdf, 0x41, 0xa6,
-	0x9b, 0x11, 0xe3, 0x12, 0x9e, 0x3c, 0x84, 0x84, 0x15, 0x35, 0xcc, 0x4d, 0x18, 0xbf, 0x38, 0x25,
-	0x24, 0x08, 0x7d, 0x2e, 0xb3, 0xb8, 0x8b, 0x7d, 0x4e, 0x1d, 0xa6, 0x4f, 0x49, 0x5d, 0x34, 0xc9,
-	0x8c, 0xe3, 0x07, 0xd7, 0xf9, 0x74, 0xa6, 0x91, 0xf5, 0xb1, 0x3c, 0xd6, 0x21, 0x25, 0x3a, 0x09,
-	0x57, 0xd1, 0x26, 0xb3, 0xfc, 0x08, 0xe0, 0x9d, 0xcc, 0x1c, 0xbe, 0x13, 0x9d, 0x4f, 0x33, 0xa1,
-	0xa3, 0xba, 0x09, 0x15, 0x17, 0xc9, 0x31, 0x39, 0xdb, 0xa5, 0x6e, 0x18, 0xc1, 0xa1, 0x74, 0xf0,
-	0x02, 0xd3, 0x2c, 0x7a, 0x1f, 0x97, 0xf1, 0xcc, 0x39, 0x7e, 0x3f, 0x7d, 0x20, 0x0b, 0x9c, 0x01,
-	0x96, 0x1f, 0xdb, 0xaf, 0xc4, 0xa1, 0x6f, 0x76, 0x3a, 0xa8, 0x05, 0x7e, 0xbe, 0x0d, 0xa3, 0x69,
-	0x80, 0x9e, 0xda, 0xda, 0xf2, 0x77, 0x62, 0x26, 0x5c, 0x18, 0x18, 0x62, 0x33, 0xa8, 0xf6, 0xdb,
-	0xd7, 0xb5, 0xd8, 0x56, 0xc3, 0xc0, 0xb9, 0x29, 0x18, 0x54, 0x2c, 0x96, 0x20, 0xa0, 0x55, 0x88,
-	0x0a, 0xa3, 0xe9, 0x71, 0x68, 0x55, 0x08, 0xfa, 0x12, 0x1e, 0x02, 0xe9, 0xf1, 0x52, 0xfd, 0x15,
-	0x86, 0xfb, 0xbb, 0x48, 0x8c, 0x9a, 0xff, 0x4a, 0xda, 0xeb, 0xf2, 0x41, 0x33, 0x78, 0x7a, 0x86,
-	0x9c, 0x12, 0x9e, 0x70, 0x10, 0xae, 0xb0, 0xde, 0x8e, 0xc3, 0x6e, 0xac, 0xc2, 0xa8, 0x17, 0xc9,
-	0x29, 0xe1, 0x0f, 0x53, 0x78, 0xd8, 0x86, 0xf0, 0x17, 0x0f, 0x9f, 0x49, 0x07, 0xbf, 0xe9, 0xf3,
-	0xa4, 0x24, 0x1c, 0xaf, 0xbf, 0x0b, 0xb4, 0x7c, 0x04, 0x3c, 0x31, 0x21, 0xaa, 0x00, 0x14, 0x46,
-	0x8d, 0x70, 0x74, 0x8b, 0xb8, 0x5f, 0xc7, 0xd1, 0xcf, 0x14, 0x70, 0x9b, 0x36, 0x76, 0x58, 0x60,
-	0x6d, 0x41, 0x84, 0x8c, 0x91, 0x2f, 0x8b, 0xe2, 0x64, 0x9b, 0x0a, 0x10, 0x9d, 0xf2, 0x20, 0xe4,
-	0xf1, 0x9c, 0x08, 0xdb, 0x24, 0xcc, 0xbd, 0x41, 0x28, 0x3d, 0x3e, 0xdf, 0xb1, 0x1a, 0x06, 0xb6,
-	0x51, 0x9d, 0xdd, 0x3a, 0xbc, 0xf3, 0x53, 0xd4, 0x78, 0x78, 0x6a, 0xc1, 0x84, 0x0c, 0xf6, 0x12,
-	0x14, 0xbd, 0x40, 0x66, 0xad, 0x05, 0x77, 0x71, 0xb0, 0x7b, 0xc0, 0x02, 0x68, 0x8d, 0xcc, 0xba,
-	0x0b, 0x96, 0x22, 0x7c, 0x1e, 0x14, 0xc9, 0xa2, 0x18, 0xd6, 0x8e, 0xa4, 0xb3, 0x0b, 0x73, 0xb9,
-	0x07, 0xba, 0x26, 0x1e, 0x27, 0x61, 0xa1, 0x65, 0x3c, 0x34, 0x85, 0x0f, 0x79, 0xd0, 0x94, 0x8e,
-	0x2e, 0xe1, 0x61, 0x2b, 0x7b, 0x79, 0x07, 0x99, 0x86, 0xa5, 0x61, 0xcc, 0xce, 0xa7, 0x74, 0x80,
-	0x9c, 0x24, 0x35, 0x7d, 0x0f, 0x4a, 0x61, 0xd5, 0xdf, 0x6d, 0x84, 0x1d, 0x16, 0xc2, 0x9e, 0x47,
-	0x22, 0x39, 0x17, 0x01, 0xe9, 0x89, 0xcd, 0x98, 0x94, 0x0e, 0x82, 0xb0, 0x00, 0x64, 0xd5, 0xb2,
-	0xe3, 0x04, 0x41, 0x1b, 0x28, 0x3b, 0xd5, 0x7d, 0x5a, 0xdf, 0x85, 0x8c, 0xbe, 0xe7, 0xc8, 0x6c,
-	0x25, 0xaa, 0xf5, 0x83, 0x78, 0xcb, 0xf2, 0x43, 0xb9, 0x03, 0x74, 0x14, 0xf5, 0x71, 0xbe, 0xe8,
-	0xeb, 0x64, 0x46, 0xbc, 0xb1, 0xcc, 0xe2, 0xaa, 0x1f, 0xc5, 0x4a, 0x7c, 0x12, 0x81, 0xe2, 0xdb,
-	0xa8, 0xf6, 0xdb, 0xbe, 0x9a, 0xb5, 0x00, 0xc1, 0x28, 0xa1, 0x0f, 0xdc, 0xfb, 0x22, 0xad, 0x94,
-	0x30, 0xfd, 0xc3, 0x02, 0x39, 0xe1, 0x6e, 0xfb, 0xbd, 0x1e, 0x60, 0x1c, 0xd6, 0xee, 0x87, 0x18,
-	0xa7, 0x03, 0x24, 0xa3, 0x19, 0xf8, 0x16, 0xb9, 0xfb, 0x98, 0xca, 0xdd, 0xf3, 0x0e, 0x45, 0x75,
-	0x1a, 0x4d, 0x64, 0x4e, 0xa3, 0x60, 0x53, 0x1d, 0x8e, 0x78, 0x1a, 0x71, 0x58, 0xb6, 0x61, 0x4f,
-	0xfc, 0x78, 0x54, 0x30, 0xf4, 0xd6, 0xdc, 0x49, 0xd2, 0x0d, 0x0e, 0xd0, 0xbb, 0x7c, 0x2f, 0x26,
-	0xfe, 0x7f, 0x7f, 0xa1, 0xbc, 0x8b, 0x2f, 0xbd, 0xda, 0x8d, 0x62, 0xac, 0x49, 0x8c, 0x38, 0x1a,
-	0x86, 0x24, 0xe0, 0x28, 0x26, 0xe8, 0x00, 0x3a, 0xf2, 0xfa, 0x3b, 0x97, 0xd1, 0xf5, 0x1d, 0xb6,
-	0x03, 0xc9, 0xa4, 0xab, 0x65, 0x62, 0xb4, 0x5a, 0x26, 0x87, 0xd4, 0xa2, 0x02, 0xc0, 0x9a, 0xdf,
-	0xed, 0xc1, 0x44, 0xe8, 0x9d, 0x31, 0x32, 0x0d, 0x00, 0x5a, 0xc2, 0x19, 0x72, 0xa4, 0xb1, 0xa3,
-	0xf9, 0x72, 0x01, 0x01, 0x1e, 0x69, 0xa4, 0xa6, 0x04, 0x04, 0x43, 0xc1, 0x97, 0x6e, 0x01, 0x12,
-	0xc6, 0xe4, 0xbe, 0x1b, 0xf7, 0xb8, 0xd6, 0x20, 0xb9, 0x07, 0x00, 0xf7, 0x40, 0x3f, 0x88, 0x59,
-	0x10, 0x8b, 0x88, 0x46, 0x82, 0xd0, 0x97, 0xcb, 0x82, 0x0e, 0xba, 0x76, 0x1e, 0x08, 0x28, 0x98,
-	0xa7, 0xe8, 0xf0, 0x8d, 0x1a, 0x9d, 0xe2, 0x01, 0x4f, 0x82, 0x91, 0xbc, 0x98, 0xc0, 0x4f, 0x27,
-	0xbc, 0x00, 0xc3, 0x88, 0x32, 0x56, 0x9f, 0xe1, 0x82, 0x92, 0x51, 0x3a, 0xac, 0xf6, 0xe5, 0xf7,
-	0x81, 0x57, 0x27, 0xe8, 0xd5, 0x05, 0x04, 0x1c, 0x8d, 0x97, 0xdf, 0x57, 0x1f, 0x6c, 0x47, 0xa5,
-	0x59, 0x6c, 0x90, 0x20, 0xcc, 0x03, 0xcf, 0x44, 0xd8, 0x96, 0x51, 0xe9, 0x28, 0x36, 0x6a, 0x18,
-	0x11, 0x4d, 0xc5, 0x4c, 0xa4, 0x98, 0x1c, 0xa0, 0xcb, 0xb8, 0x7f, 0xa5, 0xc4, 0xc1, 0xcf, 0xc8,
-	0xef, 0xfd, 0x32, 0x25, 0xa9, 0x14, 0x47, 0x51, 0xd3, 0x8b, 0x32, 0x59, 0x02, 0x8c, 0x19, 0xc7,
-	0x7e, 0x7b, 0x4b, 0x53, 0x4d, 0x41, 0x57, 0x0d, 0xbd, 0x80, 0x69, 0x02, 0x00, 0x0e, 0xdb, 0xee,
-	0xdf, 0x64, 0x23, 0x09, 0xe7, 0xd1, 0x24, 0x5c, 0xde, 0xa9, 0x03, 0xf9, 0xf4, 0x28, 0xca, 0xb7,
-	0x90, 0x93, 0xd6, 0x82, 0x6b, 0x6e, 0x86, 0x8c, 0x01, 0x46, 0x1c, 0x8f, 0x23, 0xc9, 0xdf, 0x8b,
-	0x3b, 0xaa, 0xde, 0x8f, 0xbb, 0x6d, 0x66, 0x76, 0xd0, 0x58, 0x38, 0x90, 0x44, 0xc8, 0x12, 0xd6,
-	0xcd, 0x62, 0x2c, 0x6d, 0x16, 0xa0, 0x3e, 0x3f, 0x42, 0xf5, 0x89, 0x5a, 0xa5, 0x00, 0xe9, 0x8b,
-	0x98, 0xf7, 0xf0, 0x2e, 0x50, 0xb0, 0xef, 0x26, 0x24, 0x81, 0x84, 0x68, 0x47, 0x9d, 0x2a, 0x6a,
-	0x5a, 0x8e, 0xc6, 0x23, 0x65, 0xe1, 0xdf, 0x64, 0x8d, 0x9d, 0xb8, 0xdb, 0x0f, 0x30, 0x7e, 0xc3,
-	0xf2, 0x9b, 0x3c, 0xf9, 0x05, 0x94, 0x64, 0x61, 0x82, 0x10, 0xe4, 0xcd, 0x83, 0x81, 0x83, 0x38,
-	0xdb, 0xe4, 0x58, 0xb9, 0xeb, 0xf7, 0x76, 0x3d, 0x3f, 0xba, 0x0e, 0x56, 0x03, 0x84, 0xf0, 0x9d,
-	0xc8, 0x8f, 0x43, 0xe0, 0x81, 0xe0, 0x4b, 0x2f, 0x09, 0x26, 0x08, 0xd9, 0xca, 0xcd, 0x6d, 0x3c,
-	0x69, 0xe5, 0x26, 0x77, 0x1a, 0x55, 0xc5, 0x93, 0x44, 0x3e, 0x14, 0x96, 0x89, 0x5e, 0xc4, 0x98,
-	0xca, 0xdd, 0x0d, 0xda, 0x0a, 0x5f, 0xfc, 0x09, 0x32, 0x0d, 0x7f, 0x35, 0x99, 0x3d, 0x9a, 0x27,
-	0xb3, 0xd4, 0x9c, 0x1d, 0xc5, 0x42, 0xaf, 0x93, 0xd3, 0x42, 0x9c, 0x1b, 0xbb, 0x6a, 0x76, 0xd6,
-	0xd6, 0xe6, 0x0f, 0x64, 0x59, 0x11, 0x99, 0x35, 0xdb, 0x5b, 0x5d, 0x76, 0x93, 0xa1, 0xe4, 0xce,
-	0x91, 0x19, 0x01, 0x26, 0xe7, 0xbe, 0x42, 0x40, 0x08, 0x26, 0x00, 0x7d, 0xac, 0x14, 0x4e, 0xa3,
-	0xd1, 0x47, 0x4c, 0xe1, 0x12, 0x55, 0x0b, 0x2c, 0xbd, 0x82, 0x05, 0x41, 0x90, 0xa2, 0x3e, 0x19,
-	0x53, 0xcd, 0x4d, 0x13, 0xe5, 0x9b, 0xf2, 0x44, 0xa9, 0x71, 0x39, 0x3a, 0x0f, 0x7d, 0x7f, 0x01,
-	0x23, 0x4a, 0x2e, 0x4c, 0x7d, 0x9e, 0x20, 0xcf, 0x1f, 0xce, 0x62, 0x95, 0x8b, 0x01, 0xa1, 0x3b,
-	0xec, 0x96, 0x1f, 0x76, 0x46, 0x69, 0x92, 0x7e, 0x40, 0xd5, 0x69, 0x0e, 0x26, 0x56, 0xa5, 0x8c,
-	0xb1, 0xa4, 0x94, 0xa1, 0x17, 0x2a, 0xc6, 0x53, 0x85, 0x8a, 0x9c, 0xc2, 0xe3, 0x19, 0x72, 0xc4,
-	0x1a, 0x84, 0x90, 0x1c, 0x8b, 0x5c, 0x9c, 0x43, 0xf4, 0x9d, 0xd2, 0xd2, 0xc5, 0x32, 0xc4, 0x34,
-	0x1e, 0x27, 0xc7, 0x52, 0x08, 0x31, 0x9b, 0x34, 0x92, 0xfe, 0x5c, 0x81, 0x9c, 0xe4, 0x2b, 0x48,
-	0x73, 0xff, 0xb0, 0x17, 0x31, 0x87, 0xe1, 0xac, 0xb5, 0xc5, 0x23, 0x14, 0x19, 0x03, 0x15, 0x92,
-	0x18, 0x08, 0x02, 0x5e, 0xcc, 0x86, 0x46, 0x52, 0x80, 0x76, 0x45, 0x33, 0x2f, 0xe5, 0x09, 0x0b,
-	0xd0, 0x71, 0xf4, 0x49, 0x34, 0x65, 0x5e, 0x0d, 0xc4, 0xd2, 0x69, 0x89, 0x4c, 0xd5, 0xd9, 0x2d,
-	0xac, 0xa8, 0xf2, 0xbe, 0x24, 0x28, 0xaa, 0x4a, 0x87, 0x22, 0xbd, 0x24, 0x6d, 0x46, 0x14, 0x3c,
-	0x0e, 0x28, 0x87, 0xd0, 0xdf, 0x38, 0x42, 0x4e, 0xca, 0x72, 0xfa, 0x2e, 0x0b, 0x55, 0xc5, 0x7a,
-	0xbf, 0x12, 0xca, 0x79, 0x42, 0x6a, 0x7e, 0xdc, 0xde, 0xd2, 0xeb, 0x28, 0x1a, 0x26, 0xa9, 0x76,
-	0x8f, 0x8f, 0xaa, 0x76, 0x4f, 0x0c, 0x55, 0xbb, 0x9f, 0x20, 0xc7, 0xad, 0x41, 0xd8, 0x8c, 0x18,
-	0x84, 0xc4, 0x1e, 0xf3, 0xb7, 0x85, 0x4e, 0x86, 0xb0, 0xd0, 0x73, 0x6d, 0x17, 0x54, 0xc6, 0x83,
-	0x12, 0x0e, 0x40, 0xcf, 0x66, 0xc8, 0x02, 0x1f, 0x1a, 0x44, 0xdd, 0x5a, 0xc2, 0x98, 0x53, 0x0f,
-	0xc2, 0x2a, 0xdb, 0x5c, 0x64, 0x51, 0xcc, 0x27, 0x3c, 0x2d, 0x72, 0xea, 0x34, 0x1a, 0x32, 0x56,
-	0x38, 0xcd, 0x52, 0xa4, 0x3c, 0x48, 0xc9, 0xe0, 0x45, 0x25, 0xb3, 0xca, 0x36, 0x39, 0x19, 0x51,
-	0x95, 0x4c, 0x89, 0x82, 0x39, 0x5d, 0xe9, 0x06, 0x5c, 0xfb, 0xbc, 0xf0, 0xad, 0x60, 0xd8, 0x0f,
-	0x8d, 0x0d, 0x16, 0xc0, 0xaa, 0x78, 0x9a, 0xc4, 0xcb, 0x11, 0x69, 0x24, 0x8c, 0x51, 0xee, 0x07,
-	0x7e, 0x2c, 0x4c, 0x88, 0x47, 0x31, 0x3a, 0x0a, 0xa5, 0xb6, 0xc5, 0x6a, 0xfd, 0x8e, 0x1a, 0xe9,
-	0xb8, 0x90, 0x5a, 0x0a, 0x5b, 0xbc, 0x44, 0x8a, 0x1c, 0xc3, 0xb4, 0x11, 0x44, 0x69, 0x21, 0xa7,
-	0x05, 0x64, 0xe6, 0x6d, 0x85, 0x8c, 0x79, 0xfd, 0x5b, 0x2c, 0xe4, 0x1d, 0x1b, 0x5c, 0x66, 0x43,
-	0x68, 0xdc, 0x83, 0xfe, 0xf6, 0x8e, 0x28, 0xb0, 0xe3, 0x77, 0x2a, 0xde, 0x2f, 0x0e, 0xc5, 0xfb,
-	0x7a, 0x9e, 0x70, 0x72, 0x28, 0x4f, 0xa0, 0xe4, 0xe8, 0x52, 0x77, 0x73, 0x2b, 0x86, 0x59, 0x40,
-	0x1c, 0x78, 0x0a, 0x4f, 0xea, 0x14, 0x0e, 0x24, 0xa7, 0xe0, 0xea, 0xcd, 0x5e, 0x54, 0x3a, 0x8d,
-	0x44, 0x69, 0x24, 0x56, 0xf5, 0x07, 0x21, 0x80, 0xcb, 0x2c, 0x86, 0x54, 0xf3, 0x8c, 0xa8, 0xea,
-	0xeb, 0x48, 0x9e, 0x54, 0x58, 0xfe, 0x4e, 0xec, 0x77, 0x83, 0xd2, 0x1b, 0x64, 0x52, 0x21, 0x10,
-	0xf4, 0x8a, 0x74, 0xa7, 0xda, 0x3e, 0xb2, 0xc8, 0xb4, 0xdc, 0x1f, 0x22, 0x29, 0xbd, 0x90, 0x77,
-	0xa4, 0xe4, 0x6c, 0x27, 0x47, 0x31, 0xd2, 0x0f, 0x16, 0xb0, 0x58, 0x0f, 0x27, 0x96, 0xdb, 0xdd,
-	0x0c, 0xb0, 0x63, 0x9e, 0x45, 0x02, 0xe8, 0xaa, 0xf2, 0x84, 0x86, 0x11, 0xe6, 0x06, 0x50, 0xd9,
-	0xdf, 0xe5, 0x17, 0xaf, 0xdc, 0xdc, 0x24, 0xaa, 0xb8, 0x40, 0x4e, 0x59, 0x83, 0x70, 0x99, 0xc5,
-	0x82, 0x85, 0xfb, 0x4e, 0x59, 0xc9, 0xc9, 0x6d, 0x13, 0xc5, 0xee, 0xb2, 0xbf, 0x0b, 0x78, 0xfa,
-	0x8d, 0x31, 0xf4, 0x6a, 0x02, 0xc4, 0x2a, 0x25, 0xef, 0x5c, 0x55, 0x29, 0x39, 0x88, 0xe1, 0x21,
-	0x2f, 0x77, 0xa8, 0xcc, 0x99, 0x83, 0x07, 0x16, 0x3f, 0x12, 0xbd, 0xe0, 0xe5, 0xe2, 0xb3, 0xb2,
-	0x5e, 0x9f, 0x42, 0x0e, 0x53, 0x2d, 0x08, 0x57, 0x90, 0x46, 0x0e, 0x53, 0x5d, 0x16, 0x1e, 0x21,
-	0x8d, 0x1c, 0xa6, 0x7a, 0x4e, 0xb8, 0x87, 0x34, 0x32, 0x5d, 0x00, 0x99, 0xbe, 0xef, 0x02, 0x08,
-	0x56, 0xc2, 0xd4, 0x5e, 0x9e, 0x11, 0x95, 0x30, 0xb5, 0x8f, 0xb9, 0x54, 0x00, 0x06, 0x53, 0x24,
-	0x4a, 0x2a, 0x02, 0x43, 0x9f, 0x21, 0x67, 0x44, 0x78, 0xc8, 0x45, 0xaf, 0x34, 0x84, 0x55, 0xf9,
-	0xc1, 0x76, 0x52, 0xb1, 0x12, 0x10, 0xed, 0x91, 0x33, 0xaa, 0xd6, 0x95, 0xe6, 0xf8, 0x31, 0x32,
-	0x25, 0x35, 0x7f, 0xd8, 0x42, 0x8e, 0x64, 0xd0, 0x46, 0x1b, 0x4b, 0x8d, 0xb6, 0x80, 0x55, 0x38,
-	0xb0, 0x57, 0xac, 0x74, 0xae, 0xfa, 0xbb, 0x18, 0x9d, 0x88, 0x32, 0x18, 0x8f, 0x5e, 0x0a, 0xaa,
-	0x0c, 0xc6, 0x23, 0x17, 0x55, 0xd1, 0x93, 0x2c, 0xe2, 0x8c, 0x77, 0x64, 0x45, 0x2f, 0x8d, 0xff,
-	0xff, 0xcc, 0x9b, 0x7e, 0xb8, 0x00, 0xa1, 0x54, 0xdc, 0xbd, 0xd9, 0x8d, 0x77, 0x31, 0xf8, 0x3b,
-	0x4f, 0x88, 0x84, 0xd5, 0xe1, 0xa5, 0x61, 0x78, 0x38, 0xc2, 0xa1, 0xd4, 0x15, 0x7f, 0x0a, 0x09,
-	0xbd, 0xf0, 0x11, 0x30, 0x91, 0x15, 0xc6, 0x9c, 0x60, 0x60, 0xf9, 0x90, 0xbb, 0xe2, 0x86, 0x14,
-	0xc7, 0x99, 0x84, 0xe9, 0x4b, 0x4a, 0x64, 0x2e, 0xbb, 0xc9, 0x02, 0xd9, 0x71, 0xb1, 0x9c, 0xcc,
-	0xf4, 0xa0, 0xb4, 0x48, 0x5f, 0x91, 0x93, 0xe2, 0xa2, 0x3e, 0x79, 0x58, 0x05, 0xa6, 0xb2, 0x7f,
-	0x15, 0x99, 0x7e, 0x5f, 0x16, 0x4f, 0xdf, 0x26, 0xf5, 0x27, 0xfb, 0x17, 0x7a, 0x3a, 0xa0, 0x77,
-	0x1a, 0x4a, 0xfd, 0xde, 0x1f, 0x9f, 0xae, 0xff, 0xb1, 0xfb, 0xd5, 0xff, 0x25, 0x95, 0x47, 0xe1,
-	0x85, 0x3c, 0x9a, 0xc0, 0x59, 0x32, 0x8d, 0x40, 0x52, 0x25, 0x56, 0x30, 0x7d, 0x0a, 0x23, 0x24,
-	0xc8, 0x2b, 0x13, 0xfa, 0x12, 0x99, 0x12, 0xed, 0xd2, 0xdb, 0x09, 0x90, 0x3e, 0x2d, 0x83, 0xd2,
-	0xc3, 0x32, 0x58, 0x64, 0x0a, 0xbc, 0x6a, 0xe8, 0xdf, 0xc2, 0x88, 0x27, 0xf4, 0x6f, 0x69, 0x35,
-	0x1c, 0x05, 0x83, 0xcf, 0x80, 0x6f, 0x3d, 0x3c, 0x4c, 0x10, 0xf4, 0x3d, 0x18, 0xf0, 0x01, 0x2c,
-	0xae, 0x28, 0x1e, 0xe0, 0x3a, 0x17, 0xab, 0x52, 0xe2, 0x42, 0x83, 0x3f, 0x7b, 0x90, 0x20, 0xbd,
-	0x8c, 0x57, 0xc8, 0x40, 0x25, 0x9f, 0xb5, 0xc0, 0x11, 0xa3, 0xde, 0xca, 0x28, 0xa1, 0xe9, 0x28,
-	0x61, 0xd4, 0x3a, 0x93, 0xb6, 0x51, 0x24, 0x99, 0xd4, 0x6d, 0x82, 0x39, 0xe4, 0x8b, 0x9a, 0x2b,
-	0x98, 0xba, 0xea, 0xbd, 0x8b, 0x95, 0x3f, 0x4f, 0x26, 0xf9, 0xad, 0x13, 0x2f, 0xed, 0xcd, 0x8f,
-	0x30, 0x8c, 0xcc, 0xbc, 0x1c, 0xce, 0x46, 0x2f, 0xf0, 0x1b, 0xcc, 0xad, 0xfe, 0x0e, 0x97, 0xca,
-	0x1b, 0xc8, 0x54, 0xb4, 0xd5, 0xdf, 0x69, 0x75, 0x55, 0x3e, 0x01, 0x60, 0xa5, 0x43, 0xb7, 0xb0,
-	0x32, 0x24, 0x09, 0x81, 0x0e, 0x3a, 0xd0, 0xe8, 0xba, 0xbc, 0x72, 0xfc, 0x30, 0x99, 0xee, 0xb1,
-	0x8d, 0xb8, 0x15, 0x24, 0x35, 0x6c, 0x80, 0x21, 0xa4, 0x78, 0x33, 0x39, 0x1e, 0xe2, 0x0b, 0xa4,
-	0x56, 0x94, 0x7e, 0x97, 0x14, 0xa6, 0xde, 0x25, 0x75, 0x78, 0xce, 0x2a, 0xa7, 0x24, 0x16, 0x3a,
-	0x6a, 0x62, 0xc5, 0xb7, 0xa6, 0x25, 0xf0, 0xa6, 0x11, 0x12, 0x90, 0xfd, 0xc9, 0x85, 0x97, 0xb1,
-	0x7e, 0xb2, 0x38, 0xd8, 0x3d, 0xd4, 0x92, 0xb0, 0x41, 0x5b, 0x52, 0x57, 0x94, 0xe5, 0xff, 0xa1,
-	0x80, 0x6a, 0xd7, 0xba, 0x39, 0x68, 0xba, 0xda, 0x28, 0x63, 0x23, 0x47, 0x19, 0x4f, 0x8d, 0x52,
-	0x7c, 0x3b, 0x99, 0xf6, 0x3b, 0x9d, 0x16, 0x80, 0xe8, 0x4c, 0x0f, 0xb2, 0xf0, 0x29, 0xbf, 0x83,
-	0x77, 0x7a, 0xc5, 0x77, 0x92, 0xe9, 0x76, 0x3f, 0x8a, 0x5b, 0x21, 0x8b, 0x30, 0x4e, 0x18, 0xe1,
-	0x39, 0xf4, 0x67, 0x60, 0xce, 0x14, 0x70, 0x38, 0x2c, 0xa2, 0x67, 0x31, 0xc3, 0x87, 0x75, 0xd5,
-	0x19, 0xeb, 0x38, 0x6c, 0x23, 0x64, 0xd1, 0x16, 0xf7, 0xab, 0xf4, 0x5d, 0x58, 0x96, 0x77, 0x59,
-	0xaf, 0x87, 0xe3, 0xec, 0x73, 0x8d, 0x30, 0xe2, 0x3e, 0xc3, 0x26, 0x0f, 0x41, 0xe7, 0xa2, 0x03,
-	0x21, 0xb4, 0xfb, 0xef, 0x66, 0x1d, 0xb3, 0x44, 0xbc, 0x29, 0x5b, 0x64, 0x9b, 0x3c, 0xc5, 0x1d,
-	0x7d, 0x7d, 0x6c, 0xf9, 0xb1, 0xaa, 0x0b, 0x73, 0x40, 0x76, 0x9d, 0x5c, 0xeb, 0x49, 0x50, 0xb8,
-	0xb6, 0xa4, 0x6b, 0x31, 0xc7, 0x91, 0x03, 0xd0, 0x4f, 0x8f, 0x13, 0x22, 0xee, 0x04, 0x0f, 0x4a,
-	0x11, 0x65, 0x52, 0x3c, 0xa6, 0x25, 0xc5, 0xf2, 0xb9, 0xd0, 0xb8, 0xf6, 0x5c, 0xe8, 0x14, 0x99,
-	0xac, 0xb2, 0x9b, 0x4c, 0xd6, 0xcd, 0x39, 0x00, 0x3d, 0xaf, 0x75, 0x77, 0x78, 0x83, 0xa8, 0x9a,
-	0x4b, 0x18, 0x1c, 0x27, 0xa6, 0x63, 0xfd, 0x4d, 0x75, 0x49, 0x9d, 0x20, 0x32, 0x0f, 0x88, 0xa6,
-	0x72, 0x1e, 0x10, 0xcd, 0x93, 0x13, 0x70, 0x52, 0x2f, 0x77, 0x6f, 0x32, 0xf9, 0x7c, 0x50, 0xa4,
-	0x84, 0x43, 0x68, 0x48, 0x09, 0x9b, 0x41, 0xc8, 0xfc, 0x4e, 0x8d, 0xdb, 0x11, 0xe8, 0x47, 0xa4,
-	0x84, 0xc3, 0x78, 0xf9, 0xe8, 0x82, 0x24, 0x8f, 0x9c, 0xce, 0x13, 0x52, 0x89, 0xae, 0xf9, 0x81,
-	0xd7, 0xef, 0xf8, 0xbb, 0x98, 0x04, 0x4e, 0x3b, 0x1a, 0x06, 0x56, 0x59, 0x89, 0x1a, 0x41, 0xaf,
-	0x1b, 0x30, 0xcc, 0x00, 0xa7, 0x1d, 0x05, 0x43, 0x6a, 0xb7, 0xd4, 0x8f, 0x62, 0x16, 0xb2, 0x8e,
-	0xe5, 0x63, 0x0e, 0x23, 0x52, 0xbb, 0x34, 0x96, 0x5f, 0x19, 0x07, 0x1c, 0x29, 0x08, 0xd5, 0x95,
-	0x71, 0x0a, 0x4d, 0x1f, 0x43, 0x9f, 0xcf, 0x05, 0xe1, 0x32, 0x3f, 0x6c, 0x6f, 0xc1, 0x94, 0x5f,
-	0x60, 0xbb, 0xf2, 0xb9, 0xde, 0x0b, 0x6c, 0x97, 0x3e, 0x8b, 0x05, 0x1c, 0x9d, 0x68, 0x71, 0x97,
-	0x5f, 0x2d, 0x8c, 0x2c, 0x20, 0x34, 0xd0, 0x71, 0xeb, 0x2c, 0xc2, 0x8e, 0xde, 0xa6, 0x6e, 0xdb,
-	0xf9, 0x99, 0x75, 0x3e, 0x6f, 0x63, 0x26, 0xe6, 0xa4, 0x1e, 0x74, 0x3c, 0x23, 0x2b, 0x18, 0xbc,
-	0x0d, 0xab, 0xc9, 0xe7, 0xc8, 0xcc, 0x8a, 0x1f, 0xf1, 0xf5, 0x88, 0x77, 0x7d, 0x09, 0x82, 0x32,
-	0x79, 0x77, 0xed, 0xb0, 0x1b, 0xf7, 0x6d, 0x95, 0xf9, 0xcf, 0x2b, 0xa4, 0xad, 0x4e, 0x24, 0xb6,
-	0x0a, 0xae, 0x50, 0xc4, 0xdd, 0xc9, 0xcc, 0xc4, 0x5a, 0xcf, 0xcb, 0x8d, 0xa1, 0xdf, 0xbd, 0x27,
-	0x98, 0xe2, 0xf3, 0xb2, 0x5d, 0xbb, 0xa4, 0x3a, 0x48, 0x1e, 0x1a, 0x47, 0xf1, 0x59, 0x32, 0xe1,
-	0xb0, 0x1b, 0x91, 0xb8, 0x9d, 0x7a, 0x64, 0x34, 0xa7, 0xc3, 0x6e, 0x38, 0x48, 0x5a, 0x7c, 0x8a,
-	0x3c, 0x24, 0xcd, 0x99, 0xdb, 0x3d, 0xd8, 0x06, 0xdf, 0x65, 0xd9, 0x06, 0xba, 0x85, 0x5e, 0x5e,
-	0x68, 0x11, 0x42, 0x78, 0xee, 0x06, 0xf1, 0xb1, 0x1d, 0x80, 0xda, 0xba, 0x12, 0x44, 0x71, 0x81,
-	0x4c, 0x60, 0x32, 0xcc, 0x63, 0xb6, 0x83, 0x16, 0x84, 0xb4, 0xd4, 0xc6, 0xc3, 0x4f, 0xcd, 0x56,
-	0x8c, 0xf3, 0x34, 0x19, 0x77, 0xd8, 0x0d, 0x11, 0xfc, 0x1f, 0xb0, 0x3e, 0xa0, 0xa4, 0x4f, 0x93,
-	0x87, 0xac, 0x05, 0xd7, 0xec, 0x74, 0x38, 0x7e, 0x71, 0x77, 0xf5, 0x00, 0x3b, 0x9d, 0x27, 0xc5,
-	0x34, 0xc3, 0xc8, 0xf2, 0xde, 0x33, 0x38, 0x43, 0x45, 0x29, 0x54, 0xbc, 0x5f, 0xdf, 0x4f, 0xe1,
-	0x51, 0x8b, 0x97, 0x31, 0x9c, 0x67, 0x5f, 0xea, 0xcf, 0xf0, 0x23, 0x55, 0x23, 0x3f, 0x78, 0x88,
-	0xfb, 0x30, 0xdd, 0x7c, 0x97, 0x2a, 0x0d, 0x7a, 0x52, 0x73, 0xbe, 0xba, 0x9b, 0x3d, 0xb2, 0x9f,
-	0x9b, 0x9d, 0x1a, 0x72, 0xb3, 0xf4, 0x2d, 0xe8, 0x4c, 0x1c, 0xb6, 0x31, 0x88, 0x0e, 0xb3, 0xe2,
-	0x65, 0xf4, 0x11, 0x3a, 0xb9, 0x58, 0x71, 0x5e, 0xed, 0x74, 0x9f, 0x27, 0xc3, 0x6a, 0xdc, 0xed,
-	0xfe, 0xcd, 0xc3, 0x8c, 0x7b, 0x59, 0x8c, 0x9b, 0x90, 0x1f, 0x42, 0x99, 0xdc, 0x07, 0xc2, 0xf6,
-	0x48, 0x9d, 0x1a, 0x67, 0xc9, 0xb4, 0x7c, 0x0f, 0x23, 0x53, 0x0a, 0x09, 0xd3, 0x3f, 0x2f, 0x90,
-	0xa2, 0x4e, 0x9c, 0x8c, 0xa2, 0xb1, 0x14, 0x74, 0x16, 0x88, 0x04, 0xc4, 0x11, 0x25, 0x82, 0x24,
-	0x31, 0xcc, 0x29, 0x32, 0x89, 0x4f, 0xf4, 0xa5, 0x4e, 0x11, 0xc8, 0xbe, 0x77, 0x9f, 0xc8, 0x79,
-	0xef, 0xce, 0x1f, 0x1b, 0xe0, 0xd9, 0x02, 0xb3, 0x47, 0x55, 0x4f, 0x3b, 0x3a, 0x0a, 0xfc, 0xd4,
-	0xa2, 0xdf, 0xbe, 0x2e, 0x46, 0xe6, 0x3a, 0xd7, 0x30, 0xf4, 0xd7, 0x0b, 0x98, 0x5b, 0x0e, 0x2f,
-	0x5e, 0xac, 0x67, 0x89, 0x10, 0x0e, 0xe3, 0xd3, 0x08, 0xee, 0xd5, 0x9f, 0x18, 0xbd, 0x57, 0x75,
-	0x5e, 0x47, 0xe3, 0xcc, 0x77, 0x4d, 0x63, 0xa3, 0x5c, 0xd3, 0x33, 0xb8, 0x71, 0xd5, 0x79, 0x70,
-	0x08, 0x75, 0x2c, 0xa6, 0x83, 0x80, 0x07, 0xd1, 0x03, 0x7d, 0x09, 0x63, 0xc3, 0xa1, 0x51, 0x85,
-	0x1c, 0xde, 0x9d, 0x23, 0x87, 0xb9, 0x03, 0xe5, 0xa0, 0xf1, 0x50, 0x1b, 0xa3, 0x3a, 0xde, 0x6c,
-	0x6d, 0xf9, 0xfb, 0x6f, 0xfd, 0xa1, 0xfb, 0xd8, 0xa3, 0xea, 0x3e, 0x96, 0xbe, 0x80, 0x11, 0x5c,
-	0xd2, 0xcd, 0x21, 0xfc, 0xc8, 0xe8, 0xce, 0x7e, 0x9c, 0x9c, 0x53, 0x73, 0x5a, 0x66, 0x71, 0x26,
-	0xc0, 0x49, 0xbd, 0x10, 0x2b, 0x0c, 0xbf, 0x10, 0xbb, 0x4a, 0xce, 0x72, 0x60, 0x98, 0x4f, 0xe6,
-	0xe3, 0x23, 0x35, 0x70, 0x9e, 0x10, 0x2d, 0xbc, 0x92, 0xb7, 0x09, 0x0a, 0x43, 0xb7, 0x08, 0x55,
-	0x8b, 0xcc, 0x99, 0x97, 0x7a, 0xc3, 0x37, 0xa1, 0x69, 0xe3, 0xd2, 0x68, 0x6d, 0xe4, 0xcd, 0x4f,
-	0xfd, 0xfc, 0xe5, 0xac, 0x92, 0xc0, 0xea, 0xa0, 0xd7, 0x4b, 0x91, 0xee, 0xb7, 0x06, 0xba, 0x44,
-	0x8e, 0x27, 0x5a, 0x90, 0x05, 0x02, 0x29, 0xe7, 0x42, 0x4a, 0xce, 0xf2, 0x7d, 0x84, 0xd7, 0xdd,
-	0x96, 0xa9, 0xb0, 0x82, 0xe9, 0x4d, 0x32, 0xa7, 0xd6, 0x9a, 0x99, 0xc1, 0x21, 0xbc, 0xca, 0xdb,
-	0x84, 0x14, 0x78, 0x84, 0x41, 0x47, 0x4b, 0x41, 0xce, 0x53, 0xac, 0xfc, 0x27, 0xc9, 0x23, 0x89,
-	0x3d, 0xf6, 0x83, 0x8d, 0x6e, 0xb8, 0x7d, 0xe8, 0xc5, 0x1f, 0xa8, 0x40, 0x9f, 0x3c, 0x96, 0x58,
-	0x69, 0x4e, 0xe7, 0x87, 0x58, 0xd7, 0x41, 0x43, 0x5c, 0x90, 0x17, 0x8f, 0x3c, 0x7c, 0xe6, 0x7c,
-	0x91, 0x1e, 0xe0, 0x4e, 0xf2, 0x00, 0xd7, 0x96, 0xe5, 0x9c, 0x34, 0xe1, 0x39, 0x32, 0x23, 0x77,
-	0x88, 0xb2, 0x6d, 0x85, 0x90, 0xdd, 0x8c, 0x25, 0xdd, 0x3c, 0x4b, 0x66, 0x45, 0xfd, 0x0d, 0x4b,
-	0xa1, 0x94, 0x1c, 0xad, 0xb3, 0x5b, 0x35, 0xbf, 0xdb, 0xd3, 0xcb, 0xa1, 0x29, 0x5c, 0xf2, 0xda,
-	0x67, 0xc5, 0x0f, 0x3a, 0x2f, 0xf7, 0xfb, 0xd7, 0x69, 0x1d, 0xc3, 0x00, 0x0d, 0x23, 0x04, 0x71,
-	0x4a, 0xaf, 0xf5, 0x4c, 0xca, 0x6a, 0xce, 0x1c, 0x99, 0x35, 0x6f, 0xf9, 0x61, 0xc7, 0x1d, 0x74,
-	0x79, 0x8e, 0x87, 0x05, 0x1a, 0x0d, 0x45, 0x17, 0xf8, 0x85, 0x35, 0xbb, 0x25, 0xfb, 0xc3, 0x1c,
-	0x92, 0xc7, 0x57, 0x23, 0x12, 0xcf, 0xe4, 0xc1, 0x3b, 0x46, 0xb8, 0xf3, 0x58, 0x4a, 0x13, 0xd0,
-	0x7e, 0xb3, 0xa1, 0x17, 0x91, 0x52, 0x5c, 0x3a, 0x1e, 0x30, 0xc6, 0x02, 0x29, 0x89, 0x62, 0xe2,
-	0xa0, 0xab, 0xad, 0x35, 0x29, 0x71, 0x77, 0x93, 0x37, 0x8a, 0x02, 0xa2, 0x57, 0xc9, 0x79, 0x3e,
-	0x93, 0x2c, 0x8f, 0x4a, 0x2f, 0xb4, 0x92, 0xf1, 0xc1, 0x35, 0x31, 0x55, 0x2e, 0x5c, 0x4d, 0x6a,
-	0xb0, 0xea, 0xa7, 0x39, 0xda, 0x5b, 0x45, 0x0e, 0xe0, 0xbc, 0x40, 0x6d, 0xf2, 0xb2, 0x45, 0x40,
-	0x10, 0xb0, 0xac, 0xf9, 0x3d, 0x99, 0x4a, 0xe3, 0x37, 0x2d, 0xc9, 0x02, 0xbe, 0xd9, 0xeb, 0xe9,
-	0x5d, 0x47, 0xf4, 0x3d, 0xe4, 0x64, 0x0a, 0x21, 0x7e, 0xc3, 0xb5, 0x94, 0xd4, 0x60, 0xbb, 0x80,
-	0x3e, 0x4c, 0x1d, 0x98, 0xbf, 0x17, 0x4e, 0xb1, 0xd1, 0xf7, 0xca, 0x2a, 0xad, 0x44, 0xeb, 0xf7,
-	0xed, 0x1c, 0xa3, 0x2f, 0x2d, 0x8d, 0x04, 0x83, 0xc2, 0xd7, 0x52, 0xab, 0x7e, 0xe8, 0x6f, 0xab,
-	0x4b, 0x25, 0x0d, 0x45, 0x6f, 0xc8, 0x6a, 0xee, 0x03, 0xf5, 0x7f, 0x59, 0xaf, 0xe9, 0xc2, 0xfa,
-	0x1e, 0xce, 0x55, 0x50, 0x07, 0x7c, 0xb8, 0xd2, 0xce, 0x45, 0xac, 0xd6, 0x5d, 0xf3, 0x03, 0xbe,
-	0xfb, 0xf6, 0x0d, 0xd4, 0xaa, 0x18, 0xa7, 0x2b, 0xda, 0x43, 0x1c, 0x7e, 0x78, 0xfd, 0x18, 0xfb,
-	0x3d, 0x48, 0xd4, 0xc7, 0xe4, 0xf5, 0x23, 0x87, 0xe9, 0x5f, 0x4e, 0x90, 0x93, 0x8e, 0x1f, 0x5c,
-	0xef, 0x06, 0x9b, 0x90, 0x72, 0xa9, 0x9f, 0x28, 0xe6, 0x3d, 0x94, 0xdc, 0xef, 0x57, 0x6d, 0xe7,
-	0x09, 0xe1, 0xdf, 0xda, 0xd3, 0x49, 0x0d, 0x03, 0x62, 0xe7, 0x90, 0x1e, 0xa4, 0xeb, 0xa8, 0xa4,
-	0x07, 0x2d, 0x60, 0xd7, 0x30, 0xc5, 0xe7, 0xc8, 0x69, 0xed, 0x99, 0x3b, 0x2e, 0x80, 0xa7, 0x01,
-	0x3c, 0x9e, 0xcb, 0x6f, 0x04, 0xa5, 0xe9, 0x8f, 0xe3, 0x3b, 0xf2, 0x2a, 0x2c, 0x85, 0x2c, 0x5e,
-	0x24, 0x86, 0x86, 0xd0, 0xef, 0xcb, 0x33, 0xf8, 0x64, 0x25, 0xf8, 0x93, 0x14, 0x51, 0x18, 0xd1,
-	0x51, 0x09, 0xc5, 0x35, 0x3f, 0x60, 0x1d, 0x79, 0x4d, 0xae, 0xa1, 0x92, 0x9a, 0xd5, 0xac, 0x5e,
-	0xb3, 0x3a, 0x4f, 0x88, 0xe5, 0xc7, 0x9e, 0xff, 0x72, 0x8f, 0xa9, 0xdb, 0x71, 0x0d, 0x83, 0x87,
-	0xab, 0x1f, 0xe3, 0xef, 0xd1, 0x8e, 0x89, 0x17, 0x6a, 0x1c, 0x14, 0x2d, 0x8d, 0xc1, 0x8d, 0xae,
-	0x28, 0x98, 0x48, 0x10, 0xaf, 0xab, 0xfc, 0x98, 0x0b, 0xfd, 0x84, 0xb8, 0xae, 0x12, 0xb0, 0xe0,
-	0xc2, 0x67, 0xfb, 0x86, 0xe2, 0xc2, 0x27, 0xf9, 0x58, 0x43, 0xe7, 0xb3, 0x7f, 0x48, 0xd6, 0xd0,
-	0xf9, 0xcc, 0xb1, 0x7a, 0xc3, 0xcf, 0x0f, 0xbc, 0xe6, 0xc6, 0xea, 0x0d, 0x87, 0xe9, 0x4f, 0x63,
-	0xc8, 0x0a, 0x07, 0xb8, 0x66, 0x51, 0xa9, 0xb7, 0xa0, 0x85, 0xf4, 0x5b, 0x50, 0x91, 0x67, 0x87,
-	0x31, 0x9a, 0xda, 0x98, 0xca, 0xb3, 0x39, 0x02, 0x66, 0x01, 0x7f, 0xeb, 0x49, 0xe1, 0x54, 0x80,
-	0x20, 0x3f, 0xdc, 0xac, 0x32, 0xd9, 0x43, 0x80, 0xfe, 0x37, 0x7f, 0xbb, 0x34, 0x34, 0x81, 0x64,
-	0x83, 0x3c, 0xe0, 0x34, 0x2c, 0xfe, 0xcb, 0x5d, 0xac, 0x61, 0xf0, 0x4a, 0x44, 0xee, 0xfd, 0x77,
-	0xce, 0x2e, 0x72, 0x14, 0x23, 0x0f, 0x7f, 0x7a, 0x1b, 0x38, 0xc2, 0x84, 0x0c, 0x7f, 0x38, 0xcc,
-	0x9f, 0x96, 0xf6, 0x36, 0xb0, 0x7e, 0xff, 0xac, 0xa8, 0xfc, 0x69, 0x98, 0x54, 0xfb, 0x82, 0x4c,
-	0x5f, 0x12, 0x8c, 0xb8, 0xda, 0xb9, 0xd2, 0x0f, 0x7b, 0x18, 0xe0, 0x40, 0x58, 0x35, 0x3a, 0x10,
-	0xa3, 0x0b, 0x58, 0xce, 0x49, 0x51, 0x27, 0x25, 0xd0, 0x11, 0x3c, 0xfc, 0x2d, 0x9f, 0xe2, 0xa9,
-	0x45, 0x9b, 0x20, 0x64, 0xfa, 0x7a, 0x81, 0x1c, 0x53, 0x48, 0x2c, 0x18, 0xef, 0x1b, 0xff, 0x3d,
-	0xb0, 0xf3, 0x48, 0xbb, 0x86, 0x89, 0x8c, 0x6b, 0x18, 0x72, 0x2e, 0x93, 0x59, 0xe7, 0xa2, 0x19,
-	0xb4, 0xf8, 0x85, 0x4f, 0x9e, 0x41, 0x8b, 0x57, 0x34, 0x12, 0x4e, 0xc5, 0xac, 0xd3, 0x43, 0x31,
-	0xab, 0x87, 0x29, 0xe3, 0xb0, 0x48, 0x84, 0x24, 0xdf, 0x9e, 0xbe, 0xb7, 0xca, 0x7d, 0xcd, 0x98,
-	0x12, 0x9c, 0x0c, 0x30, 0x2e, 0xa1, 0x73, 0x57, 0x4d, 0x4b, 0xfd, 0xf0, 0xe5, 0x2e, 0x2a, 0xd3,
-	0x16, 0xd3, 0x10, 0xef, 0x9e, 0x04, 0x48, 0x3f, 0x3b, 0x4e, 0x4e, 0x98, 0x41, 0x7f, 0x10, 0xb4,
-	0xd9, 0x36, 0x0b, 0x94, 0x0e, 0x6a, 0xd1, 0xa6, 0x66, 0xe8, 0x12, 0xfc, 0x01, 0x3b, 0x70, 0x5d,
-	0x5a, 0x93, 0x69, 0x69, 0x41, 0xee, 0x2b, 0xcb, 0xb2, 0x61, 0x47, 0x7a, 0x38, 0xf1, 0x8b, 0xdc,
-	0x4c, 0x03, 0x2f, 0x03, 0xe3, 0xaf, 0x8f, 0x25, 0xe9, 0x94, 0x2c, 0x03, 0xeb, 0xd8, 0xe2, 0x3c,
-	0x39, 0xb1, 0x38, 0xe8, 0xf6, 0x3a, 0xdd, 0x60, 0x53, 0x12, 0x8a, 0x92, 0xf6, 0x10, 0x1a, 0x8e,
-	0x01, 0xd7, 0x75, 0x34, 0xef, 0xca, 0xdd, 0x76, 0x1a, 0x99, 0xf2, 0x11, 0x64, 0xc8, 0x47, 0x68,
-	0xf7, 0x03, 0xb3, 0xe9, 0x0b, 0x88, 0x67, 0xc8, 0x49, 0xcb, 0x8f, 0x97, 0x06, 0xbd, 0x1e, 0xca,
-	0x21, 0xed, 0xbf, 0xf3, 0x9a, 0xf4, 0x5d, 0x72, 0x2c, 0xf5, 0xd4, 0x98, 0xbe, 0xc8, 0x6b, 0x64,
-	0x89, 0x46, 0x45, 0x90, 0xf9, 0xa3, 0x69, 0x83, 0xca, 0x7d, 0xa8, 0x3f, 0x64, 0x07, 0xc2, 0xa4,
-	0x2e, 0x52, 0x32, 0x63, 0xb7, 0xd6, 0x6c, 0xc7, 0xad, 0x34, 0xea, 0xc5, 0xd3, 0xc4, 0x50, 0x40,
-	0xab, 0xde, 0xac, 0x2d, 0xda, 0x8e, 0xf1, 0xd9, 0xe9, 0x8b, 0x7f, 0xf0, 0x28, 0x99, 0xb4, 0x5b,
-	0xb6, 0xe3, 0x14, 0xdf, 0x48, 0x8e, 0xe3, 0x47, 0xab, 0x52, 0xf7, 0x6c, 0xa7, 0x6e, 0x56, 0x8d,
-	0xef, 0xc9, 0x7f, 0x85, 0xe2, 0x63, 0xe4, 0x0c, 0x6f, 0x5c, 0xad, 0x9a, 0xeb, 0xb6, 0xd3, 0xaa,
-	0x37, 0xbc, 0x96, 0x7d, 0xb5, 0xe2, 0x7a, 0xc6, 0x77, 0x13, 0xa2, 0x1f, 0x21, 0xe7, 0x53, 0x44,
-	0x0d, 0x6f, 0xc5, 0x46, 0xc0, 0xb2, 0x5b, 0xd5, 0xc6, 0x72, 0xa5, 0x6e, 0x7c, 0x67, 0x34, 0xb1,
-	0x59, 0x75, 0x6c, 0xb3, 0xbc, 0xde, 0xba, 0x66, 0xd6, 0x5b, 0x5e, 0xa3, 0x6c, 0xae, 0x1b, 0x77,
-	0xbe, 0xfe, 0xba, 0x24, 0x7e, 0x2b, 0x99, 0x4f, 0x11, 0x3b, 0x76, 0xdd, 0xac, 0xd9, 0xad, 0xba,
-	0x7d, 0xa5, 0x65, 0x99, 0x75, 0xaf, 0xe5, 0x02, 0xe4, 0x35, 0x5a, 0x8d, 0x6a, 0xd9, 0xb8, 0x9d,
-	0xb0, 0x3d, 0x4d, 0xe8, 0xbe, 0x6c, 0x76, 0x6d, 0xd5, 0x5b, 0x37, 0xbe, 0x90, 0x30, 0x2c, 0x90,
-	0x37, 0xe7, 0x31, 0x38, 0x76, 0xad, 0xb1, 0x66, 0x43, 0xef, 0xad, 0x25, 0xb3, 0x52, 0xb5, 0xcb,
-	0xc6, 0x3f, 0x25, 0x3c, 0x97, 0xc8, 0xa3, 0x79, 0x3c, 0x5e, 0xa3, 0xd1, 0xaa, 0x36, 0xea, 0xcb,
-	0x2d, 0x80, 0x8c, 0xcf, 0x27, 0xf4, 0x97, 0xc9, 0x13, 0xb9, 0x93, 0x02, 0x89, 0xd6, 0x1b, 0xcd,
-	0xe5, 0x95, 0x56, 0xb9, 0x62, 0xd6, 0x1a, 0xf5, 0xb2, 0xf1, 0x8f, 0x09, 0xd3, 0x45, 0xf2, 0x08,
-	0x67, 0x2a, 0x9b, 0xeb, 0x6e, 0x65, 0xb9, 0x0e, 0xe2, 0x02, 0x69, 0xb9, 0xcd, 0x5a, 0x0b, 0x60,
-	0xe3, 0xdb, 0x5f, 0x53, 0xb4, 0x17, 0xc8, 0x59, 0x41, 0xeb, 0x98, 0x57, 0x5a, 0x57, 0x1c, 0x98,
-	0x04, 0x7e, 0x7a, 0xeb, 0xab, 0xb6, 0xf1, 0x89, 0xaf, 0xbe, 0x9e, 0x51, 0x41, 0xcd, 0xac, 0x54,
-	0xc5, 0xca, 0x40, 0x8a, 0x4b, 0x95, 0x7a, 0x19, 0x71, 0xc6, 0x87, 0xbe, 0xa2, 0x88, 0x1f, 0x27,
-	0x6f, 0xd0, 0x88, 0x4d, 0xcf, 0x33, 0xad, 0x15, 0x80, 0x1b, 0x8e, 0xf1, 0xc1, 0x84, 0xea, 0x29,
-	0xf2, 0x26, 0x61, 0x44, 0x9e, 0x5d, 0x6b, 0x79, 0xe6, 0x62, 0xd5, 0xc6, 0xff, 0xb7, 0x03, 0x97,
-	0xb7, 0xd4, 0x68, 0xd6, 0xcb, 0xc6, 0xb7, 0xbe, 0xa4, 0xa8, 0x1f, 0x25, 0xa7, 0x34, 0xea, 0x84,
-	0xe4, 0x9b, 0x09, 0xc9, 0x13, 0xe4, 0x61, 0x9d, 0xa4, 0x59, 0xd3, 0x04, 0x65, 0x7c, 0x23, 0xa7,
-	0x2b, 0x77, 0xa5, 0xb1, 0xaa, 0x75, 0xf5, 0xb3, 0xaf, 0x65, 0xe7, 0x86, 0x24, 0xd5, 0x4a, 0xad,
-	0xe2, 0xc1, 0x7a, 0xd7, 0x57, 0xed, 0x56, 0xa5, 0xbe, 0x66, 0x56, 0x2b, 0x65, 0xe3, 0x03, 0xaf,
-	0x65, 0x25, 0x8e, 0xd4, 0x42, 0x25, 0xfa, 0xe0, 0x3f, 0xf3, 0x5a, 0x56, 0xe2, 0x48, 0x6b, 0x35,
-	0x2a, 0x75, 0x9d, 0xf0, 0xfd, 0x09, 0xe1, 0x3c, 0x79, 0xa3, 0x4e, 0xb8, 0x62, 0x3a, 0xa9, 0xf5,
-	0x7c, 0xef, 0x5e, 0xd6, 0x74, 0x91, 0x72, 0xc9, 0xa9, 0xd8, 0xf5, 0x72, 0x6b, 0xb5, 0x51, 0xa9,
-	0x7b, 0x3a, 0xc3, 0x77, 0x13, 0x86, 0xb7, 0x90, 0x39, 0x8d, 0xc1, 0x6d, 0x34, 0xab, 0x2d, 0xd7,
-	0x6b, 0xd4, 0x75, 0xc3, 0x32, 0xbe, 0x73, 0x2f, 0x6b, 0xb5, 0xda, 0x4c, 0x6a, 0x76, 0xd9, 0xac,
-	0xea, 0xf4, 0xdf, 0x1e, 0xd5, 0xfd, 0x6a, 0xd3, 0xb1, 0x56, 0x4c, 0xd7, 0x4e, 0x4b, 0xef, 0x7f,
-	0xef, 0x8d, 0x58, 0xa8, 0x24, 0x57, 0xdb, 0xe7, 0x7f, 0xee, 0x65, 0x15, 0x8c, 0x94, 0x43, 0x86,
-	0xf0, 0xfa, 0xbd, 0x11, 0x32, 0x56, 0x74, 0x62, 0xa6, 0xdf, 0x1a, 0x35, 0x53, 0x73, 0xc9, 0x03,
-	0x1f, 0x24, 0xe7, 0x2b, 0xc6, 0xff, 0xe6, 0xbd, 0xac, 0xe1, 0x78, 0xa6, 0xfb, 0x82, 0x36, 0xf4,
-	0xc7, 0xef, 0x65, 0x4d, 0x5f, 0x91, 0x58, 0x8d, 0xda, 0x6a, 0xd5, 0xf6, 0x6c, 0xe3, 0xf7, 0x13,
-	0x2a, 0x4a, 0x4e, 0x0f, 0x51, 0x39, 0xf6, 0x15, 0xd3, 0x29, 0x1b, 0xbf, 0x97, 0x23, 0x16, 0xa4,
-	0x91, 0x2e, 0x8f, 0xd3, 0xd9, 0x65, 0xe3, 0x63, 0xa3, 0x28, 0xab, 0xf6, 0x9a, 0x9d, 0xd2, 0xcc,
-	0x47, 0x13, 0xca, 0x27, 0xc9, 0x39, 0x8d, 0x72, 0xd5, 0xb1, 0xd7, 0xd2, 0x53, 0xfc, 0xc8, 0xbd,
-	0xac, 0x7b, 0xb3, 0x56, 0xcc, 0x55, 0x90, 0x4b, 0xb3, 0x5e, 0x6d, 0x58, 0x2f, 0x08, 0x1f, 0x21,
-	0x91, 0x95, 0xb2, 0xf1, 0x67, 0xaf, 0x66, 0x9d, 0xc4, 0x10, 0x4f, 0xd5, 0x76, 0xdd, 0x96, 0xeb,
-	0x99, 0x8e, 0xf1, 0xa7, 0xaf, 0x66, 0xad, 0x2a, 0x8f, 0x58, 0xba, 0xb5, 0x4f, 0xbf, 0x9a, 0xb5,
-	0xf2, 0x21, 0xfa, 0x7a, 0x43, 0x7e, 0x59, 0x4b, 0xcb, 0xc6, 0x9f, 0xbc, 0x9a, 0x75, 0x9e, 0x59,
-	0x06, 0xab, 0xe9, 0xe8, 0x4c, 0x9f, 0x4a, 0x98, 0x9e, 0x21, 0x8f, 0x8d, 0x62, 0x12, 0x1e, 0xd7,
-	0xab, 0xd4, 0x6c, 0xe3, 0x93, 0x87, 0x9a, 0x97, 0xd8, 0x8a, 0x95, 0xb2, 0x6b, 0xfc, 0x71, 0xc2,
-	0xf0, 0x2c, 0x79, 0x3c, 0x9f, 0xc1, 0xb6, 0xcb, 0xad, 0x55, 0x93, 0x8b, 0x6a, 0xd9, 0x36, 0xfe,
-	0x68, 0x9f, 0x31, 0x56, 0xec, 0xea, 0x6a, 0x4a, 0x60, 0xf5, 0x66, 0xcd, 0xf8, 0xc4, 0xab, 0x39,
-	0x7b, 0x0a, 0xba, 0xe2, 0xbd, 0x82, 0xa6, 0x39, 0x8b, 0xf1, 0xf7, 0x77, 0x73, 0xb6, 0x40, 0x42,
-	0xd9, 0x58, 0x83, 0x63, 0xdb, 0xbe, 0xea, 0x01, 0xd2, 0xb3, 0x8d, 0xbf, 0x1b, 0x49, 0x9e, 0xeb,
-	0xb5, 0xff, 0xf6, 0x6e, 0x8e, 0x67, 0x44, 0xf2, 0x7a, 0xa3, 0x55, 0x33, 0x3d, 0x6b, 0xa5, 0x75,
-	0xa5, 0xe2, 0xad, 0xb4, 0xec, 0x7a, 0xd9, 0xf8, 0x9b, 0xbb, 0x59, 0xe3, 0xe4, 0xb4, 0xd2, 0xe2,
-	0x97, 0x2a, 0xf5, 0x8a, 0xbb, 0x62, 0x97, 0x8d, 0xbf, 0xbe, 0x9b, 0xe3, 0x08, 0x52, 0xa4, 0x8b,
-	0xf6, 0xb2, 0x59, 0x37, 0xfe, 0xea, 0x6e, 0x8e, 0xa7, 0x97, 0xc3, 0x2f, 0xda, 0x10, 0x5b, 0x7c,
-	0x2e, 0x67, 0x86, 0x42, 0x59, 0x6a, 0x19, 0xe2, 0xcc, 0x35, 0xfe, 0x6b, 0x2f, 0xdb, 0x9d, 0xa0,
-	0x6d, 0x2c, 0x2d, 0x55, 0x2b, 0x75, 0xdb, 0xf8, 0xcf, 0xbd, 0xac, 0xfd, 0x08, 0x92, 0xe5, 0xca,
-	0x9a, 0xcd, 0x7d, 0xb1, 0xdb, 0x5a, 0x72, 0xec, 0x17, 0x9b, 0x76, 0xdd, 0xab, 0xae, 0x1b, 0x5f,
-	0xdf, 0xcb, 0xc6, 0x2b, 0x82, 0x03, 0x82, 0x81, 0x9a, 0x59, 0x5f, 0xcf, 0xe9, 0xc1, 0xf8, 0xda,
-	0x5e, 0xd6, 0xba, 0x75, 0x7f, 0xef, 0xea, 0xa1, 0x81, 0xd7, 0x40, 0x5e, 0xe3, 0xab, 0x7b, 0x59,
-	0xed, 0x09, 0xa6, 0xb5, 0x8a, 0x5b, 0xf1, 0x24, 0x20, 0xfc, 0xdd, 0x7f, 0xec, 0x65, 0xfd, 0xa8,
-	0x92, 0x4d, 0xcb, 0x5b, 0xb1, 0x05, 0x64, 0x7c, 0x25, 0x21, 0x7c, 0x33, 0x29, 0xa5, 0x08, 0xad,
-	0x15, 0xd3, 0x93, 0xfd, 0xfd, 0xfb, 0x5e, 0xd6, 0x3f, 0x24, 0xfd, 0x35, 0xeb, 0xa0, 0xba, 0x56,
-	0xcd, 0x76, 0x5d, 0xb0, 0xf9, 0x7f, 0xdb, 0xcb, 0x9a, 0x83, 0x20, 0x16, 0x24, 0x78, 0xae, 0xd7,
-	0xcc, 0xab, 0xc6, 0x97, 0xf7, 0x46, 0xea, 0x50, 0x92, 0xca, 0xb8, 0xca, 0xf8, 0xd2, 0x5e, 0xd6,
-	0xed, 0x08, 0x5a, 0x11, 0xaf, 0xa5, 0x65, 0xf0, 0xaf, 0xa3, 0x45, 0x56, 0x35, 0x5d, 0x4f, 0x17,
-	0xf6, 0xb2, 0xed, 0x19, 0xff, 0x32, 0x5a, 0x2d, 0x20, 0xaf, 0xa1, 0xa8, 0x55, 0x88, 0xef, 0xb5,
-	0xd1, 0x73, 0xd2, 0x98, 0xd0, 0x64, 0x5c, 0xcf, 0x2e, 0x1b, 0xf7, 0x46, 0x0f, 0xa2, 0x1b, 0x59,
-	0xcd, 0xbc, 0x8a, 0x22, 0xc2, 0x98, 0xc5, 0x78, 0x35, 0x61, 0x7a, 0x3b, 0xb9, 0x98, 0x62, 0x82,
-	0xe9, 0x94, 0xd7, 0x91, 0x57, 0x59, 0x8f, 0xd7, 0x90, 0x56, 0x7f, 0x77, 0x2f, 0x7b, 0x58, 0x99,
-	0x96, 0x57, 0x59, 0xab, 0x78, 0xeb, 0xe8, 0x41, 0x97, 0x96, 0x8d, 0x0f, 0xe7, 0x28, 0x4b, 0xd1,
-	0xac, 0x98, 0x6b, 0x76, 0x72, 0x5a, 0xfd, 0xda, 0x5e, 0xd6, 0x35, 0x69, 0xdd, 0x79, 0xc9, 0x2e,
-	0xff, 0xd5, 0x1c, 0xf3, 0xd3, 0x07, 0x56, 0x5d, 0xfe, 0x4a, 0xce, 0xa6, 0x53, 0x84, 0xcb, 0xb6,
-	0x3c, 0x52, 0x41, 0x82, 0x22, 0xf6, 0xfc, 0xe5, 0x1c, 0xad, 0x2a, 0x8e, 0xea, 0x5a, 0x55, 0x72,
-	0x88, 0xe5, 0xfd, 0xd2, 0x5e, 0xd6, 0xff, 0xe6, 0x91, 0xa3, 0xff, 0xad, 0xae, 0x55, 0x8d, 0x5f,
-	0xdc, 0xcb, 0xc6, 0x8f, 0x8a, 0x61, 0xad, 0xb2, 0x6a, 0xf1, 0xce, 0xbd, 0x56, 0x63, 0xd5, 0xae,
-	0x1b, 0xbf, 0xb0, 0xdf, 0x6c, 0xca, 0xe6, 0xfa, 0xd0, 0x6c, 0x3e, 0xb4, 0xdf, 0x72, 0x21, 0xb4,
-	0x2f, 0x9b, 0xeb, 0x69, 0x8e, 0x0f, 0xee, 0x65, 0xa3, 0x92, 0x94, 0xcc, 0x71, 0x1a, 0x3f, 0x9f,
-	0x63, 0x86, 0x8e, 0x59, 0x7f, 0x01, 0x45, 0x08, 0xa1, 0x13, 0x9e, 0x2d, 0xfc, 0x48, 0x80, 0x6d,
-	0xf7, 0x17, 0x5f, 0xcc, 0x86, 0x08, 0x57, 0x1a, 0x4e, 0xb5, 0x8c, 0x7b, 0xde, 0xc5, 0xed, 0xe7,
-	0x2e, 0xb7, 0xac, 0x46, 0xa3, 0x5a, 0x81, 0x64, 0xa2, 0x71, 0xa5, 0x6e, 0xdc, 0xbd, 0xa3, 0x78,
-	0x9e, 0x23, 0x17, 0x46, 0xf2, 0x2c, 0xae, 0x7b, 0xb6, 0x9b, 0x6c, 0xda, 0xbd, 0x3b, 0x59, 0x83,
-	0x4f, 0xb8, 0x78, 0x2e, 0x07, 0xac, 0x78, 0x96, 0xe0, 0x69, 0x6b, 0xdb, 0xc6, 0x3f, 0xdf, 0xc9,
-	0x2e, 0x27, 0x61, 0x5a, 0x6d, 0x56, 0xab, 0xe9, 0xa9, 0x7d, 0xf1, 0x4e, 0xf6, 0x5c, 0xce, 0x9b,
-	0x9a, 0xdd, 0x5a, 0x6a, 0x38, 0x8b, 0x95, 0xb2, 0x5d, 0x37, 0xee, 0xdc, 0xc9, 0x3a, 0x1e, 0x08,
-	0x8a, 0x97, 0xed, 0x56, 0xc3, 0x29, 0xdb, 0x0e, 0x3f, 0x0e, 0x79, 0xbe, 0xf8, 0xd1, 0xdb, 0x59,
-	0x93, 0xc8, 0xd2, 0xca, 0xa0, 0xf8, 0x23, 0xb7, 0x73, 0x83, 0x84, 0x84, 0x1a, 0xd2, 0x37, 0xd3,
-	0x6b, 0x3a, 0x49, 0x1c, 0xfd, 0xbb, 0xb7, 0xb3, 0x1b, 0x2b, 0xcd, 0x52, 0x17, 0x53, 0xf9, 0x9d,
-	0xdb, 0xb9, 0xa1, 0x57, 0x8a, 0x52, 0xf8, 0x84, 0xa6, 0x6b, 0x97, 0x8d, 0xdf, 0xbe, 0x9d, 0xb5,
-	0xcf, 0x14, 0xfd, 0x9a, 0xed, 0x54, 0x96, 0xd6, 0xa5, 0xcb, 0xfc, 0xad, 0xdb, 0x59, 0x67, 0x20,
-	0xc8, 0xad, 0x15, 0xb3, 0x5e, 0xb7, 0xab, 0x6a, 0xce, 0xbf, 0x99, 0x33, 0xe7, 0xb2, 0xb9, 0xbe,
-	0xd8, 0x5c, 0x6f, 0x79, 0x95, 0x6a, 0x05, 0x5d, 0x98, 0xd5, 0x68, 0xd6, 0x3d, 0xe3, 0x53, 0x5f,
-	0xc8, 0x9e, 0x1d, 0x3a, 0x65, 0x2a, 0x56, 0xfc, 0xa4, 0x22, 0xfe, 0xbf, 0x00, 0x00, 0x00, 0xff,
-	0xff, 0xa6, 0x6b, 0x33, 0x75, 0xa4, 0x52, 0x00, 0x00,
+	// 3025 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x5a, 0x4b, 0x73, 0xdc, 0xd6,
+	0x95, 0x9e, 0xe6, 0x43, 0x6c, 0x1e, 0x49, 0x14, 0x0c, 0x53, 0x52, 0x8b, 0xa2, 0x28, 0x0a, 0x92,
+	0x65, 0x8e, 0x2c, 0x53, 0x36, 0x5d, 0x63, 0xab, 0x6a, 0xc6, 0x53, 0x06, 0xd1, 0x97, 0xcd, 0x2e,
+	0x75, 0x03, 0xed, 0x0b, 0x90, 0x14, 0x35, 0xae, 0x42, 0xc1, 0xdd, 0x97, 0x64, 0x97, 0x48, 0x34,
+	0xd5, 0x00, 0x69, 0x73, 0xe7, 0x9a, 0xaa, 0xf9, 0x01, 0xb3, 0x99, 0x49, 0xe2, 0xe7, 0xef, 0xc8,
+	0xd3, 0xab, 0x2c, 0x92, 0x5d, 0x2a, 0x8b, 0xa4, 0xf2, 0x52, 0x5e, 0xce, 0x2a, 0x9b, 0x64, 0x13,
+	0x27, 0x7e, 0xa4, 0xee, 0x0b, 0xf7, 0xa2, 0xd9, 0x4d, 0x52, 0xa9, 0x8a, 0xb5, 0x11, 0xce, 0xb9,
+	0xdf, 0x39, 0xf7, 0xbc, 0xee, 0xc1, 0xb9, 0x68, 0xc2, 0x64, 0x73, 0xbb, 0x4d, 0xe2, 0x34, 0xdc,
+	0x21, 0x49, 0x12, 0x6d, 0x92, 0xf9, 0xdd, 0x6e, 0x27, 0xed, 0x98, 0xe6, 0x4e, 0xb2, 0x39, 0x9f,
+	0x5f, 0xb1, 0xee, 0x82, 0xe1, 0x2c, 0xf8, 0x61, 0x80, 0xfc, 0x20, 0x74, 0xbc, 0x7a, 0xdd, 0x76,
+	0xcb, 0xa6, 0x01, 0xc3, 0xcd, 0x9d, 0x56, 0xa9, 0x30, 0x5b, 0x98, 0x1b, 0xc7, 0xf4, 0xd1, 0x34,
+	0x61, 0x24, 0xea, 0x6e, 0x26, 0xa5, 0xa1, 0xd9, 0xe1, 0xb9, 0x71, 0xcc, 0x9e, 0xad, 0x2d, 0x28,
+	0x56, 0x53, 0xb2, 0x53, 0x8d, 0x37, 0x3a, 0xe6, 0x34, 0x8c, 0xd3, 0x67, 0x67, 0x63, 0xb3, 0xca,
+	0xe5, 0x46, 0xb1, 0x62, 0x98, 0x25, 0x18, 0xa3, 0x84, 0xbb, 0xb7, 0x53, 0x1a, 0x62, 0x6b, 0x92,
+	0x34, 0x6f, 0xc0, 0x59, 0x4c, 0x76, 0xa2, 0x76, 0xec, 0x93, 0x66, 0x27, 0x6e, 0x25, 0xa5, 0x61,
+	0xb6, 0x9e, 0x67, 0x5a, 0xdf, 0x1c, 0x06, 0x58, 0xea, 0xb6, 0x49, 0xdc, 0x62, 0x9b, 0x4d, 0x41,
+	0xb1, 0xb1, 0x1d, 0x1d, 0x90, 0x6e, 0xb6, 0x57, 0x46, 0x53, 0x43, 0xdd, 0x68, 0x87, 0xb0, 0x7d,
+	0xc6, 0x31, 0x7b, 0xa6, 0xbc, 0x65, 0x12, 0xb5, 0x98, 0xee, 0x71, 0xcc, 0x9e, 0xcd, 0x49, 0x18,
+	0xad, 0x91, 0x7d, 0xb2, 0x5d, 0x1a, 0x61, 0x0a, 0x38, 0x41, 0x35, 0xaf, 0xb6, 0x77, 0xf9, 0xc2,
+	0x28, 0xd7, 0x2c, 0x69, 0xea, 0x62, 0x2d, 0x4a, 0xd2, 0x5a, 0x67, 0xb3, 0x1d, 0x97, 0x4e, 0x71,
+	0x17, 0x33, 0x86, 0x69, 0xc1, 0x19, 0x6e, 0x61, 0xa3, 0xd3, 0x8e, 0xd3, 0xa4, 0x34, 0xc6, 0x00,
+	0x39, 0x9e, 0x39, 0x07, 0xe7, 0x6a, 0x64, 0x23, 0xad, 0xb4, 0xf7, 0x89, 0x74, 0xb7, 0xc8, 0x60,
+	0xbd, 0x6c, 0xf3, 0x16, 0x18, 0x2b, 0x71, 0x97, 0x44, 0xad, 0x3a, 0xcf, 0x12, 0x8d, 0xdc, 0x38,
+	0x83, 0x1e, 0xe2, 0xd3, 0x64, 0x3d, 0x88, 0xe2, 0x12, 0xb0, 0x65, 0xfa, 0x68, 0xce, 0x00, 0x54,
+	0x93, 0x07, 0x51, 0x1c, 0x74, 0x5a, 0xd1, 0x41, 0xe9, 0xf4, 0x6c, 0x61, 0xae, 0x88, 0x35, 0x0e,
+	0xf5, 0xb2, 0x9a, 0x78, 0xf1, 0x76, 0x3b, 0x26, 0xa5, 0x33, 0x6c, 0x35, 0xa3, 0xcd, 0x9b, 0x30,
+	0xb1, 0xd4, 0x49, 0x52, 0xd2, 0x25, 0x2d, 0x27, 0x4a, 0xe9, 0xbe, 0x13, 0x4c, 0x71, 0x0f, 0x97,
+	0xfa, 0xe2, 0x44, 0x31, 0x67, 0x0a, 0xe0, 0x39, 0xee, 0x4b, 0x0f, 0xdb, 0x7a, 0xbf, 0x00, 0xe7,
+	0x78, 0x7a, 0xfc, 0x34, 0xda, 0x24, 0xc7, 0x66, 0x70, 0x12, 0x46, 0xfd, 0x66, 0xa7, 0x4b, 0x44,
+	0xa9, 0x70, 0x22, 0xcb, 0xeb, 0xb0, 0x96, 0x57, 0x03, 0x86, 0x6b, 0xfb, 0x32, 0x83, 0xf4, 0x91,
+	0xa2, 0xaa, 0xcd, 0x4e, 0xcc, 0x72, 0x37, 0x8e, 0xd9, 0x33, 0x8d, 0x86, 0xb3, 0x97, 0xa4, 0x9d,
+	0x1d, 0xb6, 0x72, 0x8a, 0xad, 0x68, 0x1c, 0xeb, 0x47, 0x23, 0x70, 0xc6, 0x5f, 0x70, 0x98, 0x71,
+	0x8d, 0x28, 0x49, 0x68, 0xb5, 0x72, 0x4b, 0xa5, 0x6d, 0x92, 0x64, 0xa6, 0xa5, 0x51, 0x37, 0xc9,
+	0x4c, 0xa3, 0x84, 0x32, 0x78, 0x58, 0x37, 0x78, 0x0a, 0x8a, 0x41, 0x67, 0x97, 0x2f, 0x70, 0x0b,
+	0x33, 0xda, 0xbc, 0x0b, 0xc5, 0x95, 0x84, 0xd0, 0x33, 0x90, 0x94, 0x46, 0x67, 0x87, 0xe7, 0x4e,
+	0x2f, 0x4c, 0xcf, 0x1f, 0x3e, 0x9a, 0xf3, 0xf2, 0x74, 0xe1, 0x0c, 0x4d, 0x6d, 0xab, 0x90, 0xd4,
+	0xe9, 0x64, 0x25, 0x28, 0x49, 0xaa, 0xb3, 0x42, 0xd2, 0x36, 0xd3, 0x39, 0x76, 0x12, 0x9d, 0x12,
+	0x6d, 0xda, 0x30, 0x8e, 0xa3, 0xf8, 0x21, 0x37, 0xa7, 0xc8, 0x44, 0xaf, 0xf7, 0x13, 0xed, 0x49,
+	0x22, 0x56, 0x52, 0x26, 0x82, 0xd3, 0xe2, 0x7c, 0x32, 0x25, 0xe3, 0x27, 0x57, 0xa2, 0xcb, 0x99,
+	0x17, 0xe0, 0x14, 0x26, 0xc9, 0xde, 0x76, 0xca, 0xca, 0x72, 0x14, 0x0b, 0xca, 0x5c, 0x84, 0xb3,
+	0xd2, 0xda, 0xa5, 0x76, 0x37, 0x49, 0x4b, 0x67, 0x4f, 0xe0, 0x60, 0x5e, 0x44, 0xd7, 0xf1, 0x12,
+	0xcd, 0x5b, 0x69, 0xe2, 0x49, 0x74, 0x30, 0x11, 0x5e, 0xf4, 0x29, 0x7a, 0x3b, 0xed, 0x46, 0x76,
+	0xab, 0xc5, 0xb2, 0x90, 0x15, 0x7d, 0x8e, 0x6d, 0xad, 0xc3, 0x39, 0x67, 0xc1, 0x67, 0xad, 0x01,
+	0x93, 0x47, 0x7b, 0x24, 0x49, 0x69, 0xb5, 0xda, 0xcd, 0xa6, 0x6c, 0xaa, 0x76, 0xb3, 0xc9, 0x4e,
+	0x41, 0x94, 0x24, 0x6f, 0x75, 0xba, 0x2d, 0xd1, 0xaf, 0x32, 0x9a, 0x26, 0xda, 0xd9, 0x8a, 0xe2,
+	0x98, 0x6c, 0x8b, 0x92, 0x97, 0xa4, 0xf5, 0x1a, 0x80, 0x4f, 0xba, 0xfb, 0xa4, 0xcb, 0x4e, 0xd2,
+	0x04, 0x0c, 0x65, 0x75, 0x3a, 0x34, 0xa0, 0xff, 0x51, 0x4c, 0x43, 0xa8, 0x19, 0xaa, 0x36, 0xac,
+	0x14, 0x0c, 0x7f, 0xc1, 0x11, 0xc6, 0x25, 0xbb, 0x9d, 0x38, 0x21, 0x7d, 0xac, 0x9b, 0x84, 0xd1,
+	0xa0, 0xf3, 0x90, 0xc4, 0x42, 0x15, 0x27, 0xcc, 0xbb, 0x30, 0xc6, 0x77, 0xa7, 0xad, 0x9a, 0x06,
+	0x70, 0xa6, 0x5f, 0x00, 0x95, 0x81, 0x58, 0xc2, 0xad, 0x49, 0x30, 0xfd, 0x05, 0xc7, 0x4b, 0xb7,
+	0x48, 0xb7, 0xb1, 0x1d, 0x35, 0x09, 0xdb, 0xdf, 0x7a, 0x03, 0x2e, 0x38, 0x0b, 0xbe, 0x4f, 0xb6,
+	0x49, 0x33, 0xe5, 0xc8, 0xc1, 0xf1, 0xea, 0x6f, 0xd1, 0x14, 0x14, 0xc5, 0x76, 0x2d, 0x71, 0x02,
+	0x33, 0xda, 0x7a, 0x1d, 0x2e, 0xd2, 0xa3, 0x9d, 0xd3, 0xfe, 0x84, 0x0e, 0xf7, 0x06, 0x2f, 0x86,
+	0x33, 0xf4, 0x7d, 0x59, 0xf7, 0x2b, 0x61, 0xd9, 0x0e, 0xec, 0xe3, 0x5a, 0x59, 0x1f, 0x8d, 0x25,
+	0x18, 0xab, 0x27, 0x9b, 0x4e, 0xa7, 0x25, 0x3b, 0x86, 0x24, 0x69, 0xf2, 0xca, 0x51, 0x1a, 0xb1,
+	0x7e, 0x71, 0x06, 0xb3, 0x67, 0xeb, 0x0d, 0xd6, 0x9d, 0xd4, 0x7e, 0xd3, 0x30, 0x8e, 0xba, 0xdd,
+	0x4e, 0x97, 0xc9, 0x8b, 0x37, 0x6d, 0xc6, 0xa0, 0xd6, 0x30, 0xa2, 0x9e, 0x6c, 0xca, 0x92, 0x92,
+	0x74, 0xa6, 0x7d, 0x58, 0xd3, 0xfe, 0x2a, 0x3c, 0xed, 0x2c, 0xf8, 0x28, 0x4e, 0x49, 0xb7, 0x12,
+	0xed, 0x90, 0x27, 0x8c, 0xbd, 0x55, 0x86, 0x49, 0x7f, 0xc1, 0xd1, 0xc4, 0x07, 0x06, 0x57, 0x0f,
+	0xd3, 0x50, 0x3e, 0x4c, 0xd6, 0x34, 0x4c, 0xe9, 0x5a, 0x9c, 0xce, 0xce, 0xee, 0x36, 0x49, 0x89,
+	0xdb, 0x49, 0xdb, 0x1b, 0x07, 0xd6, 0x75, 0x76, 0x94, 0x78, 0x9b, 0xf0, 0x49, 0xd4, 0x6d, 0x6e,
+	0x51, 0xf5, 0xf7, 0xc8, 0x81, 0x54, 0x7f, 0x8f, 0x1c, 0x58, 0x2f, 0x32, 0x3f, 0x74, 0xd0, 0xe2,
+	0x41, 0xb5, 0x75, 0x54, 0x72, 0x2c, 0x0f, 0xce, 0xfb, 0x0b, 0x8e, 0x2e, 0x22, 0xba, 0xcd, 0xcb,
+	0x59, 0x17, 0x2a, 0x0c, 0xae, 0x70, 0x35, 0x8e, 0xc8, 0x2e, 0x65, 0xbd, 0xc0, 0x26, 0xa9, 0x0a,
+	0x49, 0xf9, 0x5a, 0xad, 0x9d, 0xa4, 0x34, 0x5b, 0xcb, 0x51, 0xc2, 0xdf, 0x87, 0xcc, 0x82, 0x22,
+	0x56, 0x0c, 0x8b, 0xc0, 0x38, 0xc7, 0x62, 0xf2, 0xe8, 0x89, 0xa7, 0x9a, 0xfe, 0xaf, 0x1d, 0x39,
+	0xeb, 0x8c, 0xa8, 0x59, 0xc7, 0xfa, 0x69, 0x01, 0x2e, 0xf8, 0x0b, 0x0e, 0xd6, 0x2d, 0x13, 0xbe,
+	0xce, 0xc8, 0xc1, 0x2a, 0x38, 0xd8, 0x95, 0xe5, 0xa4, 0x71, 0xcc, 0xff, 0x94, 0xeb, 0x54, 0x86,
+	0x4d, 0x7f, 0xc7, 0xc7, 0x43, 0x93, 0x30, 0x5f, 0x84, 0x11, 0x4c, 0x1e, 0xc9, 0x5e, 0x71, 0x65,
+	0xb0, 0x24, 0x26, 0x8f, 0x30, 0x83, 0x9a, 0xb7, 0xe1, 0x29, 0x39, 0x0e, 0xf1, 0xb9, 0x89, 0xce,
+	0x16, 0xfc, 0x0d, 0x7a, 0x78, 0xc1, 0xda, 0x62, 0x15, 0x28, 0xb2, 0x98, 0x46, 0xb2, 0x6a, 0x68,
+	0xe0, 0x19, 0xa9, 0xf9, 0xa5, 0x18, 0xe6, 0x02, 0x8c, 0x50, 0x53, 0x59, 0x3c, 0x8f, 0x77, 0x88,
+	0x61, 0x2d, 0xc4, 0xfa, 0x57, 0x66, 0xad, 0xd8, 0xe7, 0x0e, 0x0c, 0x63, 0xf2, 0x88, 0xed, 0x70,
+	0xac, 0x7f, 0x14, 0x69, 0xdd, 0x81, 0xa7, 0x9c, 0x05, 0xdf, 0x6e, 0xb5, 0x38, 0x7f, 0xf1, 0xa0,
+	0x71, 0x4c, 0x9d, 0xce, 0x81, 0x99, 0x17, 0x90, 0x33, 0x2d, 0xab, 0x88, 0x82, 0xaa, 0x08, 0xeb,
+	0x05, 0x66, 0x61, 0x86, 0x14, 0x29, 0x3e, 0x4a, 0xf7, 0x6d, 0x98, 0xa0, 0xba, 0x37, 0xbb, 0x84,
+	0x70, 0x99, 0x23, 0xd1, 0x1f, 0x17, 0x58, 0xb0, 0x35, 0xf8, 0xf1, 0x5b, 0x3c, 0x41, 0xe9, 0xf6,
+	0x1f, 0xc9, 0x65, 0x41, 0x8f, 0x6a, 0xc3, 0xbb, 0x3e, 0xa6, 0x9f, 0x3a, 0x6a, 0x4c, 0x1f, 0xeb,
+	0x19, 0xd3, 0xad, 0xe7, 0x59, 0x33, 0xc1, 0x64, 0x63, 0x2f, 0x39, 0x89, 0xc7, 0x15, 0xd6, 0x23,
+	0x74, 0xb8, 0xf0, 0xb8, 0x4f, 0xf8, 0x8f, 0x6c, 0x71, 0x72, 0xdf, 0x9d, 0xce, 0xfe, 0x49, 0xf6,
+	0x7d, 0x49, 0xec, 0xab, 0xe0, 0x27, 0x48, 0x26, 0xef, 0x81, 0xf4, 0x78, 0xe4, 0x6e, 0x1d, 0x53,
+	0x50, 0x14, 0xb5, 0xdc, 0x62, 0x0d, 0x6d, 0x14, 0x67, 0xb4, 0xf5, 0xfd, 0x02, 0x98, 0x3a, 0x58,
+	0xed, 0xa2, 0x89, 0x14, 0x74, 0x11, 0x3a, 0xa3, 0x89, 0x2b, 0x0e, 0xf7, 0x51, 0x50, 0x34, 0x7b,
+	0xec, 0x4d, 0x23, 0x73, 0xca, 0x88, 0xc3, 0xf7, 0xbb, 0x91, 0x3e, 0xf7, 0x3b, 0x73, 0x16, 0x4e,
+	0x57, 0x13, 0x76, 0x37, 0xa1, 0xd6, 0xb3, 0x54, 0x17, 0xb1, 0xce, 0xa2, 0x7d, 0x6a, 0x31, 0x6a,
+	0x3e, 0x14, 0x3b, 0xf3, 0x9c, 0x6b, 0x1c, 0xeb, 0x7f, 0x0b, 0x70, 0xc9, 0x5f, 0x70, 0x7a, 0x9d,
+	0x17, 0xfe, 0x2c, 0x01, 0x70, 0x9a, 0xbd, 0xff, 0x78, 0x57, 0xbf, 0x39, 0xf8, 0xac, 0xea, 0xb2,
+	0x58, 0x93, 0xec, 0xdf, 0x9a, 0x86, 0x06, 0xb5, 0xa6, 0x17, 0xd8, 0xc1, 0xcd, 0xde, 0x07, 0x27,
+	0x48, 0xc7, 0x62, 0xfe, 0x12, 0xf9, 0x8f, 0xe4, 0xc1, 0x7a, 0x03, 0x4a, 0x34, 0x10, 0xf9, 0x5d,
+	0x45, 0x1c, 0x5e, 0xeb, 0x13, 0x87, 0xd9, 0x63, 0xe3, 0xa0, 0xc9, 0x58, 0x08, 0xce, 0x66, 0xef,
+	0x59, 0x67, 0x2b, 0x3a, 0xfa, 0xe8, 0xd3, 0x19, 0xb6, 0x13, 0xa7, 0x24, 0x4e, 0x99, 0x8d, 0x67,
+	0xb0, 0x24, 0xad, 0x7b, 0xf0, 0x74, 0xd6, 0x4b, 0xa9, 0x9a, 0x13, 0xf4, 0x91, 0xc1, 0xca, 0xfe,
+	0x03, 0xa6, 0x33, 0x9b, 0x2a, 0x24, 0x3d, 0x74, 0x41, 0x9e, 0x96, 0x6f, 0xd9, 0x6a, 0x2b, 0x11,
+	0x21, 0x57, 0x0c, 0xeb, 0x3e, 0x4c, 0x71, 0xa2, 0x57, 0x8e, 0x65, 0xfc, 0xa8, 0x0c, 0xcc, 0x00,
+	0x68, 0xd7, 0x73, 0x9e, 0x05, 0x8d, 0x63, 0x6d, 0x81, 0x95, 0x39, 0xd9, 0xc7, 0xae, 0xec, 0x6e,
+	0x33, 0xa2, 0x65, 0x63, 0x7e, 0x70, 0x36, 0xfa, 0xd9, 0x27, 0xa6, 0xb8, 0xbb, 0x30, 0x95, 0x45,
+	0xa0, 0xb1, 0xb7, 0xbd, 0x9d, 0x83, 0x1e, 0xe5, 0x83, 0xb5, 0x04, 0x13, 0x2a, 0x0b, 0xcc, 0x63,
+	0x2d, 0xce, 0x85, 0x5c, 0x9c, 0xf9, 0xa0, 0x1d, 0xb7, 0x82, 0xf6, 0x8e, 0xbc, 0x9b, 0x67, 0xb4,
+	0xb5, 0x0f, 0xb3, 0x99, 0xaf, 0x87, 0x2c, 0x38, 0x41, 0x57, 0x79, 0x59, 0x44, 0x81, 0x4f, 0x18,
+	0xd6, 0xe0, 0x28, 0x48, 0x3b, 0x85, 0xe7, 0xff, 0x05, 0x57, 0x54, 0x3d, 0x76, 0xe2, 0x8d, 0x76,
+	0x77, 0xe7, 0xc4, 0xce, 0x1f, 0x9b, 0xc0, 0x08, 0xae, 0xab, 0x2a, 0xed, 0xa3, 0xfc, 0x04, 0x7e,
+	0x1d, 0xb7, 0xc5, 0xb3, 0xbc, 0x67, 0x93, 0x94, 0x7f, 0x7e, 0xe1, 0x72, 0x89, 0x3e, 0xe0, 0x8e,
+	0xf2, 0x01, 0x17, 0xb1, 0x13, 0x83, 0x7b, 0x81, 0xd3, 0x30, 0x2e, 0x4f, 0x48, 0x56, 0xdb, 0x19,
+	0x43, 0xaa, 0x19, 0x52, 0x6a, 0x9e, 0x65, 0xb7, 0x17, 0x7f, 0xab, 0xb3, 0xcb, 0x6f, 0xdc, 0x17,
+	0x61, 0x2c, 0xd9, 0xea, 0xec, 0x86, 0x6d, 0x69, 0xfa, 0x29, 0x4a, 0x56, 0x5b, 0xd6, 0x16, 0x9c,
+	0xa6, 0x37, 0x27, 0x01, 0xa4, 0x38, 0x7a, 0x0f, 0xd6, 0x70, 0x94, 0xac, 0xb6, 0xcc, 0x4b, 0x50,
+	0xdc, 0x26, 0x1b, 0x69, 0x18, 0xab, 0x6f, 0x7b, 0x94, 0xa6, 0xe7, 0xee, 0x19, 0x98, 0xe8, 0xb2,
+	0x36, 0x1f, 0x26, 0xf9, 0x8f, 0x7b, 0xdd, 0xdc, 0xc7, 0xbd, 0x16, 0x9b, 0x5a, 0x32, 0x93, 0x44,
+	0x50, 0x07, 0x19, 0x66, 0xfe, 0x1b, 0x8c, 0xf2, 0x8f, 0x1c, 0xbc, 0x54, 0xae, 0xf6, 0xbd, 0x7e,
+	0x2a, 0x7d, 0x98, 0xa3, 0xad, 0x32, 0x9b, 0x74, 0x16, 0xf7, 0x0e, 0x4e, 0xe4, 0x12, 0x5b, 0xd0,
+	0x5c, 0x6a, 0xf3, 0xcf, 0x95, 0xd6, 0x7b, 0x7c, 0x02, 0xd2, 0xd4, 0x1c, 0x67, 0xae, 0xb6, 0xcb,
+	0xd0, 0xc0, 0x5d, 0x86, 0x73, 0xbb, 0x98, 0xaf, 0x40, 0x31, 0x6a, 0xb5, 0x42, 0x4a, 0xb2, 0xf7,
+	0xe5, 0x71, 0x5f, 0x29, 0xc6, 0xa2, 0x16, 0xfb, 0x80, 0x62, 0x4d, 0xb1, 0xde, 0x4f, 0x4d, 0x73,
+	0x09, 0x69, 0x61, 0xb2, 0xd1, 0x25, 0xc9, 0x96, 0xb8, 0x46, 0x35, 0xe1, 0x6c, 0xb9, 0x1d, 0x6d,
+	0x1f, 0x04, 0x51, 0xf2, 0x90, 0x1d, 0xf4, 0x0b, 0x70, 0x8a, 0x3e, 0x67, 0x45, 0x2b, 0x28, 0x5a,
+	0x52, 0xf4, 0x69, 0x35, 0xda, 0xde, 0x93, 0xe7, 0x5c, 0x31, 0xe4, 0x2a, 0x1b, 0xa5, 0x85, 0xdd,
+	0x8a, 0x61, 0x9d, 0x97, 0xe5, 0x9c, 0x6d, 0xc5, 0x46, 0xe7, 0xd7, 0xd9, 0x07, 0x07, 0xff, 0x20,
+	0x6e, 0x66, 0x7c, 0xf3, 0x55, 0x28, 0xd2, 0xff, 0xd9, 0xbd, 0x82, 0xf7, 0xbe, 0x6b, 0xfd, 0x9c,
+	0xcc, 0xd9, 0x8c, 0x33, 0x11, 0xeb, 0x21, 0x9b, 0x90, 0xb8, 0x6f, 0x99, 0x75, 0xce, 0xd6, 0xe6,
+	0x3f, 0xc5, 0xad, 0x04, 0x4e, 0xdb, 0xcd, 0xad, 0x36, 0xd9, 0x27, 0x2c, 0x72, 0xd3, 0x30, 0x2e,
+	0x48, 0xf5, 0xb1, 0x3b, 0x63, 0x98, 0x16, 0x9c, 0x11, 0x84, 0xbe, 0x57, 0x8e, 0xa7, 0x61, 0xf4,
+	0x1d, 0x73, 0x3c, 0xeb, 0x1c, 0x7b, 0xd5, 0x56, 0x48, 0x2a, 0xb8, 0xd6, 0x1a, 0x3f, 0x28, 0x07,
+	0x71, 0x53, 0x37, 0xc6, 0xce, 0x6c, 0xd3, 0x42, 0xd9, 0xf7, 0x54, 0x68, 0x52, 0x58, 0x97, 0xb1,
+	0xde, 0x29, 0xb0, 0xba, 0xe1, 0xc1, 0xd4, 0xed, 0xa4, 0xf1, 0xfc, 0x6a, 0x9c, 0xbd, 0x25, 0xef,
+	0xce, 0x34, 0xe8, 0x98, 0xbc, 0x15, 0x75, 0x5b, 0x83, 0x32, 0x69, 0xfd, 0x77, 0x81, 0x95, 0x13,
+	0x3e, 0x09, 0x98, 0x0e, 0xea, 0xec, 0x3b, 0x1d, 0x37, 0x8c, 0x3d, 0xd3, 0x57, 0x5c, 0xb9, 0x1d,
+	0xed, 0x74, 0x62, 0xf9, 0xc1, 0x48, 0x92, 0xb4, 0x61, 0xa2, 0xb7, 0x77, 0xe5, 0x17, 0x65, 0xf4,
+	0xf6, 0x2e, 0xd5, 0xeb, 0xec, 0x75, 0x6b, 0xfb, 0xf2, 0xf7, 0x00, 0x41, 0x59, 0xff, 0x2e, 0x2b,
+	0x5d, 0xb8, 0x21, 0xcc, 0xb8, 0x01, 0x67, 0x73, 0x0c, 0x61, 0x4d, 0x9e, 0x69, 0xfd, 0x4f, 0x41,
+	0x76, 0xf3, 0xbc, 0xf4, 0x57, 0xed, 0xc4, 0x6d, 0x16, 0xf5, 0xb5, 0x4e, 0x77, 0x9b, 0xbd, 0x57,
+	0xe9, 0xdb, 0x7c, 0xf0, 0xfb, 0xdf, 0x5a, 0x60, 0x5f, 0x11, 0x72, 0x68, 0xd1, 0xfd, 0x06, 0xcb,
+	0xf0, 0x86, 0x90, 0xc9, 0xd4, 0x93, 0x4d, 0x3a, 0x1d, 0x58, 0x9f, 0x16, 0xe0, 0x6c, 0xc6, 0x64,
+	0xdd, 0xf8, 0xc8, 0xb1, 0x63, 0xd0, 0xb5, 0x8a, 0xbe, 0x5e, 0xf9, 0xb3, 0xf6, 0xdb, 0x80, 0xc6,
+	0x51, 0xeb, 0xda, 0x37, 0x11, 0x8d, 0x43, 0x2f, 0x1e, 0x9c, 0xd2, 0x7f, 0xf2, 0xd1, 0x59, 0xec,
+	0xa7, 0xab, 0xe4, 0x41, 0x14, 0x93, 0x96, 0xfc, 0xe0, 0x2e, 0x48, 0xfe, 0x2b, 0x0a, 0x7f, 0x0f,
+	0x8b, 0x7b, 0x66, 0x46, 0xe7, 0x46, 0xa5, 0x62, 0xcf, 0xa8, 0x14, 0xb0, 0x9b, 0x4a, 0x6f, 0x48,
+	0x44, 0x24, 0x5f, 0x81, 0x51, 0xfe, 0x09, 0xfd, 0x88, 0x96, 0x98, 0x0b, 0x1c, 0xe6, 0x78, 0x6b,
+	0x9e, 0x35, 0x87, 0x6c, 0x69, 0xa9, 0xd3, 0x7d, 0xb3, 0xcd, 0x92, 0x89, 0x84, 0x19, 0xfc, 0xa6,
+	0x2a, 0x49, 0x6b, 0x3e, 0x6b, 0xc9, 0x95, 0xbd, 0x76, 0x8b, 0xc8, 0x61, 0x97, 0x11, 0x6a, 0x96,
+	0xc8, 0x68, 0x51, 0x2a, 0x7e, 0xb4, 0x4f, 0x14, 0xbe, 0x04, 0x63, 0x62, 0x5d, 0xfe, 0x50, 0x22,
+	0x48, 0xeb, 0x8e, 0xac, 0xef, 0x13, 0x0a, 0xdc, 0xfa, 0xf1, 0x04, 0x8c, 0xa2, 0x10, 0x61, 0x6c,
+	0x16, 0x61, 0xc4, 0xf5, 0x5c, 0x64, 0xfc, 0x8b, 0x79, 0x1e, 0x8a, 0x55, 0x37, 0x40, 0xd8, 0xb5,
+	0x6b, 0xc6, 0x97, 0xf2, 0x5f, 0xc1, 0xfc, 0x57, 0x98, 0x6e, 0xd4, 0xec, 0x75, 0x84, 0x43, 0xdb,
+	0x71, 0x42, 0x0f, 0x87, 0x0d, 0xdb, 0xf7, 0xd7, 0x3c, 0x5c, 0xa6, 0xe2, 0x1e, 0x36, 0xbe, 0x50,
+	0xd0, 0x2b, 0x60, 0x08, 0xa8, 0xeb, 0x05, 0x21, 0xba, 0x5f, 0xf5, 0x03, 0xe3, 0x73, 0xb5, 0x7c,
+	0x1d, 0x2e, 0x48, 0x4d, 0x35, 0x8c, 0xec, 0xf2, 0x7a, 0x58, 0xf3, 0x2a, 0x55, 0x17, 0x95, 0x8d,
+	0xcf, 0x14, 0xe8, 0x19, 0x28, 0x09, 0x90, 0x17, 0x2c, 0x23, 0x1c, 0x36, 0x6a, 0xb6, 0x83, 0x38,
+	0xd0, 0xf8, 0x9b, 0x82, 0x5d, 0x05, 0x53, 0xc0, 0x02, 0xef, 0x1e, 0x72, 0x85, 0x2d, 0x7f, 0x55,
+	0x80, 0xe7, 0x60, 0x46, 0x00, 0x7c, 0x54, 0x43, 0x4e, 0x10, 0xfa, 0x08, 0xaf, 0x0a, 0xcb, 0x96,
+	0xbc, 0x15, 0xb7, 0x6c, 0x7c, 0xda, 0x0f, 0x2c, 0x2d, 0xe3, 0x42, 0xa8, 0x2c, 0xc4, 0x8c, 0xbf,
+	0xf4, 0xb3, 0x50, 0x82, 0x1f, 0xd8, 0x6e, 0x18, 0x78, 0x65, 0x7b, 0xdd, 0x78, 0xfc, 0xa7, 0x4f,
+	0x25, 0xec, 0x0e, 0x58, 0x02, 0x86, 0x91, 0x6b, 0xd7, 0x51, 0xe8, 0xa2, 0xb5, 0xd0, 0xb1, 0xdd,
+	0x20, 0xf4, 0x29, 0x15, 0x78, 0xa1, 0x57, 0x2b, 0x1b, 0xbf, 0x52, 0x02, 0x2a, 0xd0, 0xbd, 0x02,
+	0xa8, 0xde, 0x08, 0xd6, 0x8d, 0x5f, 0x2a, 0xe8, 0x6d, 0xb8, 0x9a, 0x87, 0x62, 0x54, 0xf7, 0x56,
+	0x11, 0xd5, 0x18, 0x2e, 0xd9, 0xd5, 0x1a, 0x2a, 0x1b, 0xbf, 0x50, 0xe8, 0x39, 0xb8, 0x9c, 0x47,
+	0x07, 0x9e, 0x17, 0xd6, 0x3c, 0xb7, 0x12, 0x52, 0xca, 0xf8, 0xb9, 0x42, 0x3e, 0x0f, 0xb3, 0x3d,
+	0x26, 0xd0, 0x3c, 0xba, 0xde, 0x4a, 0x65, 0x39, 0x2c, 0x57, 0xed, 0xba, 0xe7, 0x96, 0x8d, 0x9f,
+	0x29, 0xf8, 0x0d, 0xb8, 0xe8, 0x2c, 0xdb, 0xb8, 0x82, 0x42, 0x0f, 0x97, 0x11, 0x66, 0x1f, 0xcc,
+	0x85, 0xb1, 0x1f, 0xff, 0xfe, 0xcf, 0x12, 0x75, 0x13, 0x2e, 0x1d, 0x46, 0x55, 0xdd, 0x55, 0xbb,
+	0x56, 0x2d, 0x1b, 0xdf, 0x53, 0xb8, 0xe7, 0x60, 0x26, 0x87, 0xf3, 0xab, 0x15, 0xd7, 0x0e, 0x56,
+	0x30, 0xca, 0xc0, 0xdf, 0x55, 0x60, 0x0b, 0xce, 0xe7, 0xc1, 0xae, 0xd8, 0xf8, 0x3b, 0x0a, 0x33,
+	0x07, 0x97, 0x7b, 0x31, 0x34, 0x63, 0xe5, 0xf5, 0x70, 0xc5, 0x47, 0x65, 0xe3, 0xdb, 0x0a, 0xf9,
+	0x2c, 0x4c, 0xe5, 0x90, 0xab, 0x08, 0x57, 0x97, 0xd6, 0x65, 0x28, 0xbf, 0xa5, 0x80, 0xd7, 0xe1,
+	0xc2, 0x12, 0xae, 0x22, 0xb7, 0x1c, 0xd6, 0x91, 0xef, 0xdb, 0x15, 0x14, 0xba, 0x2b, 0xf5, 0xb0,
+	0x6e, 0xdf, 0x37, 0x3e, 0xfa, 0xc9, 0x1f, 0xb5, 0x02, 0x11, 0x20, 0xd7, 0x0b, 0x57, 0x5c, 0x5a,
+	0x23, 0x12, 0x6e, 0x7c, 0xa8, 0x60, 0xcf, 0xc3, 0xac, 0x80, 0x05, 0xcb, 0x28, 0xec, 0x29, 0x29,
+	0xbe, 0x62, 0x7c, 0xa0, 0xe0, 0x73, 0x70, 0xf9, 0x30, 0x1c, 0xa3, 0xd7, 0x57, 0x90, 0x1f, 0xa0,
+	0xb2, 0xf1, 0x7e, 0x3f, 0xa4, 0x28, 0x0b, 0x41, 0x09, 0x77, 0xde, 0x53, 0xc8, 0x5b, 0x70, 0x45,
+	0xac, 0x55, 0xaa, 0xab, 0x28, 0x6c, 0x78, 0x55, 0x37, 0xf0, 0xc3, 0x25, 0xa6, 0xd5, 0x0d, 0x6a,
+	0xeb, 0xc6, 0xbb, 0x0a, 0x7b, 0x07, 0x2c, 0xb9, 0xbf, 0xe7, 0x85, 0x75, 0xdb, 0x95, 0x46, 0xea,
+	0xb2, 0xc6, 0x37, 0xfa, 0xf9, 0xa7, 0x2b, 0xaf, 0xdb, 0xf7, 0x59, 0xcc, 0x6a, 0xd5, 0x7a, 0x35,
+	0x30, 0xbe, 0xae, 0xe0, 0xd7, 0x60, 0x52, 0x45, 0x8d, 0xba, 0x28, 0x42, 0xf0, 0x35, 0x05, 0xb9,
+	0x01, 0x17, 0x7b, 0xa2, 0x2f, 0x2b, 0xd9, 0xf8, 0x7f, 0x85, 0xba, 0x0a, 0xa6, 0x40, 0x39, 0xcb,
+	0x76, 0x20, 0xbd, 0xfe, 0x3f, 0x05, 0xb8, 0x0c, 0x13, 0xfe, 0xb2, 0xd7, 0xd0, 0x5a, 0xc1, 0x3b,
+	0x3f, 0xfc, 0x83, 0x56, 0x58, 0x6c, 0xb1, 0xb1, 0x82, 0x9d, 0x65, 0xdb, 0x47, 0x59, 0xd8, 0xbe,
+	0xfc, 0x41, 0x86, 0x99, 0x85, 0xa7, 0x19, 0xa6, 0x1a, 0xa0, 0xba, 0xa6, 0xe5, 0x0b, 0x85, 0xb8,
+	0x09, 0x97, 0x18, 0x82, 0x79, 0x89, 0xca, 0x61, 0xb0, 0xde, 0x50, 0x65, 0xfc, 0xb9, 0xc2, 0x5d,
+	0x83, 0xc9, 0xbc, 0x26, 0x7e, 0xd8, 0x8c, 0xcf, 0x14, 0xe4, 0x32, 0x4c, 0x04, 0xb6, 0x7f, 0x4f,
+	0xdb, 0xe7, 0xa3, 0x4f, 0xb2, 0x13, 0x38, 0x03, 0x4f, 0x65, 0x8b, 0x8e, 0x57, 0x6f, 0xd4, 0x50,
+	0x80, 0x8c, 0x0f, 0xd5, 0xfa, 0x34, 0x9c, 0xcb, 0xd6, 0x31, 0x5a, 0xb3, 0x71, 0xd9, 0xf8, 0x40,
+	0xad, 0x5a, 0x70, 0x9e, 0xad, 0xca, 0xa2, 0xe3, 0x08, 0x5a, 0x4c, 0x87, 0x31, 0x35, 0xb4, 0x8a,
+	0x6a, 0xba, 0x89, 0xef, 0x29, 0xcc, 0x75, 0xb8, 0xc0, 0x30, 0x0d, 0x8c, 0x56, 0xf3, 0xa6, 0xbc,
+	0xfb, 0x89, 0xde, 0xb3, 0xd6, 0x3c, 0x5c, 0x2b, 0xb3, 0xa4, 0xf8, 0x2c, 0x89, 0x7e, 0x25, 0x74,
+	0x3c, 0xaf, 0x56, 0x75, 0x2b, 0x61, 0xd9, 0x5b, 0x73, 0x8d, 0xdf, 0x3d, 0xce, 0xd0, 0xf3, 0x70,
+	0xad, 0x0f, 0x7a, 0x71, 0x3d, 0x40, 0xbe, 0x4a, 0xfa, 0x6f, 0x1f, 0xeb, 0x9d, 0x4b, 0xe1, 0x79,
+	0x97, 0xa5, 0x42, 0x6b, 0xd5, 0x60, 0x99, 0xd6, 0xd3, 0x12, 0x46, 0xc8, 0xf8, 0xcd, 0x63, 0xbd,
+	0x25, 0x2a, 0x78, 0x63, 0xa5, 0x56, 0xcb, 0x1b, 0xf2, 0x6b, 0x85, 0x7c, 0x0e, 0x66, 0xfa, 0x19,
+	0x82, 0xc2, 0x25, 0x0f, 0x2f, 0x56, 0xcb, 0xc8, 0x35, 0x1e, 0x67, 0xe0, 0x37, 0x4f, 0xb1, 0xbf,
+	0xfb, 0x79, 0xe9, 0xef, 0x01, 0x00, 0x00, 0xff, 0xff, 0xf6, 0xa2, 0x4e, 0x32, 0x0f, 0x24, 0x00,
+	0x00,
 }

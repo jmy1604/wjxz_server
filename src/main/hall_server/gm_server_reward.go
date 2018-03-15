@@ -2,7 +2,7 @@ package main
 
 import (
 	"libs/log"
-	"public_message/gen_go/client_message"
+	_ "public_message/gen_go/client_message"
 	"time"
 )
 
@@ -71,6 +71,7 @@ func (this *GmCommandMgr) PrintCurServerReward() {
 	log.Info("**************************end**************************")
 }
 
+/*
 func (this *GmCommandMgr) ChkGetServerRewardByPlayer(p *Player) *msg_client_message.S2CMailList {
 
 	log.Info("GmCommandMgr ChkGetServerRewardByPlayer %d", p.Id)
@@ -112,7 +113,7 @@ func (this *GmCommandMgr) ChkGetServerRewardByPlayer(p *Player) *msg_client_mess
 
 	return ret_msg
 }
-
+*/
 func (this *GmCommandMgr) OnPlayerLogin(p *Player) {
-	this.ChkGetServerRewardByPlayer(p)
+	//this.ChkGetServerRewardByPlayer(p)
 }

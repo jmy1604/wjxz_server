@@ -3,12 +3,12 @@ package main
 import (
 	"libs/log"
 	"libs/utils"
-	"public_message/gen_go/client_message"
+	_ "public_message/gen_go/client_message"
 	"sync"
 	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 const (
@@ -150,6 +150,7 @@ func (this *AnouncementMgr) PushNew(msg_type int32, is_broadcast bool, player_id
 	return true
 }
 
+/*
 func (this *AnouncementMgr) GetSome(player *Player, num int32) (items []*msg_client_message.AnouncementItem) {
 	this.locker.RLock()
 	defer this.locker.RUnlock()
@@ -221,10 +222,10 @@ func (this *AnouncementMgr) GetSome(player *Player, num int32) (items []*msg_cli
 	}
 
 	return
-}
+}*/
 
 func (this *Player) CheckAndAnouncement() int32 {
-	now_time := int32(time.Now().Unix())
+	/*now_time := int32(time.Now().Unix())
 	if now_time-this.db.Anouncement.GetLastSendTime() < global_config_mgr.GetGlobalConfig().AnouncementSendCooldown {
 		return -1
 	}
@@ -235,6 +236,6 @@ func (this *Player) CheckAndAnouncement() int32 {
 			Items: items,
 		}
 		this.Send(notify)
-	}
+	}*/
 	return 1
 }

@@ -12,6 +12,7 @@ move protoc-gen-go.exe ../public_message
 
 cd ../public_message
 protoc.exe --go_out=./gen_go/client_message/ client_message.proto
+protoc.exe --go_out=./gen_go/client_message_id/ client_message_id.proto
 cd ../_
 if errorlevel 1 goto exit
 

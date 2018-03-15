@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 	"public_message/gen_go/client_message"
-	"reflect"
+	_ "reflect"
 	"strings"
 	"time"
 
@@ -43,7 +43,7 @@ type CLIENT_MSG_HANDLER func(http.ResponseWriter, *http.Request, proto.Message) 
 type CLIENT_PLAYER_MSG_HANDLER func(http.ResponseWriter, *http.Request, *Player, proto.Message) int32
 
 type MsgHanlderInfo struct {
-	typ                reflect.Type
+	//typ                reflect.Type
 	msg_handler        CLIENT_MSG_HANDLER
 	player_msg_handler CLIENT_PLAYER_MSG_HANDLER
 	if_player_msg      bool
@@ -64,12 +64,12 @@ func (this *MsgHandlerMgr) Init() bool {
 
 func (this *MsgHandlerMgr) SetMsgHandler(msg_code uint16, msg_handler CLIENT_MSG_HANDLER) {
 	log.Info("set msg [%d] handler !", msg_code)
-	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{typ: msg_client_message.MessageTypes[msg_code], msg_handler: msg_handler, if_player_msg: false}
+	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ msg_handler: msg_handler, if_player_msg: false}
 }
 
 func (this *MsgHandlerMgr) SetPlayerMsgHandler(msg_code uint16, msg_handler CLIENT_PLAYER_MSG_HANDLER) {
 	log.Info("set msg [%d] handler !", msg_code)
-	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{typ: msg_client_message.MessageTypes[msg_code], player_msg_handler: msg_handler, if_player_msg: true}
+	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ player_msg_handler: msg_handler, if_player_msg: true}
 }
 
 func (this *MsgHandlerMgr) StartHttp() bool {
@@ -165,14 +165,18 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := reflect.New(handlerinfo.typ).Interface().(proto.Message)
+	//req := reflect.New(handlerinfo.typ).Interface().(proto.Message)
+	req := client_msgid2msg(uint16(tmp_msg.GetMsgCode()))
+	if req == nil {
+		return
+	}
 	err = proto.Unmarshal(tmp_msg.Data, req)
 	if nil != err {
 		log.Error("client_msg_handler unmarshal sub msg failed err(%s) !", err.Error())
 		return
 	}
 
-	log.Info("[接收] [玩家%d:%s] [%s] ", tmp_msg.GetPlayerId(), req.MessageTypeName(), req.String())
+	log.Info("[接收] [玩家%d:%v] [%s] ", tmp_msg.GetPlayerId(), tmp_msg.GetMsgCode(), req.String())
 
 	/*
 		pid := tmp_msg.GetPlayerId()
@@ -198,6 +202,11 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		tokeninfo := login_token_mgr.GetTockenByAcc(p.Account)
 		if nil == tokeninfo || tokeninfo.token != tmp_msg.GetToken() {
 			ret_code = int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN)
+			if tokeninfo == nil {
+				log.Warn("Account[%v] no token info", p.Account)
+			} else {
+				log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
+			}
 		} else {
 			p.bhandling = true
 			p.b_base_prop_chg = false
@@ -211,7 +220,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	if ret_code <= 0 {
 		log.Error("client_msg_handler exec msg_handler ret error_code %d", ret_code)
 		res2cli := &msg_client_message.S2C_MSG_DATA{}
-		res2cli.ErrorCode = proto.Int32(ret_code)
+		res2cli.ErrorCode = ret_code
 
 		final_data, err := proto.Marshal(res2cli)
 		if nil != err {
@@ -237,7 +246,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		if nil == data || len(data) < 4 {
 			//log.Error("client_msg_handler PopCurMsgDataError nil or len[%d] error", len(data))
 			//return
-			res2cli.ErrorCode = proto.Int32(ret_code)
+			res2cli.ErrorCode = ret_code
 		} else {
 			//log.Trace("client_msg_handler pop data %v", data)
 			res2cli.Data = data
@@ -266,4 +275,12 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	return
+}
+
+func client_msgid2msg(msg_id uint16) proto.Message {
+	msg := base_msgid2msg(msg_id)
+	if msg == nil {
+
+	}
+	return msg
 }

@@ -34,8 +34,8 @@ func new_match_agent(conn *server_conn.ServerConn, id int32, name, listen_room_i
 	return retagent
 }
 
-func (this *HallAgent) Send(msg proto.Message) {
-	this.conn.Send(msg, true)
+func (this *HallAgent) Send(msg_id uint16, msg proto.Message) {
+	this.conn.Send(msg_id, msg, true)
 }
 
 var hall_agent_mgr HallAgentManager
@@ -101,8 +101,8 @@ func (this *HallAgentManager) CloseConnection(conn *server_conn.ServerConn, reas
 	conn.Close(reason)
 }
 
-func (this *HallAgentManager) SendToAllMatch(msg proto.Message) {
-	this.server_node.Broadcast(msg)
+func (this *HallAgentManager) SendToAllMatch(msg_id uint16, msg proto.Message) {
+	this.server_node.Broadcast(msg_id, msg)
 }
 
 func (this *HallAgentManager) HasAgentByConn(conn *server_conn.ServerConn) bool {
@@ -153,8 +153,8 @@ func (this *HallAgentManager) RemoveAgent(conn *server_conn.ServerConn) {
 	return
 }
 
-func (this *HallAgentManager) Broadcast(msg proto.Message) {
-	this.server_node.Broadcast(msg)
+func (this *HallAgentManager) Broadcast(msg_id uint16, msg proto.Message) {
+	this.server_node.Broadcast(msg_id, msg)
 }
 
 func (this *HallAgentManager) RandOneAgent() *HallAgent {
@@ -170,29 +170,21 @@ func (this *HallAgentManager) RandOneAgent() *HallAgent {
 //==========================================================================================================
 
 func (this *HallAgentManager) RegisterMsgHandler() {
-	this.SetMessageHandler(msg_server_message.ID_H2CHallServerRegister, H2CHallServerRegisterHandler)
-	reg_hall_gm_response_msg()
+	this.server_node.SetPid2P(hall_agent_msgid2msg)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_H2C_HAll_SERVER_REGISTER), H2CHallServerRegisterHandler)
 }
 
-func (this *HallAgentManager) set_ih(type_id uint16, h server_conn.Handler) {
-	t := msg_server_message.MessageTypes[type_id]
-	if t == nil {
-		log.Error("设置消息句柄失败，不存在的消息类型 %v", type_id)
-		return
-	}
-
-	this.server_node.SetHandler(type_id, t, h)
+func (this *HallAgentManager) SetMessageHandler(type_id uint16, h server_conn.Handler) {
+	this.server_node.SetHandler(type_id, h)
 }
 
-func (this *HallAgentManager) SetMessageHandler(type_id uint16, h MessageHandler) {
-	if h == nil {
-		this.set_ih(type_id, nil)
-		return
+func hall_agent_msgid2msg(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_server_message.MSGID_H2C_HAll_SERVER_REGISTER) {
+		return &msg_server_message.H2CHallServerRegister{}
+	} else {
+		log.Error("Cant found proto message by msg_id[%v]", msg_id)
 	}
-
-	this.set_ih(type_id, func(c *server_conn.ServerConn, m proto.Message) {
-		h(c, m)
-	})
+	return nil
 }
 
 func H2CHallServerRegisterHandler(conn *server_conn.ServerConn, m proto.Message) {
@@ -201,13 +193,6 @@ func H2CHallServerRegisterHandler(conn *server_conn.ServerConn, m proto.Message)
 		log.Error("H2CHallServerRegisterHandler param error !")
 		return
 	}
-
-	/*
-		if hall_agent_mgr.HasAgentByConn(conn) {
-			log.Error("H2CHallServerRegisterHandler already have agent")
-			return
-		}
-	*/
 
 	cur_agent := hall_agent_mgr.GetAgentById(req.GetServerId())
 	if nil != cur_agent {
@@ -227,7 +212,7 @@ func H2CHallServerRegisterHandler(conn *server_conn.ServerConn, m proto.Message)
 	res := &msg_server_message.C2HLoginServerList{}
 	res.ServerList = login_info_mgr.GetInfoList()
 	if len(res.ServerList) > 0 {
-		conn.Send(res, true)
+		conn.Send(uint16(msg_server_message.MSGID_C2H_LOGIN_SERVER_LIST), res, true)
 	}
 
 	return

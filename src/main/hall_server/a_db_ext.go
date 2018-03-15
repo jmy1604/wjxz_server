@@ -2,13 +2,13 @@ package main
 
 import (
 	"libs/log"
-	"main/table_config"
-	"public_message/gen_go/client_message"
-	"public_message/gen_go/server_message"
-	"time"
+	_ "main/table_config"
+	_ "public_message/gen_go/client_message"
+	_ "public_message/gen_go/server_message"
+	_ "time"
 
-	//"3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 func (this *DBC) on_preload() (err error) {
@@ -31,6 +31,16 @@ func (this *DBC) on_preload() (err error) {
 	return
 }
 
+func (this *dbGlobalRow) GetNextPlayerId() int32 {
+	this.m_lock.UnSafeLock("dbGlobalRow.SetdbGlobalCurrentPlayerIdColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_CurrentPlayerId += 1
+	new_id := ((config.ServerId << 24) & 0x7f000000) | this.m_CurrentPlayerId
+	this.m_CurrentPlayerId_changed = true
+	return new_id
+}
+
+/*
 func (this *dbPlayerInfoColumn) FillBaseInfo(bi *msg_client_message.S2CRetBaseInfo) {
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.FillBaseInfo")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -166,35 +176,6 @@ func (this *dbPlayerDialyTaskColumn) ChkResetDialyTask() {
 	this.m_row.m_lock.UnSafeLock("dbPlayerDialyTaskColumn.ChkResetDialyTask")
 	defer this.m_row.m_lock.UnSafeUnlock()
 
-	/*for task_id, val := range this.m_data {
-		if nil == val {
-			rm_ids[task_id] = true
-			continue
-		}
-
-		//tmp_cfg := achieve_task_mgr.DialyTaskMap[val.TaskId]
-		tmp_cfg := task_table_mgr.GetTaskMap()[val.TaskId]
-		if nil == tmp_cfg {
-			rm_ids[task_id] = true
-			continue
-		}
-
-		if val.Value < tmp_cfg.EventParam {
-			rm_ids[task_id] = true
-			continue
-		}
-
-		if val.RewardUnix > 0 {
-			rm_ids[task_id] = true
-			continue
-		}
-
-	}
-
-	for task_id, _ := range rm_ids {
-		delete(this.m_data, task_id)
-	}*/
-
 	daily_tasks := task_table_mgr.GetDailyTasks()
 	if daily_tasks == nil {
 		return
@@ -284,29 +265,6 @@ func (this *dbPlayerAchieveColumn) FillAchieveMsg(p *Player) *msg_client_message
 	return ret_msg
 }
 
-/*
-func (this *dbPlayerSevenActivityColumn) FillSevenMsg(p *Player) *msg_client_message.S2CSyncSevenActivity {
-	create_unix := p.db.Info.GetCreateUnix()
-	ret_msg := &msg_client_message.S2CSyncSevenActivity{}
-	var tmp_act *msg_client_message.ActivityData
-	this.m_row.m_lock.UnSafeRLock("dbPlayerSevenActivityColumn.FillSevenMsg")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	ret_msg.ActivityList = make([]*msg_client_message.ActivityData, 0, len(this.m_data))
-	for _, v := range this.m_data {
-		if nil == v {
-			continue
-		}
-
-		tmp_act = &msg_client_message.ActivityData{}
-		tmp_act.ActivityId = proto.Int32(v.ActivityId)
-		tmp_act.ActivityValue = proto.Int32(v.Value)
-		tmp_act.RewardUnix = proto.Int32(v.RewardUnix)
-		tmp_act.LeftDays = proto.Int32(cfg_player_act_mgr.GetSevenDayLeftDays(timer.GetDayFrom1970WithCfgAndSec(0, create_unix), timer.GetDayFrom1970WithCfg(int32(time.Now().Unix())), v.ActivityId))
-		ret_msg.ActivityList = append(ret_msg.ActivityList, tmp_act)
-	}
-	return ret_msg
-}
-*/
 func (this *dbPlayerSignInfoColumn) FillSyncMsg(msg *msg_client_message.S2CSyncSignInfo) {
 	this.m_row.m_lock.UnSafeRLock("dbPlayerSignInfoColumn.FillSyncMsg")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -421,90 +379,6 @@ func (this *dbPlayerFriendReqColumn) FillAllListMsg(msg *msg_client_message.S2CR
 		msg.Reqs = append(msg.Reqs, tmp_info)
 	}
 
-	return
-}
-
-func (this *dbPlayerFriendReqColumn) CheckAndAdd(player_id int32, player_name string) int32 {
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendReqColumn.CheckAndAdd")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	d := this.m_data[player_id]
-	if d != nil {
-		log.Warn("!!! Player[%v,%v] already in request list of player[%v]", player_id, player_name, this.m_row.GetPlayerId())
-		return int32(msg_client_message.E_ERR_FRIEND_THE_PLAYER_REQUESTED)
-	}
-
-	d = &dbPlayerFriendReqData{}
-	d.PlayerId = player_id
-	d.PlayerName = player_name
-	this.m_data[player_id] = d
-	this.m_changed = true
-	return 1
-}
-
-func (this *dbPlayerFriendReqColumn) AgreeFriend(friend_id int32) bool {
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendReqColumn.AgreeFriend")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	d := this.m_data[friend_id]
-	if d != nil {
-
-	}
-	return true
-}
-
-/*func (this *dbPlayerFocusPlayerColumn) FillAllListMsg(msg *msg_client_message.S2CRetFriendList) {
-
-	var tmp_info *msg_client_message.FriendInfo
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFocusPlayerColumn.FillAllListMsg")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	msg.FriendList = make([]*msg_client_message.FriendInfo, 0, len(this.m_data))
-	for _, val := range this.m_data {
-		if nil == val {
-			continue
-		}
-
-		tmp_info = &msg_client_message.FriendInfo{}
-		tmp_info.PlayerId = proto.Int32(val.FriendId)
-		tmp_info.Name = proto.String(val.FriendName)
-		msg.FriendList = append(msg.FriendList, tmp_info)
-	}
-
-	return
-}
-
-func (this *dbPlayerBeFocusPlayerColumn) FillAllListMsg(msg *msg_client_message.S2CRetFriendList) {
-
-	var tmp_info *msg_client_message.FriendInfo
-	this.m_row.m_lock.UnSafeRLock("dbPlayerBeFocusPlayerColumn.FillAllListMsg")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	msg.FriendList = make([]*msg_client_message.FriendInfo, 0, len(this.m_data))
-	for _, val := range this.m_data {
-		if nil == val {
-			continue
-		}
-
-		tmp_info = &msg_client_message.FriendInfo{}
-		tmp_info.PlayerId = proto.Int32(val.FriendId)
-		tmp_info.Name = proto.String(val.FriendName)
-		msg.FriendList = append(msg.FriendList, tmp_info)
-	}
-
-	return
-}*/
-
-func (this *dbPlayerFriendColumn) GetAllIds() (ret_ids []int32) {
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.GetAllIds")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	tmp_len := len(this.m_data)
-	if tmp_len <= 0 {
-		return nil
-	}
-
-	ret_ids = make([]int32, 0, len(this.m_data))
-	for _, v := range this.m_data {
-		ret_ids = append(ret_ids, v.FriendId)
-	}
 	return
 }
 
@@ -1083,3 +957,4 @@ func (this *dbPlayerItemColumn) FillAllGmQueryMsg(ret_msg *msg_server_message.H2
 
 	return
 }
+*/

@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"libs/log"
+	"libs/log"
 	"math/rand"
 )
 
@@ -40,6 +40,38 @@ type ReportItem struct {
 	skill_id    int32
 	damage      int32
 	next        *ReportItem
+}
+
+func (this *Player) SetAttackTeam(team []int32) bool {
+	if team == nil {
+		return false
+	}
+	for i := 0; i < len(team); i++ {
+		if !this.db.Roles.HasIndex(team[i]) {
+			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
+			return false
+		}
+	}
+	this.db.BattleTeam.SetAttackMembers(team)
+	return true
+}
+
+func (this *Player) SetDefenseTeam(team []int32) bool {
+	if team == nil {
+		return false
+	}
+	for i := 0; i < len(team); i++ {
+		if !this.db.Roles.HasIndex(team[i]) {
+			log.Warn("Player[%v] not has role[%v] for set defense team", this.Id, team[i])
+			return false
+		}
+	}
+	this.db.BattleTeam.SetDefenseMembers(team)
+	return true
+}
+
+func (this *Player) Fight2Player(player_id int32) {
+
 }
 
 func BattleRound(team []*BattleTeam) (report *ReportItem) {

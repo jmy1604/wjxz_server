@@ -1,26 +1,26 @@
 package main
 
 import (
-	"libs/log"
-	"libs/socket"
-	"public_message/gen_go/client_message"
+	_ "libs/log"
+	_ "libs/socket"
+	_ "public_message/gen_go/client_message"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 func (this *Player) SyncPlayerGuideData() {
-	res2cli := &msg_client_message.S2CSyncGuideData{}
-	this.Send(res2cli)
+	/*res2cli := &msg_client_message.S2CSyncGuideData{}
+	this.Send(res2cli)*/
 }
 
 // ----------------------------------------------------------------------------
 
 func reg_player_guide_msg() {
-	hall_server.SetMessageHandler(msg_client_message.ID_C2SSaveGuideData, C2SSaveGuideDataHandler)
+	//hall_server.SetMessageHandler(msg_client_message.ID_C2SSaveGuideData, C2SSaveGuideDataHandler)
 }
 
-func C2SSaveGuideDataHandler(c *socket.TcpConn, msg proto.Message) {
+/*func C2SSaveGuideDataHandler(c *socket.TcpConn, msg proto.Message) {
 	req := msg.(*msg_client_message.C2SSaveGuideData)
 	if nil == c || nil == req {
 		log.Error("C2SSaveGuideDataHandler c or req nil[%d]", nil == req)
@@ -42,4 +42,4 @@ func C2SSaveGuideDataHandler(c *socket.TcpConn, msg proto.Message) {
 	p.Send(res2cli)
 
 	return
-}
+}*/

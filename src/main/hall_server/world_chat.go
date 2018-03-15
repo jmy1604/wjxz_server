@@ -8,7 +8,7 @@ import (
 	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 const MAX_WORLD_CHAT_ONCE_GET int32 = 50
@@ -170,11 +170,11 @@ func (this *WorldChatMgr) pull_world_chat(player *Player) (chat_items []*msg_cli
 		}
 		item := &msg_client_message.WorldChatItem{
 			Content:     msg.content,
-			PlayerId:    proto.Int32(msg.send_player_id),
-			PlayerName:  proto.String(msg.send_player_name),
-			PlayerLevel: proto.Int32(msg.send_player_level),
-			PlayerHead:  proto.String(msg.send_player_head),
-			SendTime:    proto.Int32(msg.send_time),
+			PlayerId:    msg.send_player_id,
+			PlayerName:  msg.send_player_name,
+			PlayerLevel: msg.send_player_level,
+			PlayerHead:  msg.send_player_head,
+			SendTime:    msg.send_time,
 		}
 		chat_items = append(chat_items, item)
 
@@ -188,17 +188,17 @@ func (this *WorldChatMgr) pull_world_chat(player *Player) (chat_items []*msg_cli
 
 func (this *Player) world_chat(content []byte) int32 {
 	now_time := int32(time.Now().Unix())
-	if now_time < this.db.TalkForbid.GetEndUnix() {
+	/*if now_time < this.db.TalkForbid.GetEndUnix() {
 		log.Error("Player[%v] world chat is forbidden !", this.Id)
 		res := &msg_client_message.S2CWorldChatForbid{}
 		end_t := time.Unix(int64(this.db.TalkForbid.GetEndUnix()), 0)
-		res.EndTime = proto.String(end_t.Format("2006-01-02 15:04:05.999999999"))
+		res.EndTime = end_t.Format("2006-01-02 15:04:05.999999999")
 
-		this.Send(res)
+		this.Send(uint16(1), res)
 
 		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_BE_FORBIDEN)
-	}
-	if now_time-this.db.WorldChat.GetLastChatTime() < global_id.WorldChannelChatCooldown_40 {
+	}*/
+	if now_time-this.db.WorldChat.GetLastChatTime() < 10 /*global_id.WorldChannelChatCooldown_40*/ {
 		log.Error("Player[%v] world chat is cooling down !", this.Id)
 		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN)
 	}
@@ -219,7 +219,7 @@ func (this *Player) world_chat(content []byte) int32 {
 	response := &msg_client_message.S2CWorldChatSendResult{
 		Content: content,
 	}
-	this.Send(response)
+	this.Send(1, response)
 	log.Debug("Player[%v] world chat content[%v]", this.Id, content)
 
 	return 1
@@ -231,7 +231,7 @@ func (this *Player) pull_world_chat() int32 {
 		log.Error("Player[%v] pull world chat msg is cooling down", this.Id)
 		//return int32(msg_client_message.E_ERR_WORLDCHAT_PULL_COOLING_DOWN)
 		response := &msg_client_message.S2CWorldChatMsgPullResult{}
-		this.Send(response)
+		this.Send(1, response)
 		return 1
 	}
 	msgs := world_chat_mgr.pull_world_chat(this)
@@ -239,7 +239,7 @@ func (this *Player) pull_world_chat() int32 {
 	response := &msg_client_message.S2CWorldChatMsgPullResult{
 		Items: msgs,
 	}
-	this.Send(response)
+	this.Send(1, response)
 	log.Debug("Player[%v] pulled world chat msgs", this.Id)
 	return 1
 }

@@ -165,8 +165,6 @@ func main() {
 		return
 	}
 
-	go gm_mgr.StartHttp()
-
 	log.Info("center server start ...\n")
 	server.Start()
 }

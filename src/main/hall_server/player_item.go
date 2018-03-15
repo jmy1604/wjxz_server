@@ -1,14 +1,14 @@
 package main
 
 import (
-	"libs/log"
-	"main/table_config"
-	"public_message/gen_go/client_message"
-	"sync"
-	"time"
+	_ "libs/log"
+	_ "main/table_config"
+	_ "public_message/gen_go/client_message"
+	_ "sync"
+	_ "time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 // 物品类型
@@ -34,6 +34,7 @@ const (
 	ITEM_RESOURCE_ID_STAR         = 12 // 星数
 )
 
+/*
 type ItemChangeInfo struct {
 	items_update      map[int32]*msg_client_message.ItemInfo // 物品变化
 	items_update_lock *sync.RWMutex                          // 物品变化锁
@@ -810,3 +811,4 @@ func (p *Player) zan_player(player_id int32) int32 {
 	}
 	return 1
 }
+*/

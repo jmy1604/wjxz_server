@@ -100,12 +100,11 @@ func (this *CenterConnection) OnConnect(c *server_conn.ServerConn) {
 	log.Trace("CenterServer [%v][%v] on CenterServer connect", config.ServerId, config.ServerName)
 
 	notify := &msg_server_message.H2CHallServerRegister{}
-	notify.ServerId = proto.Int32(config.ServerId)
-	notify.ServerName = proto.String(config.ServerName)
-	notify.ListenClientIP = proto.String(config.ListenClientOutIP)
-	notify.ListenRoomIP = proto.String(config.ListenRoomServerIP)
-	c.Send(notify, true)
-
+	notify.ServerId = config.ServerId
+	notify.ServerName = config.ServerName
+	notify.ListenClientIP = config.ListenClientOutIP
+	notify.ListenRoomIP = config.ListenRoomServerIP
+	c.Send(uint16(msg_server_message.MSGID_H2C_HAll_SERVER_REGISTER), notify, true)
 }
 
 func (this *CenterConnection) WaitConnectFinished() {
@@ -133,30 +132,11 @@ func (this *CenterConnection) OnDisconnect(c *server_conn.ServerConn, reason ser
 	log.Event("与中心服务器连接断开", nil)
 }
 
-func (this *CenterConnection) set_ih(type_id uint16, h server_conn.Handler) {
-	t := msg_server_message.MessageTypes[type_id]
-	if t == nil {
-		log.Error("设置消息句柄失败，不存在的消息类型 %v", type_id)
-		return
-	}
-
-	this.client_node.SetHandler(type_id, t, h)
+func (this *CenterConnection) SetMessageHandler(type_id uint16, h server_conn.Handler) {
+	this.client_node.SetHandler(type_id, h)
 }
 
-type CenterMessageHandler func(a *CenterConnection, m proto.Message)
-
-func (this *CenterConnection) SetMessageHandler(type_id uint16, h CenterMessageHandler) {
-	if h == nil {
-		this.set_ih(type_id, nil)
-		return
-	}
-
-	this.set_ih(type_id, func(c *server_conn.ServerConn, m proto.Message) {
-		h(this, m)
-	})
-}
-
-func (this *CenterConnection) Send(msg proto.Message) {
+func (this *CenterConnection) Send(msg_id uint16, msg proto.Message) {
 	if CENTER_CONN_STATE_CONNECTED != this.state {
 		log.Info("中心服务器未连接!!!")
 		return
@@ -164,21 +144,32 @@ func (this *CenterConnection) Send(msg proto.Message) {
 	if nil == this.client_node {
 		return
 	}
-	this.client_node.GetClient().Send(msg, true)
+	this.client_node.GetClient().Send(msg_id, msg, true)
 }
 
 //========================================================================
 
 func (this *CenterConnection) RegisterMsgHandler() {
-	this.SetMessageHandler(msg_server_message.ID_C2HLoginServerList, C2HLoginServerListHandler)
-	this.SetMessageHandler(msg_server_message.ID_C2HNewLoginServerAdd, C2HNewLoginServerAddHandler)
-	this.SetMessageHandler(msg_server_message.ID_C2HLoginServerRemove, C2HLoginServerRemoveHandler)
-	this.SetMessageHandler(msg_server_message.ID_PayBackAdd, C2HPayBackDataHandler)
-	this.SetMessageHandler(msg_server_message.ID_SyncPayBackDataList, C2HSyncPayBackDataListHandler)
-	this.SetMessageHandler(msg_server_message.ID_PayBackRemove, C2HPayBackRemoveHandler)
+	this.client_node.SetPid2P(center_conn_msgid2msg)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_C2H_LOGIN_SERVER_LIST), C2HLoginServerListHandler)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_C2H_NEW_LOGIN_SERVER_ADD), C2HNewLoginServerAddHandler)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_C2H_LOGIN_SERVER_REMOVE), C2HLoginServerRemoveHandler)
 }
 
-func C2HLoginServerListHandler(conn *CenterConnection, msg proto.Message) {
+func center_conn_msgid2msg(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_server_message.MSGID_C2H_LOGIN_SERVER_LIST) {
+		return &msg_server_message.C2HLoginServerList{}
+	} else if msg_id == uint16(msg_server_message.MSGID_C2H_NEW_LOGIN_SERVER_ADD) {
+		return &msg_server_message.C2HNewLoginServerAdd{}
+	} else if msg_id == uint16(msg_server_message.MSGID_C2H_LOGIN_SERVER_REMOVE) {
+		return &msg_server_message.C2HLoginServerRemove{}
+	} else {
+		log.Error("Cant found proto message by msg_id[%v]", msg_id)
+	}
+	return nil
+}
+
+func C2HLoginServerListHandler(conn *server_conn.ServerConn, msg proto.Message) {
 	req := msg.(*msg_server_message.C2HLoginServerList)
 	if nil == conn || nil == req {
 		log.Error("C2HLoginServerListHandler param error !")
@@ -192,10 +183,10 @@ func C2HLoginServerListHandler(conn *CenterConnection, msg proto.Message) {
 		login_conn_mgr.AddLogin(info)
 	}
 
-	conn.connect_finished = true
+	center_conn.connect_finished = true
 }
 
-func C2HNewLoginServerAddHandler(conn *CenterConnection, msg proto.Message) {
+func C2HNewLoginServerAddHandler(conn *server_conn.ServerConn, msg proto.Message) {
 	req := msg.(*msg_server_message.C2HNewLoginServerAdd)
 	if nil == conn || nil == req || nil == req.GetServer() {
 		log.Error("C2HNewLoginServerAddHandler param error !")
@@ -209,10 +200,10 @@ func C2HNewLoginServerAddHandler(conn *CenterConnection, msg proto.Message) {
 
 	login_conn_mgr.AddLogin(req.GetServer())
 
-	conn.connect_finished = true
+	center_conn.connect_finished = true
 }
 
-func C2HLoginServerRemoveHandler(conn *CenterConnection, msg proto.Message) {
+func C2HLoginServerRemoveHandler(conn *server_conn.ServerConn, msg proto.Message) {
 	req := msg.(*msg_server_message.C2HLoginServerRemove)
 	if nil == conn || nil == req {
 		log.Error("C2HLoginServerRemoveHandler param error !")
@@ -229,48 +220,5 @@ func C2HLoginServerRemoveHandler(conn *CenterConnection, msg proto.Message) {
 
 	log.Info("中心服务器通知 LoginServer[%d] 断开", serverid)
 
-	return
-}
-
-func C2HPayBackDataHandler(c *CenterConnection, msg proto.Message) {
-	notify := msg.(*msg_server_message.PayBackAdd)
-	if nil == c || nil == notify {
-		log.Error("C2HPayBackDataHandler nil == c || nil == notify[%v]", nil == notify)
-		return
-	}
-
-	payback_mgr.AddPayBack(notify)
-
-	log.Info("PayBackMgr 增加 补偿 [%v]", *notify)
-}
-
-func C2HSyncPayBackDataListHandler(c *CenterConnection, msg proto.Message) {
-	sync := msg.(*msg_server_message.SyncPayBackDataList)
-	if nil == c || nil == sync {
-		log.Error("C2HSyncPayBackDataListHandler c or sync nil[%v]", nil == sync)
-		return
-	}
-
-	for _, tmp_pb := range sync.PayBackList {
-		if nil == tmp_pb {
-			continue
-		}
-
-		payback_mgr.AddPayBack(tmp_pb)
-	}
-
-	return
-}
-
-func C2HPayBackRemoveHandler(c *CenterConnection, msg proto.Message) {
-	notify := msg.(*msg_server_message.PayBackRemove)
-	if nil == c || nil == notify {
-		log.Error("PayBackMgr C2HPayBackRemoveHandler c or notify nil[%v]", nil == notify)
-		return
-	}
-
-	payback_mgr.RemovePayBack(notify.GetPbId())
-
-	log.Info("PayBackMgr 删除补偿 [%v]", *notify)
 	return
 }

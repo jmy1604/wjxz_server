@@ -22,6 +22,29 @@
 	],
 	"Tables":[
 		{
+			"TableName":"Global",
+			"DBTableName":"Global",
+			"SingleRow":true,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"Id",
+			"PrimaryKeyType":"int32",
+			"PrimaryKeySize":11,
+			"Columns":[
+				{
+					"ColumnName":"CurrentPlayerId",
+					"DBColumnName":"CurrentPlayerId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",					
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[										
+					]		
+				}
+			]
+		},
+		{
 			"TableName":"Player",
 			"DBTableName":"Player",
 			"SingleRow":false,
@@ -62,36 +85,34 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Coin","Incby":true},
-						{"Type":"int32","Index":2,"Name":"Diamond","Incby":true},
-						{"Type":"int32","Index":3,"Name":"CurMaxStage"},
-						{"Type":"int32","Index":4,"Name":"TotalStars","Incby":true},
-						{"Type":"int32","Index":5,"Name":"CurPassMaxStage"},
-						{"Type":"int32","Index":6,"Name":"MaxUnlockStage"},
-						{"Type":"int32","Index":7,"Name":"MaxChapter"},
-						{"Type":"int32","Index":8,"Name":"CreateUnix"},
-						{"Type":"int32","Index":9,"Name":"Lvl"},
-						{"Type":"int32","Index":10,"Name":"Exp"},
-						{"Type":"int32","Index":11,"Name":"FirstPayState"},
-						{"Type":"int32","Index":12,"Name":"ChangeNameCount","Incby":true},
-						{"Type":"int32","Index":13,"Name":"LastDialyTaskUpUinx"},
-						{"Type":"string","Index":14,"Name":"Icon"},
-						{"Type":"string","Index":15,"Name":"CustomIcon"},
-						{"Type":"int32","Index":18,"Name":"CharmVal","Incby":true},
-						{"Type":"int32","Index":19,"Name":"LastLogin"},
-						{"Type":"int32","Index":20,"Name":"Zan","Incby":true},
-						{"Type":"int32","Index":22,"Name":"Spirit","Incby":true},
-						{"Type":"int32","Index":23,"Name":"FriendPoints","Incby":true},
-						{"Type":"int32","Index":26,"Name":"SaveLastSpiritPointTime"},
-						{"Type":"int32","Index":27,"Name":"LastRefreshShopTime"},
-						{"Type":"int32","Index":32,"Name":"VipLvl"},
-						{"Type":"int32","Index":35,"Name":"DayHelpUnlockCount"},
-						{"Type":"int32","Index":36,"Name":"DayHelpUnlockUpDay"},
-						{"Type":"int32","Index":37,"Name":"FriendMessageUnreadCurrId","Incby":true},
-						{"Type":"int32","Index":38,"Name":"VipCardEndDay"},
-						{"Type":"string","Index":42,"Name":"Channel"},
-						{"Type":"int32","Index":43,"Name":"DayBuyTiLiCount"},
-						{"Type":"int32","Index":44,"Name":"DayBuyTiLiUpDay"}
+						{"Type":"int32","Index":1,"Name":"Lvl"},
+						{"Type":"int32","Index":2,"Name":"Exp"},
+						{"Type":"int32","Index":3,"Name":"CreateUnix"},
+						{"Type":"int32","Index":4,"Name":"FirstPayState"},
+						{"Type":"int32","Index":5,"Name":"ChangeNameCount","Incby":true},
+						{"Type":"int32","Index":6,"Name":"LastDialyTaskUpUinx"},
+						{"Type":"string","Index":7,"Name":"Icon"},
+						{"Type":"string","Index":8,"Name":"CustomIcon"},
+						{"Type":"int32","Index":9,"Name":"CharmVal","Incby":true},
+						{"Type":"int32","Index":10,"Name":"LastLogin"},
+						{"Type":"int32","Index":11,"Name":"Zan","Incby":true},
+						{"Type":"int32","Index":12,"Name":"Spirit","Incby":true},
+						{"Type":"int32","Index":13,"Name":"FriendPoints","Incby":true},
+						{"Type":"int32","Index":14,"Name":"SaveLastSpiritPointTime"},
+						{"Type":"int32","Index":15,"Name":"LastRefreshShopTime"},
+						{"Type":"int32","Index":16,"Name":"VipLvl"},
+						{"Type":"int32","Index":17,"Name":"FriendMessageUnreadCurrId","Incby":true}
+					]
+				},
+				{
+					"DBColumnName":"Global",
+					"InUse":true,
+					"ColumnName":"Global",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"CurrentRoleId","Incby":true}
 					]
 				},
 				{
@@ -103,9 +124,11 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
-						{"Type":"int32","Index":2,"Name":"Jingjie"},
-						{"Type":"int32","Index":3,"Name":"Level"},
-						{"Type":"int32","Index":4,"Name":"Attr","Repeated":true}
+						{"Type":"int32","Index":2,"Name":"TableId"},
+						{"Type":"int32","Index":3,"Name":"Jingjie"},
+						{"Type":"int32","Index":4,"Name":"Level"},
+						{"Type":"int32","Index":5,"Name":"Attr","Repeated":true}
+						
 					]
 				},
 				{
@@ -116,7 +139,8 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Member","Repeated":true}
+						{"Type":"int32","Index":1,"Name":"AttackMembers","Repeated":true},
+						{"Type":"int32","Index":2,"Name":"DefenseMembers","Repeated":true}
 					]
 				},
 				{
@@ -224,29 +248,6 @@
 					]
 				},
 				{
-					"DBColumnName":"PayBack",
-					"InUse":true,
-					"ColumnName":"PayBack",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"PayBackId"},
-						{"Type":"string","Index":2,"Name":"Value"}
-					]
-				},
-				{
-					"DBColumnName":"Options",
-					"InUse":true,
-					"ColumnName":"Options",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Values","Repeated":true}
-					]
-				},
-				{
 					"DBColumnName":"DialyTask",
 					"InUse":true,
 					"ColumnName":"DialyTask",
@@ -305,21 +306,6 @@
 						{"Type":"int32","Index":1,"Name":"ActivityId"},
 						{"Type":"int32","Index":2,"Name":"Value","Incby":true},
 						{"Type":"int32","Index":3,"Name":"RewardUnix"}
-					]
-				},
-				{
-					"DBColumnName":"SignInfo",
-					"InUse":true,
-					"ColumnName":"SignInfo",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"LastSignDay"},
-						{"Type":"int32","Index":2,"Name":"CurSignSum","Incby":true},
-						{"Type":"int32","Index":3,"Name":"CurSignSumMonth"},
-						{"Type":"int32","Index":4,"Name":"CurSignDays","Repeated":true},
-						{"Type":"int32","Index":5,"Name":"RewardSignSum","Repeated":true}
 					]
 				},
 				{
@@ -419,17 +405,6 @@
 					]
 				},
 				{
-					"DBColumnName":"CustomData",
-					"InUse":true,
-					"ColumnName":"CustomData",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"bytes","Index":1,"Name":"CustomData"}
-					]
-				},
-				{
 					"DBColumnName":"ChaterOpenRequest",
 					"InUse":true,
 					"ColumnName":"ChaterOpenRequest",
@@ -463,19 +438,6 @@
 					]
 				},
 				{
-					"DBColumnName":"Activity",
-					"InUse":true,
-					"ColumnName":"Activity",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32", "Index":1, "Name":"CfgId"},
-						{"Type":"int32", "Index":2, "Name":"States","Repeated":true},
-						{"Type":"int32", "Index":3, "Name":"Vals","Repeated":true}
-					]
-				},
-				{
 					"DBColumnName":"SuitAward",
 					"InUse":true,
 					"ColumnName":"SuitAward",
@@ -485,19 +447,6 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"AwardTime"}
-					]
-				},
-				{
-					"DBColumnName":"Zan",
-					"InUse":true,
-					"ColumnName":"Zan",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"PlayerId"},
-						{"Type":"int32","Index":2,"Name":"ZanTime"},
-						{"Type":"int32","Index":3,"Name":"ZanNum","Incby":true}
 					]
 				},
 				{
@@ -534,30 +483,6 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"Drawed"}
-					]
-				},
-				{
-					"DBColumnName":"TalkForbid",
-					"InUse":true,
-					"ColumnName":"TalkForbid",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"EndUnix"},
-						{"Type":"string","Index":2,"Name":"ForbidReason"}
-					]
-				},
-				{
-					"DBColumnName":"ServerReward",
-					"InUse":true,
-					"ColumnName":"ServerReward",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"RewardId"},
-						{"Type":"int32","Index":2,"Name":"EndUnix"}
 					]
 				}
 			]

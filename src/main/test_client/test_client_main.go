@@ -15,9 +15,11 @@ type ClientConfig struct {
 	MatchServerIP     string
 	LogConfigDir      string
 	LoginUrl          string
+	SelectServerUrl   string
 	AccountPrefix     string
 	AccountStartIndex int32
 	AccountNum        int32
+	UseHttps          bool
 }
 
 var config ClientConfig

@@ -56,6 +56,8 @@ type MessageGroup struct {
 	last   *MessageItem
 }
 
+type pid2p_func func(proto_id uint16) proto.Message
+
 type ServerConn struct {
 	addr              string
 	node              *Node
@@ -74,13 +76,10 @@ type ServerConn struct {
 	last_message_time time.Time
 	bytes_sended      int64
 	bytes_recved      int64
-
-	// tls
-	tls_c net.Conn
-
-	T     int32
-	I     interface{}
-	State interface{}
+	tls_c             net.Conn // tls
+	T                 int32
+	I                 interface{}
+	State             interface{}
 }
 
 func (this *ServerConn) GetAddr() (addr string) {
@@ -264,7 +263,7 @@ func (this *ServerConn) send_flush() {
 	}
 }
 
-func (this *ServerConn) Send(msg proto.Message, immediate bool) {
+func (this *ServerConn) Send(msg_id uint16, msg proto.Message, immediate bool) {
 	if msg == nil {
 		log.Error("[ip:%v] 消息为空", this.addr)
 		this.event_disc(E_DISCONNECT_REASON_INTERNAL_ERROR)
@@ -281,10 +280,10 @@ func (this *ServerConn) Send(msg proto.Message, immediate bool) {
 	length := int32(len(data))
 	this.bytes_sended += int64(length)
 
-	log.Trace("发送[ip:%v][%v字节][%v字节] %v ",
-		this.addr, length, this.bytes_sended, "{"+msg.MessageTypeName()+":{"+msg.String()+"}}")
+	log.Trace("发送[ip:%v][%v字节][%v字节] {%v: %v}",
+		this.addr, length, this.bytes_sended, msg_id, msg.String())
 
-	this.send_data(msg.MessageTypeId(), data, immediate)
+	this.send_data(msg_id, data, immediate)
 }
 
 type Handler func(c *ServerConn, m proto.Message)
@@ -492,13 +491,14 @@ func (this *ServerConn) on_recv(d []byte) {
 		}
 
 		p := this.node.handler_map[type_id]
-		if p.t == nil {
+		if p == nil {
 			log.Warn("[ip:%v] 消息[%v]句柄为空", this.addr, type_id)
 			this.event_disc(E_DISCONNECT_REASON_PACKET_MALFORMED)
 			return
 		}
 
-		msg := reflect.New(p.t).Interface().(proto.Message)
+		//msg := reflect.New(p.t).Interface().(proto.Message)
+		msg := this.node.pid2p(type_id)
 		err := proto.Unmarshal(data[MSG_HEAD_LEN:MSG_HEAD_LEN+ml], msg)
 		if err != nil {
 			log.Error("[ip:%v] 消息[%v]反序列化失败", this.addr, type_id)
@@ -506,27 +506,28 @@ func (this *ServerConn) on_recv(d []byte) {
 			return
 		}
 
-		log.Trace("接收[ip:%v][%v字节][%v字节][ml:%v字节]%v",
+		log.Trace("接收[ip:%v][%v字节][%v字节][ml:%v字节] {%v: %v}",
 			this.addr,
 			len(d),
 			this.bytes_recved,
 			ml,
-			"{"+msg.MessageTypeName()+":{"+msg.String()+"}}")
+			type_id,
+			msg.String())
 
 		begin := time.Now()
 
 		if this.is_server {
 			this.handing = true
-			p.h(this, msg)
+			p(this, msg)
 			this.handing = false
 			this.send_flush()
 		} else {
-			p.h(this, msg)
+			p(this, msg)
 		}
 
 		time_cost := time.Now().Sub(begin).Seconds()
 		if time_cost > 3 {
-			log.Warn("[时间过长 %v][ip:%v]消息%v", time_cost, this.addr, msg.MessageTypeId())
+			log.Warn("[时间过长 %v][ip:%v]消息[%v]", time_cost, this.addr, type_id)
 		} else {
 			//log.Trace("[时间%v][%v][玩家%v]消息%v", time_cost, this.addr, this.T, this.node.get_message_name(type_id))
 		}
@@ -861,7 +862,8 @@ type Node struct {
 	listener           *net.TCPListener
 	client             *ServerConn
 	quit               bool
-	handler_map        map[uint16]handler_info
+	handler_map        map[uint16]Handler
+	pid2p              pid2p_func // proto_id to proto
 	ack_handler        AckHandler
 	conn_map           map[*ServerConn]int32
 	conn_map_lock      *sync.RWMutex
@@ -889,7 +891,7 @@ func NewNode(cb ICallback, recv_timeout time.Duration, send_timeout time.Duratio
 	new_node.recv_timeout = recv_timeout
 	new_node.send_timeout = send_timeout
 	new_node.update_interval_ms = update_interval_ms
-	new_node.handler_map = make(map[uint16]handler_info)
+	new_node.handler_map = make(map[uint16]Handler)
 	new_node.conn_map = make(map[*ServerConn]int32)
 	new_node.conn_map_lock = &sync.RWMutex{}
 	new_node.shutdown_lock = &sync.Mutex{}
@@ -900,6 +902,10 @@ func NewNode(cb ICallback, recv_timeout time.Duration, send_timeout time.Duratio
 	new_node.disc_reason_count = disc_reason_count
 	new_node.initialized = true
 	return
+}
+
+func (this *Node) SetPid2P(pid2p pid2p_func) {
+	this.pid2p = pid2p
 }
 
 func (this *Node) UseTls(cert_file string, key_file string) (err error) {
@@ -971,21 +977,22 @@ func (this *Node) get_all_conn() (conn_map map[*ServerConn]int32) {
 	return
 }
 
-func (this *Node) SetHandler(type_id uint16, typ reflect.Type, h Handler) {
+func (this *Node) SetHandler(type_id uint16, h Handler) {
 	_, has := this.handler_map[type_id]
 	if has {
-		log.Error("[%v]消息处理函数已设置,将被替换 %v %v", this.addr, type_id, typ)
+		log.Error("[%v]消息处理函数已设置,将被替换 %v ", this.addr, type_id)
 	}
-	this.handler_map[type_id] = handler_info{typ, h}
+	this.handler_map[type_id] = h
 }
 
 func (this *Node) GetHandler(type_id uint16) (h Handler) {
-	hi, has := this.handler_map[type_id]
+	var has bool
+	h, has = this.handler_map[type_id]
 	if !has {
 		return nil
 	}
 
-	return hi.h
+	return h
 }
 
 func (this *Node) Listen(server_addr string, max_conn int32) (err error) {
@@ -1196,11 +1203,11 @@ func (this *Node) Shutdown() {
 	log.Trace("[%v]关闭网络服务耗时 %v 秒", this.addr, time.Now().Sub(begin).Seconds())
 }
 
-func (this *Node) Broadcast(msg proto.Message) {
+func (this *Node) Broadcast(msg_id uint16, msg proto.Message) {
 	this.conn_map_lock.Lock()
 	defer this.conn_map_lock.Unlock()
 
 	for c, _ := range this.conn_map {
-		c.Send(msg, true)
+		c.Send(msg_id, msg, true)
 	}
 }

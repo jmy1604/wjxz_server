@@ -17,7 +17,7 @@ import (
 	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 const (
@@ -345,10 +345,10 @@ func google_pay_order_verify(p *Player, item_id int32, order_data []byte) int32 
 		return res
 	}
 
-	if PLAYER_FIRST_PAY_NOT_ACT == p.db.Info.GetFirstPayState() {
+	/*if PLAYER_FIRST_PAY_NOT_ACT == p.db.Info.GetFirstPayState() {
 		p.db.Info.SetFirstPayState(PLAYER_FIRST_PAY_ACT)
 		p.SyncPlayerFirstPayState()
-	}
+	}*/
 
 	return res
 }
@@ -447,17 +447,17 @@ func apple_pay_verify(p *Player, order_data []byte) bool { //ordername, receipt 
 
 	//p.AddDiamond(bid_info.RewardGem, "Pay", "PayMgr")
 
-	if PLAYER_FIRST_PAY_NOT_ACT == p.db.Info.GetFirstPayState() {
+	/*if PLAYER_FIRST_PAY_NOT_ACT == p.db.Info.GetFirstPayState() {
 		p.db.Info.SetFirstPayState(PLAYER_FIRST_PAY_ACT)
 		p.SyncPlayerFirstPayState()
-	}
+	}*/
 
 	return true
 }
 
 // ============================================
 
-func C2SPayOrderHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+/*func C2SPayOrderHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SPayOrder)
 	if nil == req {
 		log.Error("C2SPayOrderHandler req invalid")
@@ -500,4 +500,4 @@ func C2SPayOrderHandler(w http.ResponseWriter, r *http.Request, p *Player, msg p
 	p.Send(response)
 
 	return res
-}
+}*/

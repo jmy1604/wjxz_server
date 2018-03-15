@@ -4,11 +4,11 @@ import (
 	"libs/log"
 	"main/table_config"
 	"public_message/gen_go/client_message"
-	"strings"
+	_ "strings"
 	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 func (this *Player) fetch_shop_limit_items(shop_id int32, send_msg bool) int32 {
@@ -22,7 +22,7 @@ func (this *Player) fetch_shop_limit_items(shop_id int32, send_msg bool) int32 {
 
 	i := int32(0)
 	response := &msg_client_message.S2CShopItemsResult{}
-	response.ShopId = proto.Int32(shop_id)
+	response.ShopId = shop_id
 	response.Items = make([]*msg_client_message.S2CShopItem, shop.GetLimitNum())
 	for _, v := range shop.GetItems() {
 		if int32(i) >= shop.GetLimitNum() {
@@ -79,14 +79,14 @@ func (this *Player) fetch_shop_limit_items(shop_id int32, send_msg bool) int32 {
 
 		remain_seconds := global_config_mgr.GetShopTimeChecker().RemainSecondsToNextRefresh(save_time, v.LimitedTime)
 		response.Items[i] = &msg_client_message.S2CShopItem{}
-		response.Items[i].ItemId = proto.Int32(v.Id)
-		response.Items[i].LeftNum = proto.Int32(left_num)
-		response.Items[i].RemainSeconds = proto.Int32(remain_seconds)
+		response.Items[i].ItemId = v.Id
+		response.Items[i].LeftNum = left_num
+		response.Items[i].RemainSeconds = remain_seconds
 		i += 1
 	}
 
 	if send_msg {
-		this.Send(response)
+		//this.Send(response)
 	}
 
 	return 1
@@ -105,7 +105,7 @@ func (this *Player) buy_item(item_id int32, num int32, send_msg bool) int32 {
 
 	if item.BundleId != "" {
 		// 月卡
-		if strings.HasSuffix(item.BundleId, "mcard") {
+		/*if strings.HasSuffix(item.BundleId, "mcard") {
 			now_time := int32(time.Now().Unix())
 			end_time := this.db.Info.GetVipCardEndDay()
 			if now_time > end_time {
@@ -114,9 +114,9 @@ func (this *Player) buy_item(item_id int32, num int32, send_msg bool) int32 {
 			}
 			this.db.Info.SetVipCardEndDay(now_time + 30*24*3600)
 			return 2
-		}
+		}*/
 	} else {
-		if item.CostResourceId == ITEM_RESOURCE_ID_DIAMOND {
+		/*if item.CostResourceId == ITEM_RESOURCE_ID_DIAMOND {
 			if this.GetDiamond() < num*item.CostNum {
 				log.Warn("商品[%v]价格高于所持钻石[%v]", item_id, item.CostNum, this.GetDiamond())
 				return int32(msg_client_message.E_ERR_SHOP_DIAMOND_NOT_ENOUGH)
@@ -142,7 +142,7 @@ func (this *Player) buy_item(item_id int32, num int32, send_msg bool) int32 {
 		} else {
 			log.Warn("商品[%v]的支付类型[%v]不支持", item_id, item.CostResourceId)
 			return int32(msg_client_message.E_ERR_SHOP_PURCHASE_TYPE_INVALID)
-		}
+		}*/
 	}
 
 	left_num := int32(0)
@@ -180,42 +180,42 @@ func (this *Player) buy_item(item_id int32, num int32, send_msg bool) int32 {
 	}
 
 	for n := 0; n < len(item.BagItems)/2; n++ {
-		this.AddItemResource(item.BagItems[2*n], num*item.BagItems[2*n+1], "shop", "buy_shop_item")
+		//this.AddItemResource(item.BagItems[2*n], num*item.BagItems[2*n+1], "shop", "buy_shop_item")
 	}
-	this.SendItemsUpdate()
+	//this.SendItemsUpdate()
 
 	// 花费资源
 	if item.CostResourceId == ITEM_RESOURCE_ID_GOLD {
-		this.SubCoin(num*item.CostNum, "buy_shop_item", "shop")
+		//this.SubCoin(num*item.CostNum, "buy_shop_item", "shop")
 	} else if item.CostResourceId == ITEM_RESOURCE_ID_DIAMOND {
-		this.SubDiamond(num*item.CostNum, "buy_shop_item", "shop")
+		//this.SubDiamond(num*item.CostNum, "buy_shop_item", "shop")
 	} else if item.CostResourceId == ITEM_RESOURCE_ID_RMB {
 		// 人民币另外处理
 	} else if item.CostResourceId == ITEM_RESOURCE_ID_CHARM_VALUE {
-		this.SubCharmVal(num*item.CostNum, "buy_shop_item", "shop")
+		//this.SubCharmVal(num*item.CostNum, "buy_shop_item", "shop")
 	} else if item.CostResourceId == ITEM_RESOURCE_ID_FRIEND_POINT {
-		this.SubFriendPoints(num*item.CostNum, "buy_shop_item", "shop")
+		//this.SubFriendPoints(num*item.CostNum, "buy_shop_item", "shop")
 	}
 
 	if send_msg {
 		response := &msg_client_message.S2CBuyShopItemResult{}
-		response.ShopId = proto.Int32(item.Type)
-		response.ItemId = proto.Int32(item_id)
-		response.ItemNum = proto.Int32(num)
+		response.ShopId = item.Type
+		response.ItemId = item_id
+		response.ItemNum = num
 		response.AddItem = &msg_client_message.ItemInfo{}
-		response.AddItem.ItemCfgId = proto.Int32(item_id)
-		response.AddItem.ItemNum = proto.Int32(item.Number)
-		response.CostRes = &msg_client_message.ResourceInfo{}
-		response.CostRes.ResourceType = proto.Int32(item.CostResourceId)
-		response.CostRes.ResourceValue = proto.Int32(item.CostNum)
-		this.Send(response)
+		response.AddItem.ItemCfgId = item_id
+		response.AddItem.ItemNum = item.Number
+		//response.CostRes = &msg_client_message.ResourceInfo{}
+		//response.CostRes.ResourceType = item.CostResourceId
+		//response.CostRes.ResourceValue = item.CostNum
+		//this.Send(response)
 
 		item_msg := &msg_client_message.S2CShopItemsResult{}
 		item_msg.Items = make([]*msg_client_message.S2CShopItem, 1)
 		item_msg.Items[0] = &msg_client_message.S2CShopItem{}
-		item_msg.Items[0].ItemId = proto.Int32(item_id)
-		item_msg.Items[0].LeftNum = proto.Int32(left_num)
-		this.Send(item_msg)
+		item_msg.Items[0].ItemId = item_id
+		item_msg.Items[0].LeftNum = left_num
+		//this.Send(item_msg)
 	}
 
 	return 1
@@ -316,8 +316,8 @@ func (this *Player) check_shop_limited_days_items_refresh_by_shop_itemid(shop_it
 	}
 
 	if send_msg {
-		notify := msg_client_message.S2CShopNeedRefreshNotify{}
-		this.Send(&notify)
+		//notify := &msg_client_message.S2CShopNeedRefreshNotify{}
+		//this.Send(1, notify)
 	}
 	return true
 }

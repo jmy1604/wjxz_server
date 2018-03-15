@@ -2,7 +2,7 @@ package main
 
 import (
 	"libs/log"
-	"public_message/gen_go/client_message"
+	_ "public_message/gen_go/client_message"
 	"strconv"
 	"sync"
 
@@ -162,7 +162,7 @@ func (this *NickIdSet) RenameNick(id int32, new_nick string) int32 {
 	}*/
 
 	if new_nick == "" {
-		return int32(msg_client_message.E_ERR_PLAYER_RENAME_NEW_CANT_EMPTY)
+		return int32( /*msg_client_message.E_ERR_PLAYER_RENAME_NEW_CANT_EMPTY*/ -1)
 	}
 
 	this.mtx.Lock()

@@ -15,43 +15,35 @@ message LimitShopItem{
 }
 
 message PlayerInfo{
-	optional int32 Coin=1;
-	optional int32 Diamond=2;
-	optional int32 CurMaxStage=3;
-	optional int32 TotalStars=4;
-	optional int32 CurPassMaxStage=5;
-	optional int32 MaxUnlockStage=6;
-	optional int32 MaxChapter=7;
-	optional int32 CreateUnix=8;
-	optional int32 Lvl=9;
-	optional int32 Exp=10;
-	optional int32 FirstPayState=11;
-	optional int32 ChangeNameCount=12;
-	optional int32 LastDialyTaskUpUinx=13;
-	optional string Icon=14;
-	optional string CustomIcon=15;
-	optional int32 CharmVal=18;
-	optional int32 LastLogin=19;
-	optional int32 Zan=20;
-	optional int32 Spirit=22;
-	optional int32 FriendPoints=23;
-	optional int32 SaveLastSpiritPointTime=26;
-	optional int32 LastRefreshShopTime=27;
-	optional int32 VipLvl=32;
-	optional int32 DayHelpUnlockCount=35;
-	optional int32 DayHelpUnlockUpDay=36;
-	optional int32 FriendMessageUnreadCurrId=37;
-	optional int32 VipCardEndDay=38;
-	optional string Channel=42;
-	optional int32 DayBuyTiLiCount=43;
-	optional int32 DayBuyTiLiUpDay=44;
+	optional int32 Lvl=1;
+	optional int32 Exp=2;
+	optional int32 CreateUnix=3;
+	optional int32 FirstPayState=4;
+	optional int32 ChangeNameCount=5;
+	optional int32 LastDialyTaskUpUinx=6;
+	optional string Icon=7;
+	optional string CustomIcon=8;
+	optional int32 CharmVal=9;
+	optional int32 LastLogin=10;
+	optional int32 Zan=11;
+	optional int32 Spirit=12;
+	optional int32 FriendPoints=13;
+	optional int32 SaveLastSpiritPointTime=14;
+	optional int32 LastRefreshShopTime=15;
+	optional int32 VipLvl=16;
+	optional int32 FriendMessageUnreadCurrId=17;
+}
+
+message PlayerGlobal{
+	optional int32 CurrentRoleId=1;
 }
 
 message PlayerRole{
 	optional int32 Id=1;
-	optional int32 Jingjie=2;
-	optional int32 Level=3;
-	repeated int32 Attr=4;
+	optional int32 TableId=2;
+	optional int32 Jingjie=3;
+	optional int32 Level=4;
+	repeated int32 Attr=5;
 }
 
 message PlayerRoleList{
@@ -59,7 +51,8 @@ message PlayerRoleList{
 }
 
 message PlayerBattleTeam{
-	repeated int32 Member=1;
+	repeated int32 AttackMembers=1;
+	repeated int32 DefenseMembers=2;
 }
 
 message PlayerStage{
@@ -141,19 +134,6 @@ message PlayerMailList{
 	repeated PlayerMail List=1;
 }
 
-message PlayerPayBack{
-	optional int32 PayBackId=1;
-	optional string Value=2;
-}
-
-message PlayerPayBackList{
-	repeated PlayerPayBack List=1;
-}
-
-message PlayerOptions{
-	repeated int32 Values=1;
-}
-
 message PlayerDialyTask{
 	optional int32 TaskId=1;
 	optional int32 Value=2;
@@ -198,14 +178,6 @@ message PlayerSevenActivity{
 
 message PlayerSevenActivityList{
 	repeated PlayerSevenActivity List=1;
-}
-
-message PlayerSignInfo{
-	optional int32 LastSignDay=1;
-	optional int32 CurSignSum=2;
-	optional int32 CurSignSumMonth=3;
-	repeated int32 CurSignDays=4;
-	repeated int32 RewardSignSum=5;
 }
 
 message PlayerGuides{
@@ -279,10 +251,6 @@ message PlayerFriendChatUnreadMessageList{
 	repeated PlayerFriendChatUnreadMessage List=1;
 }
 
-message PlayerCustomData{
-	optional bytes CustomData=1;
-}
-
 message PlayerChaterOpenRequest{
 	optional bytes CustomData=1;
 }
@@ -303,16 +271,6 @@ message PlayerHeadItemList{
 	repeated PlayerHeadItem List=1;
 }
 
-message PlayerActivity{
-	optional int32 CfgId=1;
-	repeated int32 States=2;
-	repeated int32 Vals=3;
-}
-
-message PlayerActivityList{
-	repeated PlayerActivity List=1;
-}
-
 message PlayerSuitAward{
 	optional int32 Id=1;
 	optional int32 AwardTime=2;
@@ -320,16 +278,6 @@ message PlayerSuitAward{
 
 message PlayerSuitAwardList{
 	repeated PlayerSuitAward List=1;
-}
-
-message PlayerZan{
-	optional int32 PlayerId=1;
-	optional int32 ZanTime=2;
-	optional int32 ZanNum=3;
-}
-
-message PlayerZanList{
-	repeated PlayerZan List=1;
 }
 
 message PlayerWorldChat{
@@ -349,19 +297,5 @@ message PlayerFirstDrawCard{
 
 message PlayerFirstDrawCardList{
 	repeated PlayerFirstDrawCard List=1;
-}
-
-message PlayerTalkForbid{
-	optional int32 EndUnix=1;
-	optional string ForbidReason=2;
-}
-
-message PlayerServerReward{
-	optional int32 RewardId=1;
-	optional int32 EndUnix=2;
-}
-
-message PlayerServerRewardList{
-	repeated PlayerServerReward List=1;
 }
 

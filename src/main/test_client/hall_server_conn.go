@@ -7,8 +7,7 @@ import (
 	"libs/log"
 	"net/http"
 	"public_message/gen_go/client_message"
-	"reflect"
-	//"strings"
+	"public_message/gen_go/client_message_id"
 
 	_ "3p/code.google.com.protobuf/proto"
 	"github.com/golang/protobuf/proto"
@@ -50,7 +49,7 @@ func new_hall_connect(hall_ip, acc, token string, use_https bool) *HallConnectio
 	return ret_conn
 }
 
-func (this *HallConnection) Send(msg proto.Message) {
+func (this *HallConnection) Send(msg_id uint16, msg proto.Message) {
 	data, err := proto.Marshal(msg)
 	if nil != err {
 		log.Error("login unmarshal failed err[%s]", err.Error())
@@ -58,9 +57,9 @@ func (this *HallConnection) Send(msg proto.Message) {
 	}
 
 	C2S_MSG := &msg_client_message.C2S_MSG_DATA{}
-	C2S_MSG.PlayerId = proto.Int32(this.playerid)
-	C2S_MSG.Token = proto.String(this.token)
-	C2S_MSG.MsgCode = proto.Int32(int32(msg.MessageTypeId()))
+	C2S_MSG.PlayerId = this.playerid
+	C2S_MSG.Token = this.token
+	C2S_MSG.MsgCode = int32(msg_id)
 	C2S_MSG.Data = data
 
 	data, err = proto.Marshal(C2S_MSG)
@@ -124,15 +123,19 @@ func (this *HallConnection) Send(msg proto.Message) {
 			continue
 		}
 
-		new_msg := reflect.New(handler_info.typ).Interface().(proto.Message)
-		log.Info("玩家[%d:%s]收到服务器返回%s:[%s]", this.playerid, this.acc, new_msg.MessageTypeName(), new_msg.String())
+		//new_msg := reflect.New(handler_info.typ).Interface().(proto.Message)
+		new_msg := hall_conn_msgid2msg(msg_code)
+		if new_msg == nil {
+			return
+		}
+		log.Info("玩家[%d:%s]收到服务器返回%v:[%s]", this.playerid, this.acc, msg_code, new_msg.String())
 		err = proto.Unmarshal(sub_data, new_msg)
 		if nil != err {
 			log.Error("HallConnection failed unmarshal msg data !", msg_code)
 			return
 		}
 
-		handler_info.msg_handler(this, new_msg)
+		handler_info(this, new_msg)
 	}
 
 	return
@@ -144,39 +147,41 @@ type CLIENT_MSG_HANDLER func(*HallConnection, proto.Message)
 
 type NEW_MSG_FUNC func() proto.Message
 
-type MsgHanlderInfo struct {
-	typ         reflect.Type
-	msg_handler CLIENT_MSG_HANDLER
-}
-
 type MsgHandlerMgr struct {
-	msgid2handler map[int32]*MsgHanlderInfo
+	msgid2handler map[int32]CLIENT_MSG_HANDLER
 }
 
 var msg_handler_mgr MsgHandlerMgr
 
 func (this *MsgHandlerMgr) Init() bool {
-	this.msgid2handler = make(map[int32]*MsgHanlderInfo)
+	this.msgid2handler = make(map[int32]CLIENT_MSG_HANDLER)
 	this.RegisterMsgHandler()
 	return true
 }
 
 func (this *MsgHandlerMgr) SetMsgHandler(msg_code uint16, msg_handler CLIENT_MSG_HANDLER) {
 	log.Info("set msg [%d] handler !", msg_code)
-	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{typ: msg_client_message.MessageTypes[msg_code], msg_handler: msg_handler}
+	this.msgid2handler[int32(msg_code)] = msg_handler
 }
 
 func (this *MsgHandlerMgr) RegisterMsgHandler() {
-	this.SetMsgHandler(msg_client_message.ID_S2CLoginResponse, S2CLoginResponseHandler)
-	this.SetMsgHandler(msg_client_message.ID_S2CRetOptions, S2CRetOptionsHandler)
-	this.SetMsgHandler(msg_client_message.ID_S2CRetBaseInfo, S2CRetBaseInfo)
-	this.SetMsgHandler(msg_client_message.ID_S2CRetItemInfos, S2CRetItemInfos)
-	this.SetMsgHandler(msg_client_message.ID_S2CDrawResult, S2CDrawCatHandler)
+	this.SetMsgHandler(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_RESPONSE), S2CEnterGameHandler)
 }
 
-func S2CLoginResponseHandler(hall_conn *HallConnection, m proto.Message) {
-	res := m.(*msg_client_message.S2CLoginResponse)
-	cur_hall_conn := hall_conn_mgr.GetHallConnByAcc(res.GetAcc())
+func hall_conn_msgid2msg(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_RESPONSE) {
+		return &msg_client_message.S2CEnterGameResponse{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_COMPLETE_NOTIFY) {
+		return &msg_client_message.S2CEnterGameCompleteNotify{}
+	} else {
+		log.Error("Cant found proto message by msg_id[%v]", msg_id)
+	}
+	return nil
+}
+
+func S2CEnterGameHandler(hall_conn *HallConnection, m proto.Message) {
+	res := m.(*msg_client_message.S2CEnterGameResponse)
+	cur_hall_conn = hall_conn_mgr.GetHallConnByAcc(res.GetAcc())
 	if nil == cur_hall_conn {
 		log.Error("S2CLoginResponseHandler failed to get cur hall[%s]", res.GetAcc())
 		return
@@ -184,30 +189,7 @@ func S2CLoginResponseHandler(hall_conn *HallConnection, m proto.Message) {
 
 	hall_conn.playerid = res.GetPlayerId()
 	hall_conn.blogin = true
-	log.Info("player[%d:%s]收到服务器登录返回 %v", res.GetPlayerId(), res.GetAcc(), res)
+	log.Info("player[%v]收到进入游戏服务器返回 %v", res.GetAcc(), res)
 
-	return
-}
-
-func S2CRetBaseInfo(hall_conn *HallConnection, m proto.Message) {
-	res := m.(*msg_client_message.S2CRetBaseInfo)
-	log.Info("收到服务器返回的玩家基本数据 %v", res.String())
-}
-
-func S2CRetItemInfos(hall_conn *HallConnection, m proto.Message) {
-	res := m.(*msg_client_message.S2CRetItemInfos)
-	log.Info("收到服务器返回的物品数据 %v", res.String())
-}
-
-func S2CRetOptionsHandler(hall_conn *HallConnection, m proto.Message) {
-	res := m.(*msg_client_message.S2CRetOptions)
-	log.Info("player[%d:%s]收到服务器选项返回 %v", hall_conn.playerid, hall_conn.acc, res)
-
-	return
-}
-
-func S2CDrawCatHandler(hall_conn *HallConnection, m proto.Message) {
-	res := m.(*msg_client_message.S2CDrawResult)
-	log.Info("player[%d:%s]收到服务器抽卡返回%s, 物品[%v]", hall_conn.playerid, hall_conn.acc, res.String(), res.Items)
 	return
 }

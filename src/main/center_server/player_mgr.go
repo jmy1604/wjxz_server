@@ -1,13 +1,13 @@
 package main
 
 import (
-	"libs/log"
-	"libs/server_conn"
-	"public_message/gen_go/server_message"
+	_ "libs/log"
+	_ "libs/server_conn"
+	_ "public_message/gen_go/server_message"
 	"sync"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 type PlayerManager struct {
@@ -21,7 +21,7 @@ func (this *PlayerManager) Init() bool {
 	this.id2online_lock = &sync.RWMutex{}
 	this.id2online = make(map[int32]int32)
 
-	this.RegPlayerMsgHandler()
+	//this.RegPlayerMsgHandler()
 
 	return true
 }
@@ -52,8 +52,8 @@ func (this *PlayerManager) GetOnlines(pids []int32) []int32 {
 	return ret_onlines
 }
 
+/*
 func (this *PlayerManager) RegPlayerMsgHandler() {
-
 	hall_agent_mgr.SetMessageHandler(msg_server_message.ID_GetPlayerInfo, H2CGetPlayerInfoHandler)
 	hall_agent_mgr.SetMessageHandler(msg_server_message.ID_RetPlayerInfo, H2CRetPlayerInfoHandler)
 	hall_agent_mgr.SetMessageHandler(msg_server_message.ID_SetPlayerOnOffline, H2CSetPlayerOnOfflineHandler)
@@ -118,3 +118,4 @@ func H2CSetPlayerOnOfflineHandler(c *server_conn.ServerConn, msg proto.Message) 
 
 	return
 }
+*/

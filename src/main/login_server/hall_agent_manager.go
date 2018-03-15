@@ -106,8 +106,8 @@ func (this *HallAgent) GetPlayersNum() (max_num, curr_num int32) {
 	return
 }
 
-func (this *HallAgent) Send(msg proto.Message) {
-	this.conn.Send(msg, true)
+func (this *HallAgent) Send(msg_id uint16, msg proto.Message) {
+	this.conn.Send(msg_id, msg, true)
 }
 
 func (this *HallAgent) Close(force bool) {
@@ -259,13 +259,7 @@ func (this *HallAgentManager) OnTick(t timer.TickTime) {
 }
 
 func (this *HallAgentManager) set_ih(type_id uint16, h server_conn.Handler) {
-	t := msg_server_message.MessageTypes[type_id]
-	if t == nil {
-		log.Error("设置消息句柄失败，不存在的消息类型 %v", type_id)
-		return
-	}
-
-	this.net.SetHandler(type_id, t, h)
+	this.net.SetHandler(type_id, h)
 }
 
 func (this *HallAgentManager) HasAgent(server_id int32) (ok bool) {
@@ -354,29 +348,13 @@ func (this *HallAgentManager) DisconnectAgent(c *server_conn.ServerConn, reason 
 	ok = this.RemoveAgent(c, true)
 
 	res := &msg_server_message.L2HDissconnectNotify{}
-	res.Reason = proto.Int32(int32(reason))
-	c.Send(res, true)
+	res.Reason = int32(reason)
+	c.Send(uint16(msg_server_message.MSGID_L2H_DISCONNECT_NOTIFY), res, true)
 	return
 }
 
-type GameMessageHandler func(a *HallAgent, m proto.Message)
-
-func (this *HallAgentManager) SetMessageHandler(type_id uint16, h GameMessageHandler) {
-	if h == nil {
-		this.set_ih(type_id, nil)
-		return
-	}
-
-	this.set_ih(type_id, func(c *server_conn.ServerConn, m proto.Message) {
-		a := this.GetAgent(c)
-		if a == nil {
-			log.Trace("game_server尚未成功连接 %v", c.GetAddr())
-			//this.CloseConnection(c, server_conn.E_DISCONNECT_REASON_PLAYER_NOT_LOGGED)
-			return
-		}
-
-		h(a, m)
-	})
+func (this *HallAgentManager) SetMessageHandler(type_id uint16, h server_conn.Handler) {
+	this.set_ih(type_id, h)
 }
 
 func (this *HallAgentManager) UpdatePlayersNum(server_id int32, max_num, curr_num int32) {
@@ -420,12 +398,22 @@ func (this *HallAgentManager) GetSuitableHallAgent() *HallAgent {
 //====================================================================================================
 
 func (this *HallAgentManager) init_message_handle() {
-	this.SetMessageHandler(msg_server_message.ID_H2LHallServerRegister, H2LHallServerRegisterHandler)
+	this.net.SetPid2P(hall_agent_msgid2msg)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_H2L_HALL_SERVER_REGISTER), H2LHallServerRegisterHandler)
 }
 
-func H2LHallServerRegisterHandler(a *HallAgent, m proto.Message) {
+func hall_agent_msgid2msg(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_server_message.MSGID_H2L_HALL_SERVER_REGISTER) {
+		return &msg_server_message.H2LHallServerRegister{}
+	} else {
+		log.Error("Cant found proto message by msg_id[%v]", msg_id)
+	}
+	return nil
+}
+
+func H2LHallServerRegisterHandler(conn *server_conn.ServerConn, m proto.Message) {
 	req := m.(*msg_server_message.H2LHallServerRegister)
-	if nil == a || nil == req {
+	if nil == req {
 		log.Error("M2LMatchServerRegisterHandler param error !")
 		return
 	}
@@ -433,7 +421,13 @@ func H2LHallServerRegisterHandler(a *HallAgent, m proto.Message) {
 	server_id := req.GetServerId()
 	server_name := req.GetServerName()
 
-	if hall_agent_manager.HasAgent(server_id) {
+	a := hall_agent_manager.GetAgent(conn)
+	if a == nil {
+		log.Error("Agent[%v] not found", conn)
+		return
+	}
+
+	if a.id == server_id /*hall_agent_manager.HasAgent(server_id)*/ {
 		hall_agent_manager.DisconnectAgent(a.conn, server_conn.E_DISCONNECT_REASON_FORCE_CLOSED)
 		log.Error("大厅服务器[%v]已有，不能有重复的ID", server_id)
 		return

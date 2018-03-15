@@ -19,7 +19,7 @@ const FRIEND_MESSAGE_MAX_LENGTH int = 200
 // ----------------------------------------------------------------------------
 
 func reg_player_friend_msg() {
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendSearch, C2SFriendSearchHandler)
+	/*msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendSearch, C2SFriendSearchHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendSearchById, C2SFriendSearchByIdHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SAddFriendByPId, C2SAddFriendByIdHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SAddFriendByName, C2SAddFriendByNameHandler)
@@ -32,7 +32,81 @@ func reg_player_friend_msg() {
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendGetUnreadMessageNum, C2SFriendGetUnreadMessageNumHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendPullUnreadMessage, C2SFriendPullUnreadMessageHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendConfirmUnreadMessage, C2SFriendConfirmUnreadMessageHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SAgreeFriend, C2SAddFriendAgreeHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SAgreeFriend, C2SAddFriendAgreeHandler)*/
+}
+
+func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CRetFriendListResult) {
+	var tmp_info *msg_client_message.FriendInfo
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.FillAllListMsg")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	msg.FriendList = make([]*msg_client_message.FriendInfo, 0, len(this.m_data))
+	for _, val := range this.m_data {
+		if nil == val {
+			continue
+		}
+
+		tmp_info = &msg_client_message.FriendInfo{}
+		tmp_info.PlayerId = val.FriendId
+		tmp_info.Name = val.FriendName
+		tmp_info.Level = val.Level
+		tmp_info.VipLevel = val.VipLevel
+		tmp_info.LastLogin = val.LastLogin
+		tmp_info.Head = val.Head
+		tmp_info.IsOnline = true
+		log.Info("附加值到好友列表 %v", tmp_info)
+		msg.FriendList = append(msg.FriendList, tmp_info)
+	}
+
+	return
+}
+
+func (this *dbPlayerFriendColumn) GetAviFriendId() int32 {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.GetAviFriendId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	for i := int32(1); i <= global_config_mgr.GetGlobalConfig().MaxFriendNum; i++ {
+		if nil == this.m_data[i] {
+			return i
+		}
+	}
+	return 0
+}
+
+func (this dbPlayerFriendColumn) TryAddFriend(new_friend *dbPlayerFriendData) {
+	if nil == new_friend {
+		log.Error("dbPlayerFriendColumn TryAddFriend ")
+		return
+	}
+
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendColumn.TryAddFriend")
+	defer this.m_row.m_lock.UnSafeUnlock()
+
+	if nil == this.m_data[new_friend.FriendId] {
+		this.m_data[new_friend.FriendId] = new_friend
+		this.m_changed = true
+	}
+
+	return
+}
+
+func (this *dbPlayerFriendReqColumn) FillAllListMsg(msg *msg_client_message.S2CRetFriendListResult) {
+
+	var tmp_info *msg_client_message.FriendReq
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendReqColumn.FillAllListMsg")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	msg.Reqs = make([]*msg_client_message.FriendReq, 0, len(this.m_data))
+	for _, val := range this.m_data {
+		if nil == val {
+			continue
+		}
+
+		tmp_info = &msg_client_message.FriendReq{}
+		tmp_info.PlayerId = val.PlayerId
+		tmp_info.Name = val.PlayerName
+		msg.Reqs = append(msg.Reqs, tmp_info)
+	}
+
+	return
 }
 
 func send_search_player_msg(p *Player, players_info []*rpc_common.H2R_SearchPlayerInfo) {
@@ -43,20 +117,64 @@ func send_search_player_msg(p *Player, players_info []*rpc_common.H2R_SearchPlay
 		results = make([]*msg_client_message.FriendInfo, len(players_info))
 		for i := 0; i < len(players_info); i++ {
 			r := &msg_client_message.FriendInfo{
-				PlayerId:  proto.Int32(players_info[i].Id),
-				Name:      proto.String(players_info[i].Nick),
-				Head:      proto.String(players_info[i].Head),
-				Level:     proto.Int32(players_info[i].Level),
-				VipLevel:  proto.Int32(players_info[i].VipLevel),
-				LastLogin: proto.Int32(players_info[i].LastLogin),
+				PlayerId:  players_info[i].Id,
+				Name:      players_info[i].Nick,
+				Head:      players_info[i].Head,
+				Level:     players_info[i].Level,
+				VipLevel:  players_info[i].VipLevel,
+				LastLogin: players_info[i].LastLogin,
 			}
 			results[i] = r
 		}
 
 	}
-	response := msg_client_message.S2CFriendSearchResult{}
+	/*response := msg_client_message.S2CFriendSearchResult{}
 	response.Result = results
-	p.Send(&response)
+	p.Send(&response)*/
+}
+
+func (this *dbPlayerFriendReqColumn) CheckAndAdd(player_id int32, player_name string) int32 {
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendReqColumn.CheckAndAdd")
+	defer this.m_row.m_lock.UnSafeUnlock()
+
+	d := this.m_data[player_id]
+	if d != nil {
+		log.Warn("!!! Player[%v,%v] already in request list of player[%v]", player_id, player_name, this.m_row.GetPlayerId())
+		return int32(msg_client_message.E_ERR_FRIEND_THE_PLAYER_REQUESTED)
+	}
+
+	d = &dbPlayerFriendReqData{}
+	d.PlayerId = player_id
+	d.PlayerName = player_name
+	this.m_data[player_id] = d
+	this.m_changed = true
+	return 1
+}
+
+func (this *dbPlayerFriendReqColumn) AgreeFriend(friend_id int32) bool {
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendReqColumn.AgreeFriend")
+	defer this.m_row.m_lock.UnSafeUnlock()
+
+	d := this.m_data[friend_id]
+	if d != nil {
+
+	}
+	return true
+}
+
+func (this *dbPlayerFriendColumn) GetAllIds() (ret_ids []int32) {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.GetAllIds")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	tmp_len := len(this.m_data)
+	if tmp_len <= 0 {
+		return nil
+	}
+
+	ret_ids = make([]int32, 0, len(this.m_data))
+	for _, v := range this.m_data {
+		ret_ids = append(ret_ids, v.FriendId)
+	}
+	return
 }
 
 func (this *dbPlayerFriendColumn) GetFriendInfoMsg(friend_id int32) *msg_client_message.FriendInfo {
@@ -69,12 +187,12 @@ func (this *dbPlayerFriendColumn) GetFriendInfoMsg(friend_id int32) *msg_client_
 	}
 
 	return &msg_client_message.FriendInfo{
-		PlayerId:  proto.Int32(d.FriendId),
-		Name:      proto.String(d.FriendName),
-		Head:      proto.String(d.Head),
-		Level:     proto.Int32(d.Level),
-		VipLevel:  proto.Int32(d.VipLevel),
-		LastLogin: proto.Int32(d.LastLogin),
+		PlayerId:  d.FriendId,
+		Name:      d.FriendName,
+		Head:      d.Head,
+		Level:     d.Level,
+		VipLevel:  d.VipLevel,
+		LastLogin: d.LastLogin,
 	}
 }
 
@@ -189,26 +307,6 @@ func (this *Player) search_friend(key string) int32 {
 	return 1
 }
 
-func (this *Player) search_friend_by_id(id int32) int32 {
-	// 先在本服务器上查找
-	/*add_player := player_mgr.GetPlayerById(id)
-	if add_player != nil {
-		send_search_player_msg(this, id, add_player.db.GetName(), add_player.db.Info.GetIcon(), add_player.db.Info.GetLvl(), add_player.db.Info.GetLastLogin())
-	} else {
-		// 通过ID向RPC服务器获取查找玩家数据
-		result := this.rpc_call_search_friend_by_id(id)
-		if result == nil {
-			log.Error("通过ID[%v]查找玩家数据失败", id)
-			return -1
-		}
-		send_search_player_msg(this, result.Id, result.Nick, result.Head, result.Level, result.LastLogin)
-	}
-
-	log.Info("Player[%v] searched friend with id[%v]", this.Id, id)*/
-
-	return 1
-}
-
 func (this *Player) add_friend_by_name(name string) int32 {
 	result := this.rpc_add_friend_by_name(name)
 	if result == nil {
@@ -216,9 +314,9 @@ func (this *Player) add_friend_by_name(name string) int32 {
 		return -1
 	}
 
-	response := &msg_client_message.S2CAddFriendResult{}
+	/*response := &msg_client_message.S2CAddFriendResult{}
 	response.PlayerId = proto.Int32(result.AddPlayerId)
-	this.Send(response)
+	this.Send(response)*/
 
 	log.Info("Player[%v] requested add friend[%v]", this.Id, name)
 
@@ -251,9 +349,9 @@ func (this *Player) add_friend_by_id(id int32) int32 {
 		}
 	}
 
-	response := &msg_client_message.S2CAddFriendResult{}
+	/*response := &msg_client_message.S2CAddFriendResult{}
 	response.PlayerId = proto.Int32(id)
-	this.Send(response)
+	this.Send(response)*/
 
 	log.Info("Player[%v] requested add friend[%v]", this.Id, id)
 
@@ -312,10 +410,10 @@ func (this *Player) agree_add_friend(id int32) int32 {
 	// request remove
 	this.db.FriendReqs.Remove(id)
 
-	response := &msg_client_message.S2CAgreeFriendResult{}
+	/*response := &msg_client_message.S2CAgreeFriendResult{}
 	response.PlayerId = proto.Int32(id)
 	response.Name = proto.String(data.FriendName)
-	this.Send(response)
+	this.Send(response)*/
 
 	log.Debug("Player[%v] agree add friend request of player[%v][%v]", this.Id, id, data.FriendName)
 
@@ -332,9 +430,9 @@ func (this *Player) refuse_add_friend(player_id int32) int32 {
 	this.db.FriendReqs.Remove(player_id)
 
 	response := &msg_client_message.S2CRefuseFriendResult{}
-	response.Name = proto.String(name)
-	response.PlayerId = proto.Int32(player_id)
-	this.Send(response)
+	response.Name = name
+	response.PlayerId = player_id
+	this.Send(1, response)
 
 	log.Debug("Player[%v] refuse add friend request of player[%v]", this.Id, player_id)
 
@@ -371,8 +469,8 @@ func (this *Player) remove_friend(player_id int32) int32 {
 	this.remove_friend_data(player_id)
 
 	response := &msg_client_message.S2CRemoveFriendResult{}
-	response.PlayerId = proto.Int32(player_id)
-	this.Send(response)
+	response.PlayerId = player_id
+	this.Send(1, response)
 
 	log.Debug("Player[%v] removed friend[%v]", this.Id, player_id)
 
@@ -420,34 +518,34 @@ func (this *Player) get_friend_list(get_foster bool) int32 {
 	this.db.FriendReqs.FillAllListMsg(response)
 
 	rt := &global_config_mgr.GetGlobalConfig().FriendGivePointsRefreshTime
-	now_time := time.Now()
+	//now_time := time.Now()
 	for i := 0; i < len(response.FriendList); i++ {
 		fid := response.FriendList[i].GetPlayerId()
 		name, level, head := GetPlayerBaseInfo(fid)
-		response.FriendList[i].Name = proto.String(name)
-		response.FriendList[i].Head = proto.String(head)
-		response.FriendList[i].Level = proto.Int32(level)
+		response.FriendList[i].Name = name
+		response.FriendList[i].Head = head
+		response.FriendList[i].Level = level
 		points, o := this.db.FriendPoints.GetGivePoints(fid)
 		if o {
-			response.FriendList[i].FriendPoints = proto.Int32(points)
-			response.FriendList[i].LeftGiveSeconds = proto.Int32(remain_seconds)
-			response.FriendList[i].UnreadMessageNum = proto.Int32(this.db.FriendChatUnreadIds.GetUnreadMessageNum(fid))
+			response.FriendList[i].FriendPoints = points
+			response.FriendList[i].LeftGiveSeconds = remain_seconds
+			response.FriendList[i].UnreadMessageNum = this.db.FriendChatUnreadIds.GetUnreadMessageNum(fid)
 		}
-		zan, _ := this.db.Zans.GetZanNum(fid)
-		response.FriendList[i].Zan = proto.Int32(zan)
-		response.FriendList[i].IsZanToday = proto.Bool(this.is_today_zan(fid, now_time))
+		//zan, _ := this.db.Zans.GetZanNum(fid)
+		//response.FriendList[i].Zan = zan
+		//response.FriendList[i].IsZanToday = this.is_today_zan(fid, now_time)
 		last_save, _ := this.db.Friends.GetLastGivePointsTime(fid)
 		remain_seconds := utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, last_save)
-		response.FriendList[i].LeftGiveSeconds = proto.Int32(remain_seconds)
+		response.FriendList[i].LeftGiveSeconds = remain_seconds
 	}
 	for i := 0; i < len(response.Reqs); i++ {
 		fid := response.Reqs[i].GetPlayerId()
 		name, _, head := GetPlayerBaseInfo(fid)
-		response.Reqs[i].Name = proto.String(name)
-		response.Reqs[i].Head = proto.String(head)
+		response.Reqs[i].Name = name
+		response.Reqs[i].Head = head
 	}
-	response.LeftGivePointsNum = proto.Int32(global_config_mgr.GetGlobalConfig().FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday())
-	this.Send(response)
+	response.LeftGivePointsNum = global_config_mgr.GetGlobalConfig().FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday()
+	this.Send(1, response)
 	return 1
 }
 
@@ -464,17 +562,17 @@ func (this *Player) store_friend_points(friend_id int32) (err int32, last_save i
 	if !o {
 		var data dbPlayerFriendPointData
 		data.FromPlayerId = friend_id
-		data.GivePoints = global_id.GiveFriendPointsOnce_30
+		data.GivePoints = 1 //global_id.GiveFriendPointsOnce_30
 		data.LastGiveTime = int32(now_time.Unix())
 		//data.IsTodayGive = 1
 		this.db.FriendPoints.Add(&data)
 	} else {
-		this.db.FriendPoints.SetGivePoints(friend_id, global_id.GiveFriendPointsOnce_30)
+		this.db.FriendPoints.SetGivePoints(friend_id, 1 /*global_id.GiveFriendPointsOnce_30*/)
 		this.db.FriendPoints.SetLastGiveTime(friend_id, int32(now_time.Unix()))
 		//this.db.FriendPoints.SetIsTodayGive(friend_id, 1)
 	}
 	last_save = int32(now_time.Unix())
-	remain_seconds = global_id.GiveFriendPointsOnce_30
+	remain_seconds = 1 //global_id.GiveFriendPointsOnce_30
 	log.Debug("!!!!!!!! err[%v] last_save[%v] remain_seconds[%v]", err, last_save, remain_seconds)
 	return
 }
@@ -482,7 +580,7 @@ func (this *Player) store_friend_points(friend_id int32) (err int32, last_save i
 func (this *Player) give_friend_points(friend_list []int32) int32 {
 	this.check_friends_give_points_refresh()
 
-	if int32(len(friend_list)) > global_id.GiveFriendPointsPlayersCount_31 {
+	if int32(len(friend_list)) > 1 /*global_id.GiveFriendPointsPlayersCount_31*/ {
 		return int32(msg_client_message.E_ERR_FRIEND_TOO_MANY_FRIEND_GIVE_POINTS)
 	}
 
@@ -494,7 +592,7 @@ func (this *Player) give_friend_points(friend_list []int32) int32 {
 	}
 
 	n := int32(0)
-	points_result := make([]*msg_client_message.FriendPointsResult, len(friend_list))
+	/*points_result := make([]*msg_client_message.FriendPointsResult, len(friend_list))
 	for _, id := range friend_list {
 		if id == this.Id {
 			continue
@@ -553,11 +651,11 @@ func (this *Player) give_friend_points(friend_list []int32) int32 {
 		LeftGivePointsNum: proto.Int32(global_config_mgr.GetGlobalConfig().FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday()),
 	}
 
-	this.Send(response)
+	this.Send(response)*/
 
 	this.TaskUpdate(table_config.TASK_FINISH_GIVE_FRIEND_POINT, false, 0, n)
 
-	log.Debug("Player[%v] give friend points: %v", this.Id, points_result)
+	//log.Debug("Player[%v] give friend points: %v", this.Id, points_result)
 
 	return 1
 }
@@ -565,7 +663,7 @@ func (this *Player) give_friend_points(friend_list []int32) int32 {
 func (this *Player) get_friend_points(friend_list []int32) int32 {
 	this.check_friends_give_points_refresh()
 
-	points_result := make([]*msg_client_message.FriendPoints, len(friend_list))
+	/*points_result := make([]*msg_client_message.FriendPoints, len(friend_list))
 	for i, id := range friend_list {
 		points_result[i] = &msg_client_message.FriendPoints{}
 		points, o := this.db.FriendPoints.GetGivePoints(id)
@@ -580,7 +678,7 @@ func (this *Player) get_friend_points(friend_list []int32) int32 {
 	response.PointsData = points_result
 	this.Send(response)
 
-	log.Debug("Player[%v] get friend points: %v", this.Id, points_result)
+	log.Debug("Player[%v] get friend points: %v", this.Id, points_result)*/
 	return 1
 }
 
@@ -647,16 +745,16 @@ func (this *Player) friend_chat(friend_id int32, message []byte) int32 {
 		}
 	}
 
-	response := &msg_client_message.S2CFriendChatResult{}
+	/*response := &msg_client_message.S2CFriendChatResult{}
 	response.PlayerId = proto.Int32(friend_id)
 	response.Content = message
-	this.Send(response)
+	this.Send(response)*/
 
 	return 1
 }
 
 func (this *Player) friend_get_unread_message_num(friend_ids []int32) int32 {
-	data := make([]*msg_client_message.FriendUnreadMessageNumData, len(friend_ids))
+	/*data := make([]*msg_client_message.FriendUnreadMessageNumData, len(friend_ids))
 	for i := 0; i < len(friend_ids); i++ {
 		message_num := int32(0)
 		if !this.db.Friends.HasIndex(friend_ids[i]) {
@@ -673,7 +771,7 @@ func (this *Player) friend_get_unread_message_num(friend_ids []int32) int32 {
 
 	response := &msg_client_message.S2CFriendGetUnreadMessageNumResult{}
 	response.Data = data
-	this.Send(response)
+	this.Send(response)*/
 	return 1
 }
 
@@ -683,7 +781,7 @@ func (this *Player) friend_pull_unread_message(friend_id int32) int32 {
 		return int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
 	}
 
-	c := 0
+	/*c := 0
 	var data []*msg_client_message.FriendChatData
 	all_unread_ids, o := this.db.FriendChatUnreadIds.GetMessageIds(friend_id)
 	if !o || all_unread_ids == nil || len(all_unread_ids) == 0 {
@@ -711,7 +809,7 @@ func (this *Player) friend_pull_unread_message(friend_id int32) int32 {
 	response.FriendId = proto.Int32(friend_id)
 	this.Send(response)
 
-	log.Debug("Player[%v] pull unread message[%v] from friend[%v]", this.Id, response.Data, friend_id)
+	log.Debug("Player[%v] pull unread message[%v] from friend[%v]", this.Id, response.Data, friend_id)*/
 
 	return 1
 }
@@ -729,10 +827,10 @@ func (this *Player) friend_confirm_unread_message(friend_id int32, message_num i
 
 	this.db.FriendChatUnreadMessages.RemoveMessages(friend_id, remove_ids)
 
-	response := &msg_client_message.S2CFriendConfirmUnreadMessageResult{}
+	/*response := &msg_client_message.S2CFriendConfirmUnreadMessageResult{}
 	response.FriendId = proto.Int32(friend_id)
 	response.MessageNum = proto.Int32(message_num)
-	this.Send(response)
+	this.Send(response)*/
 
 	log.Debug("Player[%v] confirm friend[%v] unread message num[%v]", this.Id, friend_id, message_num)
 
@@ -751,21 +849,6 @@ func C2SFriendSearchHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	}
 
 	return p.search_friend(req.GetKey())
-}
-
-func C2SFriendSearchByIdHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SFriendSearchById)
-	if nil == req {
-		log.Error("C2SFriendSearchByIdHandler c or req nil %v!", nil == req)
-		return -1
-	}
-
-	if p == nil {
-		log.Error("C2SFriendSearchByIdHandler not login")
-		return -1
-	}
-
-	return p.search_friend_by_id(req.GetPlayerId())
 }
 
 func C2SAddFriendByIdHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {

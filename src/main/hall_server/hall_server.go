@@ -8,12 +8,12 @@ import (
 	"libs/timer"
 	"libs/utils"
 	"main/table_config"
-	"public_message/gen_go/client_message"
+	_ "public_message/gen_go/client_message"
 	"sync"
 	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 type HallServer struct {
@@ -37,7 +37,7 @@ var hall_server HallServer
 func (this *HallServer) Init() (ok bool) {
 	this.start_time = time.Now()
 	this.shutdown_lock = &sync.Mutex{}
-	this.net = socket.NewNode(&hall_server, time.Duration(config.RecvMaxMSec), time.Duration(config.SendMaxMSec), 5000, msg_client_message.MessageNames) //(this, 0, 0, 5000, 0, 0, 0, 0, 0)
+	this.net = socket.NewNode(&hall_server, time.Duration(config.RecvMaxMSec), time.Duration(config.SendMaxMSec), 5000, nil) //(this, 0, 0, 5000, 0, 0, 0, 0, 0)
 
 	this.redis_conn = &utils.RedisConn{}
 	if !this.redis_conn.Connect(config.RedisServerIP) {
@@ -52,9 +52,9 @@ func (this *HallServer) Init() (ok bool) {
 		return
 	}
 
-	if !global_id.Load("../game_data/global_id.json") {
+	/*if !global_id.Load("../game_data/global_id.json") {
 		return
-	}
+	}*/
 
 	world_chat_mgr.Init()
 	anouncement_mgr.Init()
@@ -72,15 +72,10 @@ func (this *HallServer) Init() (ok bool) {
 }
 
 func (this *HallServer) OnInit() (err error) {
-	reg_player_mail_msg()
 	reg_player_base_info_msg()
-	reg_player_first_pay_msg()
 	reg_player_guide_msg()
 	reg_player_friend_msg()
-	reg_player_stage_msg()
 	reg_player_draw_msg()
-	reg_player_chapter_msg()
-	reg_player_activity_msg()
 
 	player_mgr.RegMsgHandler()
 
@@ -109,13 +104,6 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("task_mgr init succeed !")
 	}
 
-	if !cfg_skill_mgr.Init() {
-		log.Error("cfg_skill_mgr init failed !")
-		return errors.New("cfg_skill_mgr init failed")
-	} else {
-		log.Info("cfg_skill_mgr init succeed")
-	}
-
 	if !cfg_drop_card_mgr.Init() {
 		log.Error("cfg_drop_card_mgr init failed !")
 		return errors.New("cfg_drop_card_mgr init failed !")
@@ -129,25 +117,11 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("extract_table_mgr init succeed")
 	}
 
-	if !cfg_activity_mgr.Init() {
-		log.Error("cfg_activity_mgr init failed !")
-		return errors.New("cfg_activity_mgr init failed !")
-	} else {
-		log.Info("cfg_activity_mgr init succeed")
-	}
-
 	if !gm_command_mgr.Init() {
 		log.Error("gm_command_mgr init failed")
 		return errors.New("gm_command_mgr init failed !")
 	} else {
 		log.Info("gm_command_mgr init succeed !")
-	}
-
-	if !stage_pass_mgr.Init() {
-		log.Error("stage_pass_mgr init failed")
-		return errors.New("stage_pass_mgr init failed !")
-	} else {
-		log.Info("stage_pass_mgr init succeed !")
 	}
 
 	if !cfg_player_level_mgr.Init() {
@@ -176,13 +150,6 @@ func (this *HallServer) OnInit() (err error) {
 		return errors.New("chapter_mgr init failed")
 	} else {
 		log.Info("chapter_mgr init succeed!")
-	}
-
-	if !other_table_mgr.Init() {
-		log.Error("other_mgr init failed")
-		return errors.New("other_mgr init failed")
-	} else {
-		log.Info("other_mgr init succeed")
 	}
 
 	if !level_table_mgr.Init() {
@@ -220,6 +187,13 @@ func (this *HallServer) OnInit() (err error) {
 	}
 
 	os_player_mgr.Init()
+
+	if !card_table_mgr.Init() {
+		log.Error("card_table_mgr init failed")
+		return errors.New("card_table_mgr init failed")
+	} else {
+		log.Info("card_table_mgr init succeed")
+	}
 
 	return
 }
@@ -353,50 +327,22 @@ func (this *HallServer) CloseConnection(c *socket.TcpConn, reason socket.E_DISCO
 	c.Close(reason)
 }
 
-type MessageHandler func(conn *socket.TcpConn, m proto.Message)
-
-func (this *HallServer) set_ih(type_id uint16, h socket.Handler) {
-	t := msg_client_message.MessageTypes[type_id]
-	if t == nil {
-		log.Error("设置消息句柄失败，不存在的消息类型 %v", type_id)
-		return
-	}
-
-	this.net.SetHandler(type_id, t, h)
-}
-
-func (this *HallServer) SetMessageHandler(type_id uint16, h MessageHandler) {
-	if h == nil {
-		this.set_ih(type_id, nil)
-		return
-	}
-
-	this.set_ih(type_id, func(c *socket.TcpConn, m proto.Message) {
-		h(c, m)
-	})
-}
-
 func (this *HallServer) OnUpdate(c *socket.TcpConn, t timer.TickTime) {
 
 }
 
-var global_id table_config.GlobalId
 var global_config_mgr table_config.GlobalConfigManager
 var task_table_mgr table_config.TaskTableMgr
 var item_table_mgr table_config.CfgItemManager
 var stage_table_mgr table_config.CfgStageManager
-var cfg_skill_mgr table_config.CfgSkillMgr
 var cfg_drop_card_mgr table_config.CfgDropCardManager
 var cfg_player_level_mgr table_config.CfgPlayerLevelManager
 var shop_table_mgr table_config.ShopTableManager
 var box_table_mgr table_config.BoxTableManager
 var cfg_chapter_mgr table_config.CfgChapterManager
-var cfg_mail_mgr table_config.MailConfigManager
-var cfg_day_sign_mgr table_config.CfgDaySignManager
-var other_table_mgr table_config.OtherTableManager
 var level_table_mgr table_config.LevelTableMgr
 var handbook_table_mgr table_config.HandbookTableMgr
 var suit_table_mgr table_config.SuitTableMgr
-var cfg_activity_mgr table_config.CfgActivityMgr
 var extract_table_mgr table_config.ExtractTableManager
 var cfg_position table_config.CfgPosition
+var card_table_mgr table_config.CardTableMgr

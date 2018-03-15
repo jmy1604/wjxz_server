@@ -31,7 +31,7 @@ func (this *CenterConnection) Init() {
 	this.client_node.SetDesc("中心服务器", "")
 
 	this.state = CENTER_CONN_STATE_DISCONNECT
-	this.RegisterMsgHandler()
+	//this.RegisterMsgHandler()
 }
 
 func (this *CenterConnection) Start() {
@@ -91,10 +91,10 @@ func (this *CenterConnection) OnConnect(c *server_conn.ServerConn) {
 	if CENTER_CONN_STATE_FORCE_CLOSE != this.state {
 		log.Trace("LoginServer[%v][%v] on CenterServer connect", config.ServerId, config.ServerName)
 		notify := &msg_server_message.L2CLoginServerRegister{}
-		notify.ServerId = proto.Int32(config.ServerId)
-		notify.ServerName = proto.String(config.ServerName)
-		notify.ListenMatchIP = proto.String(config.ListenMatchIP)
-		c.Send(notify, true)
+		notify.ServerId = config.ServerId
+		notify.ServerName = config.ServerName
+		notify.ListenMatchIP = config.ListenMatchIP
+		c.Send(uint16(msg_server_message.MSGID_L2C_LOGIN_SERVER_REGISTER), notify, true)
 	} else {
 		log.Trace("LoginServer[%v][%v] force closed on CenterServer connect", config.ServerId, config.ServerName)
 	}
@@ -118,33 +118,13 @@ func (this *CenterConnection) ShutDown() {
 	if nil != this.client_node {
 		this.client_node.Shutdown()
 	}
-
 }
 
-func (this *CenterConnection) set_ih(type_id uint16, h server_conn.Handler) {
-	t := msg_server_message.MessageTypes[type_id]
-	if t == nil {
-		log.Error("设置消息句柄失败，不存在的消息类型 %v", type_id)
-		return
-	}
-
-	this.client_node.SetHandler(type_id, t, h)
+func (this *CenterConnection) SetMessageHandler(type_id uint16, h server_conn.Handler) {
+	this.client_node.SetHandler(type_id, h)
 }
 
-type AssistMessageHandler func(a *CenterConnection, m proto.Message)
-
-func (this *CenterConnection) SetMessageHandler(type_id uint16, h AssistMessageHandler) {
-	if h == nil {
-		this.set_ih(type_id, nil)
-		return
-	}
-
-	this.set_ih(type_id, func(c *server_conn.ServerConn, m proto.Message) {
-		h(this, m)
-	})
-}
-
-func (this *CenterConnection) Send(msg proto.Message) {
+func (this *CenterConnection) Send(msg_id uint16, msg proto.Message) {
 	if CENTER_CONN_STATE_CONNECTED != this.state {
 		log.Info("CenterServer未连接!!!")
 		return
@@ -154,16 +134,26 @@ func (this *CenterConnection) Send(msg proto.Message) {
 		return
 	}
 
-	this.client_node.GetClient().Send(msg, false)
+	this.client_node.GetClient().Send(msg_id, msg, false)
 }
 
 //========================================================================
 
 func (this *CenterConnection) RegisterMsgHandler() {
-	this.SetMessageHandler(msg_server_message.ID_C2LPlayerAccInfo, C2LPlayerAccInfoHandler)
+	this.client_node.SetPid2P(center_conn_msgid2msg)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_C2L_PLAYER_ACC_INFO), C2LPlayerAccInfoHandler)
 }
 
-func C2LPlayerAccInfoHandler(conn *CenterConnection, msg proto.Message) {
+func center_conn_msgid2msg(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_server_message.MSGID_C2L_PLAYER_ACC_INFO) {
+		return &msg_server_message.C2LPlayerAccInfo{}
+	} else {
+		log.Error("Cant get proto message by msg_id[%v]", msg_id)
+	}
+	return nil
+}
+
+func C2LPlayerAccInfoHandler(conn *server_conn.ServerConn, msg proto.Message) {
 	res := msg.(*msg_server_message.C2LPlayerAccInfo)
 	if nil == conn || nil == res {
 		log.Error("C2LPlayerAccInfoHandler param error !")

@@ -11,11 +11,6 @@ It has these top-level messages:
 	LoginServerInfo
 	PlayerBaseInfo
 	PlayerStageInfo
-	PlayerCard
-	CardTeam
-	FightAction
-	SmallRankItem
-	MatchPlayer
 	H2CHallServerRegister
 	H2CHallServerUnRegister
 	C2HLoginServerList
@@ -30,139 +25,6 @@ It has these top-level messages:
 	L2CGetPlayerAccInfo
 	C2LPlayerAccInfo
 	SetPlayerOnOffline
-	PlayerStagePass
-	RetPlayerStagePass
-	GetFriendStageInfo
-	RetFriendStageInfo
-	ChapterUnlockHelp
-	ChapterUnlockAgree
-	PlayerNScoreChg
-	MultiPlayerNScoreChg
-	GetRankInfo
-	RetRankItems
-	GetPlayerInfo
-	OtherPlayerBaseInfo
-	RetPlayerInfo
-	LegendArenaSwitch
-	TongScoreChg
-	MultiTongScoreChg
-	CreateTong
-	CreateTongOk
-	CreateTongFailed
-	TongMemberInfo
-	TongChatData
-	TongVodData
-	TongRequestCard
-	TongRequestJoin
-	TongSummaryInfo
-	TongFriendMatchItem
-	GetTongInfo
-	RetTongInfo
-	GetRecommendTong
-	RetRecommendTong
-	TongSearch
-	RetTongSearch
-	EnterTong
-	EnterTongRequest
-	EnterTongAgree
-	NotifyPlayerEnter
-	EnterTongRefuse
-	NotifyPlayerRefuse
-	SetPlayerTongInfo
-	SetPlayerTongInfoOk
-	TongLeave
-	ClearPlayerTongInfo
-	ClearTongPlayerById
-	SetTongMemberOnOffline
-	NotifyTongMemberOnOffline
-	TongSetChg
-	NotifyTongSetChg
-	TongPubChg
-	NotifyTongPubChg
-	TongChatSend
-	NotifyTongChatSend
-	TongCardReq
-	NotifyTongCardReq
-	TongDonateCard
-	NotifyTongDonateCard
-	TongDonateCardFailed
-	TongMemberFightEnd
-	NotifyTongChestScoreChg
-	NotifyTongMemberScoreChg
-	TongChestOpen
-	RetTongChestOpen
-	TongFriendMatch
-	NotifyTongFriendMatch
-	TongFriendCancel
-	NotifyTongFriendCancel
-	TongFriendEnter
-	TongFightRecord
-	FightRecordPlayer
-	NotifyTongFightRecord
-	MailAdd
-	PayBackAdd
-	SyncPayBackDataList
-	PayBackRemove
-	NoticeAdd
-	SyncNoticeAddList
-	NoticeRemove
-	GetCampFightState
-	NotifyCampFightState
-	CampFigthScoreChg
-	GetCampFightRank
-	RetCampFightRank
-	CampFightRecord
-	GetCampFightRecord
-	RetCampFightRecord
-	CampFightScoreUpdate
-	FriendInfo
-	FriendSearch
-	FriendSearchResult
-	AddFriendByPId
-	AddFriendByAcc
-	AgreeAddFriend
-	RefuseFriendAdd
-	RemoveFriendById
-	AddFocusByPId
-	AddFocusByAcc
-	GetFocusedPlayerInfo
-	RetFocusedPlayerInfo
-	RemoveFocusById
-	RemoveBeFocusById
-	FriendChat
-	GetOnlineFriendIds
-	RetOnlineFriendIds
-	Match2V2ParterInfo
-	Match2V2ParterEnter
-	Match2V2CardsChg
-	Match2V2Chat
-	Match2V2EnterRoom
-	Match2V2Ready
-	Match2V2ParterReady
-	CustomMatchPlayer
-	GetCustomMatch
-	RetCustomMatchBaseInfo
-	RetCustomMatchPlayers
-	CustomMatchSearch
-	CustomMatchSummary
-	RetCustomMatchSearch
-	CreateCustomMatch
-	CreateCustomMatchFailed
-	ChgCustomMatchDesc
-	ChgCustomMatchPwd
-	EnterCustomMatch
-	NotifyEnterCustomMatch
-	StartCustomMatch
-	NotifyCustomMatchStart
-	CustomMatchReq
-	CustomMatchCacel
-	CustomPlayerStatechg
-	CustomPlayerScorechg
-	LeaveCustomMatchPage
-	LeaveCustomMatch
-	NotifyLeaveCustomMatch
-	NotifyCustomReward
-	NotifyCustomNoReward
 	C2HGmCommand
 	H2CGmResult
 	C2HItemQuery
@@ -189,44 +51,68 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// 版本号
-type E_VERSION int32
+type MSGID int32
 
 const (
-	E_VERSION_E_VERSION_NUMBER E_VERSION = 1101
+	MSGID_NONE                        MSGID = 0
+	MSGID_H2C_HAll_SERVER_REGISTER    MSGID = 20000
+	MSGID_H2C_HALL_SERVER_UNREDISTER  MSGID = 20001
+	MSGID_C2H_LOGIN_SERVER_LIST       MSGID = 20010
+	MSGID_C2H_NEW_LOGIN_SERVER_ADD    MSGID = 20011
+	MSGID_C2H_LOGIN_SERVER_REMOVE     MSGID = 20012
+	MSGID_H2L_HALL_SERVER_REGISTER    MSGID = 21000
+	MSGID_H2L_HALL_SERVER_UNREGISTER  MSGID = 21001
+	MSGID_L2H_DISCONNECT_NOTIFY       MSGID = 21002
+	MSGID_L2H_SYNC_ACCOUNT_TOKEN      MSGID = 21003
+	MSGID_L2C_LOGIN_SERVER_REGISTER   MSGID = 21004
+	MSGID_L2C_LOGIN_SERVER_UNREGISTER MSGID = 21005
+	MSGID_L2C_GET_PLAYER_ACC_INFO     MSGID = 21006
+	MSGID_C2L_PLAYER_ACC_INFO         MSGID = 21007
 )
 
-var E_VERSION_name = map[int32]string{
-	1101: "E_VERSION_NUMBER",
+var MSGID_name = map[int32]string{
+	0:     "NONE",
+	20000: "H2C_HAll_SERVER_REGISTER",
+	20001: "H2C_HALL_SERVER_UNREDISTER",
+	20010: "C2H_LOGIN_SERVER_LIST",
+	20011: "C2H_NEW_LOGIN_SERVER_ADD",
+	20012: "C2H_LOGIN_SERVER_REMOVE",
+	21000: "H2L_HALL_SERVER_REGISTER",
+	21001: "H2L_HALL_SERVER_UNREGISTER",
+	21002: "L2H_DISCONNECT_NOTIFY",
+	21003: "L2H_SYNC_ACCOUNT_TOKEN",
+	21004: "L2C_LOGIN_SERVER_REGISTER",
+	21005: "L2C_LOGIN_SERVER_UNREGISTER",
+	21006: "L2C_GET_PLAYER_ACC_INFO",
+	21007: "C2L_PLAYER_ACC_INFO",
 }
-var E_VERSION_value = map[string]int32{
-	"E_VERSION_NUMBER": 1101,
+var MSGID_value = map[string]int32{
+	"NONE": 0,
+	"H2C_HAll_SERVER_REGISTER":    20000,
+	"H2C_HALL_SERVER_UNREDISTER":  20001,
+	"C2H_LOGIN_SERVER_LIST":       20010,
+	"C2H_NEW_LOGIN_SERVER_ADD":    20011,
+	"C2H_LOGIN_SERVER_REMOVE":     20012,
+	"H2L_HALL_SERVER_REGISTER":    21000,
+	"H2L_HALL_SERVER_UNREGISTER":  21001,
+	"L2H_DISCONNECT_NOTIFY":       21002,
+	"L2H_SYNC_ACCOUNT_TOKEN":      21003,
+	"L2C_LOGIN_SERVER_REGISTER":   21004,
+	"L2C_LOGIN_SERVER_UNREGISTER": 21005,
+	"L2C_GET_PLAYER_ACC_INFO":     21006,
+	"C2L_PLAYER_ACC_INFO":         21007,
 }
 
-func (x E_VERSION) Enum() *E_VERSION {
-	p := new(E_VERSION)
-	*p = x
-	return p
+func (x MSGID) String() string {
+	return proto.EnumName(MSGID_name, int32(x))
 }
-func (x E_VERSION) String() string {
-	return proto.EnumName(E_VERSION_name, int32(x))
-}
-func (x *E_VERSION) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(E_VERSION_value, data, "E_VERSION")
-	if err != nil {
-		return err
-	}
-	*x = E_VERSION(value)
-	return nil
-}
-func (E_VERSION) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (MSGID) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 type LoginServerInfo struct {
-	ServerId         *int32  `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
-	ServerName       *string `protobuf:"bytes,2,opt,name=ServerName" json:"ServerName,omitempty"`
-	ListenMatchIP    *string `protobuf:"bytes,3,opt,name=ListenMatchIP" json:"ListenMatchIP,omitempty"`
-	ListenClientIP   *string `protobuf:"bytes,4,opt,name=ListenClientIP" json:"ListenClientIP,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	ServerId       int32  `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
+	ServerName     string `protobuf:"bytes,2,opt,name=ServerName" json:"ServerName,omitempty"`
+	ListenMatchIP  string `protobuf:"bytes,3,opt,name=ListenMatchIP" json:"ListenMatchIP,omitempty"`
+	ListenClientIP string `protobuf:"bytes,4,opt,name=ListenClientIP" json:"ListenClientIP,omitempty"`
 }
 
 func (m *LoginServerInfo) Reset()                    { *m = LoginServerInfo{} }
@@ -235,41 +121,40 @@ func (*LoginServerInfo) ProtoMessage()               {}
 func (*LoginServerInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 func (m *LoginServerInfo) GetServerId() int32 {
-	if m != nil && m.ServerId != nil {
-		return *m.ServerId
+	if m != nil {
+		return m.ServerId
 	}
 	return 0
 }
 
 func (m *LoginServerInfo) GetServerName() string {
-	if m != nil && m.ServerName != nil {
-		return *m.ServerName
+	if m != nil {
+		return m.ServerName
 	}
 	return ""
 }
 
 func (m *LoginServerInfo) GetListenMatchIP() string {
-	if m != nil && m.ListenMatchIP != nil {
-		return *m.ListenMatchIP
+	if m != nil {
+		return m.ListenMatchIP
 	}
 	return ""
 }
 
 func (m *LoginServerInfo) GetListenClientIP() string {
-	if m != nil && m.ListenClientIP != nil {
-		return *m.ListenClientIP
+	if m != nil {
+		return m.ListenClientIP
 	}
 	return ""
 }
 
 type PlayerBaseInfo struct {
-	Lvl              *int32  `protobuf:"varint,1,opt,name=Lvl" json:"Lvl,omitempty"`
-	Exp              *int32  `protobuf:"varint,2,opt,name=Exp" json:"Exp,omitempty"`
-	CurMaxStage      *int32  `protobuf:"varint,3,opt,name=CurMaxStage" json:"CurMaxStage,omitempty"`
-	Name             *string `protobuf:"bytes,4,opt,name=Name" json:"Name,omitempty"`
-	Icon             *int32  `protobuf:"varint,5,opt,name=Icon" json:"Icon,omitempty"`
-	CustomIcon       *string `protobuf:"bytes,6,opt,name=CustomIcon" json:"CustomIcon,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Lvl         int32  `protobuf:"varint,1,opt,name=Lvl" json:"Lvl,omitempty"`
+	Exp         int32  `protobuf:"varint,2,opt,name=Exp" json:"Exp,omitempty"`
+	CurMaxStage int32  `protobuf:"varint,3,opt,name=CurMaxStage" json:"CurMaxStage,omitempty"`
+	Name        string `protobuf:"bytes,4,opt,name=Name" json:"Name,omitempty"`
+	Icon        int32  `protobuf:"varint,5,opt,name=Icon" json:"Icon,omitempty"`
+	CustomIcon  string `protobuf:"bytes,6,opt,name=CustomIcon" json:"CustomIcon,omitempty"`
 }
 
 func (m *PlayerBaseInfo) Reset()                    { *m = PlayerBaseInfo{} }
@@ -278,56 +163,55 @@ func (*PlayerBaseInfo) ProtoMessage()               {}
 func (*PlayerBaseInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
 func (m *PlayerBaseInfo) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
+	if m != nil {
+		return m.Lvl
 	}
 	return 0
 }
 
 func (m *PlayerBaseInfo) GetExp() int32 {
-	if m != nil && m.Exp != nil {
-		return *m.Exp
+	if m != nil {
+		return m.Exp
 	}
 	return 0
 }
 
 func (m *PlayerBaseInfo) GetCurMaxStage() int32 {
-	if m != nil && m.CurMaxStage != nil {
-		return *m.CurMaxStage
+	if m != nil {
+		return m.CurMaxStage
 	}
 	return 0
 }
 
 func (m *PlayerBaseInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+	if m != nil {
+		return m.Name
 	}
 	return ""
 }
 
 func (m *PlayerBaseInfo) GetIcon() int32 {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
+	if m != nil {
+		return m.Icon
 	}
 	return 0
 }
 
 func (m *PlayerBaseInfo) GetCustomIcon() string {
-	if m != nil && m.CustomIcon != nil {
-		return *m.CustomIcon
+	if m != nil {
+		return m.CustomIcon
 	}
 	return ""
 }
 
 // 玩家某一个关卡的信息
 type PlayerStageInfo struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Score            *int32  `protobuf:"varint,2,opt,name=Score" json:"Score,omitempty"`
-	Name             *string `protobuf:"bytes,3,opt,name=Name" json:"Name,omitempty"`
-	Lvl              *int32  `protobuf:"varint,4,opt,name=Lvl" json:"Lvl,omitempty"`
-	Icon             *string `protobuf:"bytes,5,opt,name=Icon" json:"Icon,omitempty"`
-	CustomIcon       *string `protobuf:"bytes,6,opt,name=CustomIcon" json:"CustomIcon,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	PlayerId   int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	Score      int32  `protobuf:"varint,2,opt,name=Score" json:"Score,omitempty"`
+	Name       string `protobuf:"bytes,3,opt,name=Name" json:"Name,omitempty"`
+	Lvl        int32  `protobuf:"varint,4,opt,name=Lvl" json:"Lvl,omitempty"`
+	Icon       string `protobuf:"bytes,5,opt,name=Icon" json:"Icon,omitempty"`
+	CustomIcon string `protobuf:"bytes,6,opt,name=CustomIcon" json:"CustomIcon,omitempty"`
 }
 
 func (m *PlayerStageInfo) Reset()                    { *m = PlayerStageInfo{} }
@@ -336,379 +220,114 @@ func (*PlayerStageInfo) ProtoMessage()               {}
 func (*PlayerStageInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
 func (m *PlayerStageInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 func (m *PlayerStageInfo) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
+	if m != nil {
+		return m.Score
 	}
 	return 0
 }
 
 func (m *PlayerStageInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+	if m != nil {
+		return m.Name
 	}
 	return ""
 }
 
 func (m *PlayerStageInfo) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
+	if m != nil {
+		return m.Lvl
 	}
 	return 0
 }
 
 func (m *PlayerStageInfo) GetIcon() string {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
+	if m != nil {
+		return m.Icon
 	}
 	return ""
 }
 
 func (m *PlayerStageInfo) GetCustomIcon() string {
-	if m != nil && m.CustomIcon != nil {
-		return *m.CustomIcon
-	}
-	return ""
-}
-
-type PlayerCard struct {
-	CardCfgId        *int32 `protobuf:"varint,1,opt,name=CardCfgId" json:"CardCfgId,omitempty"`
-	CardCount        *int32 `protobuf:"varint,2,opt,name=CardCount" json:"CardCount,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PlayerCard) Reset()                    { *m = PlayerCard{} }
-func (m *PlayerCard) String() string            { return proto.CompactTextString(m) }
-func (*PlayerCard) ProtoMessage()               {}
-func (*PlayerCard) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
-
-func (m *PlayerCard) GetCardCfgId() int32 {
-	if m != nil && m.CardCfgId != nil {
-		return *m.CardCfgId
-	}
-	return 0
-}
-
-func (m *PlayerCard) GetCardCount() int32 {
-	if m != nil && m.CardCount != nil {
-		return *m.CardCount
-	}
-	return 0
-}
-
-type CardTeam struct {
-	TeamId           *int32  `protobuf:"varint,1,opt,name=TeamId" json:"TeamId,omitempty"`
-	CardIds          []int32 `protobuf:"varint,2,rep,name=CardIds" json:"CardIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CardTeam) Reset()                    { *m = CardTeam{} }
-func (m *CardTeam) String() string            { return proto.CompactTextString(m) }
-func (*CardTeam) ProtoMessage()               {}
-func (*CardTeam) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
-
-func (m *CardTeam) GetTeamId() int32 {
-	if m != nil && m.TeamId != nil {
-		return *m.TeamId
-	}
-	return 0
-}
-
-func (m *CardTeam) GetCardIds() []int32 {
 	if m != nil {
-		return m.CardIds
-	}
-	return nil
-}
-
-type FightAction struct {
-	Frame            *int32   `protobuf:"varint,1,opt,name=Frame" json:"Frame,omitempty"`
-	CardId           *int32   `protobuf:"varint,2,opt,name=CardId" json:"CardId,omitempty"`
-	Cardlvl          *int32   `protobuf:"varint,3,opt,name=Cardlvl" json:"Cardlvl,omitempty"`
-	PosX             *float32 `protobuf:"fixed32,4,opt,name=PosX" json:"PosX,omitempty"`
-	PosY             *float32 `protobuf:"fixed32,5,opt,name=PosY" json:"PosY,omitempty"`
-	PlayerIdx        *int32   `protobuf:"varint,6,opt,name=PlayerIdx" json:"PlayerIdx,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
-}
-
-func (m *FightAction) Reset()                    { *m = FightAction{} }
-func (m *FightAction) String() string            { return proto.CompactTextString(m) }
-func (*FightAction) ProtoMessage()               {}
-func (*FightAction) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
-
-func (m *FightAction) GetFrame() int32 {
-	if m != nil && m.Frame != nil {
-		return *m.Frame
-	}
-	return 0
-}
-
-func (m *FightAction) GetCardId() int32 {
-	if m != nil && m.CardId != nil {
-		return *m.CardId
-	}
-	return 0
-}
-
-func (m *FightAction) GetCardlvl() int32 {
-	if m != nil && m.Cardlvl != nil {
-		return *m.Cardlvl
-	}
-	return 0
-}
-
-func (m *FightAction) GetPosX() float32 {
-	if m != nil && m.PosX != nil {
-		return *m.PosX
-	}
-	return 0
-}
-
-func (m *FightAction) GetPosY() float32 {
-	if m != nil && m.PosY != nil {
-		return *m.PosY
-	}
-	return 0
-}
-
-func (m *FightAction) GetPlayerIdx() int32 {
-	if m != nil && m.PlayerIdx != nil {
-		return *m.PlayerIdx
-	}
-	return 0
-}
-
-type SmallRankItem struct {
-	Rank             *int32  `protobuf:"varint,1,opt,name=Rank" json:"Rank,omitempty"`
-	Id               *int32  `protobuf:"varint,2,opt,name=Id" json:"Id,omitempty"`
-	Name             *string `protobuf:"bytes,3,opt,name=Name" json:"Name,omitempty"`
-	Score            *int32  `protobuf:"varint,4,opt,name=Score" json:"Score,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,5,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,6,opt,name=TongName" json:"TongName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *SmallRankItem) Reset()                    { *m = SmallRankItem{} }
-func (m *SmallRankItem) String() string            { return proto.CompactTextString(m) }
-func (*SmallRankItem) ProtoMessage()               {}
-func (*SmallRankItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
-
-func (m *SmallRankItem) GetRank() int32 {
-	if m != nil && m.Rank != nil {
-		return *m.Rank
-	}
-	return 0
-}
-
-func (m *SmallRankItem) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *SmallRankItem) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+		return m.CustomIcon
 	}
 	return ""
-}
-
-func (m *SmallRankItem) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *SmallRankItem) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *SmallRankItem) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-// / 匹配玩家信息
-type MatchPlayer struct {
-	Id               *int64  `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Lvl              *int32  `protobuf:"varint,3,opt,name=Lvl" json:"Lvl,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,4,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,5,opt,name=TongName" json:"TongName,omitempty"`
-	Score            *int32  `protobuf:"varint,6,opt,name=Score" json:"Score,omitempty"`
-	Token            *int32  `protobuf:"varint,7,opt,name=Token" json:"Token,omitempty"`
-	CardCfgIds       []int32 `protobuf:"varint,8,rep,name=CardCfgIds" json:"CardCfgIds,omitempty"`
-	CardLvls         []int32 `protobuf:"varint,9,rep,name=CardLvls" json:"CardLvls,omitempty"`
-	HallId           *int32  `protobuf:"varint,10,opt,name=HallId" json:"HallId,omitempty"`
-	Camp             *int32  `protobuf:"varint,12,opt,name=Camp" json:"Camp,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *MatchPlayer) Reset()                    { *m = MatchPlayer{} }
-func (m *MatchPlayer) String() string            { return proto.CompactTextString(m) }
-func (*MatchPlayer) ProtoMessage()               {}
-func (*MatchPlayer) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
-
-func (m *MatchPlayer) GetId() int64 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *MatchPlayer) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *MatchPlayer) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
-	}
-	return 0
-}
-
-func (m *MatchPlayer) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *MatchPlayer) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *MatchPlayer) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *MatchPlayer) GetToken() int32 {
-	if m != nil && m.Token != nil {
-		return *m.Token
-	}
-	return 0
-}
-
-func (m *MatchPlayer) GetCardCfgIds() []int32 {
-	if m != nil {
-		return m.CardCfgIds
-	}
-	return nil
-}
-
-func (m *MatchPlayer) GetCardLvls() []int32 {
-	if m != nil {
-		return m.CardLvls
-	}
-	return nil
-}
-
-func (m *MatchPlayer) GetHallId() int32 {
-	if m != nil && m.HallId != nil {
-		return *m.HallId
-	}
-	return 0
-}
-
-func (m *MatchPlayer) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
 }
 
 // / hall->center hallServer注册
 type H2CHallServerRegister struct {
-	ServerId         *int32  `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
-	ServerName       *string `protobuf:"bytes,2,opt,name=ServerName" json:"ServerName,omitempty"`
-	ListenRoomIP     *string `protobuf:"bytes,3,opt,name=ListenRoomIP" json:"ListenRoomIP,omitempty"`
-	ListenClientIP   *string `protobuf:"bytes,4,opt,name=ListenClientIP" json:"ListenClientIP,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	ServerId       int32  `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
+	ServerName     string `protobuf:"bytes,2,opt,name=ServerName" json:"ServerName,omitempty"`
+	ListenRoomIP   string `protobuf:"bytes,3,opt,name=ListenRoomIP" json:"ListenRoomIP,omitempty"`
+	ListenClientIP string `protobuf:"bytes,4,opt,name=ListenClientIP" json:"ListenClientIP,omitempty"`
 }
 
 func (m *H2CHallServerRegister) Reset()                    { *m = H2CHallServerRegister{} }
 func (m *H2CHallServerRegister) String() string            { return proto.CompactTextString(m) }
 func (*H2CHallServerRegister) ProtoMessage()               {}
-func (*H2CHallServerRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (*H2CHallServerRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
 func (m *H2CHallServerRegister) GetServerId() int32 {
-	if m != nil && m.ServerId != nil {
-		return *m.ServerId
+	if m != nil {
+		return m.ServerId
 	}
 	return 0
 }
 
 func (m *H2CHallServerRegister) GetServerName() string {
-	if m != nil && m.ServerName != nil {
-		return *m.ServerName
+	if m != nil {
+		return m.ServerName
 	}
 	return ""
 }
 
 func (m *H2CHallServerRegister) GetListenRoomIP() string {
-	if m != nil && m.ListenRoomIP != nil {
-		return *m.ListenRoomIP
+	if m != nil {
+		return m.ListenRoomIP
 	}
 	return ""
 }
 
 func (m *H2CHallServerRegister) GetListenClientIP() string {
-	if m != nil && m.ListenClientIP != nil {
-		return *m.ListenClientIP
+	if m != nil {
+		return m.ListenClientIP
 	}
 	return ""
 }
 
 // / hall->center hallServer注销
 type H2CHallServerUnRegister struct {
-	ServerId         *int32 `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	ServerId int32 `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
 }
 
 func (m *H2CHallServerUnRegister) Reset()                    { *m = H2CHallServerUnRegister{} }
 func (m *H2CHallServerUnRegister) String() string            { return proto.CompactTextString(m) }
 func (*H2CHallServerUnRegister) ProtoMessage()               {}
-func (*H2CHallServerUnRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+func (*H2CHallServerUnRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *H2CHallServerUnRegister) GetServerId() int32 {
-	if m != nil && m.ServerId != nil {
-		return *m.ServerId
+	if m != nil {
+		return m.ServerId
 	}
 	return 0
 }
 
 // center->hall 同步服务器列表(仅仅会在收到注册消息的时候发这条消息)
 type C2HLoginServerList struct {
-	ServerList       []*LoginServerInfo `protobuf:"bytes,1,rep,name=ServerList" json:"ServerList,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
+	ServerList []*LoginServerInfo `protobuf:"bytes,1,rep,name=ServerList" json:"ServerList,omitempty"`
 }
 
 func (m *C2HLoginServerList) Reset()                    { *m = C2HLoginServerList{} }
 func (m *C2HLoginServerList) String() string            { return proto.CompactTextString(m) }
 func (*C2HLoginServerList) ProtoMessage()               {}
-func (*C2HLoginServerList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+func (*C2HLoginServerList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 func (m *C2HLoginServerList) GetServerList() []*LoginServerInfo {
 	if m != nil {
@@ -719,14 +338,13 @@ func (m *C2HLoginServerList) GetServerList() []*LoginServerInfo {
 
 // center->hall 新的得LoginServer增加
 type C2HNewLoginServerAdd struct {
-	Server           *LoginServerInfo `protobuf:"bytes,1,opt,name=Server" json:"Server,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
+	Server *LoginServerInfo `protobuf:"bytes,1,opt,name=Server" json:"Server,omitempty"`
 }
 
 func (m *C2HNewLoginServerAdd) Reset()                    { *m = C2HNewLoginServerAdd{} }
 func (m *C2HNewLoginServerAdd) String() string            { return proto.CompactTextString(m) }
 func (*C2HNewLoginServerAdd) ProtoMessage()               {}
-func (*C2HNewLoginServerAdd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+func (*C2HNewLoginServerAdd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
 
 func (m *C2HNewLoginServerAdd) GetServer() *LoginServerInfo {
 	if m != nil {
@@ -737,6291 +355,415 @@ func (m *C2HNewLoginServerAdd) GetServer() *LoginServerInfo {
 
 // center->hall HallServer断开连接
 type C2HLoginServerRemove struct {
-	ServerId         *int32 `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	ServerId int32 `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
 }
 
 func (m *C2HLoginServerRemove) Reset()                    { *m = C2HLoginServerRemove{} }
 func (m *C2HLoginServerRemove) String() string            { return proto.CompactTextString(m) }
 func (*C2HLoginServerRemove) ProtoMessage()               {}
-func (*C2HLoginServerRemove) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+func (*C2HLoginServerRemove) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
 func (m *C2HLoginServerRemove) GetServerId() int32 {
-	if m != nil && m.ServerId != nil {
-		return *m.ServerId
+	if m != nil {
+		return m.ServerId
 	}
 	return 0
 }
 
 // / hall->login hall注册
 type H2LHallServerRegister struct {
-	ServerId         *int32  `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
-	ServerName       *string `protobuf:"bytes,2,opt,name=ServerName" json:"ServerName,omitempty"`
-	ListenClientIP   *string `protobuf:"bytes,3,opt,name=ListenClientIP" json:"ListenClientIP,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	ServerId       int32  `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
+	ServerName     string `protobuf:"bytes,2,opt,name=ServerName" json:"ServerName,omitempty"`
+	ListenClientIP string `protobuf:"bytes,3,opt,name=ListenClientIP" json:"ListenClientIP,omitempty"`
 }
 
 func (m *H2LHallServerRegister) Reset()                    { *m = H2LHallServerRegister{} }
 func (m *H2LHallServerRegister) String() string            { return proto.CompactTextString(m) }
 func (*H2LHallServerRegister) ProtoMessage()               {}
-func (*H2LHallServerRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+func (*H2LHallServerRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
 func (m *H2LHallServerRegister) GetServerId() int32 {
-	if m != nil && m.ServerId != nil {
-		return *m.ServerId
+	if m != nil {
+		return m.ServerId
 	}
 	return 0
 }
 
 func (m *H2LHallServerRegister) GetServerName() string {
-	if m != nil && m.ServerName != nil {
-		return *m.ServerName
+	if m != nil {
+		return m.ServerName
 	}
 	return ""
 }
 
 func (m *H2LHallServerRegister) GetListenClientIP() string {
-	if m != nil && m.ListenClientIP != nil {
-		return *m.ListenClientIP
+	if m != nil {
+		return m.ListenClientIP
 	}
 	return ""
 }
 
 // / hall->login hall注销
 type H2LHallServerUnRegister struct {
-	ServerId         *int32 `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
-	Reason           *int32 `protobuf:"varint,2,opt,name=Reason" json:"Reason,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	ServerId int32 `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
+	Reason   int32 `protobuf:"varint,2,opt,name=Reason" json:"Reason,omitempty"`
 }
 
 func (m *H2LHallServerUnRegister) Reset()                    { *m = H2LHallServerUnRegister{} }
 func (m *H2LHallServerUnRegister) String() string            { return proto.CompactTextString(m) }
 func (*H2LHallServerUnRegister) ProtoMessage()               {}
-func (*H2LHallServerUnRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
+func (*H2LHallServerUnRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
 func (m *H2LHallServerUnRegister) GetServerId() int32 {
-	if m != nil && m.ServerId != nil {
-		return *m.ServerId
+	if m != nil {
+		return m.ServerId
 	}
 	return 0
 }
 
 func (m *H2LHallServerUnRegister) GetReason() int32 {
-	if m != nil && m.Reason != nil {
-		return *m.Reason
+	if m != nil {
+		return m.Reason
 	}
 	return 0
 }
 
 // / login->hall 强制断开
 type L2HDissconnectNotify struct {
-	Reason           *int32 `protobuf:"varint,1,opt,name=Reason" json:"Reason,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	Reason int32 `protobuf:"varint,1,opt,name=Reason" json:"Reason,omitempty"`
 }
 
 func (m *L2HDissconnectNotify) Reset()                    { *m = L2HDissconnectNotify{} }
 func (m *L2HDissconnectNotify) String() string            { return proto.CompactTextString(m) }
 func (*L2HDissconnectNotify) ProtoMessage()               {}
-func (*L2HDissconnectNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
+func (*L2HDissconnectNotify) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
 
 func (m *L2HDissconnectNotify) GetReason() int32 {
-	if m != nil && m.Reason != nil {
-		return *m.Reason
+	if m != nil {
+		return m.Reason
 	}
 	return 0
 }
 
 // / login->hall 同步账号临时密码
 type L2HSyncAccountToken struct {
-	Account          *string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
-	Token            *string `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
-	PlayerId         *int64  `protobuf:"varint,3,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Account  string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
+	Token    string `protobuf:"bytes,2,opt,name=Token" json:"Token,omitempty"`
+	PlayerId int64  `protobuf:"varint,3,opt,name=PlayerId" json:"PlayerId,omitempty"`
 }
 
 func (m *L2HSyncAccountToken) Reset()                    { *m = L2HSyncAccountToken{} }
 func (m *L2HSyncAccountToken) String() string            { return proto.CompactTextString(m) }
 func (*L2HSyncAccountToken) ProtoMessage()               {}
-func (*L2HSyncAccountToken) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
+func (*L2HSyncAccountToken) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
 
 func (m *L2HSyncAccountToken) GetAccount() string {
-	if m != nil && m.Account != nil {
-		return *m.Account
+	if m != nil {
+		return m.Account
 	}
 	return ""
 }
 
 func (m *L2HSyncAccountToken) GetToken() string {
-	if m != nil && m.Token != nil {
-		return *m.Token
+	if m != nil {
+		return m.Token
 	}
 	return ""
 }
 
 func (m *L2HSyncAccountToken) GetPlayerId() int64 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 // / Login->Center Login注册
 type L2CLoginServerRegister struct {
-	ServerId         *int32  `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
-	ServerName       *string `protobuf:"bytes,2,opt,name=ServerName" json:"ServerName,omitempty"`
-	ListenMatchIP    *string `protobuf:"bytes,3,opt,name=ListenMatchIP" json:"ListenMatchIP,omitempty"`
-	ListenClientIP   *string `protobuf:"bytes,4,opt,name=ListenClientIP" json:"ListenClientIP,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	ServerId       int32  `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
+	ServerName     string `protobuf:"bytes,2,opt,name=ServerName" json:"ServerName,omitempty"`
+	ListenMatchIP  string `protobuf:"bytes,3,opt,name=ListenMatchIP" json:"ListenMatchIP,omitempty"`
+	ListenClientIP string `protobuf:"bytes,4,opt,name=ListenClientIP" json:"ListenClientIP,omitempty"`
 }
 
 func (m *L2CLoginServerRegister) Reset()                    { *m = L2CLoginServerRegister{} }
 func (m *L2CLoginServerRegister) String() string            { return proto.CompactTextString(m) }
 func (*L2CLoginServerRegister) ProtoMessage()               {}
-func (*L2CLoginServerRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
+func (*L2CLoginServerRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
 
 func (m *L2CLoginServerRegister) GetServerId() int32 {
-	if m != nil && m.ServerId != nil {
-		return *m.ServerId
+	if m != nil {
+		return m.ServerId
 	}
 	return 0
 }
 
 func (m *L2CLoginServerRegister) GetServerName() string {
-	if m != nil && m.ServerName != nil {
-		return *m.ServerName
+	if m != nil {
+		return m.ServerName
 	}
 	return ""
 }
 
 func (m *L2CLoginServerRegister) GetListenMatchIP() string {
-	if m != nil && m.ListenMatchIP != nil {
-		return *m.ListenMatchIP
+	if m != nil {
+		return m.ListenMatchIP
 	}
 	return ""
 }
 
 func (m *L2CLoginServerRegister) GetListenClientIP() string {
-	if m != nil && m.ListenClientIP != nil {
-		return *m.ListenClientIP
+	if m != nil {
+		return m.ListenClientIP
 	}
 	return ""
 }
 
 // / Login->Center Login注销
 type L2CLoginServerUnRegister struct {
-	ServerId         *int32 `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
-	Reason           *int32 `protobuf:"varint,2,opt,name=Reason" json:"Reason,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	ServerId int32 `protobuf:"varint,1,opt,name=ServerId" json:"ServerId,omitempty"`
+	Reason   int32 `protobuf:"varint,2,opt,name=Reason" json:"Reason,omitempty"`
 }
 
 func (m *L2CLoginServerUnRegister) Reset()                    { *m = L2CLoginServerUnRegister{} }
 func (m *L2CLoginServerUnRegister) String() string            { return proto.CompactTextString(m) }
 func (*L2CLoginServerUnRegister) ProtoMessage()               {}
-func (*L2CLoginServerUnRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
+func (*L2CLoginServerUnRegister) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
 func (m *L2CLoginServerUnRegister) GetServerId() int32 {
-	if m != nil && m.ServerId != nil {
-		return *m.ServerId
+	if m != nil {
+		return m.ServerId
 	}
 	return 0
 }
 
 func (m *L2CLoginServerUnRegister) GetReason() int32 {
-	if m != nil && m.Reason != nil {
-		return *m.Reason
+	if m != nil {
+		return m.Reason
 	}
 	return 0
 }
 
 // / Login->Center 获取玩家账号Id和所在大厅信息
 type L2CGetPlayerAccInfo struct {
-	Account          *string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Account string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
 }
 
 func (m *L2CGetPlayerAccInfo) Reset()                    { *m = L2CGetPlayerAccInfo{} }
 func (m *L2CGetPlayerAccInfo) String() string            { return proto.CompactTextString(m) }
 func (*L2CGetPlayerAccInfo) ProtoMessage()               {}
-func (*L2CGetPlayerAccInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
+func (*L2CGetPlayerAccInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
 func (m *L2CGetPlayerAccInfo) GetAccount() string {
-	if m != nil && m.Account != nil {
-		return *m.Account
+	if m != nil {
+		return m.Account
 	}
 	return ""
 }
 
 // / Center->Login 玩家账号信息回复
 type C2LPlayerAccInfo struct {
-	Account          *string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
-	PlayerId         *int64  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	HallId           *int32  `protobuf:"varint,3,opt,name=HallId" json:"HallId,omitempty"`
-	HallIP           *string `protobuf:"bytes,4,opt,name=HallIP" json:"HallIP,omitempty"`
-	IfForbidLogin    *int32  `protobuf:"varint,5,opt,name=IfForbidLogin" json:"IfForbidLogin,omitempty"`
-	ForbidEndTime    *string `protobuf:"bytes,6,opt,name=ForbidEndTime" json:"ForbidEndTime,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Account       string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
+	PlayerId      int64  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	HallId        int32  `protobuf:"varint,3,opt,name=HallId" json:"HallId,omitempty"`
+	HallIP        string `protobuf:"bytes,4,opt,name=HallIP" json:"HallIP,omitempty"`
+	IfForbidLogin int32  `protobuf:"varint,5,opt,name=IfForbidLogin" json:"IfForbidLogin,omitempty"`
+	ForbidEndTime string `protobuf:"bytes,6,opt,name=ForbidEndTime" json:"ForbidEndTime,omitempty"`
 }
 
 func (m *C2LPlayerAccInfo) Reset()                    { *m = C2LPlayerAccInfo{} }
 func (m *C2LPlayerAccInfo) String() string            { return proto.CompactTextString(m) }
 func (*C2LPlayerAccInfo) ProtoMessage()               {}
-func (*C2LPlayerAccInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
+func (*C2LPlayerAccInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
 
 func (m *C2LPlayerAccInfo) GetAccount() string {
-	if m != nil && m.Account != nil {
-		return *m.Account
+	if m != nil {
+		return m.Account
 	}
 	return ""
 }
 
 func (m *C2LPlayerAccInfo) GetPlayerId() int64 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 func (m *C2LPlayerAccInfo) GetHallId() int32 {
-	if m != nil && m.HallId != nil {
-		return *m.HallId
+	if m != nil {
+		return m.HallId
 	}
 	return 0
 }
 
 func (m *C2LPlayerAccInfo) GetHallIP() string {
-	if m != nil && m.HallIP != nil {
-		return *m.HallIP
+	if m != nil {
+		return m.HallIP
 	}
 	return ""
 }
 
 func (m *C2LPlayerAccInfo) GetIfForbidLogin() int32 {
-	if m != nil && m.IfForbidLogin != nil {
-		return *m.IfForbidLogin
+	if m != nil {
+		return m.IfForbidLogin
 	}
 	return 0
 }
 
 func (m *C2LPlayerAccInfo) GetForbidEndTime() string {
-	if m != nil && m.ForbidEndTime != nil {
-		return *m.ForbidEndTime
+	if m != nil {
+		return m.ForbidEndTime
 	}
 	return ""
 }
 
 // / 玩家上线
 type SetPlayerOnOffline struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32 `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	OnOffLine        *int32 `protobuf:"varint,3,opt,name=OnOffLine" json:"OnOffLine,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId  int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	TongId    int32 `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
+	OnOffLine int32 `protobuf:"varint,3,opt,name=OnOffLine" json:"OnOffLine,omitempty"`
 }
 
 func (m *SetPlayerOnOffline) Reset()                    { *m = SetPlayerOnOffline{} }
 func (m *SetPlayerOnOffline) String() string            { return proto.CompactTextString(m) }
 func (*SetPlayerOnOffline) ProtoMessage()               {}
-func (*SetPlayerOnOffline) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
+func (*SetPlayerOnOffline) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
 
 func (m *SetPlayerOnOffline) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 func (m *SetPlayerOnOffline) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
+	if m != nil {
+		return m.TongId
 	}
 	return 0
 }
 
 func (m *SetPlayerOnOffline) GetOnOffLine() int32 {
-	if m != nil && m.OnOffLine != nil {
-		return *m.OnOffLine
-	}
-	return 0
-}
-
-// / 玩家通关
-type PlayerStagePass struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	SessionId        *int32  `protobuf:"varint,2,opt,name=SessionId" json:"SessionId,omitempty"`
-	FriendIds        []int32 `protobuf:"varint,3,rep,name=FriendIds" json:"FriendIds,omitempty"`
-	StageId          *int32  `protobuf:"varint,4,opt,name=StageId" json:"StageId,omitempty"`
-	TopScore         *int32  `protobuf:"varint,5,opt,name=TopScore" json:"TopScore,omitempty"`
-	Lvl              *int32  `protobuf:"varint,6,opt,name=Lvl" json:"Lvl,omitempty"`
-	Name             *string `protobuf:"bytes,7,opt,name=Name" json:"Name,omitempty"`
-	Icon             *string `protobuf:"bytes,8,opt,name=Icon" json:"Icon,omitempty"`
-	CustomIcon       *string `protobuf:"bytes,9,opt,name=CustomIcon" json:"CustomIcon,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerStagePass) Reset()                    { *m = PlayerStagePass{} }
-func (m *PlayerStagePass) String() string            { return proto.CompactTextString(m) }
-func (*PlayerStagePass) ProtoMessage()               {}
-func (*PlayerStagePass) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
-
-func (m *PlayerStagePass) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *PlayerStagePass) GetSessionId() int32 {
-	if m != nil && m.SessionId != nil {
-		return *m.SessionId
-	}
-	return 0
-}
-
-func (m *PlayerStagePass) GetFriendIds() []int32 {
 	if m != nil {
-		return m.FriendIds
-	}
-	return nil
-}
-
-func (m *PlayerStagePass) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
-	}
-	return 0
-}
-
-func (m *PlayerStagePass) GetTopScore() int32 {
-	if m != nil && m.TopScore != nil {
-		return *m.TopScore
-	}
-	return 0
-}
-
-func (m *PlayerStagePass) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
-	}
-	return 0
-}
-
-func (m *PlayerStagePass) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *PlayerStagePass) GetIcon() string {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
-	}
-	return ""
-}
-
-func (m *PlayerStagePass) GetCustomIcon() string {
-	if m != nil && m.CustomIcon != nil {
-		return *m.CustomIcon
-	}
-	return ""
-}
-
-type RetPlayerStagePass struct {
-	PlayerId         *int32             `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	SessionId        *int32             `protobuf:"varint,2,opt,name=SessionId" json:"SessionId,omitempty"`
-	StageId          *int32             `protobuf:"varint,3,opt,name=StageId" json:"StageId,omitempty"`
-	FriendInfos      []*PlayerStageInfo `protobuf:"bytes,4,rep,name=FriendInfos" json:"FriendInfos,omitempty"`
-	TopPlayers       []*PlayerStageInfo `protobuf:"bytes,5,rep,name=TopPlayers" json:"TopPlayers,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
-}
-
-func (m *RetPlayerStagePass) Reset()                    { *m = RetPlayerStagePass{} }
-func (m *RetPlayerStagePass) String() string            { return proto.CompactTextString(m) }
-func (*RetPlayerStagePass) ProtoMessage()               {}
-func (*RetPlayerStagePass) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
-
-func (m *RetPlayerStagePass) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetPlayerStagePass) GetSessionId() int32 {
-	if m != nil && m.SessionId != nil {
-		return *m.SessionId
-	}
-	return 0
-}
-
-func (m *RetPlayerStagePass) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
-	}
-	return 0
-}
-
-func (m *RetPlayerStagePass) GetFriendInfos() []*PlayerStageInfo {
-	if m != nil {
-		return m.FriendInfos
-	}
-	return nil
-}
-
-func (m *RetPlayerStagePass) GetTopPlayers() []*PlayerStageInfo {
-	if m != nil {
-		return m.TopPlayers
-	}
-	return nil
-}
-
-type GetFriendStageInfo struct {
-	FriendId         *int32 `protobuf:"varint,1,opt,name=FriendId" json:"FriendId,omitempty"`
-	ReqPId           *int32 `protobuf:"varint,2,opt,name=ReqPId" json:"ReqPId,omitempty"`
-	StageId          *int32 `protobuf:"varint,3,opt,name=StageId" json:"StageId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetFriendStageInfo) Reset()                    { *m = GetFriendStageInfo{} }
-func (m *GetFriendStageInfo) String() string            { return proto.CompactTextString(m) }
-func (*GetFriendStageInfo) ProtoMessage()               {}
-func (*GetFriendStageInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
-
-func (m *GetFriendStageInfo) GetFriendId() int32 {
-	if m != nil && m.FriendId != nil {
-		return *m.FriendId
-	}
-	return 0
-}
-
-func (m *GetFriendStageInfo) GetReqPId() int32 {
-	if m != nil && m.ReqPId != nil {
-		return *m.ReqPId
-	}
-	return 0
-}
-
-func (m *GetFriendStageInfo) GetStageId() int32 {
-	if m != nil && m.StageId != nil {
-		return *m.StageId
-	}
-	return 0
-}
-
-type RetFriendStageInfo struct {
-	Info             *PlayerStageInfo `protobuf:"bytes,1,opt,name=Info" json:"Info,omitempty"`
-	ReqPId           *int32           `protobuf:"varint,2,opt,name=ReqPId" json:"ReqPId,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
-}
-
-func (m *RetFriendStageInfo) Reset()                    { *m = RetFriendStageInfo{} }
-func (m *RetFriendStageInfo) String() string            { return proto.CompactTextString(m) }
-func (*RetFriendStageInfo) ProtoMessage()               {}
-func (*RetFriendStageInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{25} }
-
-func (m *RetFriendStageInfo) GetInfo() *PlayerStageInfo {
-	if m != nil {
-		return m.Info
-	}
-	return nil
-}
-
-func (m *RetFriendStageInfo) GetReqPId() int32 {
-	if m != nil && m.ReqPId != nil {
-		return *m.ReqPId
-	}
-	return 0
-}
-
-type ChapterUnlockHelp struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	ReqPlayerName    *string `protobuf:"bytes,2,opt,name=ReqPlayerName" json:"ReqPlayerName,omitempty"`
-	ChapterId        *int32  `protobuf:"varint,3,opt,name=ChapterId" json:"ChapterId,omitempty"`
-	HelpPlayerIds    []int32 `protobuf:"varint,4,rep,name=HelpPlayerIds" json:"HelpPlayerIds,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *ChapterUnlockHelp) Reset()                    { *m = ChapterUnlockHelp{} }
-func (m *ChapterUnlockHelp) String() string            { return proto.CompactTextString(m) }
-func (*ChapterUnlockHelp) ProtoMessage()               {}
-func (*ChapterUnlockHelp) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{26} }
-
-func (m *ChapterUnlockHelp) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *ChapterUnlockHelp) GetReqPlayerName() string {
-	if m != nil && m.ReqPlayerName != nil {
-		return *m.ReqPlayerName
-	}
-	return ""
-}
-
-func (m *ChapterUnlockHelp) GetChapterId() int32 {
-	if m != nil && m.ChapterId != nil {
-		return *m.ChapterId
-	}
-	return 0
-}
-
-func (m *ChapterUnlockHelp) GetHelpPlayerIds() []int32 {
-	if m != nil {
-		return m.HelpPlayerIds
-	}
-	return nil
-}
-
-type ChapterUnlockAgree struct {
-	AgreePlayerId    *int32  `protobuf:"varint,1,opt,name=AgreePlayerId" json:"AgreePlayerId,omitempty"`
-	AgreePlayerName  *string `protobuf:"bytes,2,opt,name=AgreePlayerName" json:"AgreePlayerName,omitempty"`
-	ChapterId        *int32  `protobuf:"varint,3,opt,name=ChapterId" json:"ChapterId,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,4,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *ChapterUnlockAgree) Reset()                    { *m = ChapterUnlockAgree{} }
-func (m *ChapterUnlockAgree) String() string            { return proto.CompactTextString(m) }
-func (*ChapterUnlockAgree) ProtoMessage()               {}
-func (*ChapterUnlockAgree) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{27} }
-
-func (m *ChapterUnlockAgree) GetAgreePlayerId() int32 {
-	if m != nil && m.AgreePlayerId != nil {
-		return *m.AgreePlayerId
-	}
-	return 0
-}
-
-func (m *ChapterUnlockAgree) GetAgreePlayerName() string {
-	if m != nil && m.AgreePlayerName != nil {
-		return *m.AgreePlayerName
-	}
-	return ""
-}
-
-func (m *ChapterUnlockAgree) GetChapterId() int32 {
-	if m != nil && m.ChapterId != nil {
-		return *m.ChapterId
-	}
-	return 0
-}
-
-func (m *ChapterUnlockAgree) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-// / 单个玩家普通积分变化
-type PlayerNScoreChg struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,4,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,5,opt,name=TongName" json:"TongName,omitempty"`
-	Pos              *int32  `protobuf:"varint,6,opt,name=Pos" json:"Pos,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PlayerNScoreChg) Reset()                    { *m = PlayerNScoreChg{} }
-func (m *PlayerNScoreChg) String() string            { return proto.CompactTextString(m) }
-func (*PlayerNScoreChg) ProtoMessage()               {}
-func (*PlayerNScoreChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{28} }
-
-func (m *PlayerNScoreChg) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *PlayerNScoreChg) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *PlayerNScoreChg) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *PlayerNScoreChg) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *PlayerNScoreChg) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *PlayerNScoreChg) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-// / 多个玩家普通积分变化
-type MultiPlayerNScoreChg struct {
-	ChgList          []*PlayerNScoreChg `protobuf:"bytes,1,rep,name=ChgList" json:"ChgList,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
-}
-
-func (m *MultiPlayerNScoreChg) Reset()                    { *m = MultiPlayerNScoreChg{} }
-func (m *MultiPlayerNScoreChg) String() string            { return proto.CompactTextString(m) }
-func (*MultiPlayerNScoreChg) ProtoMessage()               {}
-func (*MultiPlayerNScoreChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{29} }
-
-func (m *MultiPlayerNScoreChg) GetChgList() []*PlayerNScoreChg {
-	if m != nil {
-		return m.ChgList
-	}
-	return nil
-}
-
-// / 获取排行榜信息
-type GetRankInfo struct {
-	IfLastRank       *int32 `protobuf:"varint,1,opt,name=IfLastRank" json:"IfLastRank,omitempty"`
-	PlayerId         *int32 `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	RankType         *int32 `protobuf:"varint,3,opt,name=RankType" json:"RankType,omitempty"`
-	Pos              *int32 `protobuf:"varint,4,opt,name=Pos" json:"Pos,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetRankInfo) Reset()                    { *m = GetRankInfo{} }
-func (m *GetRankInfo) String() string            { return proto.CompactTextString(m) }
-func (*GetRankInfo) ProtoMessage()               {}
-func (*GetRankInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{30} }
-
-func (m *GetRankInfo) GetIfLastRank() int32 {
-	if m != nil && m.IfLastRank != nil {
-		return *m.IfLastRank
-	}
-	return 0
-}
-
-func (m *GetRankInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *GetRankInfo) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-func (m *GetRankInfo) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-// / 排行榜条目
-type RetRankItems struct {
-	PlayerId         *int32           `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	RankType         *int32           `protobuf:"varint,2,opt,name=RankType" json:"RankType,omitempty"`
-	ItemList         []*SmallRankItem `protobuf:"bytes,3,rep,name=ItemList" json:"ItemList,omitempty"`
-	IfLocal          *int32           `protobuf:"varint,4,opt,name=IfLocal" json:"IfLocal,omitempty"`
-	IfGetLast        *int32           `protobuf:"varint,5,opt,name=IfGetLast" json:"IfGetLast,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
-}
-
-func (m *RetRankItems) Reset()                    { *m = RetRankItems{} }
-func (m *RetRankItems) String() string            { return proto.CompactTextString(m) }
-func (*RetRankItems) ProtoMessage()               {}
-func (*RetRankItems) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{31} }
-
-func (m *RetRankItems) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetRankItems) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-func (m *RetRankItems) GetItemList() []*SmallRankItem {
-	if m != nil {
-		return m.ItemList
-	}
-	return nil
-}
-
-func (m *RetRankItems) GetIfLocal() int32 {
-	if m != nil && m.IfLocal != nil {
-		return *m.IfLocal
-	}
-	return 0
-}
-
-func (m *RetRankItems) GetIfGetLast() int32 {
-	if m != nil && m.IfGetLast != nil {
-		return *m.IfGetLast
-	}
-	return 0
-}
-
-// / 获取玩家信息
-type GetPlayerInfo struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TgtPlayerId      *int32 `protobuf:"varint,2,opt,name=TgtPlayerId" json:"TgtPlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetPlayerInfo) Reset()                    { *m = GetPlayerInfo{} }
-func (m *GetPlayerInfo) String() string            { return proto.CompactTextString(m) }
-func (*GetPlayerInfo) ProtoMessage()               {}
-func (*GetPlayerInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{32} }
-
-func (m *GetPlayerInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *GetPlayerInfo) GetTgtPlayerId() int32 {
-	if m != nil && m.TgtPlayerId != nil {
-		return *m.TgtPlayerId
-	}
-	return 0
-}
-
-type OtherPlayerBaseInfo struct {
-	PlayerId           *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	MatchScore         *int32  `protobuf:"varint,2,opt,name=MatchScore" json:"MatchScore,omitempty"`
-	Coins              *int32  `protobuf:"varint,3,opt,name=Coins" json:"Coins,omitempty"`
-	Diamonds           *int32  `protobuf:"varint,4,opt,name=Diamonds" json:"Diamonds,omitempty"`
-	CurUseCardTeam     *int32  `protobuf:"varint,5,opt,name=CurUseCardTeam" json:"CurUseCardTeam,omitempty"`
-	MyLvl              *int32  `protobuf:"varint,6,opt,name=MyLvl" json:"MyLvl,omitempty"`
-	ArenaLvl           *int32  `protobuf:"varint,7,opt,name=ArenaLvl" json:"ArenaLvl,omitempty"`
-	CurLegBestScore    *int32  `protobuf:"varint,8,opt,name=CurLegBestScore" json:"CurLegBestScore,omitempty"`
-	LastLegBestScore   *int32  `protobuf:"varint,9,opt,name=LastLegBestScore" json:"LastLegBestScore,omitempty"`
-	CurLegScore        *int32  `protobuf:"varint,10,opt,name=CurLegScore" json:"CurLegScore,omitempty"`
-	WinCount           *int32  `protobuf:"varint,11,opt,name=WinCount" json:"WinCount,omitempty"`
-	OfenCardCfgId      *int32  `protobuf:"varint,12,opt,name=OfenCardCfgId" json:"OfenCardCfgId,omitempty"`
-	DonateCount        *int32  `protobuf:"varint,13,opt,name=DonateCount" json:"DonateCount,omitempty"`
-	CheModWinCount     *int32  `protobuf:"varint,14,opt,name=CheModWinCount" json:"CheModWinCount,omitempty"`
-	CheModeOfenCardCfg *int32  `protobuf:"varint,15,opt,name=CheModeOfenCardCfg" json:"CheModeOfenCardCfg,omitempty"`
-	ThreeTowerCount    *int32  `protobuf:"varint,16,opt,name=ThreeTowerCount" json:"ThreeTowerCount,omitempty"`
-	Camp               *int32  `protobuf:"varint,17,opt,name=Camp" json:"Camp,omitempty"`
-	TongName           *string `protobuf:"bytes,18,opt,name=TongName" json:"TongName,omitempty"`
-	TongIcon           *int32  `protobuf:"varint,19,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	FightCardIds       []int32 `protobuf:"varint,20,rep,name=FightCardIds" json:"FightCardIds,omitempty"`
-	FightCardLvls      []int32 `protobuf:"varint,21,rep,name=FightCardLvls" json:"FightCardLvls,omitempty"`
-	CurCardGetNum      *int32  `protobuf:"varint,22,opt,name=CurCardGetNum" json:"CurCardGetNum,omitempty"`
-	IfCaptain          *int32  `protobuf:"varint,23,opt,name=IfCaptain" json:"IfCaptain,omitempty"`
-	XXX_unrecognized   []byte  `json:"-"`
-}
-
-func (m *OtherPlayerBaseInfo) Reset()                    { *m = OtherPlayerBaseInfo{} }
-func (m *OtherPlayerBaseInfo) String() string            { return proto.CompactTextString(m) }
-func (*OtherPlayerBaseInfo) ProtoMessage()               {}
-func (*OtherPlayerBaseInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{33} }
-
-func (m *OtherPlayerBaseInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetMatchScore() int32 {
-	if m != nil && m.MatchScore != nil {
-		return *m.MatchScore
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCoins() int32 {
-	if m != nil && m.Coins != nil {
-		return *m.Coins
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetDiamonds() int32 {
-	if m != nil && m.Diamonds != nil {
-		return *m.Diamonds
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCurUseCardTeam() int32 {
-	if m != nil && m.CurUseCardTeam != nil {
-		return *m.CurUseCardTeam
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetMyLvl() int32 {
-	if m != nil && m.MyLvl != nil {
-		return *m.MyLvl
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetArenaLvl() int32 {
-	if m != nil && m.ArenaLvl != nil {
-		return *m.ArenaLvl
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCurLegBestScore() int32 {
-	if m != nil && m.CurLegBestScore != nil {
-		return *m.CurLegBestScore
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetLastLegBestScore() int32 {
-	if m != nil && m.LastLegBestScore != nil {
-		return *m.LastLegBestScore
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCurLegScore() int32 {
-	if m != nil && m.CurLegScore != nil {
-		return *m.CurLegScore
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetWinCount() int32 {
-	if m != nil && m.WinCount != nil {
-		return *m.WinCount
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetOfenCardCfgId() int32 {
-	if m != nil && m.OfenCardCfgId != nil {
-		return *m.OfenCardCfgId
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetDonateCount() int32 {
-	if m != nil && m.DonateCount != nil {
-		return *m.DonateCount
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCheModWinCount() int32 {
-	if m != nil && m.CheModWinCount != nil {
-		return *m.CheModWinCount
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCheModeOfenCardCfg() int32 {
-	if m != nil && m.CheModeOfenCardCfg != nil {
-		return *m.CheModeOfenCardCfg
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetThreeTowerCount() int32 {
-	if m != nil && m.ThreeTowerCount != nil {
-		return *m.ThreeTowerCount
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *OtherPlayerBaseInfo) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetFightCardIds() []int32 {
-	if m != nil {
-		return m.FightCardIds
-	}
-	return nil
-}
-
-func (m *OtherPlayerBaseInfo) GetFightCardLvls() []int32 {
-	if m != nil {
-		return m.FightCardLvls
-	}
-	return nil
-}
-
-func (m *OtherPlayerBaseInfo) GetCurCardGetNum() int32 {
-	if m != nil && m.CurCardGetNum != nil {
-		return *m.CurCardGetNum
-	}
-	return 0
-}
-
-func (m *OtherPlayerBaseInfo) GetIfCaptain() int32 {
-	if m != nil && m.IfCaptain != nil {
-		return *m.IfCaptain
-	}
-	return 0
-}
-
-// / 返回玩家信息
-type RetPlayerInfo struct {
-	PlayerId         *int32               `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TgtPlayerId      *int32               `protobuf:"varint,2,opt,name=TgtPlayerId" json:"TgtPlayerId,omitempty"`
-	BaseInfo         *OtherPlayerBaseInfo `protobuf:"bytes,3,opt,name=BaseInfo" json:"BaseInfo,omitempty"`
-	XXX_unrecognized []byte               `json:"-"`
-}
-
-func (m *RetPlayerInfo) Reset()                    { *m = RetPlayerInfo{} }
-func (m *RetPlayerInfo) String() string            { return proto.CompactTextString(m) }
-func (*RetPlayerInfo) ProtoMessage()               {}
-func (*RetPlayerInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{34} }
-
-func (m *RetPlayerInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetPlayerInfo) GetTgtPlayerId() int32 {
-	if m != nil && m.TgtPlayerId != nil {
-		return *m.TgtPlayerId
-	}
-	return 0
-}
-
-func (m *RetPlayerInfo) GetBaseInfo() *OtherPlayerBaseInfo {
-	if m != nil {
-		return m.BaseInfo
-	}
-	return nil
-}
-
-// 传奇赛季信息同步
-type LegendArenaSwitch struct {
-	SwitchUnix       *int32 `protobuf:"varint,1,opt,name=SwitchUnix" json:"SwitchUnix,omitempty"`
-	IfNeedSwitch     *int32 `protobuf:"varint,2,opt,name=IfNeedSwitch" json:"IfNeedSwitch,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *LegendArenaSwitch) Reset()                    { *m = LegendArenaSwitch{} }
-func (m *LegendArenaSwitch) String() string            { return proto.CompactTextString(m) }
-func (*LegendArenaSwitch) ProtoMessage()               {}
-func (*LegendArenaSwitch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{35} }
-
-func (m *LegendArenaSwitch) GetSwitchUnix() int32 {
-	if m != nil && m.SwitchUnix != nil {
-		return *m.SwitchUnix
-	}
-	return 0
-}
-
-func (m *LegendArenaSwitch) GetIfNeedSwitch() int32 {
-	if m != nil && m.IfNeedSwitch != nil {
-		return *m.IfNeedSwitch
-	}
-	return 0
-}
-
-// / 单个帮会积分变化
-type TongScoreChg struct {
-	TongId           *int32  `protobuf:"varint,1,opt,name=TongId" json:"TongId,omitempty"`
-	TongName         *string `protobuf:"bytes,2,opt,name=TongName" json:"TongName,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,4,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	Pos              *int32  `protobuf:"varint,5,opt,name=Pos" json:"Pos,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongScoreChg) Reset()                    { *m = TongScoreChg{} }
-func (m *TongScoreChg) String() string            { return proto.CompactTextString(m) }
-func (*TongScoreChg) ProtoMessage()               {}
-func (*TongScoreChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{36} }
-
-func (m *TongScoreChg) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *TongScoreChg) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *TongScoreChg) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *TongScoreChg) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *TongScoreChg) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-// / 多个帮会积分变化
-type MultiTongScoreChg struct {
-	ChgList          []*TongScoreChg `protobuf:"bytes,1,rep,name=ChgList" json:"ChgList,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
-}
-
-func (m *MultiTongScoreChg) Reset()                    { *m = MultiTongScoreChg{} }
-func (m *MultiTongScoreChg) String() string            { return proto.CompactTextString(m) }
-func (*MultiTongScoreChg) ProtoMessage()               {}
-func (*MultiTongScoreChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{37} }
-
-func (m *MultiTongScoreChg) GetChgList() []*TongScoreChg {
-	if m != nil {
-		return m.ChgList
-	}
-	return nil
-}
-
-// 创建帮会
-type CreateTong struct {
-	CreatorId        *int32  `protobuf:"varint,1,opt,name=CreatorId" json:"CreatorId,omitempty"`
-	CreatorName      *string `protobuf:"bytes,2,opt,name=CreatorName" json:"CreatorName,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	TongName         *string `protobuf:"bytes,4,opt,name=TongName" json:"TongName,omitempty"`
-	Icon             *int32  `protobuf:"varint,5,opt,name=Icon" json:"Icon,omitempty"`
-	JoinType         *int32  `protobuf:"varint,6,opt,name=JoinType" json:"JoinType,omitempty"`
-	JoinScore        *int32  `protobuf:"varint,7,opt,name=JoinScore" json:"JoinScore,omitempty"`
-	Pos              *int32  `protobuf:"varint,8,opt,name=Pos" json:"Pos,omitempty"`
-	TongId           *int32  `protobuf:"varint,9,opt,name=TongId" json:"TongId,omitempty"`
-	TongPub          *string `protobuf:"bytes,10,opt,name=TongPub" json:"TongPub,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CreateTong) Reset()                    { *m = CreateTong{} }
-func (m *CreateTong) String() string            { return proto.CompactTextString(m) }
-func (*CreateTong) ProtoMessage()               {}
-func (*CreateTong) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{38} }
-
-func (m *CreateTong) GetCreatorId() int32 {
-	if m != nil && m.CreatorId != nil {
-		return *m.CreatorId
-	}
-	return 0
-}
-
-func (m *CreateTong) GetCreatorName() string {
-	if m != nil && m.CreatorName != nil {
-		return *m.CreatorName
-	}
-	return ""
-}
-
-func (m *CreateTong) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *CreateTong) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *CreateTong) GetIcon() int32 {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
-	}
-	return 0
-}
-
-func (m *CreateTong) GetJoinType() int32 {
-	if m != nil && m.JoinType != nil {
-		return *m.JoinType
-	}
-	return 0
-}
-
-func (m *CreateTong) GetJoinScore() int32 {
-	if m != nil && m.JoinScore != nil {
-		return *m.JoinScore
-	}
-	return 0
-}
-
-func (m *CreateTong) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-func (m *CreateTong) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *CreateTong) GetTongPub() string {
-	if m != nil && m.TongPub != nil {
-		return *m.TongPub
-	}
-	return ""
-}
-
-// 创建帮会成功
-type CreateTongOk struct {
-	CreatorId        *int32  `protobuf:"varint,1,opt,name=CreatorId" json:"CreatorId,omitempty"`
-	TongName         *string `protobuf:"bytes,2,opt,name=TongName" json:"TongName,omitempty"`
-	Icon             *int32  `protobuf:"varint,3,opt,name=Icon" json:"Icon,omitempty"`
-	JoinType         *int32  `protobuf:"varint,4,opt,name=JoinType" json:"JoinType,omitempty"`
-	JoinScore        *int32  `protobuf:"varint,5,opt,name=JoinScore" json:"JoinScore,omitempty"`
-	Pos              *int32  `protobuf:"varint,6,opt,name=Pos" json:"Pos,omitempty"`
-	TongId           *int32  `protobuf:"varint,7,opt,name=TongId" json:"TongId,omitempty"`
-	TongPub          *string `protobuf:"bytes,8,opt,name=TongPub" json:"TongPub,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CreateTongOk) Reset()                    { *m = CreateTongOk{} }
-func (m *CreateTongOk) String() string            { return proto.CompactTextString(m) }
-func (*CreateTongOk) ProtoMessage()               {}
-func (*CreateTongOk) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{39} }
-
-func (m *CreateTongOk) GetCreatorId() int32 {
-	if m != nil && m.CreatorId != nil {
-		return *m.CreatorId
-	}
-	return 0
-}
-
-func (m *CreateTongOk) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *CreateTongOk) GetIcon() int32 {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
-	}
-	return 0
-}
-
-func (m *CreateTongOk) GetJoinType() int32 {
-	if m != nil && m.JoinType != nil {
-		return *m.JoinType
-	}
-	return 0
-}
-
-func (m *CreateTongOk) GetJoinScore() int32 {
-	if m != nil && m.JoinScore != nil {
-		return *m.JoinScore
-	}
-	return 0
-}
-
-func (m *CreateTongOk) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-func (m *CreateTongOk) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *CreateTongOk) GetTongPub() string {
-	if m != nil && m.TongPub != nil {
-		return *m.TongPub
-	}
-	return ""
-}
-
-// / 帮会创建失败
-type CreateTongFailed struct {
-	Reason           *int32 `protobuf:"varint,1,opt,name=Reason" json:"Reason,omitempty"`
-	CreatorId        *int32 `protobuf:"varint,2,opt,name=CreatorId" json:"CreatorId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *CreateTongFailed) Reset()                    { *m = CreateTongFailed{} }
-func (m *CreateTongFailed) String() string            { return proto.CompactTextString(m) }
-func (*CreateTongFailed) ProtoMessage()               {}
-func (*CreateTongFailed) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{40} }
-
-func (m *CreateTongFailed) GetReason() int32 {
-	if m != nil && m.Reason != nil {
-		return *m.Reason
-	}
-	return 0
-}
-
-func (m *CreateTongFailed) GetCreatorId() int32 {
-	if m != nil && m.CreatorId != nil {
-		return *m.CreatorId
-	}
-	return 0
-}
-
-type TongMemberInfo struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Title            *int32  `protobuf:"varint,3,opt,name=Title" json:"Title,omitempty"`
-	Score            *int32  `protobuf:"varint,4,opt,name=Score" json:"Score,omitempty"`
-	Donate           *int32  `protobuf:"varint,5,opt,name=Donate" json:"Donate,omitempty"`
-	IfOnline         *int32  `protobuf:"varint,6,opt,name=IfOnline" json:"IfOnline,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongMemberInfo) Reset()                    { *m = TongMemberInfo{} }
-func (m *TongMemberInfo) String() string            { return proto.CompactTextString(m) }
-func (*TongMemberInfo) ProtoMessage()               {}
-func (*TongMemberInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{41} }
-
-func (m *TongMemberInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongMemberInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *TongMemberInfo) GetTitle() int32 {
-	if m != nil && m.Title != nil {
-		return *m.Title
-	}
-	return 0
-}
-
-func (m *TongMemberInfo) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *TongMemberInfo) GetDonate() int32 {
-	if m != nil && m.Donate != nil {
-		return *m.Donate
-	}
-	return 0
-}
-
-func (m *TongMemberInfo) GetIfOnline() int32 {
-	if m != nil && m.IfOnline != nil {
-		return *m.IfOnline
-	}
-	return 0
-}
-
-type TongChatData struct {
-	SenderId         *int32  `protobuf:"varint,1,opt,name=SenderId" json:"SenderId,omitempty"`
-	SenderName       *string `protobuf:"bytes,2,opt,name=SenderName" json:"SenderName,omitempty"`
-	Content          *string `protobuf:"bytes,3,opt,name=Content" json:"Content,omitempty"`
-	SendUnix         *int32  `protobuf:"varint,4,opt,name=SendUnix" json:"SendUnix,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongChatData) Reset()                    { *m = TongChatData{} }
-func (m *TongChatData) String() string            { return proto.CompactTextString(m) }
-func (*TongChatData) ProtoMessage()               {}
-func (*TongChatData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{42} }
-
-func (m *TongChatData) GetSenderId() int32 {
-	if m != nil && m.SenderId != nil {
-		return *m.SenderId
-	}
-	return 0
-}
-
-func (m *TongChatData) GetSenderName() string {
-	if m != nil && m.SenderName != nil {
-		return *m.SenderName
-	}
-	return ""
-}
-
-func (m *TongChatData) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-func (m *TongChatData) GetSendUnix() int32 {
-	if m != nil && m.SendUnix != nil {
-		return *m.SendUnix
-	}
-	return 0
-}
-
-type TongVodData struct {
-	Actions          []*FightAction `protobuf:"bytes,1,rep,name=Actions" json:"Actions,omitempty"`
-	XXX_unrecognized []byte         `json:"-"`
-}
-
-func (m *TongVodData) Reset()                    { *m = TongVodData{} }
-func (m *TongVodData) String() string            { return proto.CompactTextString(m) }
-func (*TongVodData) ProtoMessage()               {}
-func (*TongVodData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{43} }
-
-func (m *TongVodData) GetActions() []*FightAction {
-	if m != nil {
-		return m.Actions
-	}
-	return nil
-}
-
-type TongRequestCard struct {
-	ReqId            *int32  `protobuf:"varint,1,opt,name=ReqId" json:"ReqId,omitempty"`
-	PlayerId         *int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	CardCfgId        *int32  `protobuf:"varint,4,opt,name=CardCfgId" json:"CardCfgId,omitempty"`
-	CurGetNum        *int32  `protobuf:"varint,5,opt,name=CurGetNum" json:"CurGetNum,omitempty"`
-	MaxGetNum        *int32  `protobuf:"varint,6,opt,name=MaxGetNum" json:"MaxGetNum,omitempty"`
-	SendUnix         *int32  `protobuf:"varint,7,opt,name=SendUnix" json:"SendUnix,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongRequestCard) Reset()                    { *m = TongRequestCard{} }
-func (m *TongRequestCard) String() string            { return proto.CompactTextString(m) }
-func (*TongRequestCard) ProtoMessage()               {}
-func (*TongRequestCard) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{44} }
-
-func (m *TongRequestCard) GetReqId() int32 {
-	if m != nil && m.ReqId != nil {
-		return *m.ReqId
-	}
-	return 0
-}
-
-func (m *TongRequestCard) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongRequestCard) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *TongRequestCard) GetCardCfgId() int32 {
-	if m != nil && m.CardCfgId != nil {
-		return *m.CardCfgId
-	}
-	return 0
-}
-
-func (m *TongRequestCard) GetCurGetNum() int32 {
-	if m != nil && m.CurGetNum != nil {
-		return *m.CurGetNum
-	}
-	return 0
-}
-
-func (m *TongRequestCard) GetMaxGetNum() int32 {
-	if m != nil && m.MaxGetNum != nil {
-		return *m.MaxGetNum
-	}
-	return 0
-}
-
-func (m *TongRequestCard) GetSendUnix() int32 {
-	if m != nil && m.SendUnix != nil {
-		return *m.SendUnix
-	}
-	return 0
-}
-
-type TongRequestJoin struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	JoinSec          *int32  `protobuf:"varint,4,opt,name=JoinSec" json:"JoinSec,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongRequestJoin) Reset()                    { *m = TongRequestJoin{} }
-func (m *TongRequestJoin) String() string            { return proto.CompactTextString(m) }
-func (*TongRequestJoin) ProtoMessage()               {}
-func (*TongRequestJoin) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{45} }
-
-func (m *TongRequestJoin) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongRequestJoin) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *TongRequestJoin) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *TongRequestJoin) GetJoinSec() int32 {
-	if m != nil && m.JoinSec != nil {
-		return *m.JoinSec
-	}
-	return 0
-}
-
-type TongSummaryInfo struct {
-	TongId           *int32  `protobuf:"varint,1,opt,name=TongId" json:"TongId,omitempty"`
-	Icon             *int32  `protobuf:"varint,2,opt,name=Icon" json:"Icon,omitempty"`
-	Name             *string `protobuf:"bytes,3,opt,name=Name" json:"Name,omitempty"`
-	MemCount         *int32  `protobuf:"varint,4,opt,name=MemCount" json:"MemCount,omitempty"`
-	TongScore        *int32  `protobuf:"varint,5,opt,name=TongScore" json:"TongScore,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongSummaryInfo) Reset()                    { *m = TongSummaryInfo{} }
-func (m *TongSummaryInfo) String() string            { return proto.CompactTextString(m) }
-func (*TongSummaryInfo) ProtoMessage()               {}
-func (*TongSummaryInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{46} }
-
-func (m *TongSummaryInfo) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *TongSummaryInfo) GetIcon() int32 {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
-	}
-	return 0
-}
-
-func (m *TongSummaryInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *TongSummaryInfo) GetMemCount() int32 {
-	if m != nil && m.MemCount != nil {
-		return *m.MemCount
-	}
-	return 0
-}
-
-func (m *TongSummaryInfo) GetTongScore() int32 {
-	if m != nil && m.TongScore != nil {
-		return *m.TongScore
-	}
-	return 0
-}
-
-type TongFriendMatchItem struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongFriendMatchItem) Reset()                    { *m = TongFriendMatchItem{} }
-func (m *TongFriendMatchItem) String() string            { return proto.CompactTextString(m) }
-func (*TongFriendMatchItem) ProtoMessage()               {}
-func (*TongFriendMatchItem) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{47} }
-
-func (m *TongFriendMatchItem) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongFriendMatchItem) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-// / 获取帮会信息
-type GetTongInfo struct {
-	TongId           *int32 `protobuf:"varint,1,opt,name=TongId" json:"TongId,omitempty"`
-	PlayerId         *int32 `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	IfOwnTong        *int32 `protobuf:"varint,3,opt,name=IfOwnTong" json:"IfOwnTong,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetTongInfo) Reset()                    { *m = GetTongInfo{} }
-func (m *GetTongInfo) String() string            { return proto.CompactTextString(m) }
-func (*GetTongInfo) ProtoMessage()               {}
-func (*GetTongInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{48} }
-
-func (m *GetTongInfo) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *GetTongInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *GetTongInfo) GetIfOwnTong() int32 {
-	if m != nil && m.IfOwnTong != nil {
-		return *m.IfOwnTong
-	}
-	return 0
-}
-
-// / 返回帮会信息
-type RetTongInfo struct {
-	PlayerId         *int32                   `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32                   `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	TongName         *string                  `protobuf:"bytes,3,opt,name=TongName" json:"TongName,omitempty"`
-	TongScore        *int32                   `protobuf:"varint,4,opt,name=TongScore" json:"TongScore,omitempty"`
-	Icon             *int32                   `protobuf:"varint,5,opt,name=Icon" json:"Icon,omitempty"`
-	JoinType         *int32                   `protobuf:"varint,6,opt,name=JoinType" json:"JoinType,omitempty"`
-	JoinScore        *int32                   `protobuf:"varint,7,opt,name=JoinScore" json:"JoinScore,omitempty"`
-	Pos              *int32                   `protobuf:"varint,8,opt,name=Pos" json:"Pos,omitempty"`
-	Members          []*TongMemberInfo        `protobuf:"bytes,9,rep,name=Members" json:"Members,omitempty"`
-	JoinList         []*TongRequestJoin       `protobuf:"bytes,10,rep,name=JoinList" json:"JoinList,omitempty"`
-	ChatRds          []*TongChatData          `protobuf:"bytes,11,rep,name=ChatRds" json:"ChatRds,omitempty"`
-	CardReqs         []*TongRequestCard       `protobuf:"bytes,12,rep,name=CardReqs" json:"CardReqs,omitempty"`
-	TongChestState   *int32                   `protobuf:"varint,13,opt,name=TongChestState" json:"TongChestState,omitempty"`
-	TongChestScore   *int32                   `protobuf:"varint,14,opt,name=TongChestScore" json:"TongChestScore,omitempty"`
-	IfGetTongChest   *int32                   `protobuf:"varint,15,opt,name=IfGetTongChest" json:"IfGetTongChest,omitempty"`
-	TongChestLeftSec *int32                   `protobuf:"varint,16,opt,name=TongChestLeftSec" json:"TongChestLeftSec,omitempty"`
-	FriendMatchs     []*TongFriendMatchItem   `protobuf:"bytes,17,rep,name=FriendMatchs" json:"FriendMatchs,omitempty"`
-	TotalDonate      *int32                   `protobuf:"varint,18,opt,name=TotalDonate" json:"TotalDonate,omitempty"`
-	TongPub          *string                  `protobuf:"bytes,19,opt,name=TongPub" json:"TongPub,omitempty"`
-	IfEnter          *int32                   `protobuf:"varint,20,opt,name=IfEnter" json:"IfEnter,omitempty"`
-	Frds             []*NotifyTongFightRecord `protobuf:"bytes,21,rep,name=Frds" json:"Frds,omitempty"`
-	XXX_unrecognized []byte                   `json:"-"`
-}
-
-func (m *RetTongInfo) Reset()                    { *m = RetTongInfo{} }
-func (m *RetTongInfo) String() string            { return proto.CompactTextString(m) }
-func (*RetTongInfo) ProtoMessage()               {}
-func (*RetTongInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{49} }
-
-func (m *RetTongInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *RetTongInfo) GetTongScore() int32 {
-	if m != nil && m.TongScore != nil {
-		return *m.TongScore
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetIcon() int32 {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetJoinType() int32 {
-	if m != nil && m.JoinType != nil {
-		return *m.JoinType
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetJoinScore() int32 {
-	if m != nil && m.JoinScore != nil {
-		return *m.JoinScore
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetMembers() []*TongMemberInfo {
-	if m != nil {
-		return m.Members
-	}
-	return nil
-}
-
-func (m *RetTongInfo) GetJoinList() []*TongRequestJoin {
-	if m != nil {
-		return m.JoinList
-	}
-	return nil
-}
-
-func (m *RetTongInfo) GetChatRds() []*TongChatData {
-	if m != nil {
-		return m.ChatRds
-	}
-	return nil
-}
-
-func (m *RetTongInfo) GetCardReqs() []*TongRequestCard {
-	if m != nil {
-		return m.CardReqs
-	}
-	return nil
-}
-
-func (m *RetTongInfo) GetTongChestState() int32 {
-	if m != nil && m.TongChestState != nil {
-		return *m.TongChestState
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetTongChestScore() int32 {
-	if m != nil && m.TongChestScore != nil {
-		return *m.TongChestScore
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetIfGetTongChest() int32 {
-	if m != nil && m.IfGetTongChest != nil {
-		return *m.IfGetTongChest
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetTongChestLeftSec() int32 {
-	if m != nil && m.TongChestLeftSec != nil {
-		return *m.TongChestLeftSec
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetFriendMatchs() []*TongFriendMatchItem {
-	if m != nil {
-		return m.FriendMatchs
-	}
-	return nil
-}
-
-func (m *RetTongInfo) GetTotalDonate() int32 {
-	if m != nil && m.TotalDonate != nil {
-		return *m.TotalDonate
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetTongPub() string {
-	if m != nil && m.TongPub != nil {
-		return *m.TongPub
-	}
-	return ""
-}
-
-func (m *RetTongInfo) GetIfEnter() int32 {
-	if m != nil && m.IfEnter != nil {
-		return *m.IfEnter
-	}
-	return 0
-}
-
-func (m *RetTongInfo) GetFrds() []*NotifyTongFightRecord {
-	if m != nil {
-		return m.Frds
-	}
-	return nil
-}
-
-// / 获取推荐帮会
-type GetRecommendTong struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetRecommendTong) Reset()                    { *m = GetRecommendTong{} }
-func (m *GetRecommendTong) String() string            { return proto.CompactTextString(m) }
-func (*GetRecommendTong) ProtoMessage()               {}
-func (*GetRecommendTong) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{50} }
-
-func (m *GetRecommendTong) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// / 返回推荐帮帮
-type RetRecommendTong struct {
-	PlayerId         *int32             `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Tongs            []*TongSummaryInfo `protobuf:"bytes,2,rep,name=Tongs" json:"Tongs,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
-}
-
-func (m *RetRecommendTong) Reset()                    { *m = RetRecommendTong{} }
-func (m *RetRecommendTong) String() string            { return proto.CompactTextString(m) }
-func (*RetRecommendTong) ProtoMessage()               {}
-func (*RetRecommendTong) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{51} }
-
-func (m *RetRecommendTong) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetRecommendTong) GetTongs() []*TongSummaryInfo {
-	if m != nil {
-		return m.Tongs
-	}
-	return nil
-}
-
-// / 帮会搜索
-type TongSearch struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Pos              *int32  `protobuf:"varint,2,opt,name=Pos" json:"Pos,omitempty"`
-	MinCount         *int32  `protobuf:"varint,3,opt,name=MinCount" json:"MinCount,omitempty"`
-	MaxCount         *int32  `protobuf:"varint,4,opt,name=MaxCount" json:"MaxCount,omitempty"`
-	MinScore         *int32  `protobuf:"varint,5,opt,name=MinScore" json:"MinScore,omitempty"`
-	OnlyCanJoin      *int32  `protobuf:"varint,6,opt,name=OnlyCanJoin" json:"OnlyCanJoin,omitempty"`
-	Name             *string `protobuf:"bytes,7,opt,name=Name" json:"Name,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongSearch) Reset()                    { *m = TongSearch{} }
-func (m *TongSearch) String() string            { return proto.CompactTextString(m) }
-func (*TongSearch) ProtoMessage()               {}
-func (*TongSearch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{52} }
-
-func (m *TongSearch) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongSearch) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-func (m *TongSearch) GetMinCount() int32 {
-	if m != nil && m.MinCount != nil {
-		return *m.MinCount
-	}
-	return 0
-}
-
-func (m *TongSearch) GetMaxCount() int32 {
-	if m != nil && m.MaxCount != nil {
-		return *m.MaxCount
-	}
-	return 0
-}
-
-func (m *TongSearch) GetMinScore() int32 {
-	if m != nil && m.MinScore != nil {
-		return *m.MinScore
-	}
-	return 0
-}
-
-func (m *TongSearch) GetOnlyCanJoin() int32 {
-	if m != nil && m.OnlyCanJoin != nil {
-		return *m.OnlyCanJoin
-	}
-	return 0
-}
-
-func (m *TongSearch) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-// /  帮会搜索返回
-type RetTongSearch struct {
-	PlayerId         *int32             `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongList         []*TongSummaryInfo `protobuf:"bytes,2,rep,name=TongList" json:"TongList,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
-}
-
-func (m *RetTongSearch) Reset()                    { *m = RetTongSearch{} }
-func (m *RetTongSearch) String() string            { return proto.CompactTextString(m) }
-func (*RetTongSearch) ProtoMessage()               {}
-func (*RetTongSearch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{53} }
-
-func (m *RetTongSearch) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetTongSearch) GetTongList() []*TongSummaryInfo {
-	if m != nil {
-		return m.TongList
-	}
-	return nil
-}
-
-// hall->common 请求加入帮会
-type EnterTong struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	TongId           *int32  `protobuf:"varint,4,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *EnterTong) Reset()                    { *m = EnterTong{} }
-func (m *EnterTong) String() string            { return proto.CompactTextString(m) }
-func (*EnterTong) ProtoMessage()               {}
-func (*EnterTong) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{54} }
-
-func (m *EnterTong) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *EnterTong) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *EnterTong) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *EnterTong) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// / 加入帮会请求批准
-type EnterTongRequest struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	PlayerScore      *int32  `protobuf:"varint,3,opt,name=PlayerScore" json:"PlayerScore,omitempty"`
-	JoinSec          *int32  `protobuf:"varint,4,opt,name=JoinSec" json:"JoinSec,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,7,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *EnterTongRequest) Reset()                    { *m = EnterTongRequest{} }
-func (m *EnterTongRequest) String() string            { return proto.CompactTextString(m) }
-func (*EnterTongRequest) ProtoMessage()               {}
-func (*EnterTongRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{55} }
-
-func (m *EnterTongRequest) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *EnterTongRequest) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *EnterTongRequest) GetPlayerScore() int32 {
-	if m != nil && m.PlayerScore != nil {
-		return *m.PlayerScore
-	}
-	return 0
-}
-
-func (m *EnterTongRequest) GetJoinSec() int32 {
-	if m != nil && m.JoinSec != nil {
-		return *m.JoinSec
-	}
-	return 0
-}
-
-func (m *EnterTongRequest) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// / 同意入帮会
-type EnterTongAgree struct {
-	TongId           *int32 `protobuf:"varint,1,opt,name=TongId" json:"TongId,omitempty"`
-	PlayerId         *int32 `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	OpPlayerId       *int32 `protobuf:"varint,3,opt,name=OpPlayerId" json:"OpPlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *EnterTongAgree) Reset()                    { *m = EnterTongAgree{} }
-func (m *EnterTongAgree) String() string            { return proto.CompactTextString(m) }
-func (*EnterTongAgree) ProtoMessage()               {}
-func (*EnterTongAgree) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{56} }
-
-func (m *EnterTongAgree) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *EnterTongAgree) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *EnterTongAgree) GetOpPlayerId() int32 {
-	if m != nil && m.OpPlayerId != nil {
-		return *m.OpPlayerId
-	}
-	return 0
-}
-
-// / 玩家加入帮会通知
-type NotifyPlayerEnter struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerScore      *int32  `protobuf:"varint,2,opt,name=PlayerScore" json:"PlayerScore,omitempty"`
-	PlayerName       *string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	OpPlayerName     *string `protobuf:"bytes,4,opt,name=OpPlayerName" json:"OpPlayerName,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,5,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	IfOnline         *int32  `protobuf:"varint,6,opt,name=IfOnline" json:"IfOnline,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyPlayerEnter) Reset()                    { *m = NotifyPlayerEnter{} }
-func (m *NotifyPlayerEnter) String() string            { return proto.CompactTextString(m) }
-func (*NotifyPlayerEnter) ProtoMessage()               {}
-func (*NotifyPlayerEnter) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{57} }
-
-func (m *NotifyPlayerEnter) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyPlayerEnter) GetPlayerScore() int32 {
-	if m != nil && m.PlayerScore != nil {
-		return *m.PlayerScore
-	}
-	return 0
-}
-
-func (m *NotifyPlayerEnter) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *NotifyPlayerEnter) GetOpPlayerName() string {
-	if m != nil && m.OpPlayerName != nil {
-		return *m.OpPlayerName
-	}
-	return ""
-}
-
-func (m *NotifyPlayerEnter) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-func (m *NotifyPlayerEnter) GetIfOnline() int32 {
-	if m != nil && m.IfOnline != nil {
-		return *m.IfOnline
-	}
-	return 0
-}
-
-// / 拒绝入帮会
-type EnterTongRefuse struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	OpPlayerId       *int32 `protobuf:"varint,2,opt,name=OpPlayerId" json:"OpPlayerId,omitempty"`
-	TongId           *int32 `protobuf:"varint,3,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *EnterTongRefuse) Reset()                    { *m = EnterTongRefuse{} }
-func (m *EnterTongRefuse) String() string            { return proto.CompactTextString(m) }
-func (*EnterTongRefuse) ProtoMessage()               {}
-func (*EnterTongRefuse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{58} }
-
-func (m *EnterTongRefuse) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *EnterTongRefuse) GetOpPlayerId() int32 {
-	if m != nil && m.OpPlayerId != nil {
-		return *m.OpPlayerId
-	}
-	return 0
-}
-
-func (m *EnterTongRefuse) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// / 拒绝加入帮会通知
-type NotifyPlayerRefuse struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	OpPlayerName     *string `protobuf:"bytes,2,opt,name=OpPlayerName" json:"OpPlayerName,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,3,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyPlayerRefuse) Reset()                    { *m = NotifyPlayerRefuse{} }
-func (m *NotifyPlayerRefuse) String() string            { return proto.CompactTextString(m) }
-func (*NotifyPlayerRefuse) ProtoMessage()               {}
-func (*NotifyPlayerRefuse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{59} }
-
-func (m *NotifyPlayerRefuse) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyPlayerRefuse) GetOpPlayerName() string {
-	if m != nil && m.OpPlayerName != nil {
-		return *m.OpPlayerName
-	}
-	return ""
-}
-
-func (m *NotifyPlayerRefuse) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// / 设置玩家帮会信息
-type SetPlayerTongInfo struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32  `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	TongName         *string `protobuf:"bytes,3,opt,name=TongName" json:"TongName,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,4,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	PrePos           *int32  `protobuf:"varint,5,opt,name=PrePos" json:"PrePos,omitempty"`
-	MemberType       *int32  `protobuf:"varint,6,opt,name=MemberType" json:"MemberType,omitempty"`
-	NotBack          *int32  `protobuf:"varint,7,opt,name=NotBack" json:"NotBack,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *SetPlayerTongInfo) Reset()                    { *m = SetPlayerTongInfo{} }
-func (m *SetPlayerTongInfo) String() string            { return proto.CompactTextString(m) }
-func (*SetPlayerTongInfo) ProtoMessage()               {}
-func (*SetPlayerTongInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{60} }
-
-func (m *SetPlayerTongInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *SetPlayerTongInfo) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *SetPlayerTongInfo) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *SetPlayerTongInfo) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *SetPlayerTongInfo) GetPrePos() int32 {
-	if m != nil && m.PrePos != nil {
-		return *m.PrePos
-	}
-	return 0
-}
-
-func (m *SetPlayerTongInfo) GetMemberType() int32 {
-	if m != nil && m.MemberType != nil {
-		return *m.MemberType
-	}
-	return 0
-}
-
-func (m *SetPlayerTongInfo) GetNotBack() int32 {
-	if m != nil && m.NotBack != nil {
-		return *m.NotBack
-	}
-	return 0
-}
-
-// / 设置玩家帮会信息成功
-type SetPlayerTongInfoOk struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32 `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	PrePos           *int32 `protobuf:"varint,3,opt,name=PrePos" json:"PrePos,omitempty"`
-	IfOnline         *int32 `protobuf:"varint,4,opt,name=IfOnline" json:"IfOnline,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *SetPlayerTongInfoOk) Reset()                    { *m = SetPlayerTongInfoOk{} }
-func (m *SetPlayerTongInfoOk) String() string            { return proto.CompactTextString(m) }
-func (*SetPlayerTongInfoOk) ProtoMessage()               {}
-func (*SetPlayerTongInfoOk) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{61} }
-
-func (m *SetPlayerTongInfoOk) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *SetPlayerTongInfoOk) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *SetPlayerTongInfoOk) GetPrePos() int32 {
-	if m != nil && m.PrePos != nil {
-		return *m.PrePos
-	}
-	return 0
-}
-
-func (m *SetPlayerTongInfoOk) GetIfOnline() int32 {
-	if m != nil && m.IfOnline != nil {
-		return *m.IfOnline
-	}
-	return 0
-}
-
-// / 退出帮会
-type TongLeave struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32 `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *TongLeave) Reset()                    { *m = TongLeave{} }
-func (m *TongLeave) String() string            { return proto.CompactTextString(m) }
-func (*TongLeave) ProtoMessage()               {}
-func (*TongLeave) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{62} }
-
-func (m *TongLeave) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongLeave) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// / 清空玩家身上帮会信息
-type ClearPlayerTongInfo struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,2,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *ClearPlayerTongInfo) Reset()                    { *m = ClearPlayerTongInfo{} }
-func (m *ClearPlayerTongInfo) String() string            { return proto.CompactTextString(m) }
-func (*ClearPlayerTongInfo) ProtoMessage()               {}
-func (*ClearPlayerTongInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{63} }
-
-func (m *ClearPlayerTongInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *ClearPlayerTongInfo) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// / 如果有，帮会清空玩家
-type ClearTongPlayerById struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *ClearTongPlayerById) Reset()                    { *m = ClearTongPlayerById{} }
-func (m *ClearTongPlayerById) String() string            { return proto.CompactTextString(m) }
-func (*ClearTongPlayerById) ProtoMessage()               {}
-func (*ClearTongPlayerById) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{64} }
-
-func (m *ClearTongPlayerById) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// / 玩家上线
-type SetTongMemberOnOffline struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32 `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	OnOffLine        *int32 `protobuf:"varint,3,opt,name=OnOffLine" json:"OnOffLine,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *SetTongMemberOnOffline) Reset()                    { *m = SetTongMemberOnOffline{} }
-func (m *SetTongMemberOnOffline) String() string            { return proto.CompactTextString(m) }
-func (*SetTongMemberOnOffline) ProtoMessage()               {}
-func (*SetTongMemberOnOffline) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{65} }
-
-func (m *SetTongMemberOnOffline) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *SetTongMemberOnOffline) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *SetTongMemberOnOffline) GetOnOffLine() int32 {
-	if m != nil && m.OnOffLine != nil {
-		return *m.OnOffLine
-	}
-	return 0
-}
-
-// / 帮会玩家上线 通知
-type NotifyTongMemberOnOffline struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32  `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	OnOffLine        *int32  `protobuf:"varint,3,opt,name=OnOffLine" json:"OnOffLine,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,4,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongMemberOnOffline) Reset()                    { *m = NotifyTongMemberOnOffline{} }
-func (m *NotifyTongMemberOnOffline) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongMemberOnOffline) ProtoMessage()               {}
-func (*NotifyTongMemberOnOffline) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{66} }
-
-func (m *NotifyTongMemberOnOffline) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongMemberOnOffline) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *NotifyTongMemberOnOffline) GetOnOffLine() int32 {
-	if m != nil && m.OnOffLine != nil {
-		return *m.OnOffLine
-	}
-	return 0
-}
-
-func (m *NotifyTongMemberOnOffline) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// / 帮会设置修改
-type TongSetChg struct {
-	TongName         *string `protobuf:"bytes,1,opt,name=TongName" json:"TongName,omitempty"`
-	Icon             *int32  `protobuf:"varint,2,opt,name=Icon" json:"Icon,omitempty"`
-	JoinType         *int32  `protobuf:"varint,3,opt,name=JoinType" json:"JoinType,omitempty"`
-	JoinScore        *int32  `protobuf:"varint,4,opt,name=JoinScore" json:"JoinScore,omitempty"`
-	Pos              *int32  `protobuf:"varint,5,opt,name=Pos" json:"Pos,omitempty"`
-	TongId           *int32  `protobuf:"varint,6,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongSetChg) Reset()                    { *m = TongSetChg{} }
-func (m *TongSetChg) String() string            { return proto.CompactTextString(m) }
-func (*TongSetChg) ProtoMessage()               {}
-func (*TongSetChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{67} }
-
-func (m *TongSetChg) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *TongSetChg) GetIcon() int32 {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
-	}
-	return 0
-}
-
-func (m *TongSetChg) GetJoinType() int32 {
-	if m != nil && m.JoinType != nil {
-		return *m.JoinType
-	}
-	return 0
-}
-
-func (m *TongSetChg) GetJoinScore() int32 {
-	if m != nil && m.JoinScore != nil {
-		return *m.JoinScore
-	}
-	return 0
-}
-
-func (m *TongSetChg) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-func (m *TongSetChg) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// / 帮会设置修改 通知
-type NotifyTongSetChg struct {
-	TongName         *string `protobuf:"bytes,1,opt,name=TongName" json:"TongName,omitempty"`
-	Icon             *int32  `protobuf:"varint,2,opt,name=Icon" json:"Icon,omitempty"`
-	JoinType         *int32  `protobuf:"varint,3,opt,name=JoinType" json:"JoinType,omitempty"`
-	JoinScore        *int32  `protobuf:"varint,4,opt,name=JoinScore" json:"JoinScore,omitempty"`
-	Pos              *int32  `protobuf:"varint,5,opt,name=Pos" json:"Pos,omitempty"`
-	TongId           *int32  `protobuf:"varint,6,opt,name=TongId" json:"TongId,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,7,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongSetChg) Reset()                    { *m = NotifyTongSetChg{} }
-func (m *NotifyTongSetChg) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongSetChg) ProtoMessage()               {}
-func (*NotifyTongSetChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{68} }
-
-func (m *NotifyTongSetChg) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *NotifyTongSetChg) GetIcon() int32 {
-	if m != nil && m.Icon != nil {
-		return *m.Icon
-	}
-	return 0
-}
-
-func (m *NotifyTongSetChg) GetJoinType() int32 {
-	if m != nil && m.JoinType != nil {
-		return *m.JoinType
-	}
-	return 0
-}
-
-func (m *NotifyTongSetChg) GetJoinScore() int32 {
-	if m != nil && m.JoinScore != nil {
-		return *m.JoinScore
-	}
-	return 0
-}
-
-func (m *NotifyTongSetChg) GetPos() int32 {
-	if m != nil && m.Pos != nil {
-		return *m.Pos
-	}
-	return 0
-}
-
-func (m *NotifyTongSetChg) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *NotifyTongSetChg) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// / 帮会公告修改
-type TongPubChg struct {
-	TongPub          *string `protobuf:"bytes,1,opt,name=TongPub" json:"TongPub,omitempty"`
-	TongId           *int32  `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongPubChg) Reset()                    { *m = TongPubChg{} }
-func (m *TongPubChg) String() string            { return proto.CompactTextString(m) }
-func (*TongPubChg) ProtoMessage()               {}
-func (*TongPubChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{69} }
-
-func (m *TongPubChg) GetTongPub() string {
-	if m != nil && m.TongPub != nil {
-		return *m.TongPub
-	}
-	return ""
-}
-
-func (m *TongPubChg) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// / 帮会公告修改 通知
-type NotifyTongPubChg struct {
-	TongPub          *string `protobuf:"bytes,1,opt,name=TongPub" json:"TongPub,omitempty"`
-	TongId           *int32  `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,3,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongPubChg) Reset()                    { *m = NotifyTongPubChg{} }
-func (m *NotifyTongPubChg) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongPubChg) ProtoMessage()               {}
-func (*NotifyTongPubChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{70} }
-
-func (m *NotifyTongPubChg) GetTongPub() string {
-	if m != nil && m.TongPub != nil {
-		return *m.TongPub
-	}
-	return ""
-}
-
-func (m *NotifyTongPubChg) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *NotifyTongPubChg) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// / 帮会聊天
-type TongChatSend struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	Content          *string `protobuf:"bytes,3,opt,name=Content" json:"Content,omitempty"`
-	TongId           *int32  `protobuf:"varint,4,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongChatSend) Reset()                    { *m = TongChatSend{} }
-func (m *TongChatSend) String() string            { return proto.CompactTextString(m) }
-func (*TongChatSend) ProtoMessage()               {}
-func (*TongChatSend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{71} }
-
-func (m *TongChatSend) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongChatSend) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *TongChatSend) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-func (m *TongChatSend) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// / 帮会聊天 通知
-type NotifyTongChatSend struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	Content          *string `protobuf:"bytes,3,opt,name=Content" json:"Content,omitempty"`
-	TongId           *int32  `protobuf:"varint,4,opt,name=TongId" json:"TongId,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,5,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	SendUnix         *int32  `protobuf:"varint,6,opt,name=SendUnix" json:"SendUnix,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongChatSend) Reset()                    { *m = NotifyTongChatSend{} }
-func (m *NotifyTongChatSend) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongChatSend) ProtoMessage()               {}
-func (*NotifyTongChatSend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{72} }
-
-func (m *NotifyTongChatSend) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongChatSend) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *NotifyTongChatSend) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-func (m *NotifyTongChatSend) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *NotifyTongChatSend) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-func (m *NotifyTongChatSend) GetSendUnix() int32 {
-	if m != nil && m.SendUnix != nil {
-		return *m.SendUnix
-	}
-	return 0
-}
-
-// / 帮会请求卡片
-type TongCardReq struct {
-	CardCfgId        *int32  `protobuf:"varint,1,opt,name=CardCfgId" json:"CardCfgId,omitempty"`
-	TongId           *int32  `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	PlayerId         *int32  `protobuf:"varint,3,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,4,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	MaxGetNum        *int32  `protobuf:"varint,5,opt,name=MaxGetNum" json:"MaxGetNum,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongCardReq) Reset()                    { *m = TongCardReq{} }
-func (m *TongCardReq) String() string            { return proto.CompactTextString(m) }
-func (*TongCardReq) ProtoMessage()               {}
-func (*TongCardReq) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{73} }
-
-func (m *TongCardReq) GetCardCfgId() int32 {
-	if m != nil && m.CardCfgId != nil {
-		return *m.CardCfgId
-	}
-	return 0
-}
-
-func (m *TongCardReq) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *TongCardReq) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongCardReq) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *TongCardReq) GetMaxGetNum() int32 {
-	if m != nil && m.MaxGetNum != nil {
-		return *m.MaxGetNum
-	}
-	return 0
-}
-
-// 服务器通知帮会成员的卡片请求
-type NotifyTongCardReq struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	CardCfgId        *int32  `protobuf:"varint,3,opt,name=CardCfgId" json:"CardCfgId,omitempty"`
-	CurGetNum        *int32  `protobuf:"varint,4,opt,name=CurGetNum" json:"CurGetNum,omitempty"`
-	MaxGetNum        *int32  `protobuf:"varint,5,opt,name=MaxGetNum" json:"MaxGetNum,omitempty"`
-	ReqUnix          *int32  `protobuf:"varint,6,opt,name=ReqUnix" json:"ReqUnix,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,7,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongCardReq) Reset()                    { *m = NotifyTongCardReq{} }
-func (m *NotifyTongCardReq) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongCardReq) ProtoMessage()               {}
-func (*NotifyTongCardReq) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{74} }
-
-func (m *NotifyTongCardReq) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongCardReq) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *NotifyTongCardReq) GetCardCfgId() int32 {
-	if m != nil && m.CardCfgId != nil {
-		return *m.CardCfgId
-	}
-	return 0
-}
-
-func (m *NotifyTongCardReq) GetCurGetNum() int32 {
-	if m != nil && m.CurGetNum != nil {
-		return *m.CurGetNum
-	}
-	return 0
-}
-
-func (m *NotifyTongCardReq) GetMaxGetNum() int32 {
-	if m != nil && m.MaxGetNum != nil {
-		return *m.MaxGetNum
-	}
-	return 0
-}
-
-func (m *NotifyTongCardReq) GetReqUnix() int32 {
-	if m != nil && m.ReqUnix != nil {
-		return *m.ReqUnix
-	}
-	return 0
-}
-
-func (m *NotifyTongCardReq) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// 帮会捐献卡片
-type TongDonateCard struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	TgtPlayerId      *int32  `protobuf:"varint,3,opt,name=TgtPlayerId" json:"TgtPlayerId,omitempty"`
-	CardCfgId        *int32  `protobuf:"varint,4,opt,name=CardCfgId" json:"CardCfgId,omitempty"`
-	TongId           *int32  `protobuf:"varint,5,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongDonateCard) Reset()                    { *m = TongDonateCard{} }
-func (m *TongDonateCard) String() string            { return proto.CompactTextString(m) }
-func (*TongDonateCard) ProtoMessage()               {}
-func (*TongDonateCard) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{75} }
-
-func (m *TongDonateCard) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongDonateCard) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *TongDonateCard) GetTgtPlayerId() int32 {
-	if m != nil && m.TgtPlayerId != nil {
-		return *m.TgtPlayerId
-	}
-	return 0
-}
-
-func (m *TongDonateCard) GetCardCfgId() int32 {
-	if m != nil && m.CardCfgId != nil {
-		return *m.CardCfgId
-	}
-	return 0
-}
-
-func (m *TongDonateCard) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// 服务器通知帮会成员捐卡成功
-type NotifyTongDonateCard struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	TgtPlayerId      *int32  `protobuf:"varint,3,opt,name=TgtPlayerId" json:"TgtPlayerId,omitempty"`
-	CardCfgId        *int32  `protobuf:"varint,4,opt,name=CardCfgId" json:"CardCfgId,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,5,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongDonateCard) Reset()                    { *m = NotifyTongDonateCard{} }
-func (m *NotifyTongDonateCard) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongDonateCard) ProtoMessage()               {}
-func (*NotifyTongDonateCard) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{76} }
-
-func (m *NotifyTongDonateCard) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongDonateCard) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *NotifyTongDonateCard) GetTgtPlayerId() int32 {
-	if m != nil && m.TgtPlayerId != nil {
-		return *m.TgtPlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongDonateCard) GetCardCfgId() int32 {
-	if m != nil && m.CardCfgId != nil {
-		return *m.CardCfgId
-	}
-	return 0
-}
-
-func (m *NotifyTongDonateCard) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// 帮会捐卡失败
-type TongDonateCardFailed struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *TongDonateCardFailed) Reset()                    { *m = TongDonateCardFailed{} }
-func (m *TongDonateCardFailed) String() string            { return proto.CompactTextString(m) }
-func (*TongDonateCardFailed) ProtoMessage()               {}
-func (*TongDonateCardFailed) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{77} }
-
-func (m *TongDonateCardFailed) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// 帮会成员比赛
-type TongMemberFightEnd struct {
-	Score            *int32 `protobuf:"varint,1,opt,name=Score" json:"Score,omitempty"`
-	CurScore         *int32 `protobuf:"varint,2,opt,name=CurScore" json:"CurScore,omitempty"`
-	PlayerId         *int32 `protobuf:"varint,3,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32 `protobuf:"varint,4,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *TongMemberFightEnd) Reset()                    { *m = TongMemberFightEnd{} }
-func (m *TongMemberFightEnd) String() string            { return proto.CompactTextString(m) }
-func (*TongMemberFightEnd) ProtoMessage()               {}
-func (*TongMemberFightEnd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{78} }
-
-func (m *TongMemberFightEnd) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *TongMemberFightEnd) GetCurScore() int32 {
-	if m != nil && m.CurScore != nil {
-		return *m.CurScore
-	}
-	return 0
-}
-
-func (m *TongMemberFightEnd) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongMemberFightEnd) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// 服务器通知帮会宝箱积分变化
-type NotifyTongChestScoreChg struct {
-	CurScore         *int32  `protobuf:"varint,1,opt,name=CurScore" json:"CurScore,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,2,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongChestScoreChg) Reset()                    { *m = NotifyTongChestScoreChg{} }
-func (m *NotifyTongChestScoreChg) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongChestScoreChg) ProtoMessage()               {}
-func (*NotifyTongChestScoreChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{79} }
-
-func (m *NotifyTongChestScoreChg) GetCurScore() int32 {
-	if m != nil && m.CurScore != nil {
-		return *m.CurScore
-	}
-	return 0
-}
-
-func (m *NotifyTongChestScoreChg) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// 服务器通知帮会成员积分发生变化
-type NotifyTongMemberScoreChg struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	CurScore         *int32  `protobuf:"varint,2,opt,name=CurScore" json:"CurScore,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,3,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongMemberScoreChg) Reset()                    { *m = NotifyTongMemberScoreChg{} }
-func (m *NotifyTongMemberScoreChg) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongMemberScoreChg) ProtoMessage()               {}
-func (*NotifyTongMemberScoreChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{80} }
-
-func (m *NotifyTongMemberScoreChg) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongMemberScoreChg) GetCurScore() int32 {
-	if m != nil && m.CurScore != nil {
-		return *m.CurScore
-	}
-	return 0
-}
-
-func (m *NotifyTongMemberScoreChg) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// 打开帮会宝箱
-type TongChestOpen struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32 `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	ArenaLvl         *int32 `protobuf:"varint,3,opt,name=ArenaLvl" json:"ArenaLvl,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *TongChestOpen) Reset()                    { *m = TongChestOpen{} }
-func (m *TongChestOpen) String() string            { return proto.CompactTextString(m) }
-func (*TongChestOpen) ProtoMessage()               {}
-func (*TongChestOpen) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{81} }
-
-func (m *TongChestOpen) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongChestOpen) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *TongChestOpen) GetArenaLvl() int32 {
-	if m != nil && m.ArenaLvl != nil {
-		return *m.ArenaLvl
-	}
-	return 0
-}
-
-// 打开帮会宝箱返回
-type RetTongChestOpen struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	ChestId          *int32 `protobuf:"varint,2,opt,name=ChestId" json:"ChestId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *RetTongChestOpen) Reset()                    { *m = RetTongChestOpen{} }
-func (m *RetTongChestOpen) String() string            { return proto.CompactTextString(m) }
-func (*RetTongChestOpen) ProtoMessage()               {}
-func (*RetTongChestOpen) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{82} }
-
-func (m *RetTongChestOpen) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetTongChestOpen) GetChestId() int32 {
-	if m != nil && m.ChestId != nil {
-		return *m.ChestId
-	}
-	return 0
-}
-
-// 帮会友谊战请求
-type TongFriendMatch struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Lvl              *int32  `protobuf:"varint,3,opt,name=Lvl" json:"Lvl,omitempty"`
-	TongId           *int32  `protobuf:"varint,4,opt,name=TongId" json:"TongId,omitempty"`
-	Score            *int32  `protobuf:"varint,5,opt,name=Score" json:"Score,omitempty"`
-	CardIds          []int32 `protobuf:"varint,6,rep,name=CardIds" json:"CardIds,omitempty"`
-	CardLvls         []int32 `protobuf:"varint,7,rep,name=CardLvls" json:"CardLvls,omitempty"`
-	HallId           *int32  `protobuf:"varint,8,opt,name=HallId" json:"HallId,omitempty"`
-	Camp             *int32  `protobuf:"varint,9,opt,name=Camp" json:"Camp,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongFriendMatch) Reset()                    { *m = TongFriendMatch{} }
-func (m *TongFriendMatch) String() string            { return proto.CompactTextString(m) }
-func (*TongFriendMatch) ProtoMessage()               {}
-func (*TongFriendMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{83} }
-
-func (m *TongFriendMatch) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongFriendMatch) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *TongFriendMatch) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
-	}
-	return 0
-}
-
-func (m *TongFriendMatch) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *TongFriendMatch) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *TongFriendMatch) GetCardIds() []int32 {
-	if m != nil {
-		return m.CardIds
-	}
-	return nil
-}
-
-func (m *TongFriendMatch) GetCardLvls() []int32 {
-	if m != nil {
-		return m.CardLvls
-	}
-	return nil
-}
-
-func (m *TongFriendMatch) GetHallId() int32 {
-	if m != nil && m.HallId != nil {
-		return *m.HallId
-	}
-	return 0
-}
-
-func (m *TongFriendMatch) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-// 帮会友谊战通知
-type NotifyTongFriendMatch struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,3,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongFriendMatch) Reset()                    { *m = NotifyTongFriendMatch{} }
-func (m *NotifyTongFriendMatch) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongFriendMatch) ProtoMessage()               {}
-func (*NotifyTongFriendMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{84} }
-
-func (m *NotifyTongFriendMatch) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongFriendMatch) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *NotifyTongFriendMatch) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// 帮会友谊战取消
-type TongFriendCancel struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32 `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *TongFriendCancel) Reset()                    { *m = TongFriendCancel{} }
-func (m *TongFriendCancel) String() string            { return proto.CompactTextString(m) }
-func (*TongFriendCancel) ProtoMessage()               {}
-func (*TongFriendCancel) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{85} }
-
-func (m *TongFriendCancel) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongFriendCancel) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-// 通知删除帮会友谊战记录
-type NotifyTongFriendCancel struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	OnlinePlayers    []int32 `protobuf:"varint,2,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyTongFriendCancel) Reset()                    { *m = NotifyTongFriendCancel{} }
-func (m *NotifyTongFriendCancel) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongFriendCancel) ProtoMessage()               {}
-func (*NotifyTongFriendCancel) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{86} }
-
-func (m *NotifyTongFriendCancel) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongFriendCancel) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// 加入友谊战
-type TongFriendEnter struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	TongId           *int32  `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	Lvl              *int32  `protobuf:"varint,3,opt,name=Lvl" json:"Lvl,omitempty"`
-	TgtPlayerId      *int32  `protobuf:"varint,4,opt,name=TgtPlayerId" json:"TgtPlayerId,omitempty"`
-	CardIds          []int32 `protobuf:"varint,5,rep,name=CardIds" json:"CardIds,omitempty"`
-	CardLvls         []int32 `protobuf:"varint,6,rep,name=CardLvls" json:"CardLvls,omitempty"`
-	PlayerName       *string `protobuf:"bytes,7,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	Score            *int32  `protobuf:"varint,8,opt,name=Score" json:"Score,omitempty"`
-	HallId           *int32  `protobuf:"varint,9,opt,name=HallId" json:"HallId,omitempty"`
-	Camp             *int32  `protobuf:"varint,10,opt,name=Camp" json:"Camp,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *TongFriendEnter) Reset()                    { *m = TongFriendEnter{} }
-func (m *TongFriendEnter) String() string            { return proto.CompactTextString(m) }
-func (*TongFriendEnter) ProtoMessage()               {}
-func (*TongFriendEnter) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{87} }
-
-func (m *TongFriendEnter) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *TongFriendEnter) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *TongFriendEnter) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
-	}
-	return 0
-}
-
-func (m *TongFriendEnter) GetTgtPlayerId() int32 {
-	if m != nil && m.TgtPlayerId != nil {
-		return *m.TgtPlayerId
-	}
-	return 0
-}
-
-func (m *TongFriendEnter) GetCardIds() []int32 {
-	if m != nil {
-		return m.CardIds
-	}
-	return nil
-}
-
-func (m *TongFriendEnter) GetCardLvls() []int32 {
-	if m != nil {
-		return m.CardLvls
-	}
-	return nil
-}
-
-func (m *TongFriendEnter) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *TongFriendEnter) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *TongFriendEnter) GetHallId() int32 {
-	if m != nil && m.HallId != nil {
-		return *m.HallId
-	}
-	return 0
-}
-
-func (m *TongFriendEnter) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-// 分享战斗记录
-type TongFightRecord struct {
-	ReqPlayerId      *int32               `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	TongId           *int32               `protobuf:"varint,2,opt,name=TongId" json:"TongId,omitempty"`
-	Content          *string              `protobuf:"bytes,3,opt,name=Content" json:"Content,omitempty"`
-	FightResult      *int32               `protobuf:"varint,4,opt,name=FightResult" json:"FightResult,omitempty"`
-	MatchType        *int32               `protobuf:"varint,5,opt,name=MatchType" json:"MatchType,omitempty"`
-	MyTowers         *int32               `protobuf:"varint,6,opt,name=MyTowers" json:"MyTowers,omitempty"`
-	OpTowers         *int32               `protobuf:"varint,7,opt,name=OpTowers" json:"OpTowers,omitempty"`
-	MyScoreChg       *int32               `protobuf:"varint,8,opt,name=MyScoreChg" json:"MyScoreChg,omitempty"`
-	MyPlayers        []*FightRecordPlayer `protobuf:"bytes,9,rep,name=MyPlayers" json:"MyPlayers,omitempty"`
-	OtherPlayers     []*FightRecordPlayer `protobuf:"bytes,10,rep,name=OtherPlayers" json:"OtherPlayers,omitempty"`
-	VideoData        []byte               `protobuf:"bytes,11,opt,name=VideoData" json:"VideoData,omitempty"`
-	XXX_unrecognized []byte               `json:"-"`
-}
-
-func (m *TongFightRecord) Reset()                    { *m = TongFightRecord{} }
-func (m *TongFightRecord) String() string            { return proto.CompactTextString(m) }
-func (*TongFightRecord) ProtoMessage()               {}
-func (*TongFightRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{88} }
-
-func (m *TongFightRecord) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *TongFightRecord) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *TongFightRecord) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-func (m *TongFightRecord) GetFightResult() int32 {
-	if m != nil && m.FightResult != nil {
-		return *m.FightResult
-	}
-	return 0
-}
-
-func (m *TongFightRecord) GetMatchType() int32 {
-	if m != nil && m.MatchType != nil {
-		return *m.MatchType
-	}
-	return 0
-}
-
-func (m *TongFightRecord) GetMyTowers() int32 {
-	if m != nil && m.MyTowers != nil {
-		return *m.MyTowers
-	}
-	return 0
-}
-
-func (m *TongFightRecord) GetOpTowers() int32 {
-	if m != nil && m.OpTowers != nil {
-		return *m.OpTowers
-	}
-	return 0
-}
-
-func (m *TongFightRecord) GetMyScoreChg() int32 {
-	if m != nil && m.MyScoreChg != nil {
-		return *m.MyScoreChg
-	}
-	return 0
-}
-
-func (m *TongFightRecord) GetMyPlayers() []*FightRecordPlayer {
-	if m != nil {
-		return m.MyPlayers
-	}
-	return nil
-}
-
-func (m *TongFightRecord) GetOtherPlayers() []*FightRecordPlayer {
-	if m != nil {
-		return m.OtherPlayers
-	}
-	return nil
-}
-
-func (m *TongFightRecord) GetVideoData() []byte {
-	if m != nil {
-		return m.VideoData
-	}
-	return nil
-}
-
-type FightRecordPlayer struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Score            *int32  `protobuf:"varint,2,opt,name=Score" json:"Score,omitempty"`
-	Lvl              *int32  `protobuf:"varint,3,opt,name=Lvl" json:"Lvl,omitempty"`
-	Name             *string `protobuf:"bytes,4,opt,name=Name" json:"Name,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,5,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,6,opt,name=TongName" json:"TongName,omitempty"`
-	CardCfgIds       []int32 `protobuf:"varint,7,rep,name=CardCfgIds" json:"CardCfgIds,omitempty"`
-	CardLvls         []int32 `protobuf:"varint,8,rep,name=CardLvls" json:"CardLvls,omitempty"`
-	Camp             *int32  `protobuf:"varint,9,opt,name=Camp" json:"Camp,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *FightRecordPlayer) Reset()                    { *m = FightRecordPlayer{} }
-func (m *FightRecordPlayer) String() string            { return proto.CompactTextString(m) }
-func (*FightRecordPlayer) ProtoMessage()               {}
-func (*FightRecordPlayer) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{89} }
-
-func (m *FightRecordPlayer) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *FightRecordPlayer) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *FightRecordPlayer) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
-	}
-	return 0
-}
-
-func (m *FightRecordPlayer) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *FightRecordPlayer) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *FightRecordPlayer) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *FightRecordPlayer) GetCardCfgIds() []int32 {
-	if m != nil {
-		return m.CardCfgIds
-	}
-	return nil
-}
-
-func (m *FightRecordPlayer) GetCardLvls() []int32 {
-	if m != nil {
-		return m.CardLvls
-	}
-	return nil
-}
-
-func (m *FightRecordPlayer) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-// 通知战斗记录分享
-type NotifyTongFightRecord struct {
-	PlayerId         *int32               `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	RecordId         *int32               `protobuf:"varint,2,opt,name=RecordId" json:"RecordId,omitempty"`
-	Content          *string              `protobuf:"bytes,3,opt,name=Content" json:"Content,omitempty"`
-	ReqPlayerId      *int32               `protobuf:"varint,4,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	TongId           *int32               `protobuf:"varint,5,opt,name=TongId" json:"TongId,omitempty"`
-	FightResult      *int32               `protobuf:"varint,6,opt,name=FightResult" json:"FightResult,omitempty"`
-	MatchType        *int32               `protobuf:"varint,7,opt,name=MatchType" json:"MatchType,omitempty"`
-	MyTowers         *int32               `protobuf:"varint,8,opt,name=MyTowers" json:"MyTowers,omitempty"`
-	OpTowers         *int32               `protobuf:"varint,9,opt,name=OpTowers" json:"OpTowers,omitempty"`
-	MyScoreChg       *int32               `protobuf:"varint,10,opt,name=MyScoreChg" json:"MyScoreChg,omitempty"`
-	MyPlayers        []*FightRecordPlayer `protobuf:"bytes,11,rep,name=MyPlayers" json:"MyPlayers,omitempty"`
-	OtherPlayers     []*FightRecordPlayer `protobuf:"bytes,12,rep,name=OtherPlayers" json:"OtherPlayers,omitempty"`
-	VideoData        []byte               `protobuf:"bytes,13,opt,name=VideoData" json:"VideoData,omitempty"`
-	CreateUinx       *int32               `protobuf:"varint,14,opt,name=CreateUinx" json:"CreateUinx,omitempty"`
-	OnlinePlayers    []int32              `protobuf:"varint,15,rep,name=OnlinePlayers" json:"OnlinePlayers,omitempty"`
-	XXX_unrecognized []byte               `json:"-"`
-}
-
-func (m *NotifyTongFightRecord) Reset()                    { *m = NotifyTongFightRecord{} }
-func (m *NotifyTongFightRecord) String() string            { return proto.CompactTextString(m) }
-func (*NotifyTongFightRecord) ProtoMessage()               {}
-func (*NotifyTongFightRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{90} }
-
-func (m *NotifyTongFightRecord) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetRecordId() int32 {
-	if m != nil && m.RecordId != nil {
-		return *m.RecordId
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-func (m *NotifyTongFightRecord) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetTongId() int32 {
-	if m != nil && m.TongId != nil {
-		return *m.TongId
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetFightResult() int32 {
-	if m != nil && m.FightResult != nil {
-		return *m.FightResult
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetMatchType() int32 {
-	if m != nil && m.MatchType != nil {
-		return *m.MatchType
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetMyTowers() int32 {
-	if m != nil && m.MyTowers != nil {
-		return *m.MyTowers
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetOpTowers() int32 {
-	if m != nil && m.OpTowers != nil {
-		return *m.OpTowers
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetMyScoreChg() int32 {
-	if m != nil && m.MyScoreChg != nil {
-		return *m.MyScoreChg
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetMyPlayers() []*FightRecordPlayer {
-	if m != nil {
-		return m.MyPlayers
-	}
-	return nil
-}
-
-func (m *NotifyTongFightRecord) GetOtherPlayers() []*FightRecordPlayer {
-	if m != nil {
-		return m.OtherPlayers
-	}
-	return nil
-}
-
-func (m *NotifyTongFightRecord) GetVideoData() []byte {
-	if m != nil {
-		return m.VideoData
-	}
-	return nil
-}
-
-func (m *NotifyTongFightRecord) GetCreateUinx() int32 {
-	if m != nil && m.CreateUinx != nil {
-		return *m.CreateUinx
-	}
-	return 0
-}
-
-func (m *NotifyTongFightRecord) GetOnlinePlayers() []int32 {
-	if m != nil {
-		return m.OnlinePlayers
-	}
-	return nil
-}
-
-// / 邮件信息
-type MailAdd struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	MailType         *int32  `protobuf:"varint,2,opt,name=MailType" json:"MailType,omitempty"`
-	Title            *string `protobuf:"bytes,3,opt,name=Title" json:"Title,omitempty"`
-	Content          *string `protobuf:"bytes,4,opt,name=Content" json:"Content,omitempty"`
-	SenderId         *int32  `protobuf:"varint,5,opt,name=SenderId" json:"SenderId,omitempty"`
-	SenderName       *string `protobuf:"bytes,6,opt,name=SenderName" json:"SenderName,omitempty"`
-	SendUnix         *int32  `protobuf:"varint,7,opt,name=SendUnix" json:"SendUnix,omitempty"`
-	OverUnix         *int32  `protobuf:"varint,8,opt,name=OverUnix" json:"OverUnix,omitempty"`
-	ObjIds           []int32 `protobuf:"varint,9,rep,name=ObjIds" json:"ObjIds,omitempty"`
-	ObjNums          []int32 `protobuf:"varint,10,rep,name=ObjNums" json:"ObjNums,omitempty"`
-	ExtraDatas       []int32 `protobuf:"varint,11,rep,name=ExtraDatas" json:"ExtraDatas,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *MailAdd) Reset()                    { *m = MailAdd{} }
-func (m *MailAdd) String() string            { return proto.CompactTextString(m) }
-func (*MailAdd) ProtoMessage()               {}
-func (*MailAdd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{91} }
-
-func (m *MailAdd) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *MailAdd) GetMailType() int32 {
-	if m != nil && m.MailType != nil {
-		return *m.MailType
-	}
-	return 0
-}
-
-func (m *MailAdd) GetTitle() string {
-	if m != nil && m.Title != nil {
-		return *m.Title
-	}
-	return ""
-}
-
-func (m *MailAdd) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-func (m *MailAdd) GetSenderId() int32 {
-	if m != nil && m.SenderId != nil {
-		return *m.SenderId
-	}
-	return 0
-}
-
-func (m *MailAdd) GetSenderName() string {
-	if m != nil && m.SenderName != nil {
-		return *m.SenderName
-	}
-	return ""
-}
-
-func (m *MailAdd) GetSendUnix() int32 {
-	if m != nil && m.SendUnix != nil {
-		return *m.SendUnix
-	}
-	return 0
-}
-
-func (m *MailAdd) GetOverUnix() int32 {
-	if m != nil && m.OverUnix != nil {
-		return *m.OverUnix
-	}
-	return 0
-}
-
-func (m *MailAdd) GetObjIds() []int32 {
-	if m != nil {
-		return m.ObjIds
-	}
-	return nil
-}
-
-func (m *MailAdd) GetObjNums() []int32 {
-	if m != nil {
-		return m.ObjNums
-	}
-	return nil
-}
-
-func (m *MailAdd) GetExtraDatas() []int32 {
-	if m != nil {
-		return m.ExtraDatas
-	}
-	return nil
-}
-
-// 同步单个补偿数据
-type PayBackAdd struct {
-	PayBackId        *int32  `protobuf:"varint,1,opt,name=PayBackId" json:"PayBackId,omitempty"`
-	ObjIds           []int32 `protobuf:"varint,2,rep,name=ObjIds" json:"ObjIds,omitempty"`
-	ObjNums          []int32 `protobuf:"varint,3,rep,name=ObjNums" json:"ObjNums,omitempty"`
-	OverUnix         *int32  `protobuf:"varint,4,opt,name=OverUnix" json:"OverUnix,omitempty"`
-	MailTitle        *string `protobuf:"bytes,5,opt,name=MailTitle" json:"MailTitle,omitempty"`
-	MailContent      *string `protobuf:"bytes,6,opt,name=MailContent" json:"MailContent,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *PayBackAdd) Reset()                    { *m = PayBackAdd{} }
-func (m *PayBackAdd) String() string            { return proto.CompactTextString(m) }
-func (*PayBackAdd) ProtoMessage()               {}
-func (*PayBackAdd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{92} }
-
-func (m *PayBackAdd) GetPayBackId() int32 {
-	if m != nil && m.PayBackId != nil {
-		return *m.PayBackId
-	}
-	return 0
-}
-
-func (m *PayBackAdd) GetObjIds() []int32 {
-	if m != nil {
-		return m.ObjIds
-	}
-	return nil
-}
-
-func (m *PayBackAdd) GetObjNums() []int32 {
-	if m != nil {
-		return m.ObjNums
-	}
-	return nil
-}
-
-func (m *PayBackAdd) GetOverUnix() int32 {
-	if m != nil && m.OverUnix != nil {
-		return *m.OverUnix
-	}
-	return 0
-}
-
-func (m *PayBackAdd) GetMailTitle() string {
-	if m != nil && m.MailTitle != nil {
-		return *m.MailTitle
-	}
-	return ""
-}
-
-func (m *PayBackAdd) GetMailContent() string {
-	if m != nil && m.MailContent != nil {
-		return *m.MailContent
-	}
-	return ""
-}
-
-// / 同步补偿列表
-type SyncPayBackDataList struct {
-	PayBackList      []*PayBackAdd `protobuf:"bytes,1,rep,name=PayBackList" json:"PayBackList,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *SyncPayBackDataList) Reset()                    { *m = SyncPayBackDataList{} }
-func (m *SyncPayBackDataList) String() string            { return proto.CompactTextString(m) }
-func (*SyncPayBackDataList) ProtoMessage()               {}
-func (*SyncPayBackDataList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{93} }
-
-func (m *SyncPayBackDataList) GetPayBackList() []*PayBackAdd {
-	if m != nil {
-		return m.PayBackList
-	}
-	return nil
-}
-
-// / 删除补偿
-type PayBackRemove struct {
-	PbId             *int32 `protobuf:"varint,1,opt,name=PbId" json:"PbId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *PayBackRemove) Reset()                    { *m = PayBackRemove{} }
-func (m *PayBackRemove) String() string            { return proto.CompactTextString(m) }
-func (*PayBackRemove) ProtoMessage()               {}
-func (*PayBackRemove) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{94} }
-
-func (m *PayBackRemove) GetPbId() int32 {
-	if m != nil && m.PbId != nil {
-		return *m.PbId
-	}
-	return 0
-}
-
-// 同步单个公共数据
-type NoticeAdd struct {
-	NoticeId         *int32  `protobuf:"varint,1,opt,name=NoticeId" json:"NoticeId,omitempty"`
-	OverUnix         *int32  `protobuf:"varint,2,opt,name=OverUnix" json:"OverUnix,omitempty"`
-	Content          *string `protobuf:"bytes,3,opt,name=Content" json:"Content,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NoticeAdd) Reset()                    { *m = NoticeAdd{} }
-func (m *NoticeAdd) String() string            { return proto.CompactTextString(m) }
-func (*NoticeAdd) ProtoMessage()               {}
-func (*NoticeAdd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{95} }
-
-func (m *NoticeAdd) GetNoticeId() int32 {
-	if m != nil && m.NoticeId != nil {
-		return *m.NoticeId
-	}
-	return 0
-}
-
-func (m *NoticeAdd) GetOverUnix() int32 {
-	if m != nil && m.OverUnix != nil {
-		return *m.OverUnix
-	}
-	return 0
-}
-
-func (m *NoticeAdd) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-// / 同步公告列表
-type SyncNoticeAddList struct {
-	NoticeList       []*NoticeAdd `protobuf:"bytes,1,rep,name=NoticeList" json:"NoticeList,omitempty"`
-	XXX_unrecognized []byte       `json:"-"`
-}
-
-func (m *SyncNoticeAddList) Reset()                    { *m = SyncNoticeAddList{} }
-func (m *SyncNoticeAddList) String() string            { return proto.CompactTextString(m) }
-func (*SyncNoticeAddList) ProtoMessage()               {}
-func (*SyncNoticeAddList) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{96} }
-
-func (m *SyncNoticeAddList) GetNoticeList() []*NoticeAdd {
-	if m != nil {
-		return m.NoticeList
-	}
-	return nil
-}
-
-// / 删除公告
-type NoticeRemove struct {
-	NoticeId         *int32 `protobuf:"varint,1,opt,name=NoticeId" json:"NoticeId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *NoticeRemove) Reset()                    { *m = NoticeRemove{} }
-func (m *NoticeRemove) String() string            { return proto.CompactTextString(m) }
-func (*NoticeRemove) ProtoMessage()               {}
-func (*NoticeRemove) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{97} }
-
-func (m *NoticeRemove) GetNoticeId() int32 {
-	if m != nil && m.NoticeId != nil {
-		return *m.NoticeId
-	}
-	return 0
-}
-
-// 获取阵营战状态
-type GetCampFightState struct {
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetCampFightState) Reset()                    { *m = GetCampFightState{} }
-func (m *GetCampFightState) String() string            { return proto.CompactTextString(m) }
-func (*GetCampFightState) ProtoMessage()               {}
-func (*GetCampFightState) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{98} }
-
-// 通知阵营战状态改变
-type NotifyCampFightState struct {
-	State            *int32 `protobuf:"varint,1,opt,name=State" json:"State,omitempty"`
-	CurFightArena    *int32 `protobuf:"varint,2,opt,name=CurFightArena" json:"CurFightArena,omitempty"`
-	LeftSec          *int32 `protobuf:"varint,3,opt,name=LeftSec" json:"LeftSec,omitempty"`
-	CurYearWeek      *int32 `protobuf:"varint,4,opt,name=CurYearWeek" json:"CurYearWeek,omitempty"`
-	CurRewardISOWeek *int32 `protobuf:"varint,5,opt,name=CurRewardISOWeek" json:"CurRewardISOWeek,omitempty"`
-	CurXScore        *int32 `protobuf:"varint,6,opt,name=CurXScore" json:"CurXScore,omitempty"`
-	CurTScore        *int32 `protobuf:"varint,7,opt,name=CurTScore" json:"CurTScore,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *NotifyCampFightState) Reset()                    { *m = NotifyCampFightState{} }
-func (m *NotifyCampFightState) String() string            { return proto.CompactTextString(m) }
-func (*NotifyCampFightState) ProtoMessage()               {}
-func (*NotifyCampFightState) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{99} }
-
-func (m *NotifyCampFightState) GetState() int32 {
-	if m != nil && m.State != nil {
-		return *m.State
-	}
-	return 0
-}
-
-func (m *NotifyCampFightState) GetCurFightArena() int32 {
-	if m != nil && m.CurFightArena != nil {
-		return *m.CurFightArena
-	}
-	return 0
-}
-
-func (m *NotifyCampFightState) GetLeftSec() int32 {
-	if m != nil && m.LeftSec != nil {
-		return *m.LeftSec
-	}
-	return 0
-}
-
-func (m *NotifyCampFightState) GetCurYearWeek() int32 {
-	if m != nil && m.CurYearWeek != nil {
-		return *m.CurYearWeek
-	}
-	return 0
-}
-
-func (m *NotifyCampFightState) GetCurRewardISOWeek() int32 {
-	if m != nil && m.CurRewardISOWeek != nil {
-		return *m.CurRewardISOWeek
-	}
-	return 0
-}
-
-func (m *NotifyCampFightState) GetCurXScore() int32 {
-	if m != nil && m.CurXScore != nil {
-		return *m.CurXScore
-	}
-	return 0
-}
-
-func (m *NotifyCampFightState) GetCurTScore() int32 {
-	if m != nil && m.CurTScore != nil {
-		return *m.CurTScore
-	}
-	return 0
-}
-
-// 玩家阵营战积分改变
-type CampFigthScoreChg struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	CurScore         *int32  `protobuf:"varint,3,opt,name=CurScore" json:"CurScore,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,4,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,5,opt,name=TongName" json:"TongName,omitempty"`
-	PlayerCamp       *int32  `protobuf:"varint,6,opt,name=PlayerCamp" json:"PlayerCamp,omitempty"`
-	PlayerScoreChg   *int32  `protobuf:"varint,7,opt,name=PlayerScoreChg" json:"PlayerScoreChg,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CampFigthScoreChg) Reset()                    { *m = CampFigthScoreChg{} }
-func (m *CampFigthScoreChg) String() string            { return proto.CompactTextString(m) }
-func (*CampFigthScoreChg) ProtoMessage()               {}
-func (*CampFigthScoreChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{100} }
-
-func (m *CampFigthScoreChg) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *CampFigthScoreChg) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *CampFigthScoreChg) GetCurScore() int32 {
-	if m != nil && m.CurScore != nil {
-		return *m.CurScore
-	}
-	return 0
-}
-
-func (m *CampFigthScoreChg) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *CampFigthScoreChg) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *CampFigthScoreChg) GetPlayerCamp() int32 {
-	if m != nil && m.PlayerCamp != nil {
-		return *m.PlayerCamp
-	}
-	return 0
-}
-
-func (m *CampFigthScoreChg) GetPlayerScoreChg() int32 {
-	if m != nil && m.PlayerScoreChg != nil {
-		return *m.PlayerScoreChg
-	}
-	return 0
-}
-
-// 获取阵营战排行榜
-type GetCampFightRank struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	RankType         *int32 `protobuf:"varint,2,opt,name=RankType" json:"RankType,omitempty"`
-	IfLastRank       *int32 `protobuf:"varint,3,opt,name=IfLastRank" json:"IfLastRank,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetCampFightRank) Reset()                    { *m = GetCampFightRank{} }
-func (m *GetCampFightRank) String() string            { return proto.CompactTextString(m) }
-func (*GetCampFightRank) ProtoMessage()               {}
-func (*GetCampFightRank) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{101} }
-
-func (m *GetCampFightRank) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *GetCampFightRank) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-func (m *GetCampFightRank) GetIfLastRank() int32 {
-	if m != nil && m.IfLastRank != nil {
-		return *m.IfLastRank
-	}
-	return 0
-}
-
-// 返回阵营战排行榜
-type RetCampFightRank struct {
-	PlayerId         *int32           `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	RankType         *int32           `protobuf:"varint,2,opt,name=RankType" json:"RankType,omitempty"`
-	IfLastRank       *int32           `protobuf:"varint,4,opt,name=IfLastRank" json:"IfLastRank,omitempty"`
-	Recoreds         []*SmallRankItem `protobuf:"bytes,5,rep,name=Recoreds" json:"Recoreds,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
-}
-
-func (m *RetCampFightRank) Reset()                    { *m = RetCampFightRank{} }
-func (m *RetCampFightRank) String() string            { return proto.CompactTextString(m) }
-func (*RetCampFightRank) ProtoMessage()               {}
-func (*RetCampFightRank) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{102} }
-
-func (m *RetCampFightRank) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetCampFightRank) GetRankType() int32 {
-	if m != nil && m.RankType != nil {
-		return *m.RankType
-	}
-	return 0
-}
-
-func (m *RetCampFightRank) GetIfLastRank() int32 {
-	if m != nil && m.IfLastRank != nil {
-		return *m.IfLastRank
-	}
-	return 0
-}
-
-func (m *RetCampFightRank) GetRecoreds() []*SmallRankItem {
-	if m != nil {
-		return m.Recoreds
-	}
-	return nil
-}
-
-// 阵营战斗记录数据
-type CampFightRecord struct {
-	FightIdx         *int32 `protobuf:"varint,1,opt,name=FightIdx" json:"FightIdx,omitempty"`
-	XScore           *int32 `protobuf:"varint,2,opt,name=XScore" json:"XScore,omitempty"`
-	TScore           *int32 `protobuf:"varint,3,opt,name=TScore" json:"TScore,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *CampFightRecord) Reset()                    { *m = CampFightRecord{} }
-func (m *CampFightRecord) String() string            { return proto.CompactTextString(m) }
-func (*CampFightRecord) ProtoMessage()               {}
-func (*CampFightRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{103} }
-
-func (m *CampFightRecord) GetFightIdx() int32 {
-	if m != nil && m.FightIdx != nil {
-		return *m.FightIdx
-	}
-	return 0
-}
-
-func (m *CampFightRecord) GetXScore() int32 {
-	if m != nil && m.XScore != nil {
-		return *m.XScore
-	}
-	return 0
-}
-
-func (m *CampFightRecord) GetTScore() int32 {
-	if m != nil && m.TScore != nil {
-		return *m.TScore
-	}
-	return 0
-}
-
-// 阵营战斗记录
-type GetCampFightRecord struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetCampFightRecord) Reset()                    { *m = GetCampFightRecord{} }
-func (m *GetCampFightRecord) String() string            { return proto.CompactTextString(m) }
-func (*GetCampFightRecord) ProtoMessage()               {}
-func (*GetCampFightRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{104} }
-
-func (m *GetCampFightRecord) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// 返回阵营战斗记录
-type RetCampFightRecord struct {
-	Records          []*CampFightRecord `protobuf:"bytes,1,rep,name=Records" json:"Records,omitempty"`
-	PlayerId         *int32             `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
-}
-
-func (m *RetCampFightRecord) Reset()                    { *m = RetCampFightRecord{} }
-func (m *RetCampFightRecord) String() string            { return proto.CompactTextString(m) }
-func (*RetCampFightRecord) ProtoMessage()               {}
-func (*RetCampFightRecord) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{105} }
-
-func (m *RetCampFightRecord) GetRecords() []*CampFightRecord {
-	if m != nil {
-		return m.Records
-	}
-	return nil
-}
-
-func (m *RetCampFightRecord) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// 阵营积分更新
-type CampFightScoreUpdate struct {
-	XCampScore       *int32 `protobuf:"varint,1,opt,name=XCampScore" json:"XCampScore,omitempty"`
-	TCampScore       *int32 `protobuf:"varint,2,opt,name=TCampScore" json:"TCampScore,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *CampFightScoreUpdate) Reset()                    { *m = CampFightScoreUpdate{} }
-func (m *CampFightScoreUpdate) String() string            { return proto.CompactTextString(m) }
-func (*CampFightScoreUpdate) ProtoMessage()               {}
-func (*CampFightScoreUpdate) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{106} }
-
-func (m *CampFightScoreUpdate) GetXCampScore() int32 {
-	if m != nil && m.XCampScore != nil {
-		return *m.XCampScore
-	}
-	return 0
-}
-
-func (m *CampFightScoreUpdate) GetTCampScore() int32 {
-	if m != nil && m.TCampScore != nil {
-		return *m.TCampScore
-	}
-	return 0
-}
-
-type FriendInfo struct {
-	PlayerId         *int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *FriendInfo) Reset()                    { *m = FriendInfo{} }
-func (m *FriendInfo) String() string            { return proto.CompactTextString(m) }
-func (*FriendInfo) ProtoMessage()               {}
-func (*FriendInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{107} }
-
-func (m *FriendInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *FriendInfo) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-type FriendSearch struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Key              *string `protobuf:"bytes,2,opt,name=Key" json:"Key,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *FriendSearch) Reset()                    { *m = FriendSearch{} }
-func (m *FriendSearch) String() string            { return proto.CompactTextString(m) }
-func (*FriendSearch) ProtoMessage()               {}
-func (*FriendSearch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{108} }
-
-func (m *FriendSearch) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *FriendSearch) GetKey() string {
-	if m != nil && m.Key != nil {
-		return *m.Key
-	}
-	return ""
-}
-
-type FriendSearchResult struct {
-	PlayerId         *int32        `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Records          []*FriendInfo `protobuf:"bytes,2,rep,name=Records" json:"Records,omitempty"`
-	XXX_unrecognized []byte        `json:"-"`
-}
-
-func (m *FriendSearchResult) Reset()                    { *m = FriendSearchResult{} }
-func (m *FriendSearchResult) String() string            { return proto.CompactTextString(m) }
-func (*FriendSearchResult) ProtoMessage()               {}
-func (*FriendSearchResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{109} }
-
-func (m *FriendSearchResult) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *FriendSearchResult) GetRecords() []*FriendInfo {
-	if m != nil {
-		return m.Records
-	}
-	return nil
-}
-
-type AddFriendByPId struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	ReqPlayerName    *string `protobuf:"bytes,3,opt,name=ReqPlayerName" json:"ReqPlayerName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *AddFriendByPId) Reset()                    { *m = AddFriendByPId{} }
-func (m *AddFriendByPId) String() string            { return proto.CompactTextString(m) }
-func (*AddFriendByPId) ProtoMessage()               {}
-func (*AddFriendByPId) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{110} }
-
-func (m *AddFriendByPId) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *AddFriendByPId) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *AddFriendByPId) GetReqPlayerName() string {
-	if m != nil && m.ReqPlayerName != nil {
-		return *m.ReqPlayerName
-	}
-	return ""
-}
-
-type AddFriendByAcc struct {
-	Account          *string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	ReqPlayerName    *string `protobuf:"bytes,3,opt,name=ReqPlayerName" json:"ReqPlayerName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *AddFriendByAcc) Reset()                    { *m = AddFriendByAcc{} }
-func (m *AddFriendByAcc) String() string            { return proto.CompactTextString(m) }
-func (*AddFriendByAcc) ProtoMessage()               {}
-func (*AddFriendByAcc) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{111} }
-
-func (m *AddFriendByAcc) GetAccount() string {
-	if m != nil && m.Account != nil {
-		return *m.Account
-	}
-	return ""
-}
-
-func (m *AddFriendByAcc) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *AddFriendByAcc) GetReqPlayerName() string {
-	if m != nil && m.ReqPlayerName != nil {
-		return *m.ReqPlayerName
-	}
-	return ""
-}
-
-type AgreeAddFriend struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,3,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *AgreeAddFriend) Reset()                    { *m = AgreeAddFriend{} }
-func (m *AgreeAddFriend) String() string            { return proto.CompactTextString(m) }
-func (*AgreeAddFriend) ProtoMessage()               {}
-func (*AgreeAddFriend) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{112} }
-
-func (m *AgreeAddFriend) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *AgreeAddFriend) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *AgreeAddFriend) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-type RefuseFriendAdd struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	RefuseName       *string `protobuf:"bytes,2,opt,name=RefuseName" json:"RefuseName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *RefuseFriendAdd) Reset()                    { *m = RefuseFriendAdd{} }
-func (m *RefuseFriendAdd) String() string            { return proto.CompactTextString(m) }
-func (*RefuseFriendAdd) ProtoMessage()               {}
-func (*RefuseFriendAdd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{113} }
-
-func (m *RefuseFriendAdd) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *RefuseFriendAdd) GetRefuseName() string {
-	if m != nil && m.RefuseName != nil {
-		return *m.RefuseName
-	}
-	return ""
-}
-
-type RemoveFriendById struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	ReqPlayerId      *int32 `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *RemoveFriendById) Reset()                    { *m = RemoveFriendById{} }
-func (m *RemoveFriendById) String() string            { return proto.CompactTextString(m) }
-func (*RemoveFriendById) ProtoMessage()               {}
-func (*RemoveFriendById) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{114} }
-
-func (m *RemoveFriendById) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RemoveFriendById) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-type AddFocusByPId struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	ReqPlayerName    *string `protobuf:"bytes,3,opt,name=ReqPlayerName" json:"ReqPlayerName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *AddFocusByPId) Reset()                    { *m = AddFocusByPId{} }
-func (m *AddFocusByPId) String() string            { return proto.CompactTextString(m) }
-func (*AddFocusByPId) ProtoMessage()               {}
-func (*AddFocusByPId) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{115} }
-
-func (m *AddFocusByPId) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *AddFocusByPId) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *AddFocusByPId) GetReqPlayerName() string {
-	if m != nil && m.ReqPlayerName != nil {
-		return *m.ReqPlayerName
-	}
-	return ""
-}
-
-type AddFocusByAcc struct {
-	Account          *string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	ReqPlayerName    *string `protobuf:"bytes,3,opt,name=ReqPlayerName" json:"ReqPlayerName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *AddFocusByAcc) Reset()                    { *m = AddFocusByAcc{} }
-func (m *AddFocusByAcc) String() string            { return proto.CompactTextString(m) }
-func (*AddFocusByAcc) ProtoMessage()               {}
-func (*AddFocusByAcc) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{116} }
-
-func (m *AddFocusByAcc) GetAccount() string {
-	if m != nil && m.Account != nil {
-		return *m.Account
-	}
-	return ""
-}
-
-func (m *AddFocusByAcc) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *AddFocusByAcc) GetReqPlayerName() string {
-	if m != nil && m.ReqPlayerName != nil {
-		return *m.ReqPlayerName
-	}
-	return ""
-}
-
-type GetFocusedPlayerInfo struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	ReqPlayerName    *string `protobuf:"bytes,3,opt,name=ReqPlayerName" json:"ReqPlayerName,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *GetFocusedPlayerInfo) Reset()                    { *m = GetFocusedPlayerInfo{} }
-func (m *GetFocusedPlayerInfo) String() string            { return proto.CompactTextString(m) }
-func (*GetFocusedPlayerInfo) ProtoMessage()               {}
-func (*GetFocusedPlayerInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{117} }
-
-func (m *GetFocusedPlayerInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *GetFocusedPlayerInfo) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *GetFocusedPlayerInfo) GetReqPlayerName() string {
-	if m != nil && m.ReqPlayerName != nil {
-		return *m.ReqPlayerName
-	}
-	return ""
-}
-
-type RetFocusedPlayerInfo struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,3,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *RetFocusedPlayerInfo) Reset()                    { *m = RetFocusedPlayerInfo{} }
-func (m *RetFocusedPlayerInfo) String() string            { return proto.CompactTextString(m) }
-func (*RetFocusedPlayerInfo) ProtoMessage()               {}
-func (*RetFocusedPlayerInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{118} }
-
-func (m *RetFocusedPlayerInfo) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RetFocusedPlayerInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *RetFocusedPlayerInfo) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-type RemoveFocusById struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	ReqPlayerId      *int32 `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *RemoveFocusById) Reset()                    { *m = RemoveFocusById{} }
-func (m *RemoveFocusById) String() string            { return proto.CompactTextString(m) }
-func (*RemoveFocusById) ProtoMessage()               {}
-func (*RemoveFocusById) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{119} }
-
-func (m *RemoveFocusById) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RemoveFocusById) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-type RemoveBeFocusById struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	ReqPlayerId      *int32 `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *RemoveBeFocusById) Reset()                    { *m = RemoveBeFocusById{} }
-func (m *RemoveBeFocusById) String() string            { return proto.CompactTextString(m) }
-func (*RemoveBeFocusById) ProtoMessage()               {}
-func (*RemoveBeFocusById) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{120} }
-
-func (m *RemoveBeFocusById) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *RemoveBeFocusById) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-type FriendChat struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Content          *string `protobuf:"bytes,2,opt,name=Content" json:"Content,omitempty"`
-	SenderId         *int32  `protobuf:"varint,3,opt,name=SenderId" json:"SenderId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *FriendChat) Reset()                    { *m = FriendChat{} }
-func (m *FriendChat) String() string            { return proto.CompactTextString(m) }
-func (*FriendChat) ProtoMessage()               {}
-func (*FriendChat) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{121} }
-
-func (m *FriendChat) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *FriendChat) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-func (m *FriendChat) GetSenderId() int32 {
-	if m != nil && m.SenderId != nil {
-		return *m.SenderId
-	}
-	return 0
-}
-
-// /
-type GetOnlineFriendIds struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	PlayerIds        []int32 `protobuf:"varint,2,rep,name=PlayerIds" json:"PlayerIds,omitempty"`
-	Key              *int32  `protobuf:"varint,3,opt,name=Key" json:"Key,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *GetOnlineFriendIds) Reset()                    { *m = GetOnlineFriendIds{} }
-func (m *GetOnlineFriendIds) String() string            { return proto.CompactTextString(m) }
-func (*GetOnlineFriendIds) ProtoMessage()               {}
-func (*GetOnlineFriendIds) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{122} }
-
-func (m *GetOnlineFriendIds) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *GetOnlineFriendIds) GetPlayerIds() []int32 {
-	if m != nil {
-		return m.PlayerIds
-	}
-	return nil
-}
-
-func (m *GetOnlineFriendIds) GetKey() int32 {
-	if m != nil && m.Key != nil {
-		return *m.Key
-	}
-	return 0
-}
-
-type RetOnlineFriendIds struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	PlayerIds        []int32 `protobuf:"varint,2,rep,name=PlayerIds" json:"PlayerIds,omitempty"`
-	Key              *int32  `protobuf:"varint,3,opt,name=Key" json:"Key,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *RetOnlineFriendIds) Reset()                    { *m = RetOnlineFriendIds{} }
-func (m *RetOnlineFriendIds) String() string            { return proto.CompactTextString(m) }
-func (*RetOnlineFriendIds) ProtoMessage()               {}
-func (*RetOnlineFriendIds) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{123} }
-
-func (m *RetOnlineFriendIds) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *RetOnlineFriendIds) GetPlayerIds() []int32 {
-	if m != nil {
-		return m.PlayerIds
-	}
-	return nil
-}
-
-func (m *RetOnlineFriendIds) GetKey() int32 {
-	if m != nil && m.Key != nil {
-		return *m.Key
-	}
-	return 0
-}
-
-type Match2V2ParterInfo struct {
-	Id               *int32  `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,4,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,5,opt,name=TongName" json:"TongName,omitempty"`
-	CardCfgIds       []int32 `protobuf:"varint,6,rep,name=CardCfgIds" json:"CardCfgIds,omitempty"`
-	CardLvls         []int32 `protobuf:"varint,7,rep,name=CardLvls" json:"CardLvls,omitempty"`
-	IfReady          *int32  `protobuf:"varint,8,opt,name=IfReady" json:"IfReady,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *Match2V2ParterInfo) Reset()                    { *m = Match2V2ParterInfo{} }
-func (m *Match2V2ParterInfo) String() string            { return proto.CompactTextString(m) }
-func (*Match2V2ParterInfo) ProtoMessage()               {}
-func (*Match2V2ParterInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{124} }
-
-func (m *Match2V2ParterInfo) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *Match2V2ParterInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *Match2V2ParterInfo) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *Match2V2ParterInfo) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *Match2V2ParterInfo) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *Match2V2ParterInfo) GetCardCfgIds() []int32 {
-	if m != nil {
-		return m.CardCfgIds
-	}
-	return nil
-}
-
-func (m *Match2V2ParterInfo) GetCardLvls() []int32 {
-	if m != nil {
-		return m.CardLvls
-	}
-	return nil
-}
-
-func (m *Match2V2ParterInfo) GetIfReady() int32 {
-	if m != nil && m.IfReady != nil {
-		return *m.IfReady
-	}
-	return 0
-}
-
-type Match2V2ParterEnter struct {
-	MyId             *int32  `protobuf:"varint,1,opt,name=MyId" json:"MyId,omitempty"`
-	ParterId         *int32  `protobuf:"varint,2,opt,name=ParterId" json:"ParterId,omitempty"`
-	ParterName       *string `protobuf:"bytes,3,opt,name=ParterName" json:"ParterName,omitempty"`
-	ParterScore      *int32  `protobuf:"varint,4,opt,name=ParterScore" json:"ParterScore,omitempty"`
-	ParterTongIcon   *int32  `protobuf:"varint,5,opt,name=ParterTongIcon" json:"ParterTongIcon,omitempty"`
-	ParterTongName   *string `protobuf:"bytes,6,opt,name=ParterTongName" json:"ParterTongName,omitempty"`
-	ParterCardCfgIds []int32 `protobuf:"varint,7,rep,name=ParterCardCfgIds" json:"ParterCardCfgIds,omitempty"`
-	ParterCardLvls   []int32 `protobuf:"varint,8,rep,name=ParterCardLvls" json:"ParterCardLvls,omitempty"`
-	LeftSec          *int32  `protobuf:"varint,9,opt,name=LeftSec" json:"LeftSec,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *Match2V2ParterEnter) Reset()                    { *m = Match2V2ParterEnter{} }
-func (m *Match2V2ParterEnter) String() string            { return proto.CompactTextString(m) }
-func (*Match2V2ParterEnter) ProtoMessage()               {}
-func (*Match2V2ParterEnter) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{125} }
-
-func (m *Match2V2ParterEnter) GetMyId() int32 {
-	if m != nil && m.MyId != nil {
-		return *m.MyId
-	}
-	return 0
-}
-
-func (m *Match2V2ParterEnter) GetParterId() int32 {
-	if m != nil && m.ParterId != nil {
-		return *m.ParterId
-	}
-	return 0
-}
-
-func (m *Match2V2ParterEnter) GetParterName() string {
-	if m != nil && m.ParterName != nil {
-		return *m.ParterName
-	}
-	return ""
-}
-
-func (m *Match2V2ParterEnter) GetParterScore() int32 {
-	if m != nil && m.ParterScore != nil {
-		return *m.ParterScore
-	}
-	return 0
-}
-
-func (m *Match2V2ParterEnter) GetParterTongIcon() int32 {
-	if m != nil && m.ParterTongIcon != nil {
-		return *m.ParterTongIcon
-	}
-	return 0
-}
-
-func (m *Match2V2ParterEnter) GetParterTongName() string {
-	if m != nil && m.ParterTongName != nil {
-		return *m.ParterTongName
-	}
-	return ""
-}
-
-func (m *Match2V2ParterEnter) GetParterCardCfgIds() []int32 {
-	if m != nil {
-		return m.ParterCardCfgIds
-	}
-	return nil
-}
-
-func (m *Match2V2ParterEnter) GetParterCardLvls() []int32 {
-	if m != nil {
-		return m.ParterCardLvls
-	}
-	return nil
-}
-
-func (m *Match2V2ParterEnter) GetLeftSec() int32 {
-	if m != nil && m.LeftSec != nil {
-		return *m.LeftSec
-	}
-	return 0
-}
-
-type Match2V2CardsChg struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	CardCfgIds       []int32 `protobuf:"varint,2,rep,name=CardCfgIds" json:"CardCfgIds,omitempty"`
-	Cardlvls         []int32 `protobuf:"varint,3,rep,name=Cardlvls" json:"Cardlvls,omitempty"`
-	ParterId         *int32  `protobuf:"varint,4,opt,name=ParterId" json:"ParterId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *Match2V2CardsChg) Reset()                    { *m = Match2V2CardsChg{} }
-func (m *Match2V2CardsChg) String() string            { return proto.CompactTextString(m) }
-func (*Match2V2CardsChg) ProtoMessage()               {}
-func (*Match2V2CardsChg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{126} }
-
-func (m *Match2V2CardsChg) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *Match2V2CardsChg) GetCardCfgIds() []int32 {
-	if m != nil {
-		return m.CardCfgIds
-	}
-	return nil
-}
-
-func (m *Match2V2CardsChg) GetCardlvls() []int32 {
-	if m != nil {
-		return m.Cardlvls
-	}
-	return nil
-}
-
-func (m *Match2V2CardsChg) GetParterId() int32 {
-	if m != nil && m.ParterId != nil {
-		return *m.ParterId
-	}
-	return 0
-}
-
-type Match2V2Chat struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	Content          *string `protobuf:"bytes,2,opt,name=Content" json:"Content,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *Match2V2Chat) Reset()                    { *m = Match2V2Chat{} }
-func (m *Match2V2Chat) String() string            { return proto.CompactTextString(m) }
-func (*Match2V2Chat) ProtoMessage()               {}
-func (*Match2V2Chat) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{127} }
-
-func (m *Match2V2Chat) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *Match2V2Chat) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
-	}
-	return ""
-}
-
-type Match2V2EnterRoom struct {
-	MyPId            *int32              `protobuf:"varint,1,opt,name=MyPId" json:"MyPId,omitempty"`
-	MatchRoomId      *int32              `protobuf:"varint,2,opt,name=MatchRoomId" json:"MatchRoomId,omitempty"`
-	Pater            *Match2V2ParterInfo `protobuf:"bytes,3,opt,name=Pater" json:"Pater,omitempty"`
-	LeftSec          *int32              `protobuf:"varint,4,opt,name=LeftSec" json:"LeftSec,omitempty"`
-	RoomState        *int32              `protobuf:"varint,5,opt,name=RoomState" json:"RoomState,omitempty"`
-	SelfReady        *int32              `protobuf:"varint,6,opt,name=SelfReady" json:"SelfReady,omitempty"`
-	XXX_unrecognized []byte              `json:"-"`
-}
-
-func (m *Match2V2EnterRoom) Reset()                    { *m = Match2V2EnterRoom{} }
-func (m *Match2V2EnterRoom) String() string            { return proto.CompactTextString(m) }
-func (*Match2V2EnterRoom) ProtoMessage()               {}
-func (*Match2V2EnterRoom) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{128} }
-
-func (m *Match2V2EnterRoom) GetMyPId() int32 {
-	if m != nil && m.MyPId != nil {
-		return *m.MyPId
-	}
-	return 0
-}
-
-func (m *Match2V2EnterRoom) GetMatchRoomId() int32 {
-	if m != nil && m.MatchRoomId != nil {
-		return *m.MatchRoomId
-	}
-	return 0
-}
-
-func (m *Match2V2EnterRoom) GetPater() *Match2V2ParterInfo {
-	if m != nil {
-		return m.Pater
-	}
-	return nil
-}
-
-func (m *Match2V2EnterRoom) GetLeftSec() int32 {
-	if m != nil && m.LeftSec != nil {
-		return *m.LeftSec
-	}
-	return 0
-}
-
-func (m *Match2V2EnterRoom) GetRoomState() int32 {
-	if m != nil && m.RoomState != nil {
-		return *m.RoomState
-	}
-	return 0
-}
-
-func (m *Match2V2EnterRoom) GetSelfReady() int32 {
-	if m != nil && m.SelfReady != nil {
-		return *m.SelfReady
-	}
-	return 0
-}
-
-type Match2V2Ready struct {
-	MyId             *int32 `protobuf:"varint,1,opt,name=MyId" json:"MyId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *Match2V2Ready) Reset()                    { *m = Match2V2Ready{} }
-func (m *Match2V2Ready) String() string            { return proto.CompactTextString(m) }
-func (*Match2V2Ready) ProtoMessage()               {}
-func (*Match2V2Ready) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{129} }
-
-func (m *Match2V2Ready) GetMyId() int32 {
-	if m != nil && m.MyId != nil {
-		return *m.MyId
-	}
-	return 0
-}
-
-type Match2V2ParterReady struct {
-	MyId             *int32 `protobuf:"varint,1,opt,name=MyId" json:"MyId,omitempty"`
-	ParterId         *int32 `protobuf:"varint,2,opt,name=ParterId" json:"ParterId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *Match2V2ParterReady) Reset()                    { *m = Match2V2ParterReady{} }
-func (m *Match2V2ParterReady) String() string            { return proto.CompactTextString(m) }
-func (*Match2V2ParterReady) ProtoMessage()               {}
-func (*Match2V2ParterReady) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{130} }
-
-func (m *Match2V2ParterReady) GetMyId() int32 {
-	if m != nil && m.MyId != nil {
-		return *m.MyId
-	}
-	return 0
-}
-
-func (m *Match2V2ParterReady) GetParterId() int32 {
-	if m != nil && m.ParterId != nil {
-		return *m.ParterId
-	}
-	return 0
-}
-
-// 参赛玩家的信息
-type CustomMatchPlayer struct {
-	Id               *int32  `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
-	Name             *string `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Score            *int32  `protobuf:"varint,3,opt,name=Score" json:"Score,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,4,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,5,opt,name=TongName" json:"TongName,omitempty"`
-	LastRankChg      *int32  `protobuf:"varint,6,opt,name=LastRankChg" json:"LastRankChg,omitempty"`
-	CurState         *int32  `protobuf:"varint,7,opt,name=CurState" json:"CurState,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CustomMatchPlayer) Reset()                    { *m = CustomMatchPlayer{} }
-func (m *CustomMatchPlayer) String() string            { return proto.CompactTextString(m) }
-func (*CustomMatchPlayer) ProtoMessage()               {}
-func (*CustomMatchPlayer) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{131} }
-
-func (m *CustomMatchPlayer) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
-	}
-	return 0
-}
-
-func (m *CustomMatchPlayer) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *CustomMatchPlayer) GetScore() int32 {
-	if m != nil && m.Score != nil {
-		return *m.Score
-	}
-	return 0
-}
-
-func (m *CustomMatchPlayer) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *CustomMatchPlayer) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *CustomMatchPlayer) GetLastRankChg() int32 {
-	if m != nil && m.LastRankChg != nil {
-		return *m.LastRankChg
-	}
-	return 0
-}
-
-func (m *CustomMatchPlayer) GetCurState() int32 {
-	if m != nil && m.CurState != nil {
-		return *m.CurState
-	}
-	return 0
-}
-
-// 获取锦标赛信息
-type GetCustomMatch struct {
-	ReqPlayerId      *int32 `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	RoomId           *int32 `protobuf:"varint,2,opt,name=RoomId" json:"RoomId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *GetCustomMatch) Reset()                    { *m = GetCustomMatch{} }
-func (m *GetCustomMatch) String() string            { return proto.CompactTextString(m) }
-func (*GetCustomMatch) ProtoMessage()               {}
-func (*GetCustomMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{132} }
-
-func (m *GetCustomMatch) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *GetCustomMatch) GetRoomId() int32 {
-	if m != nil && m.RoomId != nil {
-		return *m.RoomId
-	}
-	return 0
-}
-
-// 返回当前锦标赛信息
-type RetCustomMatchBaseInfo struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	MsgType          *int32  `protobuf:"varint,2,opt,name=MsgType" json:"MsgType,omitempty"`
-	MasterName       *string `protobuf:"bytes,3,opt,name=MasterName" json:"MasterName,omitempty"`
-	RoomName         *string `protobuf:"bytes,4,opt,name=RoomName" json:"RoomName,omitempty"`
-	MasterTongIcon   *int32  `protobuf:"varint,5,opt,name=MasterTongIcon" json:"MasterTongIcon,omitempty"`
-	MasterTongName   *string `protobuf:"bytes,6,opt,name=MasterTongName" json:"MasterTongName,omitempty"`
-	Desc             *string `protobuf:"bytes,7,opt,name=Desc" json:"Desc,omitempty"`
-	RoomType         *int32  `protobuf:"varint,8,opt,name=RoomType" json:"RoomType,omitempty"`
-	EnterType        *int32  `protobuf:"varint,9,opt,name=EnterType" json:"EnterType,omitempty"`
-	CurStep          *int32  `protobuf:"varint,10,opt,name=CurStep" json:"CurStep,omitempty"`
-	MasterId         *int32  `protobuf:"varint,11,opt,name=MasterId" json:"MasterId,omitempty"`
-	LeftSec          *int32  `protobuf:"varint,12,opt,name=LeftSec" json:"LeftSec,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *RetCustomMatchBaseInfo) Reset()                    { *m = RetCustomMatchBaseInfo{} }
-func (m *RetCustomMatchBaseInfo) String() string            { return proto.CompactTextString(m) }
-func (*RetCustomMatchBaseInfo) ProtoMessage()               {}
-func (*RetCustomMatchBaseInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{133} }
-
-func (m *RetCustomMatchBaseInfo) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *RetCustomMatchBaseInfo) GetMsgType() int32 {
-	if m != nil && m.MsgType != nil {
-		return *m.MsgType
-	}
-	return 0
-}
-
-func (m *RetCustomMatchBaseInfo) GetMasterName() string {
-	if m != nil && m.MasterName != nil {
-		return *m.MasterName
-	}
-	return ""
-}
-
-func (m *RetCustomMatchBaseInfo) GetRoomName() string {
-	if m != nil && m.RoomName != nil {
-		return *m.RoomName
-	}
-	return ""
-}
-
-func (m *RetCustomMatchBaseInfo) GetMasterTongIcon() int32 {
-	if m != nil && m.MasterTongIcon != nil {
-		return *m.MasterTongIcon
-	}
-	return 0
-}
-
-func (m *RetCustomMatchBaseInfo) GetMasterTongName() string {
-	if m != nil && m.MasterTongName != nil {
-		return *m.MasterTongName
-	}
-	return ""
-}
-
-func (m *RetCustomMatchBaseInfo) GetDesc() string {
-	if m != nil && m.Desc != nil {
-		return *m.Desc
-	}
-	return ""
-}
-
-func (m *RetCustomMatchBaseInfo) GetRoomType() int32 {
-	if m != nil && m.RoomType != nil {
-		return *m.RoomType
-	}
-	return 0
-}
-
-func (m *RetCustomMatchBaseInfo) GetEnterType() int32 {
-	if m != nil && m.EnterType != nil {
-		return *m.EnterType
-	}
-	return 0
-}
-
-func (m *RetCustomMatchBaseInfo) GetCurStep() int32 {
-	if m != nil && m.CurStep != nil {
-		return *m.CurStep
-	}
-	return 0
-}
-
-func (m *RetCustomMatchBaseInfo) GetMasterId() int32 {
-	if m != nil && m.MasterId != nil {
-		return *m.MasterId
-	}
-	return 0
-}
-
-func (m *RetCustomMatchBaseInfo) GetLeftSec() int32 {
-	if m != nil && m.LeftSec != nil {
-		return *m.LeftSec
-	}
-	return 0
-}
-
-// 返回当前锦标赛玩家列表
-type RetCustomMatchPlayers struct {
-	ReqPlayerId      *int32               `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	MsgType          *int32               `protobuf:"varint,2,opt,name=MsgType" json:"MsgType,omitempty"`
-	Players          []*CustomMatchPlayer `protobuf:"bytes,3,rep,name=Players" json:"Players,omitempty"`
-	XXX_unrecognized []byte               `json:"-"`
-}
-
-func (m *RetCustomMatchPlayers) Reset()                    { *m = RetCustomMatchPlayers{} }
-func (m *RetCustomMatchPlayers) String() string            { return proto.CompactTextString(m) }
-func (*RetCustomMatchPlayers) ProtoMessage()               {}
-func (*RetCustomMatchPlayers) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{134} }
-
-func (m *RetCustomMatchPlayers) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *RetCustomMatchPlayers) GetMsgType() int32 {
-	if m != nil && m.MsgType != nil {
-		return *m.MsgType
-	}
-	return 0
-}
-
-func (m *RetCustomMatchPlayers) GetPlayers() []*CustomMatchPlayer {
-	if m != nil {
-		return m.Players
-	}
-	return nil
-}
-
-// 搜索锦标赛
-type CustomMatchSearch struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	Key              *string `protobuf:"bytes,2,opt,name=Key" json:"Key,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CustomMatchSearch) Reset()                    { *m = CustomMatchSearch{} }
-func (m *CustomMatchSearch) String() string            { return proto.CompactTextString(m) }
-func (*CustomMatchSearch) ProtoMessage()               {}
-func (*CustomMatchSearch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{135} }
-
-func (m *CustomMatchSearch) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *CustomMatchSearch) GetKey() string {
-	if m != nil && m.Key != nil {
-		return *m.Key
-	}
-	return ""
-}
-
-// 锦标赛摘要信息
-type CustomMatchSummary struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	RoomId           *int32  `protobuf:"varint,2,opt,name=RoomId" json:"RoomId,omitempty"`
-	RoomName         *string `protobuf:"bytes,3,opt,name=RoomName" json:"RoomName,omitempty"`
-	MasterName       *string `protobuf:"bytes,4,opt,name=MasterName" json:"MasterName,omitempty"`
-	RoomType         *int32  `protobuf:"varint,5,opt,name=RoomType" json:"RoomType,omitempty"`
-	EnterType        *int32  `protobuf:"varint,6,opt,name=EnterType" json:"EnterType,omitempty"`
-	CurStep          *int32  `protobuf:"varint,7,opt,name=CurStep" json:"CurStep,omitempty"`
-	CurPlayerNum     *int32  `protobuf:"varint,8,opt,name=CurPlayerNum" json:"CurPlayerNum,omitempty"`
-	LeftSec          *int32  `protobuf:"varint,9,opt,name=LeftSec" json:"LeftSec,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CustomMatchSummary) Reset()                    { *m = CustomMatchSummary{} }
-func (m *CustomMatchSummary) String() string            { return proto.CompactTextString(m) }
-func (*CustomMatchSummary) ProtoMessage()               {}
-func (*CustomMatchSummary) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{136} }
-
-func (m *CustomMatchSummary) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *CustomMatchSummary) GetRoomId() int32 {
-	if m != nil && m.RoomId != nil {
-		return *m.RoomId
-	}
-	return 0
-}
-
-func (m *CustomMatchSummary) GetRoomName() string {
-	if m != nil && m.RoomName != nil {
-		return *m.RoomName
-	}
-	return ""
-}
-
-func (m *CustomMatchSummary) GetMasterName() string {
-	if m != nil && m.MasterName != nil {
-		return *m.MasterName
-	}
-	return ""
-}
-
-func (m *CustomMatchSummary) GetRoomType() int32 {
-	if m != nil && m.RoomType != nil {
-		return *m.RoomType
-	}
-	return 0
-}
-
-func (m *CustomMatchSummary) GetEnterType() int32 {
-	if m != nil && m.EnterType != nil {
-		return *m.EnterType
-	}
-	return 0
-}
-
-func (m *CustomMatchSummary) GetCurStep() int32 {
-	if m != nil && m.CurStep != nil {
-		return *m.CurStep
-	}
-	return 0
-}
-
-func (m *CustomMatchSummary) GetCurPlayerNum() int32 {
-	if m != nil && m.CurPlayerNum != nil {
-		return *m.CurPlayerNum
-	}
-	return 0
-}
-
-func (m *CustomMatchSummary) GetLeftSec() int32 {
-	if m != nil && m.LeftSec != nil {
-		return *m.LeftSec
-	}
-	return 0
-}
-
-// 返回搜索结果
-type RetCustomMatchSearch struct {
-	ReqPlayerId      *int32                `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	Rooms            []*CustomMatchSummary `protobuf:"bytes,2,rep,name=Rooms" json:"Rooms,omitempty"`
-	XXX_unrecognized []byte                `json:"-"`
-}
-
-func (m *RetCustomMatchSearch) Reset()                    { *m = RetCustomMatchSearch{} }
-func (m *RetCustomMatchSearch) String() string            { return proto.CompactTextString(m) }
-func (*RetCustomMatchSearch) ProtoMessage()               {}
-func (*RetCustomMatchSearch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{137} }
-
-func (m *RetCustomMatchSearch) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *RetCustomMatchSearch) GetRooms() []*CustomMatchSummary {
-	if m != nil {
-		return m.Rooms
-	}
-	return nil
-}
-
-// 创建锦标赛 成功返回基本信息 msgtype为2
-type CreateCustomMatch struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	ReqPlayerName    *string `protobuf:"bytes,2,opt,name=ReqPlayerName" json:"ReqPlayerName,omitempty"`
-	RoomType         *int32  `protobuf:"varint,3,opt,name=RoomType" json:"RoomType,omitempty"`
-	RoomName         *string `protobuf:"bytes,4,opt,name=RoomName" json:"RoomName,omitempty"`
-	RoomDesc         *string `protobuf:"bytes,5,opt,name=RoomDesc" json:"RoomDesc,omitempty"`
-	RoomPwd          *string `protobuf:"bytes,6,opt,name=RoomPwd" json:"RoomPwd,omitempty"`
-	MasterTongIcon   *int32  `protobuf:"varint,7,opt,name=MasterTongIcon" json:"MasterTongIcon,omitempty"`
-	MasterTongName   *string `protobuf:"bytes,8,opt,name=MasterTongName" json:"MasterTongName,omitempty"`
-	ArenaLvl         *int32  `protobuf:"varint,9,opt,name=ArenaLvl" json:"ArenaLvl,omitempty"`
-	Camp             *int32  `protobuf:"varint,10,opt,name=Camp" json:"Camp,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CreateCustomMatch) Reset()                    { *m = CreateCustomMatch{} }
-func (m *CreateCustomMatch) String() string            { return proto.CompactTextString(m) }
-func (*CreateCustomMatch) ProtoMessage()               {}
-func (*CreateCustomMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{138} }
-
-func (m *CreateCustomMatch) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *CreateCustomMatch) GetReqPlayerName() string {
-	if m != nil && m.ReqPlayerName != nil {
-		return *m.ReqPlayerName
-	}
-	return ""
-}
-
-func (m *CreateCustomMatch) GetRoomType() int32 {
-	if m != nil && m.RoomType != nil {
-		return *m.RoomType
-	}
-	return 0
-}
-
-func (m *CreateCustomMatch) GetRoomName() string {
-	if m != nil && m.RoomName != nil {
-		return *m.RoomName
-	}
-	return ""
-}
-
-func (m *CreateCustomMatch) GetRoomDesc() string {
-	if m != nil && m.RoomDesc != nil {
-		return *m.RoomDesc
-	}
-	return ""
-}
-
-func (m *CreateCustomMatch) GetRoomPwd() string {
-	if m != nil && m.RoomPwd != nil {
-		return *m.RoomPwd
-	}
-	return ""
-}
-
-func (m *CreateCustomMatch) GetMasterTongIcon() int32 {
-	if m != nil && m.MasterTongIcon != nil {
-		return *m.MasterTongIcon
-	}
-	return 0
-}
-
-func (m *CreateCustomMatch) GetMasterTongName() string {
-	if m != nil && m.MasterTongName != nil {
-		return *m.MasterTongName
-	}
-	return ""
-}
-
-func (m *CreateCustomMatch) GetArenaLvl() int32 {
-	if m != nil && m.ArenaLvl != nil {
-		return *m.ArenaLvl
-	}
-	return 0
-}
-
-func (m *CreateCustomMatch) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-// 创建锦标赛失败，退钱
-type CreateCustomMatchFailed struct {
-	ReqPlayerId      *int32 `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	RoomType         *int32 `protobuf:"varint,2,opt,name=RoomType" json:"RoomType,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *CreateCustomMatchFailed) Reset()                    { *m = CreateCustomMatchFailed{} }
-func (m *CreateCustomMatchFailed) String() string            { return proto.CompactTextString(m) }
-func (*CreateCustomMatchFailed) ProtoMessage()               {}
-func (*CreateCustomMatchFailed) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{139} }
-
-func (m *CreateCustomMatchFailed) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *CreateCustomMatchFailed) GetRoomType() int32 {
-	if m != nil && m.RoomType != nil {
-		return *m.RoomType
-	}
-	return 0
-}
-
-// 修改锦标赛描述
-type ChgCustomMatchDesc struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	RoomId           *int32  `protobuf:"varint,2,opt,name=RoomId" json:"RoomId,omitempty"`
-	Desc             *string `protobuf:"bytes,3,opt,name=Desc" json:"Desc,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *ChgCustomMatchDesc) Reset()                    { *m = ChgCustomMatchDesc{} }
-func (m *ChgCustomMatchDesc) String() string            { return proto.CompactTextString(m) }
-func (*ChgCustomMatchDesc) ProtoMessage()               {}
-func (*ChgCustomMatchDesc) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{140} }
-
-func (m *ChgCustomMatchDesc) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *ChgCustomMatchDesc) GetRoomId() int32 {
-	if m != nil && m.RoomId != nil {
-		return *m.RoomId
-	}
-	return 0
-}
-
-func (m *ChgCustomMatchDesc) GetDesc() string {
-	if m != nil && m.Desc != nil {
-		return *m.Desc
-	}
-	return ""
-}
-
-// 修改锦标赛密码
-type ChgCustomMatchPwd struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	RoomId           *int32  `protobuf:"varint,2,opt,name=RoomId" json:"RoomId,omitempty"`
-	Pwd              *string `protobuf:"bytes,3,opt,name=Pwd" json:"Pwd,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *ChgCustomMatchPwd) Reset()                    { *m = ChgCustomMatchPwd{} }
-func (m *ChgCustomMatchPwd) String() string            { return proto.CompactTextString(m) }
-func (*ChgCustomMatchPwd) ProtoMessage()               {}
-func (*ChgCustomMatchPwd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{141} }
-
-func (m *ChgCustomMatchPwd) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *ChgCustomMatchPwd) GetRoomId() int32 {
-	if m != nil && m.RoomId != nil {
-		return *m.RoomId
-	}
-	return 0
-}
-
-func (m *ChgCustomMatchPwd) GetPwd() string {
-	if m != nil && m.Pwd != nil {
-		return *m.Pwd
-	}
-	return ""
-}
-
-// 加入锦标赛
-type EnterCustomMatch struct {
-	ReqPlayerId      *int32  `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	RoomId           *int32  `protobuf:"varint,2,opt,name=RoomId" json:"RoomId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	RoomPwd          *string `protobuf:"bytes,4,opt,name=RoomPwd" json:"RoomPwd,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,5,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,6,opt,name=TongName" json:"TongName,omitempty"`
-	ArenaLvl         *int32  `protobuf:"varint,7,opt,name=ArenaLvl" json:"ArenaLvl,omitempty"`
-	Camp             *int32  `protobuf:"varint,8,opt,name=Camp" json:"Camp,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *EnterCustomMatch) Reset()                    { *m = EnterCustomMatch{} }
-func (m *EnterCustomMatch) String() string            { return proto.CompactTextString(m) }
-func (*EnterCustomMatch) ProtoMessage()               {}
-func (*EnterCustomMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{142} }
-
-func (m *EnterCustomMatch) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *EnterCustomMatch) GetRoomId() int32 {
-	if m != nil && m.RoomId != nil {
-		return *m.RoomId
-	}
-	return 0
-}
-
-func (m *EnterCustomMatch) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *EnterCustomMatch) GetRoomPwd() string {
-	if m != nil && m.RoomPwd != nil {
-		return *m.RoomPwd
-	}
-	return ""
-}
-
-func (m *EnterCustomMatch) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *EnterCustomMatch) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *EnterCustomMatch) GetArenaLvl() int32 {
-	if m != nil && m.ArenaLvl != nil {
-		return *m.ArenaLvl
-	}
-	return 0
-}
-
-func (m *EnterCustomMatch) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-// 通知有人加入锦标赛
-type NotifyEnterCustomMatch struct {
-	InPids           []int32 `protobuf:"varint,1,rep,name=InPids" json:"InPids,omitempty"`
-	ReqPlayerId      *int32  `protobuf:"varint,2,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,3,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,4,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,5,opt,name=TongName" json:"TongName,omitempty"`
-	ArenaLvl         *int32  `protobuf:"varint,6,opt,name=ArenaLvl" json:"ArenaLvl,omitempty"`
-	Camp             *int32  `protobuf:"varint,7,opt,name=Camp" json:"Camp,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NotifyEnterCustomMatch) Reset()                    { *m = NotifyEnterCustomMatch{} }
-func (m *NotifyEnterCustomMatch) String() string            { return proto.CompactTextString(m) }
-func (*NotifyEnterCustomMatch) ProtoMessage()               {}
-func (*NotifyEnterCustomMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{143} }
-
-func (m *NotifyEnterCustomMatch) GetInPids() []int32 {
-	if m != nil {
-		return m.InPids
-	}
-	return nil
-}
-
-func (m *NotifyEnterCustomMatch) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-func (m *NotifyEnterCustomMatch) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *NotifyEnterCustomMatch) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *NotifyEnterCustomMatch) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *NotifyEnterCustomMatch) GetArenaLvl() int32 {
-	if m != nil && m.ArenaLvl != nil {
-		return *m.ArenaLvl
-	}
-	return 0
-}
-
-func (m *NotifyEnterCustomMatch) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-// 开始锦标赛
-type StartCustomMatch struct {
-	ReqPlayerId      *int32 `protobuf:"varint,1,opt,name=ReqPlayerId" json:"ReqPlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *StartCustomMatch) Reset()                    { *m = StartCustomMatch{} }
-func (m *StartCustomMatch) String() string            { return proto.CompactTextString(m) }
-func (*StartCustomMatch) ProtoMessage()               {}
-func (*StartCustomMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{144} }
-
-func (m *StartCustomMatch) GetReqPlayerId() int32 {
-	if m != nil && m.ReqPlayerId != nil {
-		return *m.ReqPlayerId
-	}
-	return 0
-}
-
-// 通知锦标赛开始
-type NotifyCustomMatchStart struct {
-	NotifyPlayerId   *int32 `protobuf:"varint,1,opt,name=NotifyPlayerId" json:"NotifyPlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *NotifyCustomMatchStart) Reset()                    { *m = NotifyCustomMatchStart{} }
-func (m *NotifyCustomMatchStart) String() string            { return proto.CompactTextString(m) }
-func (*NotifyCustomMatchStart) ProtoMessage()               {}
-func (*NotifyCustomMatchStart) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{145} }
-
-func (m *NotifyCustomMatchStart) GetNotifyPlayerId() int32 {
-	if m != nil && m.NotifyPlayerId != nil {
-		return *m.NotifyPlayerId
-	}
-	return 0
-}
-
-// 开始匹配
-type CustomMatchReq struct {
-	PlayerId         *int32  `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	PlayerName       *string `protobuf:"bytes,2,opt,name=PlayerName" json:"PlayerName,omitempty"`
-	Pwd              *string `protobuf:"bytes,3,opt,name=Pwd" json:"Pwd,omitempty"`
-	Lvl              *int32  `protobuf:"varint,4,opt,name=Lvl" json:"Lvl,omitempty"`
-	CardCfgIds       []int32 `protobuf:"varint,5,rep,name=CardCfgIds" json:"CardCfgIds,omitempty"`
-	CardLvls         []int32 `protobuf:"varint,6,rep,name=CardLvls" json:"CardLvls,omitempty"`
-	TongIcon         *int32  `protobuf:"varint,7,opt,name=TongIcon" json:"TongIcon,omitempty"`
-	TongName         *string `protobuf:"bytes,8,opt,name=TongName" json:"TongName,omitempty"`
-	HallId           *int32  `protobuf:"varint,9,opt,name=HallId" json:"HallId,omitempty"`
-	Camp             *int32  `protobuf:"varint,10,opt,name=Camp" json:"Camp,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *CustomMatchReq) Reset()                    { *m = CustomMatchReq{} }
-func (m *CustomMatchReq) String() string            { return proto.CompactTextString(m) }
-func (*CustomMatchReq) ProtoMessage()               {}
-func (*CustomMatchReq) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{146} }
-
-func (m *CustomMatchReq) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-func (m *CustomMatchReq) GetPlayerName() string {
-	if m != nil && m.PlayerName != nil {
-		return *m.PlayerName
-	}
-	return ""
-}
-
-func (m *CustomMatchReq) GetPwd() string {
-	if m != nil && m.Pwd != nil {
-		return *m.Pwd
-	}
-	return ""
-}
-
-func (m *CustomMatchReq) GetLvl() int32 {
-	if m != nil && m.Lvl != nil {
-		return *m.Lvl
-	}
-	return 0
-}
-
-func (m *CustomMatchReq) GetCardCfgIds() []int32 {
-	if m != nil {
-		return m.CardCfgIds
-	}
-	return nil
-}
-
-func (m *CustomMatchReq) GetCardLvls() []int32 {
-	if m != nil {
-		return m.CardLvls
-	}
-	return nil
-}
-
-func (m *CustomMatchReq) GetTongIcon() int32 {
-	if m != nil && m.TongIcon != nil {
-		return *m.TongIcon
-	}
-	return 0
-}
-
-func (m *CustomMatchReq) GetTongName() string {
-	if m != nil && m.TongName != nil {
-		return *m.TongName
-	}
-	return ""
-}
-
-func (m *CustomMatchReq) GetHallId() int32 {
-	if m != nil && m.HallId != nil {
-		return *m.HallId
-	}
-	return 0
-}
-
-func (m *CustomMatchReq) GetCamp() int32 {
-	if m != nil && m.Camp != nil {
-		return *m.Camp
-	}
-	return 0
-}
-
-// 取消匹配
-type CustomMatchCacel struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *CustomMatchCacel) Reset()                    { *m = CustomMatchCacel{} }
-func (m *CustomMatchCacel) String() string            { return proto.CompactTextString(m) }
-func (*CustomMatchCacel) ProtoMessage()               {}
-func (*CustomMatchCacel) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{147} }
-
-func (m *CustomMatchCacel) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// 玩家状态改变
-type CustomPlayerStatechg struct {
-	ChgPlayerId      *int32 `protobuf:"varint,1,opt,name=ChgPlayerId" json:"ChgPlayerId,omitempty"`
-	NotifyPlayerId   *int32 `protobuf:"varint,2,opt,name=NotifyPlayerId" json:"NotifyPlayerId,omitempty"`
-	State            *int32 `protobuf:"varint,3,opt,name=State" json:"State,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *CustomPlayerStatechg) Reset()                    { *m = CustomPlayerStatechg{} }
-func (m *CustomPlayerStatechg) String() string            { return proto.CompactTextString(m) }
-func (*CustomPlayerStatechg) ProtoMessage()               {}
-func (*CustomPlayerStatechg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{148} }
-
-func (m *CustomPlayerStatechg) GetChgPlayerId() int32 {
-	if m != nil && m.ChgPlayerId != nil {
-		return *m.ChgPlayerId
-	}
-	return 0
-}
-
-func (m *CustomPlayerStatechg) GetNotifyPlayerId() int32 {
-	if m != nil && m.NotifyPlayerId != nil {
-		return *m.NotifyPlayerId
-	}
-	return 0
-}
-
-func (m *CustomPlayerStatechg) GetState() int32 {
-	if m != nil && m.State != nil {
-		return *m.State
-	}
-	return 0
-}
-
-// 玩家积分改变
-type CustomPlayerScorechg struct {
-	ChgPlayerId      *int32 `protobuf:"varint,1,opt,name=ChgPlayerId" json:"ChgPlayerId,omitempty"`
-	NotifyPlayerId   *int32 `protobuf:"varint,2,opt,name=NotifyPlayerId" json:"NotifyPlayerId,omitempty"`
-	CurScore         *int32 `protobuf:"varint,3,opt,name=CurScore" json:"CurScore,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *CustomPlayerScorechg) Reset()                    { *m = CustomPlayerScorechg{} }
-func (m *CustomPlayerScorechg) String() string            { return proto.CompactTextString(m) }
-func (*CustomPlayerScorechg) ProtoMessage()               {}
-func (*CustomPlayerScorechg) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{149} }
-
-func (m *CustomPlayerScorechg) GetChgPlayerId() int32 {
-	if m != nil && m.ChgPlayerId != nil {
-		return *m.ChgPlayerId
-	}
-	return 0
-}
-
-func (m *CustomPlayerScorechg) GetNotifyPlayerId() int32 {
-	if m != nil && m.NotifyPlayerId != nil {
-		return *m.NotifyPlayerId
-	}
-	return 0
-}
-
-func (m *CustomPlayerScorechg) GetCurScore() int32 {
-	if m != nil && m.CurScore != nil {
-		return *m.CurScore
-	}
-	return 0
-}
-
-// 离开竞标赛界面
-type LeaveCustomMatchPage struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *LeaveCustomMatchPage) Reset()                    { *m = LeaveCustomMatchPage{} }
-func (m *LeaveCustomMatchPage) String() string            { return proto.CompactTextString(m) }
-func (*LeaveCustomMatchPage) ProtoMessage()               {}
-func (*LeaveCustomMatchPage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{150} }
-
-func (m *LeaveCustomMatchPage) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// 退出锦标赛
-type LeaveCustomMatch struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *LeaveCustomMatch) Reset()                    { *m = LeaveCustomMatch{} }
-func (m *LeaveCustomMatch) String() string            { return proto.CompactTextString(m) }
-func (*LeaveCustomMatch) ProtoMessage()               {}
-func (*LeaveCustomMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{151} }
-
-func (m *LeaveCustomMatch) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// 通知退出锦标赛
-type NotifyLeaveCustomMatch struct {
-	LeavePlayerId    *int32 `protobuf:"varint,1,opt,name=LeavePlayerId" json:"LeavePlayerId,omitempty"`
-	PlayerId         *int32 `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *NotifyLeaveCustomMatch) Reset()                    { *m = NotifyLeaveCustomMatch{} }
-func (m *NotifyLeaveCustomMatch) String() string            { return proto.CompactTextString(m) }
-func (*NotifyLeaveCustomMatch) ProtoMessage()               {}
-func (*NotifyLeaveCustomMatch) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{152} }
-
-func (m *NotifyLeaveCustomMatch) GetLeavePlayerId() int32 {
-	if m != nil && m.LeavePlayerId != nil {
-		return *m.LeavePlayerId
-	}
-	return 0
-}
-
-func (m *NotifyLeaveCustomMatch) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
-	}
-	return 0
-}
-
-// 通知锦标赛发奖
-type NotifyCustomReward struct {
-	RewardPlayerId   *int32               `protobuf:"varint,1,opt,name=RewardPlayerId" json:"RewardPlayerId,omitempty"`
-	MsgType          *int32               `protobuf:"varint,2,opt,name=MsgType" json:"MsgType,omitempty"`
-	MasterName       *string              `protobuf:"bytes,3,opt,name=MasterName" json:"MasterName,omitempty"`
-	RoomName         *string              `protobuf:"bytes,4,opt,name=RoomName" json:"RoomName,omitempty"`
-	MasterTongIcon   *int32               `protobuf:"varint,5,opt,name=MasterTongIcon" json:"MasterTongIcon,omitempty"`
-	MasterTongName   *string              `protobuf:"bytes,6,opt,name=MasterTongName" json:"MasterTongName,omitempty"`
-	Desc             *string              `protobuf:"bytes,7,opt,name=Desc" json:"Desc,omitempty"`
-	RoomType         *int32               `protobuf:"varint,8,opt,name=RoomType" json:"RoomType,omitempty"`
-	ChestId          *int32               `protobuf:"varint,9,opt,name=ChestId" json:"ChestId,omitempty"`
-	MyRank           *int32               `protobuf:"varint,10,opt,name=MyRank" json:"MyRank,omitempty"`
-	Records          []*CustomMatchPlayer `protobuf:"bytes,11,rep,name=Records" json:"Records,omitempty"`
-	XXX_unrecognized []byte               `json:"-"`
-}
-
-func (m *NotifyCustomReward) Reset()                    { *m = NotifyCustomReward{} }
-func (m *NotifyCustomReward) String() string            { return proto.CompactTextString(m) }
-func (*NotifyCustomReward) ProtoMessage()               {}
-func (*NotifyCustomReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{153} }
-
-func (m *NotifyCustomReward) GetRewardPlayerId() int32 {
-	if m != nil && m.RewardPlayerId != nil {
-		return *m.RewardPlayerId
-	}
-	return 0
-}
-
-func (m *NotifyCustomReward) GetMsgType() int32 {
-	if m != nil && m.MsgType != nil {
-		return *m.MsgType
-	}
-	return 0
-}
-
-func (m *NotifyCustomReward) GetMasterName() string {
-	if m != nil && m.MasterName != nil {
-		return *m.MasterName
-	}
-	return ""
-}
-
-func (m *NotifyCustomReward) GetRoomName() string {
-	if m != nil && m.RoomName != nil {
-		return *m.RoomName
-	}
-	return ""
-}
-
-func (m *NotifyCustomReward) GetMasterTongIcon() int32 {
-	if m != nil && m.MasterTongIcon != nil {
-		return *m.MasterTongIcon
-	}
-	return 0
-}
-
-func (m *NotifyCustomReward) GetMasterTongName() string {
-	if m != nil && m.MasterTongName != nil {
-		return *m.MasterTongName
-	}
-	return ""
-}
-
-func (m *NotifyCustomReward) GetDesc() string {
-	if m != nil && m.Desc != nil {
-		return *m.Desc
-	}
-	return ""
-}
-
-func (m *NotifyCustomReward) GetRoomType() int32 {
-	if m != nil && m.RoomType != nil {
-		return *m.RoomType
-	}
-	return 0
-}
-
-func (m *NotifyCustomReward) GetChestId() int32 {
-	if m != nil && m.ChestId != nil {
-		return *m.ChestId
-	}
-	return 0
-}
-
-func (m *NotifyCustomReward) GetMyRank() int32 {
-	if m != nil && m.MyRank != nil {
-		return *m.MyRank
-	}
-	return 0
-}
-
-func (m *NotifyCustomReward) GetRecords() []*CustomMatchPlayer {
-	if m != nil {
-		return m.Records
-	}
-	return nil
-}
-
-// 通知锦标赛未获得宝箱
-type NotifyCustomNoReward struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
-}
-
-func (m *NotifyCustomNoReward) Reset()                    { *m = NotifyCustomNoReward{} }
-func (m *NotifyCustomNoReward) String() string            { return proto.CompactTextString(m) }
-func (*NotifyCustomNoReward) ProtoMessage()               {}
-func (*NotifyCustomNoReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{154} }
-
-func (m *NotifyCustomNoReward) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+		return m.OnOffLine
 	}
 	return 0
 }
 
 // center->hall gm命令
 type C2HGmCommand struct {
-	Command          *string `protobuf:"bytes,1,opt,name=Command" json:"Command,omitempty"`
-	SessionId        *int32  `protobuf:"varint,2,opt,name=SessionId" json:"SessionId,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Command   string `protobuf:"bytes,1,opt,name=Command" json:"Command,omitempty"`
+	SessionId int32  `protobuf:"varint,2,opt,name=SessionId" json:"SessionId,omitempty"`
 }
 
 func (m *C2HGmCommand) Reset()                    { *m = C2HGmCommand{} }
 func (m *C2HGmCommand) String() string            { return proto.CompactTextString(m) }
 func (*C2HGmCommand) ProtoMessage()               {}
-func (*C2HGmCommand) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{155} }
+func (*C2HGmCommand) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
 
 func (m *C2HGmCommand) GetCommand() string {
-	if m != nil && m.Command != nil {
-		return *m.Command
+	if m != nil {
+		return m.Command
 	}
 	return ""
 }
 
 func (m *C2HGmCommand) GetSessionId() int32 {
-	if m != nil && m.SessionId != nil {
-		return *m.SessionId
+	if m != nil {
+		return m.SessionId
 	}
 	return 0
 }
 
 // hall->center 返回执行结果
 type H2CGmResult struct {
-	SessionId        *int32  `protobuf:"varint,1,opt,name=SessionId" json:"SessionId,omitempty"`
-	Result           *string `protobuf:"bytes,2,opt,name=Result" json:"Result,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	SessionId int32  `protobuf:"varint,1,opt,name=SessionId" json:"SessionId,omitempty"`
+	Result    string `protobuf:"bytes,2,opt,name=Result" json:"Result,omitempty"`
 }
 
 func (m *H2CGmResult) Reset()                    { *m = H2CGmResult{} }
 func (m *H2CGmResult) String() string            { return proto.CompactTextString(m) }
 func (*H2CGmResult) ProtoMessage()               {}
-func (*H2CGmResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{156} }
+func (*H2CGmResult) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
 
 func (m *H2CGmResult) GetSessionId() int32 {
-	if m != nil && m.SessionId != nil {
-		return *m.SessionId
+	if m != nil {
+		return m.SessionId
 	}
 	return 0
 }
 
 func (m *H2CGmResult) GetResult() string {
-	if m != nil && m.Result != nil {
-		return *m.Result
+	if m != nil {
+		return m.Result
 	}
 	return ""
 }
 
 // center->hall 查询物品某个玩家的物品
 type C2HItemQuery struct {
-	PlayerId         *int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
-	SessionId        *int32 `protobuf:"varint,2,opt,name=SessionId" json:"SessionId,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	PlayerId  int32 `protobuf:"varint,1,opt,name=PlayerId" json:"PlayerId,omitempty"`
+	SessionId int32 `protobuf:"varint,2,opt,name=SessionId" json:"SessionId,omitempty"`
 }
 
 func (m *C2HItemQuery) Reset()                    { *m = C2HItemQuery{} }
 func (m *C2HItemQuery) String() string            { return proto.CompactTextString(m) }
 func (*C2HItemQuery) ProtoMessage()               {}
-func (*C2HItemQuery) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{157} }
+func (*C2HItemQuery) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
 
 func (m *C2HItemQuery) GetPlayerId() int32 {
-	if m != nil && m.PlayerId != nil {
-		return *m.PlayerId
+	if m != nil {
+		return m.PlayerId
 	}
 	return 0
 }
 
 func (m *C2HItemQuery) GetSessionId() int32 {
-	if m != nil && m.SessionId != nil {
-		return *m.SessionId
+	if m != nil {
+		return m.SessionId
 	}
 	return 0
 }
 
 type IdNum struct {
-	Id               *int32 `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
-	Num              *int32 `protobuf:"varint,2,opt,name=Num" json:"Num,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	Id  int32 `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
+	Num int32 `protobuf:"varint,2,opt,name=Num" json:"Num,omitempty"`
 }
 
 func (m *IdNum) Reset()                    { *m = IdNum{} }
 func (m *IdNum) String() string            { return proto.CompactTextString(m) }
 func (*IdNum) ProtoMessage()               {}
-func (*IdNum) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{158} }
+func (*IdNum) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
 
 func (m *IdNum) GetId() int32 {
-	if m != nil && m.Id != nil {
-		return *m.Id
+	if m != nil {
+		return m.Id
 	}
 	return 0
 }
 
 func (m *IdNum) GetNum() int32 {
-	if m != nil && m.Num != nil {
-		return *m.Num
+	if m != nil {
+		return m.Num
 	}
 	return 0
 }
 
 // hall->center 回复物品查询结果
 type H2CItemQuery struct {
-	SessionId        *int32   `protobuf:"varint,1,opt,name=SessionId" json:"SessionId,omitempty"`
-	Items            []*IdNum `protobuf:"bytes,2,rep,name=Items" json:"Items,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	SessionId int32    `protobuf:"varint,1,opt,name=SessionId" json:"SessionId,omitempty"`
+	Items     []*IdNum `protobuf:"bytes,2,rep,name=Items" json:"Items,omitempty"`
 }
 
 func (m *H2CItemQuery) Reset()                    { *m = H2CItemQuery{} }
 func (m *H2CItemQuery) String() string            { return proto.CompactTextString(m) }
 func (*H2CItemQuery) ProtoMessage()               {}
-func (*H2CItemQuery) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{159} }
+func (*H2CItemQuery) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
 
 func (m *H2CItemQuery) GetSessionId() int32 {
-	if m != nil && m.SessionId != nil {
-		return *m.SessionId
+	if m != nil {
+		return m.SessionId
 	}
 	return 0
 }
@@ -7035,46 +777,44 @@ func (m *H2CItemQuery) GetItems() []*IdNum {
 
 // hall->center 获取当前服务器奖励信息
 type H2CGetServerReward struct {
-	XXX_unrecognized []byte `json:"-"`
 }
 
 func (m *H2CGetServerReward) Reset()                    { *m = H2CGetServerReward{} }
 func (m *H2CGetServerReward) String() string            { return proto.CompactTextString(m) }
 func (*H2CGetServerReward) ProtoMessage()               {}
-func (*H2CGetServerReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{160} }
+func (*H2CGetServerReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
 
 // center->hall 增加全服奖励信息
 type C2HAddServerReward struct {
-	RewardId         *int32   `protobuf:"varint,1,opt,name=RewardId" json:"RewardId,omitempty"`
-	Channel          *string  `protobuf:"bytes,2,opt,name=Channel" json:"Channel,omitempty"`
-	EndUnix          *int32   `protobuf:"varint,3,opt,name=EndUnix" json:"EndUnix,omitempty"`
-	Items            []*IdNum `protobuf:"bytes,4,rep,name=Items" json:"Items,omitempty"`
-	Content          *string  `protobuf:"bytes,5,opt,name=Content" json:"Content,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	RewardId int32    `protobuf:"varint,1,opt,name=RewardId" json:"RewardId,omitempty"`
+	Channel  string   `protobuf:"bytes,2,opt,name=Channel" json:"Channel,omitempty"`
+	EndUnix  int32    `protobuf:"varint,3,opt,name=EndUnix" json:"EndUnix,omitempty"`
+	Items    []*IdNum `protobuf:"bytes,4,rep,name=Items" json:"Items,omitempty"`
+	Content  string   `protobuf:"bytes,5,opt,name=Content" json:"Content,omitempty"`
 }
 
 func (m *C2HAddServerReward) Reset()                    { *m = C2HAddServerReward{} }
 func (m *C2HAddServerReward) String() string            { return proto.CompactTextString(m) }
 func (*C2HAddServerReward) ProtoMessage()               {}
-func (*C2HAddServerReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{161} }
+func (*C2HAddServerReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
 
 func (m *C2HAddServerReward) GetRewardId() int32 {
-	if m != nil && m.RewardId != nil {
-		return *m.RewardId
+	if m != nil {
+		return m.RewardId
 	}
 	return 0
 }
 
 func (m *C2HAddServerReward) GetChannel() string {
-	if m != nil && m.Channel != nil {
-		return *m.Channel
+	if m != nil {
+		return m.Channel
 	}
 	return ""
 }
 
 func (m *C2HAddServerReward) GetEndUnix() int32 {
-	if m != nil && m.EndUnix != nil {
-		return *m.EndUnix
+	if m != nil {
+		return m.EndUnix
 	}
 	return 0
 }
@@ -7087,22 +827,21 @@ func (m *C2HAddServerReward) GetItems() []*IdNum {
 }
 
 func (m *C2HAddServerReward) GetContent() string {
-	if m != nil && m.Content != nil {
-		return *m.Content
+	if m != nil {
+		return m.Content
 	}
 	return ""
 }
 
 // center->hall 同步当前全服奖励信息
 type C2HSyncServerReward struct {
-	Rewards          []*C2HAddServerReward `protobuf:"bytes,1,rep,name=Rewards" json:"Rewards,omitempty"`
-	XXX_unrecognized []byte                `json:"-"`
+	Rewards []*C2HAddServerReward `protobuf:"bytes,1,rep,name=Rewards" json:"Rewards,omitempty"`
 }
 
 func (m *C2HSyncServerReward) Reset()                    { *m = C2HSyncServerReward{} }
 func (m *C2HSyncServerReward) String() string            { return proto.CompactTextString(m) }
 func (*C2HSyncServerReward) ProtoMessage()               {}
-func (*C2HSyncServerReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{162} }
+func (*C2HSyncServerReward) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
 
 func (m *C2HSyncServerReward) GetRewards() []*C2HAddServerReward {
 	if m != nil {
@@ -7115,11 +854,6 @@ func init() {
 	proto.RegisterType((*LoginServerInfo)(nil), "msg.server_message.LoginServerInfo")
 	proto.RegisterType((*PlayerBaseInfo)(nil), "msg.server_message.PlayerBaseInfo")
 	proto.RegisterType((*PlayerStageInfo)(nil), "msg.server_message.PlayerStageInfo")
-	proto.RegisterType((*PlayerCard)(nil), "msg.server_message.PlayerCard")
-	proto.RegisterType((*CardTeam)(nil), "msg.server_message.CardTeam")
-	proto.RegisterType((*FightAction)(nil), "msg.server_message.FightAction")
-	proto.RegisterType((*SmallRankItem)(nil), "msg.server_message.SmallRankItem")
-	proto.RegisterType((*MatchPlayer)(nil), "msg.server_message.MatchPlayer")
 	proto.RegisterType((*H2CHallServerRegister)(nil), "msg.server_message.H2CHallServerRegister")
 	proto.RegisterType((*H2CHallServerUnRegister)(nil), "msg.server_message.H2CHallServerUnRegister")
 	proto.RegisterType((*C2HLoginServerList)(nil), "msg.server_message.C2HLoginServerList")
@@ -7134,139 +868,6 @@ func init() {
 	proto.RegisterType((*L2CGetPlayerAccInfo)(nil), "msg.server_message.L2CGetPlayerAccInfo")
 	proto.RegisterType((*C2LPlayerAccInfo)(nil), "msg.server_message.C2LPlayerAccInfo")
 	proto.RegisterType((*SetPlayerOnOffline)(nil), "msg.server_message.SetPlayerOnOffline")
-	proto.RegisterType((*PlayerStagePass)(nil), "msg.server_message.PlayerStagePass")
-	proto.RegisterType((*RetPlayerStagePass)(nil), "msg.server_message.RetPlayerStagePass")
-	proto.RegisterType((*GetFriendStageInfo)(nil), "msg.server_message.GetFriendStageInfo")
-	proto.RegisterType((*RetFriendStageInfo)(nil), "msg.server_message.RetFriendStageInfo")
-	proto.RegisterType((*ChapterUnlockHelp)(nil), "msg.server_message.ChapterUnlockHelp")
-	proto.RegisterType((*ChapterUnlockAgree)(nil), "msg.server_message.ChapterUnlockAgree")
-	proto.RegisterType((*PlayerNScoreChg)(nil), "msg.server_message.PlayerNScoreChg")
-	proto.RegisterType((*MultiPlayerNScoreChg)(nil), "msg.server_message.MultiPlayerNScoreChg")
-	proto.RegisterType((*GetRankInfo)(nil), "msg.server_message.GetRankInfo")
-	proto.RegisterType((*RetRankItems)(nil), "msg.server_message.RetRankItems")
-	proto.RegisterType((*GetPlayerInfo)(nil), "msg.server_message.GetPlayerInfo")
-	proto.RegisterType((*OtherPlayerBaseInfo)(nil), "msg.server_message.OtherPlayerBaseInfo")
-	proto.RegisterType((*RetPlayerInfo)(nil), "msg.server_message.RetPlayerInfo")
-	proto.RegisterType((*LegendArenaSwitch)(nil), "msg.server_message.LegendArenaSwitch")
-	proto.RegisterType((*TongScoreChg)(nil), "msg.server_message.TongScoreChg")
-	proto.RegisterType((*MultiTongScoreChg)(nil), "msg.server_message.MultiTongScoreChg")
-	proto.RegisterType((*CreateTong)(nil), "msg.server_message.CreateTong")
-	proto.RegisterType((*CreateTongOk)(nil), "msg.server_message.CreateTongOk")
-	proto.RegisterType((*CreateTongFailed)(nil), "msg.server_message.CreateTongFailed")
-	proto.RegisterType((*TongMemberInfo)(nil), "msg.server_message.TongMemberInfo")
-	proto.RegisterType((*TongChatData)(nil), "msg.server_message.TongChatData")
-	proto.RegisterType((*TongVodData)(nil), "msg.server_message.TongVodData")
-	proto.RegisterType((*TongRequestCard)(nil), "msg.server_message.TongRequestCard")
-	proto.RegisterType((*TongRequestJoin)(nil), "msg.server_message.TongRequestJoin")
-	proto.RegisterType((*TongSummaryInfo)(nil), "msg.server_message.TongSummaryInfo")
-	proto.RegisterType((*TongFriendMatchItem)(nil), "msg.server_message.TongFriendMatchItem")
-	proto.RegisterType((*GetTongInfo)(nil), "msg.server_message.GetTongInfo")
-	proto.RegisterType((*RetTongInfo)(nil), "msg.server_message.RetTongInfo")
-	proto.RegisterType((*GetRecommendTong)(nil), "msg.server_message.GetRecommendTong")
-	proto.RegisterType((*RetRecommendTong)(nil), "msg.server_message.RetRecommendTong")
-	proto.RegisterType((*TongSearch)(nil), "msg.server_message.TongSearch")
-	proto.RegisterType((*RetTongSearch)(nil), "msg.server_message.RetTongSearch")
-	proto.RegisterType((*EnterTong)(nil), "msg.server_message.EnterTong")
-	proto.RegisterType((*EnterTongRequest)(nil), "msg.server_message.EnterTongRequest")
-	proto.RegisterType((*EnterTongAgree)(nil), "msg.server_message.EnterTongAgree")
-	proto.RegisterType((*NotifyPlayerEnter)(nil), "msg.server_message.NotifyPlayerEnter")
-	proto.RegisterType((*EnterTongRefuse)(nil), "msg.server_message.EnterTongRefuse")
-	proto.RegisterType((*NotifyPlayerRefuse)(nil), "msg.server_message.NotifyPlayerRefuse")
-	proto.RegisterType((*SetPlayerTongInfo)(nil), "msg.server_message.SetPlayerTongInfo")
-	proto.RegisterType((*SetPlayerTongInfoOk)(nil), "msg.server_message.SetPlayerTongInfoOk")
-	proto.RegisterType((*TongLeave)(nil), "msg.server_message.TongLeave")
-	proto.RegisterType((*ClearPlayerTongInfo)(nil), "msg.server_message.ClearPlayerTongInfo")
-	proto.RegisterType((*ClearTongPlayerById)(nil), "msg.server_message.ClearTongPlayerById")
-	proto.RegisterType((*SetTongMemberOnOffline)(nil), "msg.server_message.SetTongMemberOnOffline")
-	proto.RegisterType((*NotifyTongMemberOnOffline)(nil), "msg.server_message.NotifyTongMemberOnOffline")
-	proto.RegisterType((*TongSetChg)(nil), "msg.server_message.TongSetChg")
-	proto.RegisterType((*NotifyTongSetChg)(nil), "msg.server_message.NotifyTongSetChg")
-	proto.RegisterType((*TongPubChg)(nil), "msg.server_message.TongPubChg")
-	proto.RegisterType((*NotifyTongPubChg)(nil), "msg.server_message.NotifyTongPubChg")
-	proto.RegisterType((*TongChatSend)(nil), "msg.server_message.TongChatSend")
-	proto.RegisterType((*NotifyTongChatSend)(nil), "msg.server_message.NotifyTongChatSend")
-	proto.RegisterType((*TongCardReq)(nil), "msg.server_message.TongCardReq")
-	proto.RegisterType((*NotifyTongCardReq)(nil), "msg.server_message.NotifyTongCardReq")
-	proto.RegisterType((*TongDonateCard)(nil), "msg.server_message.TongDonateCard")
-	proto.RegisterType((*NotifyTongDonateCard)(nil), "msg.server_message.NotifyTongDonateCard")
-	proto.RegisterType((*TongDonateCardFailed)(nil), "msg.server_message.TongDonateCardFailed")
-	proto.RegisterType((*TongMemberFightEnd)(nil), "msg.server_message.TongMemberFightEnd")
-	proto.RegisterType((*NotifyTongChestScoreChg)(nil), "msg.server_message.NotifyTongChestScoreChg")
-	proto.RegisterType((*NotifyTongMemberScoreChg)(nil), "msg.server_message.NotifyTongMemberScoreChg")
-	proto.RegisterType((*TongChestOpen)(nil), "msg.server_message.TongChestOpen")
-	proto.RegisterType((*RetTongChestOpen)(nil), "msg.server_message.RetTongChestOpen")
-	proto.RegisterType((*TongFriendMatch)(nil), "msg.server_message.TongFriendMatch")
-	proto.RegisterType((*NotifyTongFriendMatch)(nil), "msg.server_message.NotifyTongFriendMatch")
-	proto.RegisterType((*TongFriendCancel)(nil), "msg.server_message.TongFriendCancel")
-	proto.RegisterType((*NotifyTongFriendCancel)(nil), "msg.server_message.NotifyTongFriendCancel")
-	proto.RegisterType((*TongFriendEnter)(nil), "msg.server_message.TongFriendEnter")
-	proto.RegisterType((*TongFightRecord)(nil), "msg.server_message.TongFightRecord")
-	proto.RegisterType((*FightRecordPlayer)(nil), "msg.server_message.FightRecordPlayer")
-	proto.RegisterType((*NotifyTongFightRecord)(nil), "msg.server_message.NotifyTongFightRecord")
-	proto.RegisterType((*MailAdd)(nil), "msg.server_message.MailAdd")
-	proto.RegisterType((*PayBackAdd)(nil), "msg.server_message.PayBackAdd")
-	proto.RegisterType((*SyncPayBackDataList)(nil), "msg.server_message.SyncPayBackDataList")
-	proto.RegisterType((*PayBackRemove)(nil), "msg.server_message.PayBackRemove")
-	proto.RegisterType((*NoticeAdd)(nil), "msg.server_message.NoticeAdd")
-	proto.RegisterType((*SyncNoticeAddList)(nil), "msg.server_message.SyncNoticeAddList")
-	proto.RegisterType((*NoticeRemove)(nil), "msg.server_message.NoticeRemove")
-	proto.RegisterType((*GetCampFightState)(nil), "msg.server_message.GetCampFightState")
-	proto.RegisterType((*NotifyCampFightState)(nil), "msg.server_message.NotifyCampFightState")
-	proto.RegisterType((*CampFigthScoreChg)(nil), "msg.server_message.CampFigthScoreChg")
-	proto.RegisterType((*GetCampFightRank)(nil), "msg.server_message.GetCampFightRank")
-	proto.RegisterType((*RetCampFightRank)(nil), "msg.server_message.RetCampFightRank")
-	proto.RegisterType((*CampFightRecord)(nil), "msg.server_message.CampFightRecord")
-	proto.RegisterType((*GetCampFightRecord)(nil), "msg.server_message.GetCampFightRecord")
-	proto.RegisterType((*RetCampFightRecord)(nil), "msg.server_message.RetCampFightRecord")
-	proto.RegisterType((*CampFightScoreUpdate)(nil), "msg.server_message.CampFightScoreUpdate")
-	proto.RegisterType((*FriendInfo)(nil), "msg.server_message.FriendInfo")
-	proto.RegisterType((*FriendSearch)(nil), "msg.server_message.FriendSearch")
-	proto.RegisterType((*FriendSearchResult)(nil), "msg.server_message.FriendSearchResult")
-	proto.RegisterType((*AddFriendByPId)(nil), "msg.server_message.AddFriendByPId")
-	proto.RegisterType((*AddFriendByAcc)(nil), "msg.server_message.AddFriendByAcc")
-	proto.RegisterType((*AgreeAddFriend)(nil), "msg.server_message.AgreeAddFriend")
-	proto.RegisterType((*RefuseFriendAdd)(nil), "msg.server_message.RefuseFriendAdd")
-	proto.RegisterType((*RemoveFriendById)(nil), "msg.server_message.RemoveFriendById")
-	proto.RegisterType((*AddFocusByPId)(nil), "msg.server_message.AddFocusByPId")
-	proto.RegisterType((*AddFocusByAcc)(nil), "msg.server_message.AddFocusByAcc")
-	proto.RegisterType((*GetFocusedPlayerInfo)(nil), "msg.server_message.GetFocusedPlayerInfo")
-	proto.RegisterType((*RetFocusedPlayerInfo)(nil), "msg.server_message.RetFocusedPlayerInfo")
-	proto.RegisterType((*RemoveFocusById)(nil), "msg.server_message.RemoveFocusById")
-	proto.RegisterType((*RemoveBeFocusById)(nil), "msg.server_message.RemoveBeFocusById")
-	proto.RegisterType((*FriendChat)(nil), "msg.server_message.FriendChat")
-	proto.RegisterType((*GetOnlineFriendIds)(nil), "msg.server_message.GetOnlineFriendIds")
-	proto.RegisterType((*RetOnlineFriendIds)(nil), "msg.server_message.RetOnlineFriendIds")
-	proto.RegisterType((*Match2V2ParterInfo)(nil), "msg.server_message.Match2v2ParterInfo")
-	proto.RegisterType((*Match2V2ParterEnter)(nil), "msg.server_message.Match2v2ParterEnter")
-	proto.RegisterType((*Match2V2CardsChg)(nil), "msg.server_message.Match2v2CardsChg")
-	proto.RegisterType((*Match2V2Chat)(nil), "msg.server_message.Match2v2Chat")
-	proto.RegisterType((*Match2V2EnterRoom)(nil), "msg.server_message.Match2v2EnterRoom")
-	proto.RegisterType((*Match2V2Ready)(nil), "msg.server_message.Match2V2Ready")
-	proto.RegisterType((*Match2V2ParterReady)(nil), "msg.server_message.Match2V2ParterReady")
-	proto.RegisterType((*CustomMatchPlayer)(nil), "msg.server_message.CustomMatchPlayer")
-	proto.RegisterType((*GetCustomMatch)(nil), "msg.server_message.GetCustomMatch")
-	proto.RegisterType((*RetCustomMatchBaseInfo)(nil), "msg.server_message.RetCustomMatchBaseInfo")
-	proto.RegisterType((*RetCustomMatchPlayers)(nil), "msg.server_message.RetCustomMatchPlayers")
-	proto.RegisterType((*CustomMatchSearch)(nil), "msg.server_message.CustomMatchSearch")
-	proto.RegisterType((*CustomMatchSummary)(nil), "msg.server_message.CustomMatchSummary")
-	proto.RegisterType((*RetCustomMatchSearch)(nil), "msg.server_message.RetCustomMatchSearch")
-	proto.RegisterType((*CreateCustomMatch)(nil), "msg.server_message.CreateCustomMatch")
-	proto.RegisterType((*CreateCustomMatchFailed)(nil), "msg.server_message.CreateCustomMatchFailed")
-	proto.RegisterType((*ChgCustomMatchDesc)(nil), "msg.server_message.ChgCustomMatchDesc")
-	proto.RegisterType((*ChgCustomMatchPwd)(nil), "msg.server_message.ChgCustomMatchPwd")
-	proto.RegisterType((*EnterCustomMatch)(nil), "msg.server_message.EnterCustomMatch")
-	proto.RegisterType((*NotifyEnterCustomMatch)(nil), "msg.server_message.NotifyEnterCustomMatch")
-	proto.RegisterType((*StartCustomMatch)(nil), "msg.server_message.StartCustomMatch")
-	proto.RegisterType((*NotifyCustomMatchStart)(nil), "msg.server_message.NotifyCustomMatchStart")
-	proto.RegisterType((*CustomMatchReq)(nil), "msg.server_message.CustomMatchReq")
-	proto.RegisterType((*CustomMatchCacel)(nil), "msg.server_message.CustomMatchCacel")
-	proto.RegisterType((*CustomPlayerStatechg)(nil), "msg.server_message.CustomPlayerStatechg")
-	proto.RegisterType((*CustomPlayerScorechg)(nil), "msg.server_message.CustomPlayerScorechg")
-	proto.RegisterType((*LeaveCustomMatchPage)(nil), "msg.server_message.LeaveCustomMatchPage")
-	proto.RegisterType((*LeaveCustomMatch)(nil), "msg.server_message.LeaveCustomMatch")
-	proto.RegisterType((*NotifyLeaveCustomMatch)(nil), "msg.server_message.NotifyLeaveCustomMatch")
-	proto.RegisterType((*NotifyCustomReward)(nil), "msg.server_message.NotifyCustomReward")
-	proto.RegisterType((*NotifyCustomNoReward)(nil), "msg.server_message.NotifyCustomNoReward")
 	proto.RegisterType((*C2HGmCommand)(nil), "msg.server_message.C2HGmCommand")
 	proto.RegisterType((*H2CGmResult)(nil), "msg.server_message.H2CGmResult")
 	proto.RegisterType((*C2HItemQuery)(nil), "msg.server_message.C2HItemQuery")
@@ -7275,343 +876,80 @@ func init() {
 	proto.RegisterType((*H2CGetServerReward)(nil), "msg.server_message.H2CGetServerReward")
 	proto.RegisterType((*C2HAddServerReward)(nil), "msg.server_message.C2HAddServerReward")
 	proto.RegisterType((*C2HSyncServerReward)(nil), "msg.server_message.C2HSyncServerReward")
-	proto.RegisterEnum("msg.server_message.E_VERSION", E_VERSION_name, E_VERSION_value)
+	proto.RegisterEnum("msg.server_message.MSGID", MSGID_name, MSGID_value)
 }
 
 func init() { proto.RegisterFile("server_message.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 5301 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xdc, 0x3c, 0x4b, 0x8c, 0x24, 0xd9,
-	0x51, 0xca, 0xfa, 0x57, 0x74, 0x4f, 0x4f, 0x77, 0x76, 0xef, 0x6c, 0x79, 0xb5, 0x0c, 0xc3, 0xb3,
-	0x59, 0xaf, 0xf7, 0x30, 0x86, 0x12, 0x08, 0x0c, 0x33, 0xac, 0x67, 0x6a, 0x7a, 0xba, 0xdb, 0xee,
-	0x9f, 0xb3, 0x7b, 0x66, 0x76, 0x41, 0xcb, 0x28, 0xbb, 0xea, 0x75, 0x77, 0xcd, 0x54, 0x65, 0xf6,
-	0x54, 0x66, 0xcd, 0x74, 0x2f, 0xb6, 0xc4, 0x05, 0x5f, 0x38, 0x60, 0x3e, 0x3e, 0x81, 0xc1, 0x42,
-	0xbe, 0x20, 0x84, 0xcc, 0x0d, 0x2e, 0x9c, 0x58, 0x0e, 0x48, 0x70, 0xe0, 0x84, 0xb0, 0x40, 0x1c,
-	0x38, 0x21, 0x24, 0x2e, 0x20, 0x24, 0x2e, 0x08, 0x45, 0xbc, 0x4f, 0xbe, 0x97, 0x95, 0x99, 0x55,
-	0xfd, 0x99, 0xc5, 0xe2, 0x54, 0x19, 0x91, 0xef, 0x13, 0x11, 0x2f, 0x22, 0x5e, 0x44, 0xbc, 0x97,
-	0x05, 0x2b, 0x11, 0x1f, 0xbd, 0xe4, 0xa3, 0xa7, 0x43, 0x1e, 0x45, 0xfe, 0x11, 0xbf, 0x7d, 0x32,
-	0x0a, 0xe3, 0xd0, 0x75, 0x87, 0xd1, 0xd1, 0x6d, 0xfb, 0x0d, 0xfb, 0x5d, 0x07, 0xae, 0x6f, 0x86,
-	0x47, 0xfd, 0x60, 0x8f, 0xf0, 0x1b, 0xc1, 0x61, 0xe8, 0xbe, 0x05, 0x0d, 0x09, 0xf5, 0x5a, 0xce,
-	0x2d, 0xe7, 0xdd, 0xaa, 0xa7, 0x61, 0xf7, 0x26, 0x80, 0x78, 0xde, 0xf6, 0x87, 0xbc, 0x55, 0xba,
-	0xe5, 0xbc, 0xdb, 0xf4, 0x0c, 0x8c, 0xfb, 0x39, 0xb8, 0xb6, 0xd9, 0x8f, 0x62, 0x1e, 0x6c, 0xf9,
-	0x71, 0xf7, 0x78, 0x63, 0xb7, 0x55, 0xa6, 0x26, 0x36, 0xd2, 0x7d, 0x07, 0x16, 0x04, 0xa2, 0x33,
-	0xe8, 0xf3, 0x20, 0xde, 0xd8, 0x6d, 0x55, 0xa8, 0x59, 0x0a, 0xcb, 0x7e, 0xdf, 0x81, 0x85, 0xdd,
-	0x81, 0x7f, 0xc6, 0x47, 0xf7, 0xfd, 0x88, 0x13, 0x71, 0x8b, 0x50, 0xde, 0x7c, 0x39, 0x90, 0x74,
-	0xe1, 0x23, 0x62, 0x56, 0x4f, 0x4f, 0x88, 0x96, 0xaa, 0x87, 0x8f, 0xee, 0x2d, 0x98, 0xeb, 0x8c,
-	0x47, 0x5b, 0xfe, 0xe9, 0x5e, 0xec, 0x1f, 0x71, 0x22, 0xa1, 0xea, 0x99, 0x28, 0xd7, 0x85, 0x0a,
-	0x31, 0x20, 0xa6, 0xa5, 0x67, 0xc4, 0x6d, 0x74, 0xc3, 0xa0, 0x55, 0xa5, 0xe6, 0xf4, 0x8c, 0xec,
-	0x76, 0xc6, 0x51, 0x1c, 0x0e, 0xe9, 0x4d, 0x4d, 0xb0, 0x9b, 0x60, 0xd8, 0x77, 0x1c, 0xb8, 0x2e,
-	0x08, 0xa4, 0x71, 0x95, 0xf8, 0x04, 0x2a, 0x11, 0x9f, 0x82, 0xdd, 0x15, 0xa8, 0xee, 0x75, 0xc3,
-	0x11, 0x97, 0xd4, 0x0a, 0x40, 0x53, 0x53, 0x36, 0xa8, 0x91, 0x7c, 0x56, 0x12, 0x3e, 0x4d, 0xfa,
-	0x9a, 0x33, 0xd2, 0xb7, 0x0e, 0x20, 0xe6, 0xee, 0xf8, 0xa3, 0x9e, 0xfb, 0x36, 0x34, 0xf1, 0xb7,
-	0x73, 0x78, 0xa4, 0x49, 0x4b, 0x10, 0xfa, 0x6d, 0x38, 0x0e, 0x62, 0x49, 0x5f, 0x82, 0x60, 0x77,
-	0xa0, 0x81, 0xc0, 0x3e, 0xf7, 0x87, 0xee, 0x0d, 0xa8, 0xe1, 0xaf, 0x1e, 0x44, 0x42, 0x6e, 0x0b,
-	0xea, 0xd8, 0x66, 0xa3, 0x17, 0xb5, 0x4a, 0xb7, 0xca, 0xef, 0x56, 0x3d, 0x05, 0xa2, 0x9a, 0xcd,
-	0x3d, 0xec, 0x1f, 0x1d, 0xc7, 0xf7, 0xba, 0x71, 0x3f, 0x0c, 0x50, 0x0e, 0x0f, 0x47, 0xc8, 0xb2,
-	0x18, 0x40, 0x00, 0x38, 0xae, 0xe8, 0x20, 0xa7, 0x97, 0x90, 0x1a, 0x77, 0xf0, 0x72, 0x20, 0xd7,
-	0x52, 0x81, 0x28, 0x93, 0xdd, 0x30, 0xfa, 0x80, 0xc4, 0x54, 0xf2, 0xe8, 0x59, 0xe2, 0x3e, 0x24,
-	0x39, 0x09, 0xdc, 0x87, 0xc8, 0x9b, 0x5a, 0x83, 0x53, 0x12, 0x53, 0xd5, 0x4b, 0x10, 0xec, 0xdb,
-	0x0e, 0x5c, 0xdb, 0x1b, 0xfa, 0x83, 0x81, 0xe7, 0x07, 0xcf, 0x37, 0x62, 0x3e, 0xc4, 0x31, 0xf0,
-	0x59, 0x92, 0x47, 0xcf, 0xee, 0x02, 0x94, 0x34, 0x65, 0xa5, 0x8d, 0x5e, 0xe6, 0xaa, 0xe9, 0xf5,
-	0xad, 0x98, 0xeb, 0xfb, 0x16, 0x34, 0xf6, 0xc3, 0xe0, 0xc8, 0xd0, 0x2e, 0x0d, 0xab, 0x77, 0x34,
-	0x92, 0x58, 0x3f, 0x0d, 0xb3, 0xdf, 0x28, 0xc1, 0x1c, 0x99, 0x8c, 0x20, 0x55, 0x52, 0x80, 0x34,
-	0x95, 0x2d, 0x0a, 0x4a, 0x93, 0x7a, 0x53, 0x4e, 0xf4, 0xc6, 0x9c, 0xbd, 0x52, 0x30, 0x7b, 0xd5,
-	0x9e, 0x3d, 0xe1, 0xa5, 0x66, 0xf2, 0xb2, 0x02, 0xd5, 0xfd, 0xf0, 0x39, 0x0f, 0x5a, 0x75, 0x81,
-	0x25, 0x80, 0xf4, 0x50, 0x29, 0x52, 0xd4, 0x6a, 0xd0, 0xe2, 0x1b, 0x18, 0x9c, 0x07, 0xa1, 0xcd,
-	0x97, 0x83, 0xa8, 0xd5, 0xa4, 0xb7, 0x1a, 0xc6, 0x55, 0x5f, 0xf7, 0x07, 0x83, 0x8d, 0x5e, 0x0b,
-	0xc4, 0xaa, 0x0b, 0x08, 0xb9, 0xeb, 0xf8, 0xc3, 0x93, 0xd6, 0xbc, 0x58, 0x03, 0x7c, 0x66, 0x7f,
-	0xe0, 0xc0, 0x1b, 0xeb, 0xed, 0x0e, 0xb6, 0x10, 0x4e, 0xc7, 0xe3, 0x47, 0xe8, 0x32, 0x46, 0x97,
-	0x72, 0x5a, 0x0c, 0xe6, 0x85, 0xe3, 0xf1, 0xc2, 0x70, 0xa8, 0x7d, 0x96, 0x85, 0x9b, 0xd9, 0x65,
-	0xfd, 0x34, 0xbc, 0x69, 0x11, 0xf8, 0x28, 0x98, 0x85, 0x44, 0xf6, 0x21, 0xb8, 0x9d, 0xf6, 0xba,
-	0xe1, 0x89, 0x71, 0x58, 0xb7, 0xa3, 0x08, 0x47, 0xa8, 0xe5, 0xdc, 0x2a, 0xbf, 0x3b, 0xd7, 0xfe,
-	0xec, 0xed, 0x49, 0x37, 0x7e, 0x3b, 0xe5, 0xc2, 0x3d, 0xa3, 0x1b, 0xdb, 0x83, 0x95, 0x4e, 0x7b,
-	0x7d, 0x9b, 0xbf, 0x32, 0x1a, 0xdd, 0xeb, 0xf5, 0xdc, 0x9f, 0x87, 0x9a, 0x00, 0x88, 0x98, 0x19,
-	0x07, 0x96, 0x5d, 0x58, 0x9b, 0x06, 0x35, 0xde, 0x7a, 0x7c, 0x18, 0xbe, 0xe4, 0x85, 0x3c, 0xfe,
-	0x0a, 0xae, 0xdd, 0xe6, 0x15, 0xaf, 0xdd, 0xe4, 0xba, 0x94, 0x33, 0xd7, 0x65, 0x0b, 0xd7, 0x65,
-	0xf3, 0xbc, 0xeb, 0x82, 0xca, 0xe9, 0x71, 0x3f, 0x0a, 0x03, 0xe5, 0x92, 0x04, 0xc4, 0x6e, 0xc3,
-	0xca, 0x66, 0x7b, 0xfd, 0x41, 0x3f, 0x8a, 0xba, 0x61, 0x10, 0xf0, 0x6e, 0xbc, 0x1d, 0xc6, 0xfd,
-	0xc3, 0x33, 0xa3, 0xbd, 0x63, 0xb5, 0xf7, 0x61, 0x79, 0xb3, 0xbd, 0xbe, 0x77, 0x16, 0x74, 0xef,
-	0x75, 0xbb, 0xe8, 0x50, 0x85, 0xdd, 0xb4, 0xa0, 0x2e, 0x61, 0x6a, 0xdf, 0xf4, 0x14, 0x98, 0xd8,
-	0x99, 0x60, 0x59, 0xda, 0x99, 0xb9, 0xb7, 0x94, 0xc9, 0x0f, 0x68, 0x98, 0xfd, 0xa1, 0x03, 0x37,
-	0x36, 0xdb, 0x1d, 0x6b, 0x4d, 0xae, 0x40, 0xc0, 0x57, 0xbb, 0xa3, 0x6f, 0x43, 0xcb, 0xa6, 0xf1,
-	0x92, 0xeb, 0xf0, 0x45, 0x94, 0x6b, 0x67, 0x8d, 0xc7, 0x42, 0x0c, 0xf7, 0xba, 0x5d, 0xda, 0x83,
-	0x73, 0xe5, 0xca, 0x3e, 0x71, 0x60, 0xb1, 0xd3, 0xde, 0x9c, 0xb1, 0xb9, 0x25, 0xf0, 0x92, 0x2d,
-	0x70, 0xc3, 0x71, 0x95, 0x2d, 0xc7, 0xa5, 0xf0, 0x4a, 0x06, 0x12, 0x42, 0x49, 0x6e, 0x1c, 0x3e,
-	0x0c, 0x47, 0x07, 0xfd, 0x1e, 0x09, 0x40, 0xee, 0x05, 0x36, 0x12, 0x5b, 0x09, 0x70, 0x35, 0xe8,
-	0xed, 0xf7, 0xf5, 0xae, 0x60, 0x23, 0xd9, 0x21, 0xb8, 0x7b, 0x8a, 0xe9, 0x9d, 0x60, 0xe7, 0xf0,
-	0x70, 0xd0, 0x0f, 0x78, 0x61, 0xe8, 0x81, 0x9b, 0x36, 0xba, 0x7d, 0xbd, 0xb9, 0x0a, 0x08, 0xb7,
-	0x46, 0x1a, 0x60, 0xb3, 0x1f, 0xa8, 0x50, 0x29, 0x41, 0xb0, 0xff, 0xb6, 0x03, 0x9c, 0x5d, 0x3f,
-	0x8a, 0x0a, 0x67, 0x79, 0x1b, 0x9a, 0x7b, 0x3c, 0x8a, 0xfa, 0x61, 0xa0, 0x27, 0x4a, 0x10, 0xf8,
-	0xf6, 0xe1, 0xa8, 0xcf, 0x03, 0x0a, 0x11, 0xca, 0xb4, 0x0f, 0x24, 0x08, 0x5c, 0x05, 0x11, 0x45,
-	0xf5, 0xe4, 0x3e, 0xa5, 0x40, 0xb1, 0x4d, 0x9d, 0x88, 0xdd, 0x48, 0x6f, 0xa0, 0x02, 0x56, 0x1b,
-	0x5e, 0xcd, 0x0a, 0x94, 0x48, 0x97, 0xeb, 0x19, 0xc1, 0x5d, 0x23, 0x37, 0x78, 0x6a, 0x4e, 0x04,
-	0x4f, 0xff, 0xe9, 0x80, 0xeb, 0x29, 0x21, 0x5f, 0x05, 0xfb, 0x06, 0x83, 0x65, 0x9b, 0xc1, 0x55,
-	0x98, 0x93, 0x72, 0x08, 0x0e, 0xc3, 0xa8, 0x55, 0xc9, 0xf7, 0xf4, 0xa9, 0x68, 0xd3, 0x33, 0xfb,
-	0xe1, 0x7e, 0xb1, 0x1f, 0x9e, 0x88, 0x26, 0x51, 0xab, 0x3a, 0xfb, 0x28, 0x46, 0x37, 0x76, 0x00,
-	0xee, 0x1a, 0x8f, 0xc5, 0xb0, 0x56, 0x54, 0xab, 0x56, 0x4a, 0x71, 0xad, 0x60, 0x61, 0x9c, 0x2f,
-	0x76, 0x13, 0xd5, 0x12, 0x50, 0x3e, 0xbf, 0x8c, 0x93, 0x64, 0xd3, 0x73, 0xfc, 0x0c, 0x54, 0xf0,
-	0xb7, 0x68, 0x3f, 0x4a, 0x13, 0x4e, 0x1d, 0xf2, 0x08, 0xc0, 0x70, 0x61, 0xa9, 0x73, 0xec, 0x9f,
-	0xc4, 0xe8, 0x67, 0x06, 0x61, 0xf7, 0xf9, 0x3a, 0x1f, 0x50, 0x7a, 0x80, 0xef, 0xed, 0x35, 0x34,
-	0x51, 0x68, 0x83, 0x1a, 0x34, 0xdc, 0xa2, 0x8d, 0xa4, 0x80, 0x59, 0x0c, 0xae, 0x19, 0x4c, 0x10,
-	0x38, 0x06, 0xce, 0xa6, 0xc6, 0x14, 0x8b, 0x5a, 0xf5, 0x6c, 0x24, 0xfb, 0x9e, 0x03, 0xae, 0x45,
-	0xe1, 0xbd, 0xa3, 0x11, 0x27, 0xa7, 0x4b, 0x0f, 0x29, 0x22, 0x6d, 0xa4, 0xfb, 0x2e, 0x5c, 0x37,
-	0x10, 0x06, 0xa1, 0x69, 0xf4, 0x14, 0x52, 0x53, 0x02, 0xa9, 0x4c, 0x08, 0x84, 0xfd, 0x89, 0x76,
-	0x03, 0xdb, 0x64, 0x75, 0x9d, 0xe3, 0xa3, 0x42, 0x3b, 0xb8, 0xa9, 0xf2, 0x0e, 0x73, 0x53, 0x31,
-	0xe8, 0xd1, 0xb1, 0x65, 0x39, 0x2f, 0x4e, 0x3e, 0x4f, 0xa4, 0xba, 0x08, 0xe5, 0xdd, 0x30, 0x52,
-	0x2e, 0x60, 0x37, 0x8c, 0xd8, 0x23, 0x58, 0xd9, 0x1a, 0x0f, 0xe2, 0x7e, 0x9a, 0xe6, 0xbb, 0x50,
-	0xef, 0x1c, 0x1f, 0x4d, 0x8b, 0xa6, 0x52, 0xbd, 0x3c, 0xd5, 0x87, 0xbd, 0x82, 0xb9, 0x35, 0x1e,
-	0x53, 0x96, 0x80, 0x6a, 0x77, 0x13, 0x60, 0xe3, 0x70, 0xd3, 0x8f, 0x62, 0x23, 0x57, 0x30, 0x30,
-	0x13, 0x9b, 0x87, 0x29, 0xa1, 0xb7, 0xa0, 0x81, 0x6d, 0xf6, 0xcf, 0x4e, 0x94, 0x10, 0x34, 0xac,
-	0xf8, 0xa9, 0x24, 0xfc, 0xfc, 0x85, 0x03, 0xf3, 0x9e, 0x9c, 0x39, 0xe6, 0xc3, 0x62, 0x27, 0x64,
-	0x0e, 0x5d, 0x4a, 0x0d, 0x7d, 0x17, 0x1a, 0x38, 0x00, 0x49, 0xa0, 0x4c, 0x12, 0xf8, 0xb1, 0x2c,
-	0x09, 0x58, 0xd9, 0x90, 0xa7, 0xbb, 0xa0, 0x45, 0x6f, 0x1c, 0x6e, 0x86, 0x5d, 0x5f, 0x65, 0xa6,
-	0x0a, 0x44, 0x0d, 0xdb, 0x38, 0x5c, 0xe3, 0x31, 0x32, 0x2f, 0x7d, 0x74, 0x82, 0x60, 0x5b, 0x70,
-	0x4d, 0xef, 0xd1, 0x53, 0x93, 0xe4, 0x5b, 0x30, 0xb7, 0x7f, 0x14, 0xa7, 0x24, 0x67, 0xa2, 0xd8,
-	0xb7, 0x6b, 0xb0, 0xbc, 0x13, 0x1f, 0xf3, 0x51, 0xaa, 0x38, 0x30, 0x45, 0x25, 0x29, 0x58, 0x31,
-	0xf3, 0x6f, 0x03, 0x83, 0x2a, 0xd9, 0x09, 0xfb, 0x41, 0xa4, 0x54, 0x92, 0x00, 0x1c, 0xf1, 0x41,
-	0xdf, 0x1f, 0x86, 0x41, 0x4f, 0xad, 0x87, 0x86, 0x31, 0xe6, 0xe9, 0x8c, 0x47, 0x8f, 0x22, 0xae,
-	0x12, 0x63, 0xc9, 0x77, 0x0a, 0x8b, 0x23, 0x6f, 0x9d, 0x25, 0x7b, 0x94, 0x00, 0x70, 0xe4, 0x7b,
-	0x23, 0x1e, 0xf8, 0xf8, 0x42, 0xe4, 0x52, 0x1a, 0x46, 0xc3, 0xee, 0x8c, 0x47, 0x9b, 0xfc, 0xe8,
-	0x3e, 0x8f, 0x62, 0x41, 0x70, 0x83, 0x9a, 0xa4, 0xd1, 0xee, 0x7b, 0xb0, 0x88, 0x02, 0xb6, 0x9a,
-	0x36, 0xa9, 0xe9, 0x04, 0x5e, 0x96, 0x45, 0x36, 0xf9, 0x91, 0x68, 0x06, 0xba, 0x2c, 0xa2, 0x50,
-	0x48, 0xd3, 0x93, 0x7e, 0x20, 0x2a, 0x00, 0x73, 0x82, 0x26, 0x05, 0xa3, 0x4b, 0xda, 0x39, 0xe4,
-	0x41, 0x52, 0x40, 0x10, 0x79, 0x99, 0x8d, 0xc4, 0x39, 0x1e, 0x84, 0x81, 0x1f, 0x73, 0x31, 0xc8,
-	0x35, 0x31, 0x87, 0x81, 0x22, 0xa9, 0x1d, 0xf3, 0xad, 0xb0, 0xa7, 0x67, 0x5a, 0x90, 0x52, 0xb3,
-	0xb0, 0xee, 0x6d, 0x74, 0x8c, 0x88, 0xe1, 0xc6, 0x0c, 0xad, 0xeb, 0xd4, 0x36, 0xe3, 0x0d, 0xca,
-	0x6c, 0xff, 0x78, 0xc4, 0xf9, 0x7e, 0xf8, 0x8a, 0x8f, 0xc4, 0xc0, 0x8b, 0x42, 0x66, 0x29, 0xb4,
-	0x4e, 0x2c, 0x97, 0x92, 0xc4, 0xd2, 0x72, 0x2f, 0x6e, 0xca, 0xbd, 0x98, 0x6e, 0x69, 0x39, 0xe5,
-	0x96, 0x18, 0xcc, 0x53, 0x5d, 0x43, 0xd5, 0x3d, 0x56, 0xc8, 0xc9, 0x5b, 0x38, 0x8a, 0xe8, 0x14,
-	0x4c, 0x19, 0xf0, 0x1b, 0x62, 0x27, 0xb0, 0x90, 0xd8, 0xaa, 0x33, 0xa6, 0x3a, 0xcd, 0x1a, 0x8f,
-	0xb7, 0xc7, 0xc3, 0xd6, 0x0d, 0x21, 0x5f, 0x0b, 0x29, 0xcc, 0xac, 0xe3, 0x9f, 0xc4, 0x7e, 0x3f,
-	0x68, 0xbd, 0xa9, 0xcc, 0x4c, 0x22, 0xd8, 0x6f, 0x39, 0xb8, 0x71, 0x5d, 0x99, 0x9d, 0xb9, 0x1d,
-	0x68, 0x28, 0xdb, 0x22, 0xb3, 0x98, 0x6b, 0x7f, 0x3e, 0xcb, 0x5b, 0x64, 0x98, 0xa2, 0xa7, 0x3b,
-	0xb2, 0x27, 0xb0, 0xb4, 0xc9, 0x8f, 0x78, 0xd0, 0x23, 0xf5, 0xde, 0x7b, 0xd5, 0x8f, 0xbb, 0xc7,
-	0x94, 0x75, 0xd0, 0xd3, 0xa3, 0xa0, 0x7f, 0xaa, 0x5c, 0x67, 0x82, 0x41, 0xb9, 0x6e, 0x1c, 0x6e,
-	0x73, 0xde, 0x13, 0x38, 0x49, 0x9c, 0x85, 0x63, 0xdf, 0x74, 0x60, 0x1e, 0x17, 0x42, 0x7b, 0xf7,
-	0x24, 0xc4, 0x75, 0xac, 0x10, 0xd7, 0x5c, 0xdc, 0x52, 0x5e, 0x95, 0x63, 0xe6, 0x9d, 0x48, 0x7a,
-	0xe7, 0x6a, 0xe2, 0x9d, 0x77, 0x60, 0x89, 0x76, 0x1b, 0x8b, 0x98, 0x9f, 0x4b, 0x6f, 0x35, 0xb7,
-	0xb2, 0x44, 0x67, 0x76, 0x49, 0xf6, 0x99, 0x6f, 0x95, 0x00, 0x3a, 0x23, 0xee, 0xc7, 0x1c, 0xdf,
-	0xd3, 0xee, 0x8d, 0x50, 0x38, 0x32, 0xea, 0x76, 0x0a, 0x41, 0x66, 0x2d, 0x00, 0x83, 0x41, 0x13,
-	0x55, 0xcc, 0xa3, 0x51, 0x07, 0x4d, 0xa4, 0x92, 0x55, 0x0b, 0x7d, 0x0b, 0x1a, 0x5f, 0x09, 0xfb,
-	0x01, 0x6d, 0x2b, 0xc2, 0x93, 0x69, 0x18, 0x29, 0xc4, 0x67, 0x31, 0x8b, 0xf0, 0x66, 0x09, 0x42,
-	0x49, 0xac, 0xa1, 0x25, 0x66, 0xac, 0x54, 0xd3, 0x5a, 0xa9, 0x16, 0xd4, 0xf1, 0x69, 0x77, 0x7c,
-	0x40, 0xee, 0xa9, 0xe9, 0x29, 0x90, 0xfd, 0xc0, 0x81, 0xf9, 0x44, 0x24, 0x3b, 0xcf, 0xa7, 0x08,
-	0xa5, 0x68, 0xc9, 0x15, 0x73, 0xe5, 0x1c, 0xe6, 0x2a, 0x45, 0xcc, 0x55, 0x73, 0x98, 0xab, 0x65,
-	0x31, 0x57, 0xcf, 0x63, 0xae, 0x61, 0x33, 0xb7, 0x0e, 0x8b, 0x09, 0x6f, 0x0f, 0xfd, 0xfe, 0x80,
-	0xf7, 0xf2, 0x2a, 0x09, 0x36, 0xdf, 0xa5, 0x14, 0xdf, 0xec, 0xbb, 0x0e, 0x2c, 0xe0, 0x20, 0x5b,
-	0x7c, 0x78, 0x30, 0x83, 0x0b, 0xc8, 0xaa, 0x20, 0xae, 0x40, 0x75, 0xbf, 0x1f, 0x0f, 0xb4, 0xb6,
-	0x10, 0x90, 0x53, 0xd9, 0xbc, 0x01, 0x35, 0xe1, 0xdb, 0xa5, 0x5c, 0x24, 0x84, 0x73, 0x6e, 0x1c,
-	0xee, 0x04, 0x98, 0x94, 0x2a, 0x5d, 0x51, 0x30, 0xfb, 0x55, 0x69, 0xb6, 0x9d, 0x63, 0x3f, 0x7e,
-	0xe0, 0xc7, 0xbe, 0xc8, 0xfb, 0x83, 0x9e, 0x9d, 0xf7, 0x0b, 0x58, 0x54, 0x27, 0xf0, 0xd9, 0xae,
-	0x4e, 0x28, 0x0c, 0x95, 0x86, 0xc3, 0x20, 0xe6, 0x41, 0x2c, 0xeb, 0x12, 0x0a, 0x54, 0xa3, 0x92,
-	0x7f, 0xa9, 0x24, 0xa3, 0x22, 0xcc, 0xd6, 0x61, 0x0e, 0x29, 0x78, 0x1c, 0xf6, 0x88, 0x80, 0x2f,
-	0x61, 0xfa, 0x1f, 0xf7, 0xc3, 0x20, 0x92, 0xa6, 0xfa, 0xa3, 0x59, 0xa6, 0x6a, 0xd4, 0xaf, 0x3d,
-	0xd5, 0x9e, 0xfd, 0x83, 0x03, 0xd7, 0x71, 0x28, 0x8f, 0xbf, 0x18, 0xf3, 0x88, 0xbc, 0x39, 0x8a,
-	0xca, 0xe3, 0x2f, 0x34, 0x33, 0x02, 0x28, 0x0c, 0x06, 0xed, 0x70, 0xb9, 0x3c, 0x11, 0x2e, 0x5b,
-	0x85, 0xfb, 0x4a, 0x56, 0xe1, 0x7e, 0x3c, 0x92, 0xbb, 0x86, 0xd4, 0x4f, 0x8d, 0xc0, 0xb7, 0x5b,
-	0xfe, 0xa9, 0x7c, 0x2b, 0x4b, 0xdf, 0x1a, 0x61, 0x49, 0xa9, 0x9e, 0x92, 0xd2, 0x37, 0x2c, 0xd6,
-	0x50, 0xe3, 0x5f, 0x43, 0xcc, 0xdf, 0x82, 0x3a, 0xd9, 0x12, 0xef, 0xaa, 0x88, 0x52, 0x82, 0xec,
-	0xd7, 0xa5, 0x68, 0xf7, 0xc6, 0xc3, 0xa1, 0x3f, 0x3a, 0x53, 0x89, 0x5e, 0xa6, 0x87, 0x57, 0x26,
-	0x5d, 0x32, 0x4c, 0x3a, 0xab, 0x3e, 0xff, 0x16, 0x34, 0xb6, 0xf8, 0x50, 0x44, 0x07, 0x52, 0x29,
-	0x14, 0x8c, 0x82, 0xd2, 0xde, 0x58, 0x89, 0x51, 0x23, 0xd8, 0x2a, 0x2c, 0x93, 0x71, 0x52, 0xca,
-	0x2a, 0xaa, 0x5e, 0x31, 0x1f, 0x9e, 0xd7, 0xb8, 0xd8, 0x53, 0xca, 0x20, 0x88, 0xea, 0x22, 0x7e,
-	0x8a, 0x94, 0x85, 0x42, 0x80, 0x9d, 0x57, 0x01, 0x36, 0x55, 0xb9, 0x9c, 0x46, 0xb0, 0x7f, 0xaa,
-	0x61, 0x32, 0x97, 0xcc, 0x70, 0x91, 0x92, 0x90, 0xe9, 0x3c, 0xcb, 0x29, 0xe7, 0x69, 0x49, 0xa9,
-	0x92, 0x92, 0xd2, 0x6b, 0xdf, 0x37, 0xee, 0x40, 0x5d, 0x78, 0x36, 0x71, 0x8c, 0x30, 0xd7, 0x66,
-	0x79, 0x9b, 0x6a, 0xe2, 0x00, 0x3d, 0xd5, 0xc5, 0x7d, 0x5f, 0x50, 0x42, 0x7b, 0x32, 0xe4, 0xa7,
-	0x7f, 0x29, 0xa5, 0xf7, 0x74, 0x27, 0xb1, 0xa7, 0xfb, 0xb1, 0xd7, 0x8b, 0x5a, 0x73, 0xc5, 0x7b,
-	0xba, 0x72, 0x6e, 0x9e, 0xea, 0x80, 0x93, 0xa3, 0xc9, 0x7a, 0xfc, 0x45, 0xd4, 0x9a, 0x9f, 0x69,
-	0x72, 0x6a, 0xae, 0x3b, 0x61, 0xe0, 0x2c, 0x46, 0xc6, 0x80, 0x3e, 0x46, 0x9f, 0x2b, 0xa2, 0xeb,
-	0x14, 0xd6, 0x6e, 0x47, 0x82, 0x5d, 0x48, 0xb7, 0x23, 0xe9, 0xbe, 0x03, 0x0b, 0x94, 0xa0, 0x69,
-	0xb4, 0x0c, 0xae, 0x53, 0x58, 0x4c, 0x31, 0x34, 0xb0, 0xc9, 0x0f, 0x63, 0x34, 0x55, 0x11, 0x59,
-	0x4f, 0xe0, 0xdd, 0xaf, 0xc2, 0xbc, 0x61, 0x21, 0x51, 0x6b, 0x89, 0x18, 0xfd, 0x7c, 0x1e, 0xa3,
-	0x29, 0x6b, 0xf2, 0xac, 0xce, 0x14, 0x9f, 0x86, 0xb1, 0x3f, 0x90, 0x3b, 0x8c, 0x2b, 0xe3, 0xd3,
-	0x04, 0x65, 0xee, 0xa8, 0xcb, 0xd6, 0x8e, 0x2a, 0x12, 0xd5, 0xd5, 0x20, 0xe6, 0xa3, 0xd6, 0x8a,
-	0x4a, 0x54, 0x09, 0x74, 0xef, 0x42, 0xe5, 0xe1, 0xa8, 0x27, 0x82, 0xf0, 0xb9, 0xf6, 0x17, 0xb2,
-	0x48, 0x13, 0xb5, 0x7c, 0x22, 0x10, 0x7d, 0xbe, 0xc7, 0xbb, 0xe1, 0xa8, 0xe7, 0x51, 0x37, 0x76,
-	0x1b, 0x16, 0xd7, 0x38, 0xa1, 0x86, 0x43, 0x1e, 0xf4, 0x28, 0x3e, 0x2b, 0xb0, 0x31, 0xd6, 0x87,
-	0x45, 0xef, 0x1c, 0xed, 0xdd, 0x2f, 0x41, 0x15, 0xdb, 0x88, 0x13, 0xd4, 0x02, 0x1d, 0x31, 0xbc,
-	0xa2, 0x27, 0x7a, 0xb0, 0x4f, 0x1c, 0x00, 0x7a, 0xc5, 0xfd, 0x51, 0xf7, 0xb8, 0x70, 0x16, 0x69,
-	0x59, 0xa5, 0xc4, 0xb2, 0xd0, 0x33, 0xaa, 0x84, 0x4c, 0xd6, 0x23, 0x14, 0x4c, 0xef, 0xfc, 0x53,
-	0xdb, 0x6b, 0x4a, 0x58, 0xf6, 0xb3, 0x4a, 0xb3, 0x0a, 0xc6, 0x05, 0xdc, 0x09, 0x06, 0x67, 0x1d,
-	0x3f, 0x40, 0x0b, 0x92, 0xc6, 0x6f, 0xa2, 0xb2, 0x4a, 0xb5, 0x6c, 0x40, 0x39, 0xcc, 0x8c, 0x8c,
-	0xbc, 0x2f, 0x5c, 0x15, 0x99, 0xf4, 0x39, 0x24, 0xa6, 0x3b, 0xb1, 0x31, 0x34, 0x49, 0x2f, 0xa6,
-	0x2e, 0xcc, 0xc5, 0xb6, 0xb7, 0xc4, 0xc5, 0x56, 0x4c, 0x17, 0xcb, 0xfe, 0xd4, 0x81, 0x45, 0x3d,
-	0xaf, 0xb4, 0xf7, 0x4b, 0x4d, 0x7f, 0x0b, 0xe6, 0x64, 0x6d, 0xd4, 0x20, 0xc2, 0x44, 0xe5, 0xef,
-	0xb4, 0x94, 0xda, 0x53, 0x6c, 0xa6, 0x2a, 0xc7, 0x75, 0x91, 0xa0, 0x5a, 0x48, 0xd6, 0x83, 0x05,
-	0x4d, 0xb1, 0xa8, 0x52, 0x5e, 0x64, 0xf7, 0xba, 0x09, 0xb0, 0x73, 0x62, 0x9d, 0x61, 0x55, 0x3d,
-	0x03, 0xc3, 0xfe, 0xde, 0x81, 0x25, 0x61, 0x7f, 0x02, 0x25, 0x8c, 0x76, 0x4a, 0x1a, 0x6b, 0x72,
-	0x5e, 0x9a, 0xe4, 0x7c, 0x5a, 0x78, 0xc5, 0x60, 0x5e, 0x51, 0x60, 0x64, 0x43, 0x16, 0x6e, 0x52,
-	0x46, 0xd5, 0x0c, 0x19, 0x15, 0xc6, 0xbd, 0x1c, 0xae, 0x1b, 0x2b, 0x7e, 0x38, 0x8e, 0xf8, 0xb4,
-	0x05, 0x37, 0x04, 0x55, 0x4a, 0x0b, 0xca, 0x10, 0x7e, 0xd9, 0xd2, 0xac, 0x8f, 0xc1, 0x35, 0xe5,
-	0x37, 0xc3, 0x4c, 0x69, 0xf6, 0x4b, 0xb3, 0xb0, 0x5f, 0xce, 0x52, 0x91, 0xbf, 0x73, 0x60, 0x49,
-	0x1f, 0x4b, 0xbd, 0xb6, 0x10, 0xa4, 0x28, 0x39, 0xbf, 0x01, 0xb5, 0xdd, 0x11, 0x4f, 0xf2, 0x73,
-	0x09, 0x51, 0xf5, 0x8f, 0xa2, 0x00, 0x23, 0x0c, 0x31, 0x30, 0x68, 0x1c, 0xdb, 0x61, 0x7c, 0xdf,
-	0xef, 0x3e, 0x97, 0x61, 0x88, 0x02, 0xd9, 0x37, 0x60, 0x79, 0x82, 0xa5, 0x9d, 0xe7, 0x17, 0x62,
-	0x2a, 0x21, 0xae, 0x6c, 0x11, 0x67, 0x6a, 0x4d, 0x25, 0xa5, 0x35, 0xef, 0x8b, 0x78, 0x6b, 0x93,
-	0xfb, 0x2f, 0x2f, 0x74, 0xbe, 0xc7, 0x9e, 0xc0, 0x72, 0x67, 0xc0, 0xfd, 0xd1, 0x39, 0x16, 0x65,
-	0x62, 0xb1, 0x4b, 0x59, 0x8b, 0xfd, 0x93, 0x72, 0x60, 0xda, 0x72, 0x45, 0xf1, 0xe7, 0x2c, 0x65,
-	0xfc, 0xe9, 0xcd, 0xf0, 0x19, 0xdc, 0xd8, 0x13, 0xae, 0x5d, 0x88, 0xfe, 0x75, 0x9e, 0x5c, 0xfe,
-	0xb6, 0x03, 0x9f, 0x49, 0x36, 0xf2, 0xd7, 0x3e, 0xdf, 0xa4, 0xd0, 0x2a, 0x59, 0x42, 0xfb, 0xae,
-	0xde, 0xa3, 0x63, 0x79, 0x86, 0xa2, 0xd5, 0xdc, 0xc9, 0x29, 0x53, 0x94, 0x72, 0x62, 0xe9, 0x72,
-	0x51, 0x2c, 0x5d, 0xc9, 0x89, 0xa5, 0xab, 0x59, 0x65, 0x8a, 0x9a, 0xa5, 0x30, 0x7f, 0xe3, 0xc0,
-	0x62, 0x22, 0xb8, 0x1f, 0x5e, 0x42, 0x67, 0xdc, 0xb6, 0x7e, 0x41, 0x08, 0x7c, 0x77, 0x7c, 0x80,
-	0x7c, 0x18, 0x11, 0xa3, 0x63, 0x47, 0x8c, 0x79, 0xf6, 0xf3, 0xcc, 0x94, 0xc6, 0x45, 0x47, 0x99,
-	0xd1, 0x7f, 0x7e, 0x3d, 0xa9, 0x8c, 0x60, 0x16, 0x7e, 0xa9, 0x80, 0x20, 0xbf, 0x32, 0x92, 0x17,
-	0x93, 0x7c, 0xe2, 0xa8, 0xad, 0xe3, 0xff, 0x8e, 0x88, 0xd9, 0xf7, 0x59, 0x5d, 0xb6, 0xa8, 0xa5,
-	0xca, 0x16, 0xdf, 0x71, 0x44, 0x75, 0x47, 0x26, 0x4e, 0x53, 0x6e, 0x3d, 0x16, 0x6c, 0x40, 0xa9,
-	0x28, 0x25, 0x8f, 0xeb, 0x4a, 0x56, 0xb9, 0x26, 0x29, 0xb9, 0x54, 0x53, 0x25, 0x17, 0xf6, 0xaf,
-	0x3a, 0xc2, 0x31, 0xa9, 0xbc, 0x8c, 0x94, 0x2d, 0x0e, 0xcb, 0x85, 0xe5, 0xa1, 0x4a, 0x61, 0x79,
-	0x28, 0x4d, 0x2b, 0xae, 0x9f, 0xc7, 0x5f, 0x18, 0x62, 0x56, 0xe0, 0x8c, 0xc6, 0xf7, 0x3d, 0x59,
-	0x8e, 0x94, 0x07, 0x40, 0xfe, 0xa8, 0x77, 0xd9, 0x20, 0xd7, 0x3c, 0xb1, 0x28, 0x4f, 0x9e, 0x58,
-	0x14, 0x57, 0xca, 0x92, 0xc5, 0xae, 0x5a, 0x9a, 0xff, 0xe7, 0x0e, 0xac, 0x24, 0x4b, 0xf2, 0x43,
-	0x42, 0xec, 0x4c, 0x96, 0xc0, 0xda, 0xb0, 0x62, 0xd3, 0x2c, 0xcb, 0xc7, 0x45, 0xdb, 0xf0, 0xc7,
-	0xe0, 0x26, 0x7b, 0x22, 0xa5, 0xb8, 0xab, 0x81, 0x71, 0x37, 0xd9, 0x49, 0x9d, 0x12, 0x74, 0xc6,
-	0x56, 0x68, 0xad, 0xe1, 0x42, 0x1b, 0xc9, 0x73, 0x32, 0xbf, 0x04, 0x6f, 0x9a, 0x3e, 0x46, 0x55,
-	0x23, 0xe4, 0x1e, 0xa3, 0xa7, 0x72, 0x52, 0x53, 0xcd, 0x16, 0x92, 0x9c, 0x42, 0x2b, 0xbd, 0xe5,
-	0xcf, 0x74, 0x5d, 0xa1, 0x88, 0xc9, 0xd9, 0x3c, 0xf7, 0x53, 0xb8, 0xa6, 0x19, 0xda, 0x39, 0xe1,
-	0xc1, 0x45, 0x83, 0x5e, 0x7d, 0x24, 0x5c, 0xb6, 0x8f, 0x84, 0xd9, 0x3a, 0xd5, 0x11, 0x66, 0x9f,
-	0x03, 0x3d, 0x2f, 0x36, 0xd4, 0x93, 0x28, 0x90, 0xfd, 0x8b, 0xac, 0xab, 0x1a, 0xb5, 0x96, 0x73,
-	0x9f, 0x11, 0x4c, 0xde, 0x32, 0xce, 0xf3, 0xe7, 0x5a, 0xab, 0xaa, 0xa9, 0xaa, 0xaf, 0x3a, 0x31,
-	0xad, 0x59, 0x37, 0xc5, 0xad, 0x9b, 0xc2, 0xf5, 0xdc, 0x9b, 0xc2, 0x8d, 0xcc, 0x9b, 0xc2, 0x4d,
-	0xe3, 0xa6, 0xf0, 0x19, 0xbc, 0x61, 0x94, 0x71, 0x66, 0x64, 0x75, 0x9a, 0x49, 0xcf, 0xa6, 0x0b,
-	0x0f, 0x45, 0xc1, 0x4c, 0x4c, 0xda, 0xf1, 0x83, 0x2e, 0x1f, 0x5c, 0x28, 0x72, 0xff, 0x45, 0xb8,
-	0x91, 0x66, 0x61, 0x86, 0xd1, 0x66, 0xb3, 0x94, 0xdf, 0x2c, 0x99, 0x4a, 0x30, 0x3d, 0xc9, 0xce,
-	0x53, 0xd9, 0x49, 0x45, 0x48, 0xb9, 0xbd, 0xca, 0xa4, 0xdb, 0x33, 0x16, 0xbf, 0x9a, 0xbf, 0xf8,
-	0xb5, 0xd4, 0xe2, 0xdb, 0x6b, 0x53, 0xcf, 0xaf, 0xbf, 0x34, 0x52, 0xf5, 0x17, 0xa9, 0x32, 0xcd,
-	0x4c, 0x95, 0x01, 0x43, 0x65, 0xfe, 0xb8, 0x2c, 0x65, 0x92, 0x14, 0xfd, 0x66, 0xb8, 0x2b, 0x96,
-	0x27, 0x99, 0xfc, 0xd0, 0xe7, 0x96, 0xfc, 0x16, 0xc2, 0xe3, 0xd1, 0x78, 0xa0, 0x2a, 0x6a, 0x26,
-	0x4a, 0x6c, 0xca, 0x71, 0xf7, 0x98, 0xc2, 0x67, 0xbd, 0x29, 0x4b, 0x04, 0x95, 0xdc, 0xce, 0xe8,
-	0x3e, 0x83, 0x3a, 0x76, 0xd4, 0x30, 0xbe, 0xdb, 0x39, 0x91, 0xef, 0xe4, 0x79, 0x8e, 0x82, 0x29,
-	0x07, 0x3e, 0x53, 0xfe, 0x50, 0x8a, 0xc9, 0xc0, 0xb8, 0x1d, 0x68, 0x6e, 0x9d, 0x29, 0xad, 0x11,
-	0xe5, 0xf5, 0x1f, 0xcf, 0x3d, 0x08, 0x13, 0xf2, 0x91, 0x35, 0x86, 0xa4, 0x9f, 0xbb, 0x01, 0xf3,
-	0xc6, 0x75, 0x80, 0x48, 0xd6, 0xd9, 0x67, 0x1c, 0xc7, 0xea, 0x8a, 0x52, 0x78, 0xdc, 0xef, 0xf1,
-	0xf0, 0x81, 0x1f, 0xfb, 0x74, 0x1d, 0x65, 0xde, 0x4b, 0x10, 0xec, 0x3f, 0x1c, 0x58, 0x9a, 0x18,
-	0xe1, 0x02, 0x1f, 0xdf, 0x4c, 0x6a, 0x70, 0xd6, 0xc7, 0x41, 0x17, 0xfc, 0x84, 0x23, 0xf5, 0x61,
-	0x44, 0xbd, 0xf0, 0xc3, 0x88, 0x46, 0x4a, 0xe3, 0xb3, 0xdc, 0xda, 0xf7, 0x2b, 0x96, 0x5f, 0x33,
-	0x34, 0x75, 0xda, 0x8d, 0x30, 0x6a, 0x95, 0x14, 0xe4, 0x14, 0x5c, 0xac, 0xa7, 0xc5, 0xd7, 0x02,
-	0xf3, 0xe2, 0xa9, 0xb4, 0x86, 0xd7, 0xa6, 0x68, 0x78, 0xbd, 0x48, 0xc3, 0x1b, 0x05, 0x1a, 0xde,
-	0x2c, 0xd4, 0x70, 0x28, 0xd6, 0xf0, 0xb9, 0x2b, 0xd2, 0xf0, 0xf9, 0x2b, 0xd2, 0xf0, 0x6b, 0x29,
-	0x0d, 0x27, 0xdd, 0xa1, 0x5b, 0x01, 0x8f, 0xfa, 0xc1, 0xa9, 0x3c, 0xc4, 0x31, 0x30, 0x93, 0x9e,
-	0xfe, 0x7a, 0x96, 0xa7, 0xff, 0xb3, 0x12, 0xd4, 0xb7, 0xfc, 0xfe, 0xe0, 0x5e, 0x6f, 0xaa, 0x8e,
-	0x60, 0x33, 0xf3, 0xd6, 0xa0, 0x82, 0xed, 0x2b, 0x01, 0x4d, 0x75, 0x25, 0xc0, 0xd0, 0x9c, 0x4a,
-	0xe6, 0xd9, 0x3b, 0xcd, 0x53, 0x2d, 0x3c, 0xd1, 0xaf, 0x4d, 0x9c, 0xe8, 0x17, 0x9c, 0x48, 0xd3,
-	0xda, 0xd3, 0x37, 0x03, 0xfd, 0x53, 0xa5, 0x17, 0x0a, 0x46, 0x5d, 0xdc, 0x39, 0x78, 0x86, 0x56,
-	0x26, 0x3e, 0x30, 0x92, 0x10, 0x52, 0xb9, 0x73, 0xf0, 0x6c, 0x7b, 0x3c, 0x14, 0xbe, 0xa8, 0xea,
-	0x29, 0x10, 0x29, 0x59, 0x3d, 0x8d, 0x47, 0x3e, 0x0a, 0x5b, 0xa8, 0x43, 0xd5, 0x33, 0x30, 0x98,
-	0x15, 0xc0, 0xae, 0x7f, 0x76, 0xdf, 0xef, 0x3e, 0x47, 0xe1, 0xbd, 0x0d, 0x4d, 0x09, 0x25, 0x79,
-	0xa4, 0x46, 0x18, 0xd3, 0x97, 0xf2, 0xa6, 0x2f, 0xdb, 0xd3, 0x9b, 0xcc, 0x54, 0x52, 0xcc, 0x90,
-	0x79, 0xf4, 0x07, 0x42, 0xe8, 0xe2, 0xba, 0x6b, 0x82, 0x40, 0xf3, 0x42, 0x40, 0x09, 0x5f, 0xc8,
-	0xd0, 0x44, 0xb1, 0x27, 0xb0, 0xbc, 0x77, 0x16, 0x74, 0x25, 0x79, 0xc8, 0x0e, 0x9d, 0x5f, 0x7e,
-	0x19, 0xe6, 0x24, 0xca, 0xb8, 0x97, 0x74, 0x33, 0xf3, 0x0a, 0xac, 0xe6, 0xdb, 0x33, 0xbb, 0xb0,
-	0xcf, 0xc2, 0x35, 0x09, 0xca, 0x0f, 0x7e, 0x5c, 0xa8, 0xec, 0x1e, 0x68, 0x81, 0xd0, 0x33, 0xfb,
-	0x08, 0x9a, 0xe8, 0xa3, 0xba, 0x5c, 0xea, 0x9c, 0x00, 0x12, 0x9d, 0x53, 0xb0, 0x25, 0x82, 0x52,
-	0x4a, 0x04, 0xb9, 0x7e, 0x89, 0x79, 0xb0, 0x84, 0xcc, 0xe9, 0x29, 0x88, 0xb5, 0xbb, 0x00, 0x02,
-	0x61, 0x70, 0xf6, 0x23, 0x79, 0x87, 0x7b, 0xd4, 0xcd, 0x33, 0x3a, 0xb0, 0xf7, 0x60, 0x5e, 0x40,
-	0xc9, 0x77, 0x4c, 0x79, 0x54, 0xb3, 0x65, 0x58, 0x5a, 0xe3, 0x31, 0xba, 0x63, 0xb2, 0x6f, 0x3a,
-	0x75, 0x65, 0xff, 0xa5, 0x53, 0x48, 0xfb, 0x05, 0xed, 0x3a, 0x74, 0x5a, 0xab, 0xd2, 0x2a, 0xc2,
-	0x8a, 0xdb, 0x7e, 0xe2, 0x4a, 0x09, 0x86, 0xf8, 0x92, 0x7d, 0x1b, 0x89, 0x32, 0x50, 0x27, 0xae,
-	0xf2, 0x02, 0xbd, 0x3a, 0x68, 0x15, 0x77, 0x39, 0x3f, 0xe4, 0xfe, 0xe8, 0x09, 0xe7, 0xcf, 0x95,
-	0x6f, 0x36, 0x50, 0xee, 0x7b, 0xb0, 0xd8, 0x19, 0x8f, 0x3c, 0xfe, 0x0a, 0x63, 0xab, 0xbd, 0x1d,
-	0x6a, 0x26, 0x6c, 0x71, 0x02, 0x2f, 0x4b, 0x04, 0x1f, 0x98, 0x9f, 0xfb, 0x25, 0x08, 0xf9, 0x76,
-	0xdf, 0x3a, 0xa4, 0xd7, 0x08, 0xf6, 0x6f, 0x0e, 0x2c, 0x49, 0x96, 0xe3, 0xe3, 0x2b, 0xb9, 0x1c,
-	0x6e, 0x66, 0x63, 0xe5, 0xc9, 0x94, 0xf3, 0x42, 0x57, 0xc4, 0x6f, 0x26, 0x1f, 0xc2, 0x0e, 0x4f,
-	0x54, 0xfd, 0x3f, 0xc1, 0xb8, 0xef, 0xa8, 0x0f, 0x8d, 0xf5, 0xee, 0x21, 0x18, 0x4d, 0x61, 0xd9,
-	0x33, 0x3a, 0xfe, 0xd5, 0x4b, 0x3c, 0x71, 0xcd, 0xfb, 0x3c, 0x77, 0xb1, 0xed, 0xeb, 0xe3, 0xe5,
-	0xf4, 0xf5, 0x71, 0xf6, 0x47, 0x0e, 0xe5, 0x7c, 0xaf, 0x63, 0xb2, 0xca, 0xc4, 0x5d, 0xf5, 0xbb,
-	0x32, 0x44, 0xe0, 0x3d, 0xf5, 0xe1, 0xc8, 0x2c, 0x17, 0xc3, 0x55, 0x17, 0xf6, 0x11, 0x5c, 0x4f,
-	0xe8, 0xd4, 0x01, 0x09, 0x81, 0x1b, 0xbd, 0x53, 0xfd, 0xc5, 0x88, 0x84, 0xd1, 0x5b, 0x7e, 0x60,
-	0xc6, 0x62, 0x12, 0xa2, 0x80, 0xc2, 0x5c, 0x78, 0x09, 0xb1, 0x9f, 0xa0, 0x6f, 0x52, 0x32, 0x66,
-	0xc8, 0xad, 0x71, 0x84, 0xf4, 0x85, 0x49, 0xba, 0xc7, 0x5d, 0xa8, 0x8b, 0xa7, 0xa8, 0xe8, 0xfe,
-	0x7f, 0xaa, 0x97, 0xa7, 0xfa, 0x14, 0x1d, 0x6c, 0xb2, 0xc7, 0xb0, 0x92, 0x58, 0x3e, 0x12, 0xfd,
-	0xe8, 0xa4, 0x87, 0x96, 0x7e, 0x13, 0xe0, 0x03, 0x7c, 0x61, 0xd6, 0x35, 0x0c, 0x0c, 0xbe, 0xdf,
-	0x4f, 0xde, 0xcb, 0x73, 0xbe, 0x04, 0xc3, 0xd6, 0x01, 0x92, 0x4f, 0x7c, 0x2e, 0x73, 0x8b, 0x8c,
-	0xdd, 0x51, 0x97, 0x33, 0x66, 0xbb, 0x20, 0xf0, 0x55, 0x7e, 0x26, 0x8d, 0x13, 0x1f, 0xd9, 0x33,
-	0x70, 0xcd, 0xde, 0x32, 0x8e, 0x2b, 0x1a, 0xe3, 0x67, 0x13, 0x61, 0x97, 0xf2, 0x77, 0x9a, 0x84,
-	0x39, 0x2d, 0x67, 0x16, 0xc3, 0xc2, 0xbd, 0x5e, 0x4f, 0xbc, 0xb9, 0x7f, 0xb6, 0x5b, 0x7c, 0xaa,
-	0x94, 0x8e, 0x53, 0x4b, 0x33, 0x7c, 0xcf, 0x53, 0xce, 0xf8, 0x9e, 0x87, 0x8d, 0xac, 0x59, 0xef,
-	0x75, 0xbb, 0x05, 0xdf, 0x05, 0x5e, 0xd5, 0x9c, 0x07, 0xb0, 0x40, 0x67, 0xe9, 0x7a, 0xe2, 0x73,
-	0x97, 0x62, 0x52, 0x94, 0x94, 0x27, 0x3f, 0xde, 0xd9, 0x83, 0xeb, 0xe2, 0x14, 0x58, 0xcc, 0x80,
-	0x9b, 0xf2, 0xf4, 0xb4, 0xf6, 0x26, 0x80, 0xe8, 0x64, 0x3a, 0xe9, 0x04, 0xc3, 0x76, 0xd1, 0x37,
-	0xe1, 0x56, 0xa9, 0xe4, 0x75, 0xd9, 0x45, 0x62, 0x11, 0x5c, 0x43, 0x29, 0x84, 0xdd, 0x71, 0xf4,
-	0xe9, 0xad, 0xf9, 0x0b, 0x73, 0xd2, 0x4f, 0x67, 0xc9, 0x3f, 0x86, 0x95, 0x35, 0x1e, 0xd3, 0x94,
-	0xbc, 0x37, 0xfb, 0x55, 0xfd, 0x2b, 0x99, 0xfb, 0x18, 0x56, 0xbc, 0xf3, 0xce, 0x7d, 0x31, 0xa5,
-	0xdb, 0x41, 0xa5, 0x23, 0xfd, 0x10, 0xb2, 0xbd, 0xb4, 0x7a, 0x7c, 0x0d, 0x96, 0xc4, 0x80, 0xf7,
-	0xaf, 0x6c, 0xc8, 0x5f, 0x56, 0xae, 0xb5, 0x73, 0xec, 0xc7, 0x53, 0xab, 0xa9, 0x32, 0x18, 0x2d,
-	0xe5, 0xa7, 0x3a, 0x65, 0x3b, 0xd5, 0x61, 0x87, 0xb4, 0x6b, 0x89, 0x74, 0x2c, 0xf9, 0xcc, 0x75,
-	0xba, 0xed, 0x19, 0xff, 0x56, 0xa1, 0xd2, 0x89, 0x04, 0xa1, 0x5c, 0xb3, 0x2c, 0x58, 0xa0, 0x6b,
-	0x3e, 0xa4, 0xbd, 0xee, 0xf5, 0xcf, 0xf3, 0x8f, 0x0e, 0xb8, 0x94, 0xa4, 0xb7, 0x5f, 0xb6, 0x77,
-	0xfd, 0x51, 0x2c, 0x95, 0x27, 0xf9, 0x5b, 0x8a, 0x6a, 0xee, 0xdf, 0x52, 0x5c, 0xed, 0x07, 0x7f,
-	0x76, 0x55, 0xa5, 0x56, 0x58, 0x55, 0x49, 0x17, 0x91, 0xe9, 0x66, 0xa0, 0xc7, 0xfd, 0xde, 0x99,
-	0x4c, 0x21, 0x15, 0xc8, 0xfe, 0xaa, 0x04, 0xcb, 0x36, 0x7b, 0xa2, 0x2e, 0xea, 0x42, 0x65, 0xeb,
-	0x2c, 0x49, 0x71, 0xb6, 0x94, 0xe2, 0x09, 0x09, 0x24, 0xfb, 0xb0, 0x84, 0x69, 0x1f, 0xa6, 0x67,
-	0x6b, 0x1f, 0xd6, 0x18, 0xba, 0xb0, 0x44, 0x90, 0x79, 0x02, 0x6e, 0xa2, 0x28, 0x1a, 0x25, 0x30,
-	0x55, 0x73, 0x4a, 0x61, 0xed, 0x76, 0x46, 0x3e, 0x9d, 0xc2, 0x62, 0x2e, 0x20, 0x30, 0x13, 0xb5,
-	0xa8, 0x09, 0x7c, 0x32, 0x66, 0xaa, 0x2e, 0x95, 0xc2, 0x9a, 0xb9, 0x49, 0xd3, 0xca, 0x4d, 0xd8,
-	0x37, 0x1d, 0x58, 0x54, 0x72, 0xc4, 0xe6, 0xd1, 0x0c, 0x09, 0x81, 0x41, 0x58, 0x29, 0x6f, 0x39,
-	0x07, 0x48, 0x4c, 0x39, 0x59, 0x4e, 0x84, 0xad, 0x85, 0xa8, 0xd8, 0x0b, 0xc1, 0x1e, 0xc0, 0xbc,
-	0xa6, 0xe3, 0xc2, 0x16, 0xce, 0xfe, 0xd9, 0x81, 0x25, 0x35, 0x0c, 0x29, 0x84, 0x17, 0x86, 0xf2,
-	0xa3, 0xbe, 0xdd, 0xe4, 0x92, 0x3f, 0x01, 0x22, 0x33, 0x8f, 0xbb, 0xc7, 0xf4, 0xa7, 0x21, 0xda,
-	0xe7, 0x18, 0x28, 0xf7, 0x0e, 0x54, 0x77, 0xfd, 0x98, 0x8f, 0xe4, 0xf7, 0x54, 0xef, 0x64, 0x85,
-	0x44, 0x93, 0x36, 0xe6, 0x89, 0x4e, 0xa6, 0xd0, 0x2b, 0x76, 0x42, 0xf8, 0x36, 0x34, 0x71, 0x06,
-	0x91, 0x6a, 0xca, 0x92, 0xb1, 0x46, 0x88, 0xef, 0xd2, 0x07, 0x52, 0xed, 0x6b, 0xea, 0xbb, 0x74,
-	0x89, 0xc0, 0xa4, 0x5e, 0x4c, 0xf9, 0xb8, 0x4d, 0x88, 0x2c, 0x8d, 0x67, 0xab, 0xca, 0x38, 0x1e,
-	0x4b, 0xba, 0x72, 0x9b, 0x16, 0x19, 0x07, 0xfb, 0x4b, 0x4c, 0x17, 0xe9, 0x1b, 0xfb, 0xec, 0x7f,
-	0xb6, 0xf9, 0xb4, 0x5c, 0xc8, 0x2d, 0x98, 0x53, 0xb9, 0x0f, 0x66, 0x7b, 0xb2, 0x44, 0x69, 0xa0,
-	0x54, 0x1a, 0x4a, 0x02, 0xad, 0x27, 0x69, 0x28, 0x65, 0xfb, 0x5f, 0x81, 0x05, 0xcc, 0x47, 0x12,
-	0x3e, 0x66, 0x3b, 0x28, 0xb0, 0xd4, 0x42, 0x42, 0xec, 0x7f, 0x4a, 0x70, 0xc3, 0xb3, 0x06, 0xd3,
-	0xdf, 0xb3, 0x4e, 0x1f, 0xb4, 0x05, 0xf5, 0xad, 0xe8, 0xc8, 0xc8, 0xf8, 0x14, 0x28, 0xbe, 0x77,
-	0x8d, 0x52, 0x5e, 0x28, 0xc1, 0x50, 0xb2, 0x18, 0x86, 0x43, 0xf3, 0xf3, 0x2f, 0x05, 0xa3, 0x0f,
-	0x10, 0x2d, 0xd3, 0xfe, 0xc7, 0xc6, 0xda, 0xed, 0x4c, 0xff, 0x63, 0x63, 0x71, 0x39, 0x1f, 0xf0,
-	0xa8, 0xab, 0xae, 0xf9, 0xe2, 0xb3, 0x9a, 0x9f, 0x48, 0x97, 0xb5, 0x3c, 0x05, 0xa3, 0xba, 0x8a,
-	0xab, 0x92, 0xf8, 0x52, 0x78, 0x97, 0x04, 0x41, 0xa6, 0x8a, 0x0b, 0xc1, 0xd5, 0xf1, 0x8d, 0x02,
-	0x45, 0x0d, 0x33, 0x12, 0x8a, 0x37, 0xa7, 0x6a, 0x98, 0x02, 0x36, 0x4d, 0x67, 0xde, 0xf6, 0x57,
-	0xbf, 0xe3, 0xc0, 0x1b, 0xf6, 0x02, 0xa8, 0xfa, 0xec, 0x65, 0xe4, 0xff, 0x3e, 0xd4, 0xcd, 0x53,
-	0xc2, 0x9c, 0x0a, 0xf1, 0xc4, 0xa4, 0x9e, 0xea, 0xc5, 0xd6, 0x2c, 0x43, 0x91, 0x39, 0xdb, 0x74,
-	0x8a, 0x26, 0x33, 0xb7, 0xdf, 0x2b, 0x81, 0x6b, 0x8e, 0x24, 0xee, 0x41, 0x5f, 0x5c, 0x63, 0x2d,
-	0xd5, 0x29, 0xa7, 0x54, 0xc7, 0x56, 0xbb, 0x4a, 0x9e, 0xda, 0x19, 0x27, 0x5b, 0x39, 0xcb, 0x5e,
-	0x2b, 0x58, 0xf6, 0xba, 0xbd, 0xec, 0x0c, 0xe6, 0x3b, 0x63, 0x59, 0x54, 0xdf, 0x1e, 0x0f, 0xa5,
-	0x3a, 0x59, 0xb8, 0x82, 0xed, 0xea, 0x25, 0xc5, 0xc4, 0x17, 0x11, 0xf5, 0x1d, 0xa8, 0x22, 0xed,
-	0x2a, 0xbd, 0x7d, 0x67, 0xca, 0x02, 0x4b, 0xc1, 0x7b, 0xa2, 0x13, 0xfb, 0xeb, 0x12, 0x2c, 0x89,
-	0x6a, 0xfe, 0xf9, 0xfc, 0xc8, 0x6c, 0x7f, 0x4e, 0x61, 0xca, 0xb9, 0x9c, 0x92, 0x73, 0x91, 0xe9,
-	0xcb, 0x77, 0x64, 0xae, 0xd5, 0xe4, 0x1d, 0x99, 0x6c, 0x0b, 0xea, 0xf8, 0xbc, 0xfb, 0xaa, 0x27,
-	0xed, 0x5c, 0x81, 0x19, 0x0e, 0xa3, 0x3e, 0xa3, 0xc3, 0x68, 0x64, 0x3a, 0x0c, 0xf3, 0x26, 0x44,
-	0x33, 0xf5, 0x71, 0x7c, 0xd6, 0xd1, 0xed, 0x13, 0x78, 0x73, 0x42, 0x94, 0xf2, 0x22, 0xcc, 0x74,
-	0x81, 0x9a, 0xa2, 0x2a, 0xd9, 0xa2, 0x62, 0x07, 0xe0, 0x76, 0x8e, 0x8f, 0x8c, 0x51, 0x49, 0x10,
-	0x17, 0x37, 0x1d, 0xe5, 0x09, 0xcb, 0x89, 0x27, 0x64, 0x4f, 0x61, 0xc9, 0x9e, 0x03, 0x25, 0x7a,
-	0xf1, 0x29, 0x16, 0xa1, 0x8c, 0x2b, 0x24, 0x66, 0xc0, 0x47, 0xf6, 0xef, 0xea, 0x63, 0x83, 0x2b,
-	0xd9, 0xb0, 0xa6, 0x5e, 0xa7, 0x37, 0xd4, 0xa4, 0x62, 0xab, 0xc9, 0x45, 0x4f, 0x51, 0x8b, 0xfe,
-	0x2b, 0x41, 0xa9, 0x43, 0xc3, 0x50, 0x87, 0x1f, 0x38, 0xea, 0xea, 0xc4, 0x04, 0xdb, 0x37, 0xa0,
-	0xb6, 0x11, 0xec, 0xf6, 0x65, 0x01, 0xb0, 0xea, 0x49, 0x68, 0x86, 0x0c, 0x7b, 0x1a, 0xdb, 0x17,
-	0x8d, 0x44, 0x4c, 0xe6, 0x6a, 0x39, 0xcc, 0xd5, 0x0d, 0xe6, 0x7e, 0x0a, 0x16, 0xf7, 0x62, 0x7f,
-	0x74, 0xbe, 0xe8, 0x83, 0x7d, 0x59, 0x49, 0xc4, 0x74, 0x48, 0x38, 0x0c, 0xda, 0xa4, 0xf9, 0xc1,
-	0x80, 0xee, 0x9e, 0xc2, 0xb2, 0x6f, 0x95, 0x60, 0xc1, 0xe8, 0x7c, 0xd9, 0x4b, 0x8b, 0x13, 0x6a,
-	0x9a, 0xf1, 0x97, 0x97, 0x76, 0x62, 0x50, 0x2d, 0xcc, 0xf3, 0xd2, 0xf7, 0x45, 0xcc, 0xe5, 0xa8,
-	0x17, 0x2c, 0x47, 0x23, 0xb5, 0x1c, 0xe7, 0xb9, 0x31, 0x72, 0x1b, 0x16, 0x0d, 0x89, 0x74, 0xfc,
-	0x29, 0x77, 0x73, 0x70, 0xab, 0x11, 0xed, 0xf5, 0xdf, 0x18, 0xc5, 0xbc, 0x7b, 0x7c, 0x44, 0xa7,
-	0x39, 0xc7, 0x47, 0xe9, 0xe5, 0x33, 0x50, 0x19, 0x8b, 0x54, 0xca, 0x5a, 0xa4, 0xe4, 0xb4, 0xa9,
-	0x6c, 0x9c, 0x36, 0xb1, 0xaf, 0xa7, 0xe6, 0xc5, 0xc8, 0xf9, 0x6a, 0xe7, 0x2d, 0x38, 0xb3, 0x61,
-	0x6d, 0x58, 0xa1, 0xcf, 0x17, 0x4c, 0x0f, 0xe7, 0x1f, 0x15, 0xde, 0xc1, 0x47, 0xc9, 0xa6, 0xfb,
-	0x14, 0xb6, 0xd7, 0x77, 0xa5, 0x26, 0x7a, 0x7d, 0x0e, 0xae, 0x11, 0x2e, 0xfd, 0x57, 0x4a, 0x16,
-	0xb2, 0xb0, 0xb2, 0xff, 0x6b, 0x65, 0x75, 0x2f, 0x5a, 0x8c, 0x2b, 0xce, 0xce, 0x50, 0x34, 0xe2,
-	0x29, 0x6d, 0x37, 0x36, 0xf6, 0xff, 0x69, 0x88, 0x6e, 0xdc, 0x2f, 0x6c, 0x5a, 0xf7, 0x0b, 0xd1,
-	0x80, 0xb6, 0xce, 0xe8, 0x94, 0x49, 0xfe, 0x9f, 0xa7, 0x80, 0x30, 0x20, 0x56, 0xc7, 0x01, 0x73,
-	0xe7, 0x0a, 0x88, 0xd5, 0xa9, 0x40, 0x5b, 0x9f, 0xb0, 0x52, 0x9b, 0xed, 0x50, 0x2e, 0x44, 0x91,
-	0x5e, 0x3c, 0x84, 0xf9, 0x4e, 0x7b, 0x7d, 0x6d, 0xd8, 0x09, 0x87, 0x43, 0x3f, 0x90, 0x69, 0x3e,
-	0x3d, 0xaa, 0xf2, 0xae, 0x7a, 0x53, 0xf8, 0xd7, 0x6d, 0xac, 0x03, 0x73, 0xeb, 0xed, 0xce, 0xda,
-	0x30, 0xb9, 0xbe, 0x92, 0x34, 0x76, 0xd2, 0xff, 0xf3, 0x46, 0x7f, 0xdd, 0x40, 0x37, 0x5f, 0x84,
-	0xdb, 0x93, 0x10, 0x5b, 0x27, 0x62, 0x36, 0x62, 0x3e, 0xfc, 0xda, 0x98, 0x8f, 0xce, 0x2e, 0xfe,
-	0x4f, 0x72, 0xec, 0x0b, 0x50, 0xdd, 0xe8, 0x61, 0x58, 0x9b, 0x4e, 0x9c, 0x17, 0xa1, 0x8c, 0x11,
-	0xb0, 0xfc, 0xb0, 0x73, 0x7b, 0x3c, 0x64, 0x1f, 0xc1, 0xfc, 0x7a, 0xbb, 0x93, 0x4c, 0x5a, 0x4c,
-	0xfa, 0x17, 0xa1, 0x4a, 0x7f, 0x30, 0x25, 0x43, 0xda, 0xcf, 0x64, 0x2d, 0x11, 0xcd, 0xec, 0x89,
-	0x76, 0x6c, 0x05, 0xdc, 0x75, 0xfa, 0x03, 0x46, 0xf5, 0x97, 0x93, 0xb8, 0x24, 0xec, 0xfb, 0x0e,
-	0xfd, 0x9f, 0xe9, 0xbd, 0x5e, 0xcf, 0x44, 0x8b, 0x7b, 0x48, 0xaf, 0xc4, 0x5f, 0xfc, 0x3a, 0xea,
-	0x1e, 0xd2, 0xab, 0xe4, 0x4f, 0x7e, 0x8f, 0xfd, 0x20, 0xe0, 0x03, 0x5d, 0x80, 0x11, 0x20, 0xbe,
-	0x59, 0x95, 0x17, 0x42, 0xe4, 0x29, 0xb8, 0x04, 0x13, 0x6a, 0x2b, 0xb3, 0x51, 0x6b, 0x56, 0x79,
-	0xaa, 0x76, 0x95, 0xe7, 0x09, 0x2c, 0x77, 0xc4, 0x1f, 0x74, 0x5a, 0x14, 0x7f, 0x19, 0x95, 0x16,
-	0x9f, 0xd4, 0x81, 0x61, 0x76, 0x90, 0x3f, 0xc1, 0xaa, 0xa7, 0xba, 0xbd, 0xc7, 0xa0, 0xb9, 0xfa,
-	0xf4, 0xf1, 0xaa, 0xb7, 0xb7, 0xb1, 0xb3, 0xed, 0xbe, 0x01, 0x8b, 0x1a, 0x78, 0xba, 0xfd, 0x68,
-	0xeb, 0xfe, 0xaa, 0xb7, 0xf8, 0xb7, 0x8d, 0xff, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x49, 0xe0, 0x33,
-	0xb1, 0xb0, 0x5b, 0x00, 0x00,
+	// 1091 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xac, 0x56, 0xdd, 0x6e, 0xdb, 0x36,
+	0x14, 0x1e, 0xe3, 0x38, 0x6d, 0x4e, 0xb2, 0xd4, 0x60, 0xd3, 0xd4, 0x69, 0xb3, 0x2e, 0xd3, 0x86,
+	0x22, 0xdb, 0x45, 0x0a, 0x68, 0xd8, 0xd5, 0x6e, 0xe6, 0xd1, 0x8a, 0x25, 0x4c, 0x91, 0x33, 0xc9,
+	0x69, 0x91, 0x8b, 0x41, 0x50, 0x2d, 0xda, 0x15, 0x66, 0x51, 0x85, 0x25, 0xa7, 0x09, 0xf6, 0x02,
+	0xfb, 0xdf, 0x03, 0x2c, 0xfb, 0x85, 0xaf, 0xba, 0x01, 0x7b, 0x89, 0x3d, 0xd8, 0xc0, 0x1f, 0xd9,
+	0x52, 0x9c, 0x19, 0x2e, 0x9a, 0x3b, 0x7e, 0x87, 0x1f, 0xc9, 0xef, 0x9c, 0x8f, 0x3a, 0x14, 0x6c,
+	0xa6, 0x74, 0x78, 0x4a, 0x87, 0x7e, 0x4c, 0xd3, 0x34, 0xe8, 0xd3, 0xfd, 0xe7, 0xc3, 0x24, 0x4b,
+	0x30, 0x8e, 0xd3, 0xfe, 0x7e, 0x79, 0x46, 0xfb, 0x19, 0xc1, 0x2d, 0x3b, 0xe9, 0x47, 0xcc, 0x13,
+	0x71, 0x8b, 0xf5, 0x12, 0x7c, 0x0f, 0x6e, 0x2a, 0x14, 0xd6, 0xd1, 0x2e, 0xda, 0xab, 0xba, 0x13,
+	0x8c, 0x1f, 0x00, 0xc8, 0xb1, 0x13, 0xc4, 0xb4, 0xbe, 0xb4, 0x8b, 0xf6, 0x56, 0xdd, 0x42, 0x04,
+	0xbf, 0x07, 0x6f, 0xda, 0x51, 0x9a, 0x51, 0x76, 0x18, 0x64, 0xdd, 0x67, 0xd6, 0x51, 0xbd, 0x22,
+	0x28, 0xe5, 0x20, 0x7e, 0x08, 0x1b, 0x32, 0x40, 0x06, 0x11, 0x65, 0x99, 0x75, 0x54, 0x5f, 0x16,
+	0xb4, 0x4b, 0x51, 0xed, 0x57, 0x04, 0x1b, 0x47, 0x83, 0xe0, 0x9c, 0x0e, 0x3f, 0x0d, 0x52, 0x2a,
+	0xc4, 0xd5, 0xa0, 0x62, 0x9f, 0x0e, 0x94, 0x2e, 0x3e, 0xe4, 0x11, 0xe3, 0xec, 0xb9, 0xd0, 0x52,
+	0x75, 0xf9, 0x10, 0xef, 0xc2, 0x1a, 0x19, 0x0d, 0x0f, 0x83, 0x33, 0x2f, 0x0b, 0xfa, 0x54, 0x48,
+	0xa8, 0xba, 0xc5, 0x10, 0xc6, 0xb0, 0x2c, 0x12, 0x90, 0xc7, 0x8a, 0x31, 0x8f, 0x59, 0xdd, 0x84,
+	0xd5, 0xab, 0x82, 0x2e, 0xc6, 0x3c, 0x5d, 0x32, 0x4a, 0xb3, 0x24, 0x16, 0x33, 0x2b, 0x32, 0xdd,
+	0x69, 0x44, 0xfb, 0x05, 0xc1, 0x2d, 0x29, 0x50, 0xec, 0x9b, 0x97, 0x4f, 0x86, 0xa6, 0xe5, 0xcb,
+	0x31, 0xde, 0x84, 0xaa, 0xd7, 0x4d, 0x86, 0x54, 0xa9, 0x95, 0x60, 0xa2, 0xa6, 0x52, 0x50, 0xa3,
+	0xf2, 0x5c, 0x9e, 0xe6, 0x59, 0xd4, 0xb7, 0xba, 0xa0, 0xbe, 0xdf, 0x10, 0xdc, 0x31, 0x75, 0x62,
+	0x06, 0x83, 0x81, 0x34, 0xc9, 0xa5, 0x7d, 0x5e, 0xe2, 0xe1, 0x6b, 0x99, 0xac, 0xc1, 0xba, 0x34,
+	0xca, 0x4d, 0x92, 0x78, 0xe2, 0x71, 0x29, 0xb6, 0xb0, 0xc5, 0x1f, 0xc1, 0xdd, 0x92, 0xc0, 0x63,
+	0xb6, 0x88, 0x44, 0xed, 0x04, 0x30, 0xd1, 0xcd, 0xc2, 0xcd, 0xe5, 0xdb, 0x62, 0x92, 0x0b, 0xe7,
+	0xa8, 0x8e, 0x76, 0x2b, 0x7b, 0x6b, 0xfa, 0xbb, 0xfb, 0xb3, 0xd7, 0x7e, 0xff, 0xd2, 0x95, 0x77,
+	0x0b, 0xcb, 0x34, 0x0f, 0x36, 0x89, 0x6e, 0x3a, 0xf4, 0x45, 0x81, 0xd4, 0x08, 0x43, 0xfc, 0x31,
+	0xac, 0x48, 0x20, 0xc4, 0x2c, 0xb8, 0xb1, 0x5a, 0xa2, 0xe9, 0x62, 0xd3, 0xc2, 0xac, 0x4b, 0xe3,
+	0xe4, 0x94, 0xce, 0xcd, 0xf1, 0x2b, 0xee, 0x9d, 0x7d, 0xcd, 0xde, 0xcd, 0xfa, 0x52, 0xb9, 0xd2,
+	0x97, 0x43, 0xee, 0x8b, 0xfd, 0xaa, 0xbe, 0xe0, 0x2d, 0x58, 0x71, 0x69, 0x90, 0x26, 0x4c, 0xdd,
+	0x70, 0x85, 0xb4, 0x7d, 0xd8, 0xb4, 0x75, 0xb3, 0x19, 0xa5, 0x69, 0x37, 0x61, 0x8c, 0x76, 0x33,
+	0x27, 0xc9, 0xa2, 0xde, 0x79, 0x81, 0x8f, 0x4a, 0xfc, 0x00, 0x6e, 0xdb, 0xba, 0xe9, 0x9d, 0xb3,
+	0x6e, 0xa3, 0xdb, 0x4d, 0x46, 0x2c, 0xeb, 0x24, 0x5f, 0x52, 0x86, 0xeb, 0x70, 0x43, 0x61, 0xc1,
+	0x5f, 0x75, 0x73, 0xc8, 0xbf, 0x2c, 0x41, 0x51, 0x29, 0x4b, 0x50, 0xfa, 0x16, 0x79, 0x9e, 0x95,
+	0xe9, 0xb7, 0xa8, 0xfd, 0x89, 0x60, 0xcb, 0xd6, 0x49, 0xc9, 0x93, 0x6b, 0x28, 0xf0, 0xf5, 0x76,
+	0x40, 0x07, 0xea, 0x65, 0x8d, 0xaf, 0xe9, 0xc3, 0x23, 0x5e, 0x57, 0xd2, 0xa2, 0x99, 0x2c, 0x43,
+	0xa3, 0xdb, 0x15, 0x3d, 0xeb, 0x7f, 0xeb, 0xaa, 0xfd, 0x8b, 0xa0, 0x46, 0x74, 0x7b, 0x41, 0x7a,
+	0xa9, 0xe0, 0x4b, 0xe5, 0x82, 0x73, 0x4d, 0xfc, 0x3e, 0x29, 0x2b, 0xaa, 0xae, 0x42, 0x93, 0x78,
+	0x5e, 0x03, 0x85, 0x78, 0x25, 0xad, 0xde, 0x41, 0x32, 0x7c, 0x1a, 0x85, 0xa2, 0x00, 0xaa, 0x33,
+	0x97, 0x83, 0x9c, 0x25, 0xa1, 0xc1, 0xc2, 0x4e, 0x14, 0x53, 0xd5, 0x05, 0xcb, 0x41, 0xad, 0x07,
+	0xd8, 0xcb, 0x93, 0x6e, 0xb3, 0x76, 0xaf, 0x37, 0x88, 0x18, 0x9d, 0xdb, 0xaa, 0xb7, 0x60, 0xa5,
+	0x93, 0xb0, 0xbe, 0xca, 0xa3, 0xea, 0x2a, 0x84, 0x77, 0x60, 0x55, 0x6c, 0x60, 0x47, 0x2c, 0x7f,
+	0x5a, 0xa6, 0x01, 0xed, 0x00, 0xd6, 0x89, 0x6e, 0xb6, 0x62, 0x92, 0xc4, 0x71, 0xc0, 0x42, 0x5e,
+	0x29, 0x35, 0xcc, 0x2b, 0x95, 0xcf, 0xec, 0xc0, 0xaa, 0x47, 0xd3, 0x34, 0x4a, 0xd8, 0xe4, 0x88,
+	0x69, 0x40, 0x23, 0xb0, 0x66, 0xea, 0xa4, 0x15, 0xbb, 0x34, 0x1d, 0x0d, 0xb2, 0x32, 0x19, 0x5d,
+	0x22, 0x4b, 0xb3, 0x39, 0x4f, 0x5d, 0x47, 0x85, 0x34, 0x53, 0x88, 0xb1, 0x32, 0x1a, 0x7f, 0x3e,
+	0xa2, 0xc3, 0xf3, 0xb9, 0xe9, 0xce, 0x97, 0xf3, 0x3e, 0x54, 0xad, 0xd0, 0x19, 0xc5, 0x78, 0x03,
+	0x96, 0x26, 0x8b, 0x97, 0xac, 0x90, 0x3f, 0x53, 0xce, 0x28, 0xce, 0x1f, 0x5f, 0x67, 0x14, 0x6b,
+	0x5f, 0xc0, 0xba, 0xa9, 0x93, 0xe9, 0xa1, 0xf3, 0xa5, 0x3f, 0x82, 0x2a, 0xa7, 0xa6, 0xf5, 0x25,
+	0xd1, 0xac, 0xb7, 0xaf, 0xea, 0xa9, 0xe2, 0x64, 0x57, 0xf2, 0xb4, 0x4d, 0xc0, 0xa6, 0xb8, 0xc0,
+	0xf9, 0x27, 0xfb, 0x22, 0x18, 0x86, 0xda, 0x3f, 0x48, 0xbc, 0x07, 0x8d, 0x30, 0x2c, 0x86, 0x79,
+	0xc2, 0x72, 0x34, 0x4d, 0x38, 0xc7, 0xc2, 0x99, 0x67, 0x01, 0x63, 0x74, 0xa0, 0xaa, 0x96, 0x43,
+	0x3e, 0x63, 0xb0, 0xf0, 0x98, 0x45, 0x67, 0xca, 0xdf, 0x1c, 0x4e, 0xd5, 0x2e, 0x2f, 0xa6, 0x56,
+	0xda, 0xcf, 0x32, 0xca, 0x32, 0xf5, 0x6c, 0xe7, 0x50, 0x7b, 0x02, 0xb7, 0x89, 0x6c, 0x70, 0x25,
+	0xc5, 0x9f, 0xc0, 0x0d, 0x39, 0x4a, 0xd5, 0xf3, 0xf5, 0xf0, 0xaa, 0x33, 0x66, 0x53, 0x75, 0xf3,
+	0x65, 0x1f, 0xbc, 0xac, 0x40, 0xf5, 0xd0, 0x6b, 0x59, 0x4d, 0x7c, 0x13, 0x96, 0x9d, 0xb6, 0x63,
+	0xd4, 0xde, 0xc0, 0x0f, 0xa0, 0x6e, 0xea, 0xc4, 0x37, 0x1b, 0x83, 0x81, 0xef, 0x19, 0xee, 0x63,
+	0xc3, 0xf5, 0x5d, 0xa3, 0x65, 0x79, 0x1d, 0xc3, 0xad, 0xfd, 0x7e, 0x81, 0xf0, 0x2e, 0xdc, 0x93,
+	0xf3, 0xb6, 0x9d, 0xcf, 0x1f, 0x3b, 0xae, 0xd1, 0x94, 0x8c, 0x3f, 0x2e, 0x10, 0xbe, 0x0f, 0x77,
+	0x88, 0x6e, 0xfa, 0x76, 0xbb, 0x65, 0x39, 0x39, 0xc5, 0xb6, 0xbc, 0x4e, 0xed, 0xe5, 0x05, 0xe2,
+	0xdb, 0xf3, 0x49, 0xc7, 0x78, 0x52, 0x26, 0x34, 0x9a, 0xcd, 0xda, 0x5f, 0x17, 0x08, 0xbf, 0x05,
+	0x77, 0x67, 0x16, 0xbb, 0xc6, 0x61, 0xfb, 0xb1, 0x51, 0xfb, 0x5b, 0x2e, 0x37, 0x75, 0xbb, 0x74,
+	0xfa, 0x44, 0xdd, 0xd7, 0x63, 0xa5, 0xce, 0x9e, 0x51, 0xa7, 0x18, 0xdf, 0x8c, 0x85, 0x3a, 0x5b,
+	0x37, 0xfd, 0xa6, 0xe5, 0x91, 0xb6, 0xe3, 0x18, 0xa4, 0xe3, 0x3b, 0xed, 0x8e, 0x75, 0x70, 0x52,
+	0xfb, 0x76, 0x8c, 0xf0, 0x0e, 0x6f, 0xf3, 0xa6, 0xef, 0x9d, 0x38, 0xc4, 0x6f, 0x10, 0xd2, 0x3e,
+	0x76, 0x3a, 0x7e, 0xa7, 0xfd, 0x99, 0xe1, 0xd4, 0xbe, 0x1b, 0x23, 0xfc, 0x36, 0x6c, 0xdb, 0x3a,
+	0xb9, 0xac, 0x4d, 0xed, 0xfd, 0xfd, 0x18, 0xe1, 0x77, 0xe0, 0xfe, 0x0c, 0xa1, 0x70, 0xfc, 0x0f,
+	0x63, 0x91, 0x1f, 0xa7, 0xb4, 0x8c, 0x8e, 0x7f, 0x64, 0x37, 0x4e, 0x78, 0xe6, 0x84, 0xf8, 0x96,
+	0x73, 0xd0, 0xae, 0xfd, 0x38, 0x46, 0x78, 0x9b, 0x5b, 0x6d, 0xcf, 0x4c, 0xfd, 0x34, 0x46, 0x4f,
+	0x57, 0xc4, 0x9f, 0xf9, 0x87, 0xff, 0x05, 0x00, 0x00, 0xff, 0xff, 0x77, 0x8f, 0xb3, 0x1d, 0xb1,
+	0x0b, 0x00, 0x00,
 }

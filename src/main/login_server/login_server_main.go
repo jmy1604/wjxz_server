@@ -7,10 +7,10 @@ import (
 	"io/ioutil"
 	"libs/log"
 	"os"
-	"public_message/gen_go/server_message"
+	_ "public_message/gen_go/server_message"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 type ServerConfig struct {
@@ -60,13 +60,14 @@ func main() {
 		return
 	}
 
+	server_list.ReadConfig("../conf/server_list.json")
+
 	// 加载日志配置
 	log.Init("", config.LogConfigDir, true)
 	log.Event("配置:服务器ID", config.ServerId)
 	log.Event("配置:服务器名称", config.ServerName)
 	log.Event("配置:服务器地址(对Client)", config.ListenClientIP)
 	log.Event("配置:服务器地址(对Match)", config.ListenMatchIP)
-	log.Event("配置:网络协议版本", int32(msg_server_message.E_VERSION_NUMBER))
 
 	if !global_config_load() {
 		log.Error("global_config_load failed !")

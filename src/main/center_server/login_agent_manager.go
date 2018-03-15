@@ -59,8 +59,8 @@ func (this *LoginAgentManager) OnDisconnect(c *server_conn.ServerConn, reason se
 	if c.T > 0 {
 		login_info_mgr.Remove(c.T)
 		rm_notify := &msg_server_message.C2HLoginServerRemove{}
-		rm_notify.ServerId = proto.Int32(c.T)
-		hall_agent_mgr.Broadcast(rm_notify)
+		rm_notify.ServerId = c.T
+		hall_agent_mgr.Broadcast(uint16(msg_server_message.MSGID_C2H_LOGIN_SERVER_REMOVE), rm_notify)
 	}
 
 	log.Trace("登录服务器[%d]断开连接[%v]", c.T, c.GetAddr())
@@ -79,29 +79,24 @@ func (this *LoginAgentManager) CloseConnection(c *server_conn.ServerConn, reason
 //type MessageHandler func(conn *server_conn.ServerConn, m proto.Message)
 
 func (this *LoginAgentManager) RegMsgHandler() {
-	this.SetMessageHandler(msg_server_message.ID_L2CLoginServerRegister, L2CLoginServerRegisterHandler)
-	this.SetMessageHandler(msg_server_message.ID_L2CGetPlayerAccInfo, L2CGetPlayerAccInfoHandler)
+	this.server_node.SetPid2P(login_agent_msgid2msg)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_L2C_LOGIN_SERVER_REGISTER), L2CLoginServerRegisterHandler)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_L2C_GET_PLAYER_ACC_INFO), L2CGetPlayerAccInfoHandler)
 }
 
-func (this *LoginAgentManager) set_ih(type_id uint16, h server_conn.Handler) {
-	t := msg_server_message.MessageTypes[type_id]
-	if t == nil {
-		log.Error("设置消息句柄失败，不存在的消息类型 %v", type_id)
-		return
-	}
-
-	this.server_node.SetHandler(type_id, t, h)
+func (this *LoginAgentManager) SetMessageHandler(type_id uint16, h server_conn.Handler) {
+	this.server_node.SetHandler(type_id, h)
 }
 
-func (this *LoginAgentManager) SetMessageHandler(type_id uint16, h MessageHandler) {
-	if h == nil {
-		this.set_ih(type_id, nil)
-		return
+func login_agent_msgid2msg(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_server_message.MSGID_L2C_LOGIN_SERVER_REGISTER) {
+		return &msg_server_message.L2CLoginServerRegister{}
+	} else if msg_id == uint16(msg_server_message.MSGID_L2C_GET_PLAYER_ACC_INFO) {
+		return &msg_server_message.L2CGetPlayerAccInfo{}
+	} else {
+		log.Error("Cant found proto message for msg_id[%v]", msg_id)
 	}
-
-	this.set_ih(type_id, func(c *server_conn.ServerConn, m proto.Message) {
-		h(c, m)
-	})
+	return nil
 }
 
 func L2CLoginServerRegisterHandler(conn *server_conn.ServerConn, msg proto.Message) {
@@ -117,18 +112,18 @@ func L2CLoginServerRegisterHandler(conn *server_conn.ServerConn, msg proto.Messa
 		log.Error("L2CLoginServerRegisterHandler serverid(%d) conflict old_name(%s)!", login_serverid, old_login.Name)
 		login_info_mgr.Remove(login_serverid)
 		rm_notify := &msg_server_message.C2HLoginServerRemove{}
-		rm_notify.ServerId = proto.Int32(login_serverid)
-		hall_agent_mgr.Broadcast(rm_notify)
+		rm_notify.ServerId = login_serverid
+		hall_agent_mgr.Broadcast(uint16(msg_server_message.MSGID_C2H_LOGIN_SERVER_REMOVE), rm_notify)
 	}
 
 	add_notify := &msg_server_message.C2HNewLoginServerAdd{}
 	add_notify.Server = &msg_server_message.LoginServerInfo{}
-	add_notify.Server.ServerId = proto.Int32(login_serverid)
-	add_notify.Server.ServerName = proto.String(req.GetServerName())
-	add_notify.Server.ListenMatchIP = proto.String(req.GetListenMatchIP())
-	add_notify.Server.ListenClientIP = proto.String(req.GetListenClientIP())
+	add_notify.Server.ServerId = login_serverid
+	add_notify.Server.ServerName = req.GetServerName()
+	add_notify.Server.ListenMatchIP = req.GetListenMatchIP()
+	add_notify.Server.ListenClientIP = req.GetListenClientIP()
 
-	hall_agent_mgr.Broadcast(add_notify)
+	hall_agent_mgr.Broadcast(uint16(msg_server_message.MSGID_C2H_NEW_LOGIN_SERVER_ADD), add_notify)
 	login_info_mgr.Add(conn, login_serverid, req.GetServerName(), req.GetListenMatchIP())
 }
 
@@ -141,7 +136,7 @@ func L2CGetPlayerAccInfoHandler(conn *server_conn.ServerConn, m proto.Message) {
 
 	acc := req.GetAccount()
 	res := &msg_server_message.C2LPlayerAccInfo{}
-	res.Account = proto.String(acc)
+	res.Account = acc
 
 	player_id := dbc_account.AccountsMgr.TryGetAccountPid(req.GetAccount())
 
@@ -151,22 +146,22 @@ func L2CGetPlayerAccInfoHandler(conn *server_conn.ServerConn, m proto.Message) {
 	}
 
 	// 检查玩家是否被封
-	forbid_l_db := dbc.ForbidLogins.GetRow(player_id)
+	/*forbid_l_db := dbc.ForbidLogins.GetRow(player_id)
 	if nil != forbid_l_db && forbid_l_db.GetEndUnix() > int32(time.Now().Unix()) {
 		end_t := time.Unix(int64(forbid_l_db.GetEndUnix()), 0)
-		res.IfForbidLogin = proto.Int32(1)
-		res.ForbidEndTime = proto.String(end_t.Format("2006-01-02 15:04:05.999999999"))
-	}
+		res.IfForbidLogin = 1
+		res.ForbidEndTime = end_t.Format("2006-01-02 15:04:05.999999999")
+	}*/
 
 	hall_cfg := hall_group_mgr.GetHallCfgByPlayerId(player_id)
 	if nil == hall_cfg {
 		log.Trace("L2CGetPlayerAccInfoHandler gethall by player id failed !")
 		return
 	}
-	res.PlayerId = proto.Int64(int64(player_id))
-	res.HallId = proto.Int32(hall_cfg.ServerId)
-	res.HallIP = proto.String(hall_cfg.ServerIP)
-	conn.Send(res, true)
+	res.PlayerId = int64(player_id)
+	res.HallId = hall_cfg.ServerId
+	res.HallIP = hall_cfg.ServerIP
+	conn.Send(uint16(msg_server_message.MSGID_C2L_PLAYER_ACC_INFO), res, true)
 
 	return
 }

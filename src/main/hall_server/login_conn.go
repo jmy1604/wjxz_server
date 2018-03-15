@@ -8,7 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"3p/code.google.com.protobuf/proto"
+	_ "3p/code.google.com.protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 const (
@@ -108,10 +109,10 @@ func (this *LoginConnection) OnConnect(c *server_conn.ServerConn) {
 	log.Trace("Server[%v][%v] on LoginServer connect", config.ServerId, config.ServerName)
 	c.T = this.serverid
 	notify := &msg_server_message.H2LHallServerRegister{}
-	notify.ServerId = proto.Int32(config.ServerId)
-	notify.ServerName = proto.String(config.ServerName)
-	notify.ListenClientIP = proto.String(config.ListenClientOutIP)
-	c.Send(notify, true)
+	notify.ServerId = config.ServerId
+	notify.ServerName = config.ServerName
+	notify.ListenClientIP = config.ListenClientOutIP
+	c.Send(uint16(msg_server_message.MSGID_H2L_HALL_SERVER_REGISTER), notify, true)
 }
 
 func (this *LoginConnection) OnUpdate(c *server_conn.ServerConn, t timer.TickTime) {
@@ -140,7 +141,7 @@ func (this *LoginConnection) ForceClose(bimmidate bool) {
 	}
 }
 
-func (this *LoginConnection) Send(msg proto.Message) {
+func (this *LoginConnection) Send(msg_id uint16, msg proto.Message) {
 	if LOGIN_CONN_STATE_CONNECTED != this.state {
 		log.Info("与登录服务器未连接，不能发送消息!!!")
 		return
@@ -148,42 +149,35 @@ func (this *LoginConnection) Send(msg proto.Message) {
 	if nil == this.client_node {
 		return
 	}
-	this.client_node.GetClient().Send(msg, false)
+	this.client_node.GetClient().Send(msg_id, msg, false)
 }
 
 //=============================================================================
 
 func (this *LoginConnection) RegisterMsgHandler() {
-	this.SetMessageHandler(msg_server_message.ID_L2HSyncAccountToken, L2HSyncAccountTokenHandler)
-	this.SetMessageHandler(msg_server_message.ID_L2HDissconnectNotify, L2HDissconnectNotifyHandler)
+	this.client_node.SetPid2P(login_conn_msgid2msg)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), L2HSyncAccountTokenHandler)
+	this.SetMessageHandler(uint16(msg_server_message.MSGID_L2H_DISCONNECT_NOTIFY), L2HDissconnectNotifyHandler)
 }
 
-func (this *LoginConnection) set_ih(type_id uint16, h server_conn.Handler) {
-	t := msg_server_message.MessageTypes[type_id]
-	if t == nil {
-		log.Error("设置消息句柄失败，不存在的消息类型 %v", type_id)
-		return
+func (this *LoginConnection) SetMessageHandler(type_id uint16, h server_conn.Handler) {
+	this.client_node.SetHandler(type_id, h)
+}
+
+func login_conn_msgid2msg(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN) {
+		return &msg_server_message.L2HSyncAccountToken{}
+	} else if msg_id == uint16(msg_server_message.MSGID_L2H_DISCONNECT_NOTIFY) {
+		return &msg_server_message.L2HDissconnectNotify{}
+	} else {
+		log.Error("Cant found proto message by msg_id[%v]", msg_id)
 	}
-
-	this.client_node.SetHandler(type_id, t, h)
+	return nil
 }
 
-type LoginMessageHandler func(a *LoginConnection, m proto.Message)
-
-func (this *LoginConnection) SetMessageHandler(type_id uint16, h LoginMessageHandler) {
-	if h == nil {
-		this.set_ih(type_id, nil)
-		return
-	}
-
-	this.set_ih(type_id, func(c *server_conn.ServerConn, m proto.Message) {
-		h(this, m)
-	})
-}
-
-func L2HSyncAccountTokenHandler(conn *LoginConnection, msg proto.Message) {
+func L2HSyncAccountTokenHandler(conn *server_conn.ServerConn, msg proto.Message) {
 	req := msg.(*msg_server_message.L2HSyncAccountToken)
-	if nil == conn || nil == req {
+	if nil == req {
 		log.Error("ID_L2HSyncAccountTokenHandler param error !")
 		return
 	}
@@ -192,7 +186,7 @@ func L2HSyncAccountTokenHandler(conn *LoginConnection, msg proto.Message) {
 	log.Info("ID_L2HSyncAccountTokenHandler ", req.GetAccount(), req.GetToken(), req.GetPlayerId())
 }
 
-func L2HDissconnectNotifyHandler(conn *LoginConnection, msg proto.Message) {
+func L2HDissconnectNotifyHandler(conn *server_conn.ServerConn, msg proto.Message) {
 
 	log.Info("L2HDissconnectNotifyHandler param error !")
 

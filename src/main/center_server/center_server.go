@@ -5,16 +5,14 @@ import (
 	"errors"
 	_ "io/ioutil"
 	"libs/log"
-	"libs/server_conn"
+	_ "libs/server_conn"
 	"libs/timer"
 	"sync"
 	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
-
-type MessageHandler func(conn *server_conn.ServerConn, m proto.Message)
 
 type CenterServer struct {
 	quit               bool
@@ -48,39 +46,11 @@ func (this *CenterServer) OnInit() bool {
 		log.Info("Cfg_position init succeed !")
 	}
 
-	if !gm_mgr.Init() {
-		log.Error("gm_mgr Init Failed")
-		return false
-	} else {
-		log.Info("gm_mgr init succeed !")
-	}
-
 	if !player_mgr.Init() {
 		log.Error("player_mgr Init failed !")
 		return false
 	} else {
 		log.Info("player_mgr init succeed !")
-	}
-
-	if !cfg_stage_mgr.Init() {
-		log.Error("cfg_stage_mgr Init failed !")
-		return false
-	} else {
-		log.Info("cfg_stage_mgr init succeed !")
-	}
-
-	if !cfg_chapter_mgr.Init() {
-		log.Error("cfg_chapter_mgr Init failed !")
-		return false
-	} else {
-		log.Info("cfg_chapter_mgr init succeed !")
-	}
-
-	if !stage_mgr.Init() {
-		log.Error("stage_mgr Init failed !")
-		return false
-	} else {
-		log.Info("stage_mgr init succeed !")
 	}
 
 	return true

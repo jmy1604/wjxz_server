@@ -1,533 +1,421 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package msg.client_message;
 
-//版本号
-enum E_VERSION{
-	E_VERSION_NUMBER=1101;
-}
-
 //////////////////////////////////////错误码///////////////////////////////////
 
-enum E_ERR{
-	E_ERR_INTERNAL=-1;									//内部错误
-	E_ERR_PLAYER_NOT_EXIST=-2;							//玩家不存在
-	E_ERR_PLAYER_OTHER_PLACE_LOGIN=-3;					//玩家不存在
+enum E_ERR {
+	NONE    								= 0;
+	INTERNAL								= -1; // 内部错误
+	PLAYER_ACC_OR_PASSWORD_ERROR			= -2; // 账号或密码错误
+	PLAYER_NOT_EXIST						= -3; // 玩家不存在
+	PLAYER_ALREADY_LOGINED					= -4; // 玩家已经登陆
+	PLAYER_OTHER_PLACE_LOGIN				= -5; // 玩家在其他地方登陆
+	PLAYER_TOKEN_ERROR						= -6; // 令牌错误
+	PLAYER_SELECT_SERVER_NOT_FOUND			= -7; // 选择服务器不存在
+	PLAYER_ALREADY_SELECTED_SERVER			= -8; // 玩家已经选择过服务器
 	
 	// 玩家
-	E_ERR_PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
-	E_ERR_PLAYER_RENAME_NEW_CANT_SAME_TO_OLD 	= -100001; // 昵称不能与原来相同
-	E_ERR_PLAYER_RENAME_NEW_CANT_EMPTY			= -100002; // 新昵称不能为空
-	E_ERR_PLAYER_RENAME_REMOVE_OLD_FAILED 		= -100003; // 旧昵称删除失败
-	E_ERR_PLAYER_RENAME_TOO_LONG_NAME			= -100004; // 新昵称太长
-	E_ERR_PLAYER_RENAME_NOT_ENOUGH_DIAMOND		= -100005; // 改昵称钻石不足
+	PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
+	PLAYER_RENAME_NEW_CANT_SAME_TO_OLD 		= -100001; // 昵称不能与原来相同
+	PLAYER_RENAME_NEW_CANT_EMPTY			= -100002; // 新昵称不能为空
+	PLAYER_RENAME_REMOVE_OLD_FAILED 		= -100003; // 旧昵称删除失败
+	PLAYER_RENAME_TOO_LONG_NAME				= -100004; // 新昵称太长
+	PLAYER_RENAME_NOT_ENOUGH_DIAMOND		= -100005; // 改昵称钻石不足
 	
-	// 签到错误骂
-	E_ERR_DAYSIGN_ALRADY_SUM_SIGN = -100100; // 累计签到已经领取过了
+	CHARGE_ORDER_DATA_EMPTY                 = -200000;
+	CHARGE_ORDER_DATA_INVALID				= -200001;
+	CHARGE_ORDER_SIGNATURE_INVALID			= -200002;
+	CHARGE_ORDER_SN_EMPTY					= -200003;
+	CHARGE_ORDER_SN_ALREDY_USED				= -200004;
+	CHARGE_ORDER_VERIFY_FAILED				= -200005;
 	
-	// 抽奖错误码
-	E_ERR_DRAW_WRONG_DRAW_TYPE = -100300; // 错误的抽取类型
-
-	// 邮件错误码
-	E_ERR_MAIL_FAILED_TO_FIND_MAIL = -100600; // 找不到邮件
-	E_ERR_MAIL_ATTACH_ERROR = -100601; // 邮件附件错误
+	FRIEND_MESSAGE_NUM_MAX					= -300000;
+	FRIEND_NO_UNREAD_MESSAGE				= -300001;
+	FRIEND_THE_PLAYER_ALREADY_FRIEND		= -300002;
+	FRIEND_THE_PLAYER_REQUESTED				= -300003;
+	FRIEND_REMOVE_FRIEND_FAILED				= -300004;
+	FRIEND_GIVE_POINTS_FREQUENTLY			= -300005;
+	FRIEND_TOO_MANY_FRIEND_GIVE_POINTS		= -300006;
+	FRIEND_GIVE_POINTS_MAX_NUM_LIMIT		= -300007;
+	FRIEND_NO_THE_FRIEND					= -300008;
+	FRIEND_MESSAGE_TOO_LONG					= -300009;
+	FRIEND_CHAT_FAILED						= -300010;
 	
-	// 物品错误码
-	E_ERR_ITEM_TABLE_DATA_NOT_FOUND 	= -101000; // 物品配置不存在
-	E_ERR_ITEM_NOT_FOUND				= -101001; // 物品不存在
-	E_ERR_ITEM_NUM_NOT_ENOUGH			= -101002; // 物品数量不足
-	
-	// 商店错误码
-	E_ERR_SHOP_NOT_FOUND				= -101501; // 商店不存在
-	E_ERR_SHOP_LIMITED_TYPE_INVALID		= -101502; // 商店限定类型非法
-	E_ERR_SHOP_DIAMOND_NOT_ENOUGH		= -101503; // 钻石不足
-	E_ERR_SHOP_COIN_NOT_ENOUGH			= -101504; // 金币不足
-	E_ERR_SHOP_CHARM_NOT_ENOUGH			= -101505; // 魅力值不足
-	E_ERR_SHOP_FRIEND_POINT_NOT_ENOUGH  = -101506; // 友情点不足
-	E_ERR_SHOP_SOUL_STONE_NOT_ENOUGH	= -101507; // 魂石不足
-	E_ERR_SHOP_CHARM_MEDAL_NOT_ENOUGH	= -101508; // 魅力勋章不足
-	E_ERR_SHOP_PURCHASE_TYPE_INVALID	= -101509; // 支付类型非法
-	E_ERR_SHOP_PURCHASED_FAILED			= -101510; // 未买到
-	E_ERR_SHOP_ITEM_NOT_FOUND			= -101511; // 商品不存在
-	E_ERR_SHOP_ITEM_NOT_ENOUGH			= -101512; // 商品数不足
-	E_ERR_SHOP_AFTER_PURCHASE_FAILED	= -101513; // 购买后添加物品失败
+	SHOP_NOT_FOUND							= -400000;
+	SHOP_PURCHASED_FAILED					= -400001;
+	SHOP_ITEM_NOT_FOUND						= -400002;
+	SHOP_LIMITED_TYPE_INVALID				= -400003;
+	SHOP_ITEM_NOT_ENOUGH					= -400004;
 	
 	// 任务错误码
-	E_ERR_TASK_NOT_FOUND				= -101600; // 任务不存在
-	E_ERR_TASK_NOT_COMPLETE				= -101601; // 任务未完成
-	E_ERR_TASK_NOT_REWARD				= -101602; // 未领奖
-	E_ERR_TASK_ALREADY_REWARDED			= -101603; // 已领奖
-	E_ERR_TASK_LEVEL_NOT_ENOUGH			= -101604; // 等级不足
-	E_ERR_TASK_PREV_NOT_COMPLETE		= -101605; // 前置任务未完成
-	
-	// 章节解锁
-	E_ERR_CHAPTER_UNLOCK_WRONG_CHAPTER_ID = -101700; // 章节Id不能解锁
-	E_ERR_CHAPTER_UNLOCK_LESS_STAR = -101701; // 星星不够不能解锁
-	E_ERR_CHAPTER_UNLOCK_LESS_DIAMOND = -101702; // 钻石不够不能解锁
-	E_ERR_CHAPTER_UNLOCK_NO_UNLOCK_CFG = -101703; // 缺少解锁配置
-	E_ERR_CHAPTER_UNLOCK_NO_CUR_UNLOCK_CFG = -101704; // 当前章节的解锁配置不存在
-	E_ERR_CHAPTER_UNLOCK_NO_ENOUGH_TIME = -101705; // 时间未到不能解锁
-	E_ERR_CHAPTER_UNLOCK_NO_FRIEND_IDS = -101706; // 请求的好友列表未空
-	E_ERR_CHAPTER_UNLOCK_NEED_PASS_STAGE = -101707; // 未通过当前章节的最后一关
-	E_ERR_CHAPTER_HELP_UNLOCK_LESS_NUM = -101708; // 达到今天最大帮助次数
-	
-	// 章节通关
-	E_ERR_STAGE_PASS_NOT_UNLOCK = -101800; // 超过最大解锁关卡
-	E_ERR_STAGE_PASS_OVER_NEXT_STATE = -101801; // 超过下一关卡
-	E_ERR_STAGE_TABLE_DATA_NOT_FOUND = -101802; // 找不到配置数据
-	E_ERR_STAGE_NO_MATCH_WITH_END	 = -101803; // 关卡ID结束与开始不匹配
-	E_ERR_STAGE_ALREADY_FINISHED	 = -101804; // 关卡已结束
-	E_ERR_STAGE_ALREADY_BEGAN		 = -101805; // 关卡已开始
-	E_ERR_STAGE_NO_BEGIN			 = -101806; // 关卡未开始
-	
-	// 好友
-	E_ERR_FRIEND_NOT_FOUND_PLAYER	 	= -101900; // 找不到玩家
-	E_ERR_FRIEND_OFFLINE				= -101901; // 好友不在线
-	E_ERR_FRIEND_GIVE_POINTS_FREQUENTLY	= -101902; // 赠送友情点过于频繁
-	E_ERR_FRIEND_TOO_MANY_FRIEND_GIVE_POINTS = -101903; // 一次赠送好友过多
-	E_ERR_FRIEND_POINTS_NOT_ENOUGH_TO_GIVE = -101904; // 友情点不够赠送
-	E_ERR_FRIEND_VISIT_FRIEND_FAILED	= -101905; // 访问好友失败
-	E_ERR_FRIEND_NO_THE_FRIEND			= -101906; // 没有该好友
-	E_ERR_FRIEND_CHAT_FAILED			= -101907; // 聊天失败
-	E_ERR_FRIEND_NO_UNREAD_MESSAGE	 	= -101908; // 没有未读消息
-	E_ERR_FRIEND_MESSAGE_NUM_MAX		= -101909; // 消息数量最大
-	E_ERR_FRIEND_MESSAGE_TOO_LONG		= -101910; // 消息过长
-	E_ERR_FRIEND_REMOVE_FRIEND_FAILED 	= -101911; // 删除好友失败
-	E_ERR_FRIEND_LAST_POINTS_NOT_GET	= -101912; // 上次赠送的友情点还未收取
-	E_ERR_FRIEND_THE_PLAYER_ALREADY_FRIEND = -101913; // 该玩家已是好友
-	E_ERR_FRIEND_THE_PLAYER_REQUESTED	= -101914; // 该玩家已申请过
-	E_ERR_FRIEND_GIVE_POINTS_MAX_NUM_LIMIT = -101915; // 赠送次数已达上限
-	E_ERR_FRIEND_ALREDY_GIVED_POINTS_TO_PLAYER = -101916; // 已赠送过友情点给该玩家
-	
-	// 活动配置
-	E_ERR_ACTIVITY_NO_CFG = -102000; // 找不到活动配置
-	E_ERR_ACTIVITY_HAVE_REWARDED = -102001; // 已经领取过奖励
-	E_ERR_ACTIVITY_NOT_FINISHED = -102002; // 不满足领奖条件
-	E_ERR_ACTIVITY_NO_REWARDED = -102003; // 未配置奖励
-	E_ERR_ACTIVITY_GET_REWARD_REQ_ERROR = -102004; // 请求参数错误或者不全
-	E_ERR_ACTIVITY_LVL_REWARD_NO_CFG = -102005; // 没有对应等级的成长奖励
-	E_ERR_ACTIVITY_LVL_REWARD_LESS_LVL = -102006; // 等级未到不能领取奖励
-	E_ERR_ACTIVITY_VIPCARD_NOT_OPEN = -102007; // 等级未到不能领取奖励
-	E_ERR_ACTIVITY_DAY_REWARD_NO_CFG = -102008; // 没有对应的每日奖励配置
-	E_ERR_ACTIVITY_SUM_DAYREWARD_NO_CFG = -102009; // 没有对应的累计奖励配置
-	E_ERR_ACTIVITY_NOT_OPEN = -102010; // 活动未开启
-	
-	// 排行榜
-	E_ERR_RANK_GET_ITEMS_NUM_OVER_MAX		= -102200; // 排行榜一次拉取的数量超出限制
+	TASK_NOT_FOUND				= -101600; // 任务不存在
+	TASK_NOT_COMPLETE				= -101601; // 任务未完成
+	TASK_NOT_REWARD				= -101602; // 未领奖
+	TASK_ALREADY_REWARDED			= -101603; // 已领奖
+	TASK_LEVEL_NOT_ENOUGH			= -101604; // 等级不足
+	TASK_PREV_NOT_COMPLETE		= -101605; // 前置任务未完成
 	
 	// 世界聊天
-	E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN   = -102300; // 世界聊天发送消息还在冷却中
-	E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG = -102301; // 世界聊天消息超长
-	E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE	= -102302; // 世界聊天内部错误没有空闲的节点
-	E_ERR_WORLDCHAT_PULL_COOLING_DOWN       = -102303; // 世界聊天拉取消息还在冷却中
-	E_ERR_WORLDCHAT_SEND_MSG_BE_FORBIDEN    = -102304; // 你被禁言了
-	
-	// 充值
-	E_ERR_CHARGE_ORDER_DATA_EMPTY			= -102500; // 订单数据为空
-	E_ERR_CHARGE_ORDER_DATA_INVALID 		= -102501; // 订单数据非法
-	E_ERR_CHARGE_ORDER_SIGNATURE_INVALID 	= -102502; // 订单签名数据非法
-	E_ERR_CHARGE_ORDER_SN_EMPTY				= -102503; // 订单号为空
-	E_ERR_CHARGE_ORDER_SN_ALREDY_USED		= -102504; // 订单已使用过 
-	E_ERR_CHARGE_ORDER_VERIFY_FAILED		= -102505; // 订单验证失败
-	E_ERR_CHARGE_CHANNEL_INVALID			= -102506; // 渠道错误
-	
-	// 购买体力
-	E_ERR_DAYBUY_TILI_MAX_COUNT = -102600; // 到达最大次数无法再购买
-	E_ERR_DAYBUY_TILI_LESS_DIAMOND = -102601; // 钻石不够无法购买体力
+	WORLDCHAT_SEND_MSG_COOLING_DOWN   = -102300; // 世界聊天发送消息还在冷却中
+	WORLDCHAT_SEND_MSG_BYTES_TOO_LONG = -102301; // 世界聊天消息超长
+	WORLDCHAT_CANT_SEND_WITH_NO_FREE	= -102302; // 世界聊天内部错误没有空闲的节点
+	WORLDCHAT_PULL_COOLING_DOWN       = -102303; // 世界聊天拉取消息还在冷却中
+	WORLDCHAT_SEND_MSG_BE_FORBIDEN    = -102304; // 你被禁言了
 }
 
 ////////////////////////////////////end////////////////////////////////////////
 
-///////////////////////////////////start///////////////////////////////////////
-
-message C2S_MSG_DATA {
-	optional int32 PlayerId = 1;
-	optional string Token = 2;
-	optional int32 MsgCode = 3;
-	optional bytes Data = 4;
-}
-
-message S2C_MSG_DATA {
-	optional int32 ErrorCode = 1;
-	optional string ErrorMsg = 2;
-	optional bytes Data = 3;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // 测试用消息
 message C2S_TEST_COMMAND {
-	optional string cmd = 1;
+	string cmd 			= 1;
 	repeated string args = 2;
 }
 ///////////////////////////////////////end////////////////////////////////////
 
-//////////////////////////////// 结构 ///////////////////////////////////
-
-// Id Num 结构
-message IdNum {
-	optional int32 Id = 1;
-	optional int32 Num = 2;
-}
-
 // 物品
 message ItemInfo {
-	optional int32 ItemCfgId 		= 1; // 配置物品
-	optional int32 ItemNum 			= 2; // 物品数目
-	optional int32 RemainSeconds 	= 3; // 物品剩余时间
+	int32 ItemCfgId 	= 1; // 配置物品
+	int32 ItemNum 		= 2; // 物品数目
+	int32 RemainSeconds = 3; // 物品剩余时间
 }
 
-// 消耗的资源物品类型数量(Other表里配置的属性，像金币，钻石，体力，魅力值，猫粮等)
-message ResourceInfo {
-	optional int32 ResourceType = 1; // 类型
-	optional int32 ResourceValue= 2; // 数值
-}
-
-message StageInfo {
-	optional int32 StageId		= 1; // 关卡ID
-	optional int32 Star 		= 2; // 通关星数
-	optional int32 TopScore		= 3; // 最高分
-}
-
-/////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////心跳包//////////////////////////////////
-
-message HeartBeat {
-	
-}
-
-///////////////////////////////////End///////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////
-// 物品变化
-message S2CItemsInfoUpdate {
-	repeated ItemInfo Items = 1;
-}
-
-/////////////////////////////////////////////////////////////////////////
-
-message C2SLoginRequest {
-	optional string Acc = 1; // 账号
-	optional string Token = 2; // token
-	optional string Channel = 3; // 渠道
-}
-
-message S2CLoginResponse {
-	optional string Acc = 1; // 账号
-	optional int32 PlayerId = 2; // 玩家Id
-	optional string Name = 3; // 玩家名称
-	optional int32 ServerUnix = 4; // 服务器时间戳
-}
-
-/// 其它地方登录
-message S2COtherPlaceLogin {
-	
-}
-
-// 拉取数据（基础数据，物品，猫，建筑，区域等）
-message C2SGetInfo {
-	optional bool Base 		= 1; // 基础信息
-	optional bool Item 		= 2; // 物品信息
-	optional bool Stage  	= 6; // 关卡信息
-	optional bool Formula	= 8; // 配方信息
-	optional bool Guide		= 9; // 新手引导
-}
-
-// 拉基础信息
-message C2SGetBaseInfo {
-	
-}
-
-message S2CRetBaseInfo {
-	optional int32 Coins 				= 1; // 玩家金币
-	optional int32 Diamonds 			= 2; // 玩家钻石
-	optional int32 Lvl 					= 3; // 等级
-	optional int32 Exp 					= 4; // 经验
-	optional int32 CurMaxStage 			= 5; // 当前通关关卡数目
-	optional int32 CurUnlockMaxStage 	= 6; // 最大可通关关卡
-	optional int32 CharmVal 			= 7; // 魅力值
-	optional string Nick 				= 8; // 昵称
-	optional string Head 				= 9; // 头像
-	optional int32 Star 				= 10; // 星数
-	optional int32 Zan 					= 11; // 点赞数
-	optional int32 Spirit 				= 13; // 体力
-	optional int32 FriendPoints 		= 14; // 友情点
-	optional int32 SoulStone			= 15; // 魂石
-	optional int32 HistoricalMaxStar	= 17; // 历史最大星星数
-	optional int32 ChangeNameNum		= 18; // 改名次数
-	optional int32 ChangeNameFreeNum	= 19; // 已用免费次数
-	optional int32 ChangeNameCostDiamond= 20; // 改名价格
-	optional int32 DayBuyTiLiCount      = 21; // 今天购买体力次数
-}
-
-/// 拉物品信息
-message C2SGetItemInfos {
-	
-}
-// 物品同步结果
-message S2CRetItemInfos {
-	repeated ItemInfo Items = 1;
-}
-
-// 拉取关卡信息
-message C2SGetStageInfos {
-}
-message S2CRetStageInfos {
-	repeated StageInfo Stages 			= 1; // 关卡信息
-	optional int32 CurMaxStage 			= 2; // 当前通关关卡数目
-	optional int32 CurUnlockMaxStage 	= 3; // 最大可通关关卡
-	optional int32 UnlockLeftSec 		= 4; // 解锁剩余时间
-	optional int32 CurUnlockStageId     = 5; // 当前正在解锁的关卡Id
-}
-
-// 金币
-message C2SGetCoin {
-}
-message S2CRetCoin {
-	optional int32 Coin = 1;
-}
-
-// 钻石
-message C2SGetDiamond {
-}
-message S2CRetDiamond {
-	optional int32 Diamond = 1;
-}
-
-// 魅力值
-message C2SGetCharmVal {
-}
-message S2CRetCharmVal {
-	optional int32 CharmVal = 1;
-}
-
-// 点赞数
-message C2SGetZan {	
-}
-message S2CRetZan {
-	optional int32 Zan = 1;
-}
-
-// 体力
-message C2SGetSpirit {
-}
-message S2CRetSpirit {
-	optional int32 Spirit = 1;
-}
-// ============================================================================
-
-message C2SStagePass {
-	optional int32 StageId = 1; // 关卡Id
-	optional int32 Stars = 2; // 通关星星
-	optional int32 Score = 3; // 通关积分
-	repeated ItemInfo Items = 4; // 使用的物品
-	optional int32 Result = 5; // 通关结果  1 过关  0 失败
+// 好友信息
+message FriendInfo {
+	int32 PlayerId 			= 1; // 好友玩家Id
+	string Name 			= 2; // 好友昵称
+	string Head 			= 3; // 好友头像
+	int32 Level 			= 4; // 等级
+	int32 VipLevel 			= 5; // vip等级
+	int32 LastLogin 		= 6; // 上次登录时间
+	int32 FriendPoints 		= 7; // 友情点
+	int32 LeftGiveSeconds 	= 8; // 剩余赠送时间
+	int32 UnreadMessageNum 	= 9; // 未读消息数量
+	int32 Zan				= 10; // 赞
+	bool IsZanToday			= 11; // 今天是否赞过
+	bool IsOnline			= 12; // 是否在线
+	int32 FosteredCatNum  	= 14; // 已派遣猫数
+	int32 CanFosterCatNum  	= 15; // 可派遣猫数
 }
 
 message PlayerStageInfo {
-	optional int32 PlayerId = 1; // 玩家Id
-	optional int32 Score = 2; // 我的积分
-	optional string Name = 3; // 玩家名称
-	optional int32 Lvl = 4; // 玩家等级
-	optional string Icon = 5; // 玩家图标
-	optional string CustomIcon = 6; // 玩家自定义图标
+	int32 PlayerId 			= 1; // 玩家Id
+	int32 Score 			= 2; // 我的积分
+	string Name 			= 3; // 玩家名称
+	int32 Lvl 				= 4; // 玩家等级
+	string Icon 			= 5; // 玩家图标
+	string CustomIcon 		= 6; // 玩家自定义图标
 }
 
 message S2CStagePass {
-	optional int32 StageId = 1; // 关卡Id
-	optional int32 Stars = 2; // 通关星星
-	optional int32 Score = 3; // 通关积分
-	optional int32 TopScore = 4; // 最高积分
-	repeated ItemInfo UseItems = 5; // 使用的物品
-	optional int32 GetCoin = 6; // 获取的金币 
-	repeated ItemInfo Getitems = 7; // 获得的物品
-	repeated PlayerStageInfo RankItems = 8; // 排行榜信息
+	int32 StageId 						= 1; // 关卡Id
+	int32 Stars 						= 2; // 通关星星
+	int32 Score 						= 3; // 通关积分
+	int32 TopScore 						= 4; // 最高积分
+	repeated ItemInfo UseItems 			= 5; // 使用的物品
+	int32 GetCoin 						= 6; // 获取的金币
+	repeated ItemInfo Getitems 			= 7; // 获得的物品
+	repeated PlayerStageInfo RankItems 	= 8; // 排行榜信息
 	repeated PlayerStageInfo FriendItems = 9; // 好友信息
-	optional int32 Result = 12; // 通关结果  0 失败  1 过关
-	repeated ItemInfo GetitemsFirst = 13; // 获得的首通奖励
-	repeated ItemInfo Getitems3Star = 14; // 获得的首次3星奖励
-	optional int32 CatExtraAddCoin	= 15; // 消除能力额外获得的金币
+	int32 Result 						= 12; // 通关结果  0 失败  1 过关
+	repeated ItemInfo GetitemsFirst 	= 13; // 获得的首通奖励
+	repeated ItemInfo Getitems3Star 	= 14; // 获得的首次3星奖励
+	int32 CatExtraAddCoin				= 15; // 消除能力额外获得的金币
 }
 
-message C2SChapterUnlock {
-	optional int32 UnLockType = 1; // 解锁方式 0时间解锁 1星星解锁 2钻石解锁 3请求好友
-	optional int32 ChapterId = 2; // 章节Id
-	repeated int32 FriendIds = 3; // 好友Id
+// 登陆
+message C2SLoginRequest {
+	string Acc 						= 1; // 账号
+	string Password					= 2; // 密码
+	string Channel 					= 3; // 渠道
+}
+// 服务器信息
+message ServerInfo {
+	int32 Id 						= 1;
+	string Name						= 2;
+	string IP						= 3;
+}
+// 登陆返回
+message S2CLoginResponse {
+	string Acc 						= 1; // 账号
+	string Token 					= 2; // 令牌
+	repeated ServerInfo Servers 	= 3; // 服务器列表, key是服务器ID
+}
+/// 其它地方登录
+message S2COtherPlaceLogin {
 }
 
-message S2CChapterUnlock {
-	optional int32 ChapterId = 1; // 章节Id
-	optional int32 MaxUnlockStageId = 2; // 最大场景Id
+// 选择服务器
+message C2SSelectServerRequest {
+	string Acc						= 1; // 账号
+	string Token					= 2; // 令牌
+	int32 ServerId					= 3; // 服务器ID
+}
+// 选择服务器返回
+message S2CSelectServerResponse {
+	string Acc						= 1; // 账号
+	string Token					= 2; // 进入游戏服务器的令牌
+	string IP						= 3; // 游戏服务器地址
 }
 
-message C2SGetCurHelpReqPIds {
-	
+///////////////////////////////////start///////////////////////////////////////
+
+message C2S_MSG_DATA {
+	int32 PlayerId 		= 1;
+	string Token 		= 2;
+	int32 MsgCode 		= 3;
+	bytes Data 			= 4;
 }
 
-message S2CRetCurHelpReqPIds {
-	repeated int32 PIds = 1; // 当前请求过的玩家Id
+message S2C_MSG_DATA {
+	int32 ErrorCode 	= 1;
+	string ErrorMsg 	= 2;
+	bytes Data 			= 3;
 }
 
-message S2CRetDayHelpUnlockCount {
-	optional int32 HelpOtherNum = 1; // 今天剩余帮助别人的次数
+//////////////////////////////////////////////////////////////////////////////
+
+// 进入游戏服务器
+message C2SEnterGameRequest {
+	string Acc						= 1;
+	string Token					= 2;
+}
+message S2CEnterGameResponse {
+	string Acc						= 1;
+	int32 PlayerId					= 2;
+}
+message S2CEnterGameCompleteNotify {
 }
 
 
-// ============================================================================
-message S2COpenChest {
-	optional int32 ChestId = 1; // 宝箱Id
-	optional int32 CurCoins = 2; // 当前金币数
-	optional int32 CurDiamond =3; // 当前钻石
-	repeated ItemInfo NewItems = 4; // 新增的物品
-	optional int32 CostDiamond = 5; // 消耗的钻石
+// 按昵称查找好友信息
+message C2SFriendSearch {
+	string Key 			= 1; // 搜索内容
 }
 
-message C2SBuyChest {
-	optional int32 ChestId = 1; // 宝箱配置Id
+// 按ID查找好友
+message C2SFriendSearchById {
+	int32 PlayerId 		= 1; //玩家ID
 }
 
-message S2CBuyChest {
-	optional S2COpenChest ChestOpen = 1; // 宝箱打开结果
+// 返回好友信息
+message S2CFriendSearchResult {
+	repeated FriendInfo Result 		= 1; // 搜索结果
 }
 
-// 客户端请求使用物品
-message C2SUseItem {
-	optional int32 ItemCfgId = 1;
-	optional int32 ItemNum = 2;
+// 客户端向服务器获取好友相关列表
+message C2SGetFriendList {
+	bool HasFoster			= 1; // 是否获取寄养信息
 }
 
-// 服务器返回使用物品结果
-message S2CUseItem {
-	optional ItemInfo CostItem = 1;  // 消耗物品
+// 加好友请求信息
+message FriendReq {
+	int32 PlayerId 		= 1; // 好友玩家Id
+	string Name 			= 2; // 好友名称
+	int32 Score 			= 3; // 好友积分
+	string Head			= 4; // 好友头像
 }
 
-// 客户端向服务器发送充值收据
-message C2SPayOrder {
-	optional int32 ItemId 		= 1; // 商品ID
-	optional int32 Channel 		= 2; // 渠道 1为Apple 2为Google 3为FaceBook
-	optional bytes OrderData 	= 3; // 客户端订单数据 
+// 服务器向客户端返回好友列表
+message S2CRetFriendListResult {
+	int32 FriendType 		= 1; // 好友类型
+	repeated FriendInfo FriendList 	= 2; // 好友列表
+	repeated FriendReq Reqs 		= 3; // 加好友请求
+	int32 LeftGivePointsNum= 4; // 剩余赠送次数
 }
 
-// 充值回复
-message S2CPayOrder {
-	optional int32 CurDiamond 	= 1; // 当前钻石
-	optional int32 IsMonthCard  = 2; // 是否为月卡
+// 服务器通知好友状态
+message S2CFriendStateNotify {
+	int32 StateType 		= 1; // 0 更新  1 增加 
+	FriendInfo Info 		= 2; // 好友数据
 }
 
-// 客户端请求当前排行榜信息
-message C2SRankInfo {
-	optional int32 IfGetLast = 1; // 是否请求上个赛季的信息 1表示请求
-	optional int32 IfLocal = 2; // 是不是本地排行榜 1表示本地榜
-	optional int32 RankType = 3; // 排行榜类型 1是玩家榜 2是部落榜
+// 服务器通知好友请求
+message S2CFriendReqNotify {
+	FriendReq Req 			= 1;
 }
 
-message SmallRankRecord {
-	optional int32 Rank = 1; // 排行榜名次 从零开始
-	optional int32 Id = 2; // 对象Id
-	optional string Name = 3; // 对象描述，比如说名称
-	optional int32 Score = 4; // 对象值 就是积分
-	optional int32 TongIcon = 5; // 部落Icon
-	optional string TongName = 6; // 部落名称
-	optional int32 UpVal = 7; // 上升名次 新上榜 则为9999
+// 客户端通过Id加好友
+message C2SAddFriendByPId {
+	int32 PlayerId 		= 1; // 玩家Id
 }
 
-// 服务器向客户端同步排行榜列表
-message S2CRankItems {
-	optional int32 IfGetLast = 1; // 是否上个赛季的信息
-	repeated SmallRankRecord RankList = 2; // 排行榜记录
-	repeated SmallRankRecord LastTop3 = 3; // 上个赛季前3名
-	optional int32 IfLocal = 4; // 是不是本地排行榜 1表示本地榜
-	optional int32 RankType = 5; // 排行榜类型 1是玩家榜
+// 客户端通过昵称加好友
+message C2SAddFriendByName {
+	string Name 			= 1; // 玩家账号
 }
 
-//----------------------------------------------
-
-// 客户端向服务器拉取邮件列表
-message C2SGetMailList {
-	
+// 服务器回复添加好友
+message S2CAddFriendResult {
+	int32 PlayerId 		= 1;
 }
 
-// 服务器向客户端发送增加邮件消息
-message MailInfo {
-	optional int32 OpType = 1; // 邮件操作类别 0表示同步 1表示增加 2表示删除 3表示更新
-	optional int32 MailId = 2; // 邮件唯一Id
-	optional int32 MailType = 3;  // 邮件类型
-	optional string Title = 4; // 邮件标题
-	optional string Content = 5; // 邮件内容
-	optional int32 SenderId = 6; // 发送者Id
-	optional string SenderName = 7; // 发送者名称
-	optional int32 SendUnix = 8; // 发送时间
-	optional int32 LeftSec = 9; // 剩余多少时间
-	repeated int32 ObjIds = 10; // 邮件对象的配置Id集合
-	repeated int32 ObjNums = 11; // 邮件对象的数目集合
-	repeated int32 ExtraDatas = 12; // 邮件的附加数据
-	optional int32 State = 13; // 邮件的状态
+// 客户端同意加好友
+message C2SAgreeFriend {
+	int32 PlayerId 		= 1; // 玩家Id
 }
 
-// 服务器向客户端发送邮件列表
-message S2CMailList {
-	repeated MailInfo MailList = 1; // 邮件列表
+// 服务器返回增加好友回复
+message S2CAgreeFriendResult {
+	int32 PlayerId 		= 1; // 好友玩家Id
+	string Name 			= 2; // 好友名称
+	int32 Score 			= 3; // 好友积分
+	int32 Level			= 4; // 等级
+	string Head			= 5; // 头像
+	int32 VipLevel		  	= 6; // VIP等级
+	int32 LastLogin		= 7; // 上次登陆时间
 }
 
-// 客户端向服务器发送领取附件的请求
-message C2SGetMailAttach {
-	optional int32 MailId = 1; // 邮件Id 
+// 客户端拒绝加好友
+message C2SRefuseFriend {
+	int32 PlayerId 		= 1; // 玩家Id
 }
 
-// 客户端向服务器发送删除邮件请求
-message C2SMailRemove {
-	optional int32 MailId = 1; // 邮件Id
+// 服务器通知拒绝加好友
+message S2CRefuseFriendResult {
+	string Name 			= 1; // 对方名字
+	int32 PlayerId			= 2; // 对方ID
 }
 
-// 客户端向服务器设置邮件已读标志
-message C2SSetMailRead {
-	optional int32 MailId = 1; // 邮件Id
+// 客户端删除好友
+message C2SRemoveFriend {
+	int32 PlayerId 		= 1; // 玩家id
 }
 
-// 客户端向服务器同意帮助
-message C2SAgreeMailHelpReq {
-	optional int32 MailId = 1; // 邮件Id
+// 服务器通知客户端删除好友
+message S2CRemoveFriendResult {
+	int32 PlayerId 		= 1; // 好友Id
 }
 
-// ----------------------------------------------
-
-// 服务器向客户端发送单条公告信息
-message S2CNoticeAdd {
-	optional int32 NoticeId = 1; // 公告Id
-	optional string Content = 2; // 公告内容
-	optional int32 LastSec = 3; // 公告持续时间
+// 赠送友情点
+message C2SGiveFriendPoints {
+	repeated int32 FriendId 		= 1;
 }
 
-// 服务器向客户端发送公告信息
-message S2CNoticeList {
-	repeated S2CNoticeAdd NoticeList = 1; // 公告列表
+message FriendPointsResult {
+	int32 FriendId 		= 1;
+	int32 Points 			= 2;
+	int32 Error			= 3; // 0成功  小于0表示错误码
+	int32 RemainSeconds	= 4; // 剩余友情点赠送时间
+	bool IsTodayGive		= 5; // 今天是否已赠送
+	int32 BackPoints		= 6; // 回馈友情点
 }
 
-// ----------------------------------------------
-
-// 客户端向服务器存储设置
-message C2SSaveOptions {
-	repeated int32 Values = 1; // 设置的值
+message S2CGiveFriendPointsResult {
+	repeated FriendPointsResult PointsData = 1; // 赠送友情点数据
+	int32 LeftGivePointsNum 	   = 2; // 剩余赠送次数
 }
 
-// 客户端向服务器请存储的设置
-message C2SGetOptions {
-	
+// 收取友情点
+message C2SGetFriendPoints {
+	repeated int32 FriendId 		= 1;
+}
+message FriendPoints {
+	int32 FriendId 		= 1;
+	int32 Points 			= 2;
+}
+message S2CGetFriendPointsResult {
+	repeated FriendPoints PointsData = 1;
 }
 
-// 服务器向客户端返回设置值
-message S2CRetOptions {
-	repeated int32 Values = 1; // 设置的值
+// 客户端给好友发送消息
+message C2SFriendChat {
+	int32 PlayerId = 1; // 玩家Id
+	bytes Content 	= 2; // 聊天内容
 }
+message S2CFriendChatResult {
+	int32 PlayerId = 1; // 玩家Id
+	bytes Content 	= 2; // 聊天内容
+}
+
+// 获取好友未读消息数量
+message C2SFriendGetUnreadMessageNum {
+	repeated int32 FriendIds 	= 1; // 好友ID
+}
+message FriendUnreadMessageNumData {
+	int32 FriendId     = 1; // 好友ID
+	int32 MessageNum 	= 2; // 未读消息数量
+}
+message S2CFriendGetUnreadMessageNumResult {
+	repeated FriendUnreadMessageNumData Data = 1;
+}
+
+// 拉取好友未读聊天消息
+message C2SFriendPullUnreadMessage {
+	int32 FriendId = 1; // 好友ID
+}
+message FriendChatData {
+	bytes Content 	= 1; // 内容
+	int32 SendTime = 2; // 发送时间
+}
+message S2CFriendPullUnreadMessageResult {
+	int32 FriendId 		= 1; // 好友ID
+	repeated FriendChatData Data 	= 2; // 聊天数据
+}
+
+// 确认聊天未读消息
+message C2SFriendConfirmUnreadMessage {
+	int32 FriendId  	= 1; // 好友ID
+	int32 MessageNum 	= 2; // 消息条数
+}
+message S2CFriendConfirmUnreadMessageResult {
+	int32 FriendId		= 1; // 好友ID
+	int32 MessageNum 	= 2; // 消息条数
+}
+
+// 客户端请求好友在线状态
+message C2SGetOnlineFriends {
+	int32 Key = 1; //  好友类型 1好友 2是关注 3是粉丝
+}
+
+// 服务器返回在线好友
+message S2CRetOnlineFriends {
+	repeated int32 PlayerIds = 1; // 在线好友Id
+	int32 Key = 2; //  好友类型 1好友 2是关注 3是粉丝
+}
+
+////////////////// shop ///////////////////////
+// 请求商店商品
+message C2SShopItems {
+	int32 shop_id = 1; // 商店ID
+}
+message S2CShopItem {
+	int32 item_id = 1; // 商店ID
+	int32 left_num = 2; //剩余数量
+	int32 remain_seconds = 3; // 剩余时间(秒)
+}
+message S2CShopItemsResult {
+	int32 shop_id = 1;
+	repeated S2CShopItem items = 2;
+}
+
+// 购买商店物品
+message C2SBuyShopItem {
+	int32 item_id 		= 1; // 商品ID
+	int32 item_num 	= 2; // 商品数量
+}
+
+// 购买返回的物品
+message S2CBuyShopItemResult {
+	int32 shop_id 			= 1; // 商店ID
+	int32 item_id 			= 2; // 商品ID
+	int32 item_num			= 3; // 商品数量
+	ItemInfo add_item 		= 4; // 买到的物品
+	//ResourceInfo cost_res 	= 5; // 花费的物品资源
+}
+// 通知客户端商店需要刷新
+message S2CShopNeedRefreshNotify {
+}
+////////////////////////////////////////////////
 
 // ----------------------------------------------
 
 // 日常任务数据
 message DialyTaskData {
-	optional int32 TaskId = 1; // 任务Id
-	optional int32 TaskValue = 2; // 任务值
-	optional int32 TaskState = 3; // 任务状态 0 未完成 1 完成 2 已领奖
-	//optional int32 RewardUnix = 4; // 领取奖励时间戳 如果大于零则表示已经领奖
+	int32 TaskId = 1; // 任务Id
+	int32 TaskValue = 2; // 任务值
+	int32 TaskState = 3; // 任务状态 0 未完成 1 完成 2 已领奖
+	//int32 RewardUnix = 4; // 领取奖励时间戳 如果大于零则表示已经领奖
 }
 
 // 客户端向服务器请求日常任务数据
@@ -541,17 +429,17 @@ message S2CSyncDialyTask {
 
 // 服务器向客户端通知任务值变化
 message S2CNotifyTaskValueChg {
-	optional int32 TaskId = 1; // 任务Id
-	optional int32 TaskValue = 2; // 任务值
-	optional int32 TaskState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
+	int32 TaskId = 1; // 任务Id
+	int32 TaskValue = 2; // 任务值
+	int32 TaskState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
 }
 
 // 成就数据
 message AchieveData {
-	optional int32 AchieveId = 1; // 任务Id
-	optional int32 AchieveValue = 2; // 任务数据
-	optional int32 AchieveState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
-	//optional int32 RewardUnix = 4; // 领取奖励时间戳 如果大于零则表示已经领奖
+	int32 AchieveId = 1; // 任务Id
+	int32 AchieveValue = 2; // 任务数据
+	int32 AchieveState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
+	//int32 RewardUnix = 4; // 领取奖励时间戳 如果大于零则表示已经领奖
 }
 
 // 客户端向服务器请求成就数据
@@ -565,187 +453,69 @@ message S2CSyncAchieveData {
 
 // 服务器向客户端通知成就值变化
 message S2CNotifyAchieveValueChg {
-	optional int32 AchieveId = 1; // 任务Id
-	optional int32 AchieveValue = 2; // 任务值
-	optional int32 AchieveState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
+	int32 AchieveId = 1; // 任务Id
+	int32 AchieveValue = 2; // 任务值
+	int32 AchieveState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
 }
 
 // 客户端向服务器请求日常任务奖励
 message C2SGetTaskReward {
-	optional int32 TaskId = 1;
+	int32 TaskId = 1;
 }
 
 // 服务器向客户端发送任务结果
 message S2CRetTaskReward {
-	optional int32 TaskId = 1; // 任务Id
-	optional int32 Coin = 2; // 金币
-	optional int32 Diamond = 3; // 钻石奖励
-	optional int32 Exp = 4; // 当前经验
-	optional int32 CurLvl = 5; // 当前等级
+	int32 TaskId = 1; // 任务Id
+	int32 Coin = 2; // 金币
+	int32 Diamond = 3; // 钻石奖励
+	int32 Exp = 4; // 当前经验
+	int32 CurLvl = 5; // 当前等级
 }
 
 // 客户端向服务器请求成就奖励
 message C2SGetAchieveReward {
-	optional int32 AchieveReward = 1; // 成就Id
+	int32 AchieveReward = 1; // 成就Id
 }
 
 // 服务器向客户端完成成就
 message S2CRetAchieveReward {
-	optional int32 TaskId = 1; // 任务Id
-	optional int32 Coin = 2; // 金币
-	optional int32 Diamond = 3; // 钻石奖励
-	optional int32 Exp = 4; // 当前经验
-	optional int32 CurLvl = 5; // 当前等级
-}
-
-// ------------------------------------------------
-
-// 客户端请求修改昵称
-message C2SChgName {
-	optional string Name = 1; // 玩家名称
-}
-// 服务器返回
-message S2CChgName {
-	optional string Name = 1; // 玩家名称
-	optional int32 ChgNameCount = 2; // 改名次数 从0开始
-}
-
-// 客户端请求更改头像
-message C2SChangeHead {
-	optional string NewHead = 1; // 头像ID
-}
-// 服务器返回
-message S2CChangeHead {
-	optional string NewHead = 1;
-}
-
-// --------------------------------------------------
-
-// 客户端向服务器查询玩家信息
-message C2SGetPlayerInfo {
-	optional int32 PlayerId = 1; // 玩家Id
-}
-
-message OtherPlayerBaseInfo {
-	optional int32 PlayerId = 1; // 玩家Id
-	optional int32 MatchScore = 2; // 玩家基本
-	optional int32 Coins = 3; // 玩家金币
-	optional int32 Diamonds = 4; // 玩家钻石
-	optional int32 CurUseCardTeam = 5; // 当前上阵卡组
-	optional int32 MyLvl = 6; // 我的等级
-	optional int32 ArenaLvl = 7; // 竞技场等级
-	optional int32 CurLegBestScore = 8; // 当前传奇竞技场最佳分数
-	optional int32 LastLegBestScore = 9; // 上一次赛季传奇最佳分数
-	optional int32 CurLegScore = 10; // 传奇竞技场杯数
-	optional int32 WinCount = 11; // 胜利次数
-	optional int32 OfenCardCfgId = 12; // 近期常用卡片
-	optional int32 DonateCount = 13; // 捐赠总数
-	optional int32 CheModWinCount = 14; // 挑战模式胜利次数
-	optional int32 CheModeOfenCardCfg = 15; // 挑战模式常用卡片
-	optional int32 ThreeTowerCount = 16; // 获得三个皇冠的次数
-	optional int32 Camp = 17; // 玩家阵营
-	optional string TongName = 18; // 帮会名称
-	optional int32 TongIcon = 19; // 帮会图标，为零表示没有帮会
-	repeated int32 FightCardIds = 20; // 出战卡片Id
-	repeated int32 FightCardLvls = 21; // 出战卡片的等级
-	optional int32 CurCardGetNum = 22; // 目前已经获得的卡片数量
-	optional int32 IfCaptain =23; // 是否帮会首领
-}
-
-// 服务器向客户端返回玩家信息
-message S2CRetPlayerInfo {
-	optional OtherPlayerBaseInfo BaseInfo = 1; // 玩家信息
+	int32 TaskId = 1; // 任务Id
+	int32 Coin = 2; // 金币
+	int32 Diamond = 3; // 钻石奖励
+	int32 Exp = 4; // 当前经验
+	int32 CurLvl = 5; // 当前等级
 }
 
 // ----------------------------------------------------------------------------
-
-// 服务器向客户端同步签到状态
-message S2CSyncSignInfo {
-	optional int32 CurSignSum = 1; // 本月累计签到总数
- 	repeated int32 CurSignDays = 2; // 最近的签到日期
-	repeated int32 CurGetSignSumRewards = 3; // 当前领取过的累计签到奖励
+// 发送世界聊天消息
+message C2SWorldChatSend {
+	bytes Content				= 1;
+}
+message S2CWorldChatSendResult {
+	bytes Content				= 1;
 }
 
-// 客户端向服务器请求签到
-message C2SDaySign {
-	
+// 拉取世界聊天消息
+message C2SWorldChatMsgPull {
+}
+message WorldChatItem {
+	bytes Content 				= 1;
+	int32 PlayerId				= 2;
+	string PlayerName			= 3;
+	string PlayerHead			= 4;
+	int32 PlayerLevel			= 5;
+	int32 IsZaned				= 6;
+	int32 IsFriend				= 7;
+	int32 SendTime				= 8;
+}
+message S2CWorldChatMsgPullResult {
+	repeated WorldChatItem Items		= 1; 
 }
 
-// 服务器向客户端回复签到
-message S2CDaySign {
-	optional int32 SignDay = 1; // 签到天数
-	optional int32 CurCoin = 2; // 当前金币
-	optional int32 CurDiamond = 3; // 当前钻石
-	optional int32 CurCardToken1 = 4; // 当前Token1
-	optional int32 CurCardToken2 = 5; // 当前Token2
-	optional int32 CurCardToken3 = 6; // 当前Token3
-	optional int32 CurCardToken4 = 7; // 当前Token4
-	optional S2COpenChest ChestOpen = 8; // 如果奖励中有宝箱，这个是宝箱打开结果
-	optional int32 CardCfgId = 9; // 奖励中单独配置的卡片
-	optional int32 CurCardNum = 10; //  奖励中单独配置的卡片加完之后的数目
+// 返回世界聊天封禁时间
+message S2CWorldChatForbid {
+	string EndTime = 1; // 封禁结束时间
 }
-
-// 客户端向服务器请求领取累计签到奖励
-message C2SGetDaySignSumReward {
-	optional int32 SumNum = 1; // 奖励对应的累计天数
-}
-
-// 服务器向客户端返回累计签到领取的奖励
-message S2CRetDaySignSumReward {
-	optional S2COpenChest Rewards = 1; // 累计签到奖励内容
-	optional int32 SumNum = 2; // 本次奖励次数
-}
-
-// ----------------------------------------------------------------------------
-
-// 服务器向客户端同步首充状态
-message S2CSyncFirstPayState {
-	optional int32 CurState = 1; // 当前状态
-}
-
-// 客户端向服务器请求领取首充奖励
-message C2SGetFirstPayReward {
-	
-}
-
-// 服务器向客户端回复首充奖励
-message S2CRetFirstPayReward {
-	optional S2COpenChest Rewards = 1; // 累计签到奖励内容
-}
-
-// ----------------------------------------------------------------------------
-
-// 活动数据
-message ActivityData {
-	optional int32 ActivityId = 1; // 任务Id
-	optional int32 ActivityValue = 2; // 任务数据
-	optional int32 RewardUnix = 3; // 领取奖励时间戳 如果大于零则表示已经领奖
-	optional int32 LeftDays = 4; // 当天也算一天
-}
-
-// 服务器向客户端同步七天活动信息
-message S2CSyncSevenActivity {
-	repeated ActivityData ActivityList = 1; // 活动列表
-}
-
-// 服务器向客户端通知七天活动值改变
-message S2CNotifySevenActValueChg {
-	optional int32 ActivityId = 1; // 活动Id
-	optional int32 ActivityValue = 2; // 活动值
-}
-
-// 客户端向服务器请求领取七天活动奖励
-message C2SGetSevenActReward {
-	optional int32 ActivityId = 1; // 活动Id
-}
-
-// 服务器向客户端返回七天任务奖励
-message S2CRetSevenActReward {
-	optional int32 ActivityId = 1; // 活动Id
-	optional S2COpenChest Rewards = 2; // 活动奖励
-}
-
-// ----------------------------------------------------------------------------
 
 // 服务器向客户端同步引导数据
 message S2CSyncGuideData {
@@ -754,466 +524,11 @@ message S2CSyncGuideData {
 
 // 客户端向服务器存储引导数据
 message C2SSaveGuideData {
-	optional int32 GuideId = 1; // 引导Id
+	int32 GuideId = 1; // 引导Id
 }
 
 // 服务器向客户端返回引导存储
 message S2CRetSaveGuideData {
-	optional int32 GuideId = 1; // 引导Id
+	int32 GuideId = 1; // 引导Id
 }
 
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-// 抽奖
-message C2SDraw {
-	optional int32 DrawType = 1; // 抽取类型
-	optional int32 DrawCount = 2; // 抽取次数
-}
-
-// 服务器返回抽奖结果
-message S2CDrawResult {
-	repeated ItemInfo Items 				= 1; // 获得物品
-	optional bool IsFirst					= 2; // 首抽
-}
-
-// 拉取资源物品属性(Other表里配置的属性，像金币，钻石，体力，魅力值，猫粮等)
-message C2SItemResource {
-	repeated int32 ResourceIds = 1; // 需要拉取的属性
-}
-// 资源物品属性
-message S2CItemResourceValue {
-	optional int32 ResourceId = 1;
-	optional int32 ResourceValue = 2;
-}
-// 拉取资源物品属性返回
-message S2CItemResourceResult {
-	repeated S2CItemResourceValue items = 2;
-}
-
-// 请求商店商品
-message C2SShopItems {
-	optional int32 shop_id = 1; // 商店ID
-}
-message S2CShopItem {
-	optional int32 item_id = 1; // 商店ID
-	optional int32 left_num = 2; //剩余数量
-	optional int32 remain_seconds = 3; // 剩余时间(秒)
-}
-message S2CShopItemsResult {
-	optional int32 shop_id = 1;
-	repeated S2CShopItem items = 2;
-}
-
-// 购买商店物品
-message C2SBuyShopItem {
-	optional int32 item_id 		= 1; // 商品ID
-	optional int32 item_num 	= 2; // 商品数量
-}
-
-// 购买返回的物品
-message S2CBuyShopItemResult {
-	optional int32 shop_id 			= 1; // 商店ID
-	optional int32 item_id 			= 2; // 商品ID
-	optional int32 item_num			= 3; // 商品数量
-	optional ItemInfo add_item 		= 4; // 买到的物品
-	optional ResourceInfo cost_res 	= 5; // 花费的物品资源
-}
-// 通知客户端商店需要刷新
-message S2CShopNeedRefreshNotify {
-}
-
-// 出售物品
-message C2SSellItem {
-	optional int32 ItemId       = 1;
-	optional int32 ItemNum		= 2;
-}
-message S2CSellItemResult {
-	optional int32 ItemId		= 1;
-	optional int32 ItemNum		= 2;
-}
-
-// 关卡开始
-message C2SStageBegin {
-	optional int32 StageId 	= 1;
-	optional int32 CatId   	= 2;
-	repeated int32 ItemIds	= 3; 
-}
-message S2CStageBeginResult {
-	optional int32 StageId = 1;
-}
-
-// ----------------------------------------------------------------------------
-
-// 好友信息
-message FriendInfo {
-	optional int32 PlayerId 		= 1; // 好友玩家Id
-	optional string Name 			= 2; // 好友昵称
-	optional string Head 			= 3; // 好友头像
-	optional int32 Level 			= 4; // 等级
-	optional int32 VipLevel 		= 5; // vip等级
-	optional int32 LastLogin 		= 6; // 上次登录时间
-	optional int32 FriendPoints 	= 7; // 友情点
-	optional int32 LeftGiveSeconds 	= 8; // 剩余赠送时间
-	optional int32 UnreadMessageNum = 9; // 未读消息数量
-	optional int32 Zan				= 10; // 赞
-	optional bool IsZanToday		= 11; // 今天是否赞过
-	optional bool IsOnline			= 12; // 是否在线
-	optional int32 FosteredCatNum   = 14; // 已派遣猫数
-	optional int32 CanFosterCatNum  = 15; // 可派遣猫数
-}
-
-// 按昵称查找好友信息
-message C2SFriendSearch {
-	optional string Key 			= 1; // 搜索内容
-}
-
-// 按ID查找好友
-message C2SFriendSearchById {
-	optional int32 PlayerId 		= 1; //玩家ID
-}
-
-// 返回好友信息
-message S2CFriendSearchResult {
-	repeated FriendInfo Result 		= 1; // 搜索结果
-}
-
-// 客户端向服务器获取好友相关列表
-message C2SGetFriendList {
-	optional bool HasFoster			= 1; // 是否获取寄养信息
-}
-
-// 加好友请求信息
-message FriendReq {
-	optional int32 PlayerId 		= 1; // 好友玩家Id
-	optional string Name 			= 2; // 好友名称
-	optional int32 Score 			= 3; // 好友积分
-	optional string Head			= 4; // 好友头像
-}
-
-// 服务器向客户端返回好友列表
-message S2CRetFriendListResult {
-	optional int32 FriendType 		= 1; // 好友类型
-	repeated FriendInfo FriendList 	= 2; // 好友列表
-	repeated FriendReq Reqs 		= 3; // 加好友请求
-	optional int32 LeftGivePointsNum= 4; // 剩余赠送次数
-}
-
-// 服务器通知好友状态
-message S2CFriendStateNotify {
-	optional int32 StateType 		= 1; // 0 更新  1 增加 
-	optional FriendInfo Info 		= 2; // 好友数据
-}
-
-// 服务器通知好友请求
-message S2CFriendReqNotify {
-	optional FriendReq Req 			= 1;
-}
-
-// 客户端通过Id加好友
-message C2SAddFriendByPId {
-	optional int32 PlayerId 		= 1; // 玩家Id
-}
-
-// 客户端通过昵称加好友
-message C2SAddFriendByName {
-	optional string Name 			= 1; // 玩家账号
-}
-
-// 服务器回复添加好友
-message S2CAddFriendResult {
-	optional int32 PlayerId 		= 1;
-}
-
-// 客户端同意加好友
-message C2SAgreeFriend {
-	optional int32 PlayerId 		= 1; // 玩家Id
-}
-
-// 服务器返回增加好友回复
-message S2CAgreeFriendResult {
-	optional int32 PlayerId 		= 1; // 好友玩家Id
-	optional string Name 			= 2; // 好友名称
-	optional int32 Score 			= 3; // 好友积分
-	optional int32 Level			= 4; // 等级
-	optional string Head			= 5; // 头像
-	optional int32 VipLevel		  	= 6; // VIP等级
-	optional int32 LastLogin		= 7; // 上次登陆时间
-}
-
-// 客户端拒绝加好友
-message C2SRefuseFriend {
-	optional int32 PlayerId 		= 1; // 玩家Id
-}
-
-// 服务器通知拒绝加好友
-message S2CRefuseFriendResult {
-	optional string Name 			= 1; // 对方名字
-	optional int32 PlayerId			= 2; // 对方ID
-}
-
-// 客户端删除好友
-message C2SRemoveFriend {
-	optional int32 PlayerId 		= 1; // 玩家id
-}
-
-// 服务器通知客户端删除好友
-message S2CRemoveFriendResult {
-	optional int32 PlayerId 		= 1; // 好友Id
-}
-
-// 赠送友情点
-message C2SGiveFriendPoints {
-	repeated int32 FriendId 		= 1;
-}
-
-message FriendPointsResult {
-	optional int32 FriendId 		= 1;
-	optional int32 Points 			= 2;
-	optional int32 Error			= 3; // 0成功  小于0表示错误码
-	optional int32 RemainSeconds	= 4; // 剩余友情点赠送时间
-	optional bool IsTodayGive		= 5; // 今天是否已赠送
-	optional int32 BackPoints		= 6; // 回馈友情点
-}
-
-message S2CGiveFriendPointsResult {
-	repeated FriendPointsResult PointsData = 1; // 赠送友情点数据
-	optional int32 LeftGivePointsNum 	   = 2; // 剩余赠送次数
-}
-
-// 收取友情点
-message C2SGetFriendPoints {
-	repeated int32 FriendId 		= 1;
-}
-message FriendPoints {
-	optional int32 FriendId 		= 1;
-	optional int32 Points 			= 2;
-}
-message S2CGetFriendPointsResult {
-	repeated FriendPoints PointsData = 1;
-}
-
-// 客户端给好友发送消息
-message C2SFriendChat {
-	optional int32 PlayerId = 1; // 玩家Id
-	optional bytes Content 	= 2; // 聊天内容
-}
-message S2CFriendChatResult {
-	optional int32 PlayerId = 1; // 玩家Id
-	optional bytes Content 	= 2; // 聊天内容
-}
-
-// 获取好友未读消息数量
-message C2SFriendGetUnreadMessageNum {
-	repeated int32 FriendIds 	= 1; // 好友ID
-}
-message FriendUnreadMessageNumData {
-	optional int32 FriendId     = 1; // 好友ID
-	optional int32 MessageNum 	= 2; // 未读消息数量
-}
-message S2CFriendGetUnreadMessageNumResult {
-	repeated FriendUnreadMessageNumData Data = 1;
-}
-
-// 拉取好友未读聊天消息
-message C2SFriendPullUnreadMessage {
-	optional int32 FriendId = 1; // 好友ID
-}
-message FriendChatData {
-	optional bytes Content 	= 1; // 内容
-	optional int32 SendTime = 2; // 发送时间
-}
-message S2CFriendPullUnreadMessageResult {
-	optional int32 FriendId 		= 1; // 好友ID
-	repeated FriendChatData Data 	= 2; // 聊天数据
-}
-
-// 确认聊天未读消息
-message C2SFriendConfirmUnreadMessage {
-	optional int32 FriendId  	= 1; // 好友ID
-	optional int32 MessageNum 	= 2; // 消息条数
-}
-message S2CFriendConfirmUnreadMessageResult {
-	optional int32 FriendId		= 1; // 好友ID
-	optional int32 MessageNum 	= 2; // 消息条数
-}
-
-// 客户端请求好友在线状态
-message C2SGetOnlineFriends {
-	optional int32 Key = 1; //  好友类型 1好友 2是关注 3是粉丝
-}
-
-// 服务器返回在线好友
-message S2CRetOnlineFriends {
-	repeated int32 PlayerIds = 1; // 在线好友Id
-	optional int32 Key = 2; //  好友类型 1好友 2是关注 3是粉丝
-}
-
-// ----------------------------------------------------------------------------
-
-message NotifyState {
-	optional int32 NewMailState = 1; // 新邮件标志
-}
-
-// 拉取图鉴
-message C2SGetHandbook {
-}
-message S2CGetHandbookResult {
-	repeated int32 Items 		= 1; // 图鉴ID
-	repeated int32 AwardSuitId 	= 2; // 领过奖的套装ID
-}
-
-// 新图鉴物品
-message S2CNewHandbookItemNotify {
-	optional int32 ItemId = 1;
-}
-
-// 头像列表
-message C2SGetHead {
-}
-message S2CGetHeadResult {
-	repeated int32 Items = 1;
-}
-
-// 新头像
-message S2CNewHeadNotify {
-	optional int32 ItemId = 1;
-}
-
-// 套装图鉴领奖
-message C2SGetSuitHandbookReward {
-	optional int32 SuitId = 1;
-}
-message S2CGetSuitHandbookRewardResult {
-	repeated ItemInfo Rewards = 1;
-}
-
-// ----------------------------------------------------------------------------
-
-message ActivityInfo {
-	optional int32 CfgId = 1; // 活动配置Id
-	repeated int32 States = 2; // 活动状态值 对于普通活动（第一个值0表示未完成1表示可以领取2已经领取, 其他的值根据具体活动来定）
-	repeated int32 Vals = 3; // 活动本身的值
-}
-
-message C2SGetAllActivityInfos {
-	
-}
-
-message ActivityInfosUpdate {
-	repeated ActivityInfo Activityinfos = 1; // 活动信息
-}
-
-message C2SGetActivityReward {
-	optional int32 ActivityCfgId = 1; // 活动Id
-	repeated int32 ExtraParams = 2; // 附加参数
-}
-
-message S2CRetActivityReward {
-	optional int32 ActivityCfgId = 1; // 活动Id
-	repeated IdNum Rewards = 2; // 奖励
-}
-
-// ----------------------------------------------------------------------------
-message C2SZanPlayer {
-	optional int32 PlayerId = 1;
-}
-message S2CZanPlayerResult {
-	optional int32 PlayerId = 1;
-	optional int32 TotalZan = 2;
-}
-
-// ----------------------------------------------------------------------------
-// 排行项信息
-message RankingListItemInfo {
-	optional int32 Rank					= 1; // 排名
-	optional int32 PlayerId				= 2; // 玩家ID
-	optional string PlayerName			= 3; // 玩家昵称
-	optional int32 PlayerLevel  		= 4; // 玩家等级
-	optional string PlayerHead			= 5; // 玩家头像
-	optional int32 PlayerStageTotalScore = 6; // 玩家所有关卡最高总分
-	optional int32 PlayerStageId		= 7; // 关卡
-	optional int32 PlayerStageScore		= 8; // 关卡最高积分
-	optional int32 PlayerCharm			= 9; // 魅力值
-	optional int32 PlayerZaned			= 10; // 获赞数
-	optional int32 CatId				= 11; // 猫ID
-	optional int32 CatTableId			= 12; // 猫配置ID
-	optional string CatNick				= 13; // 猫昵称
-	optional int32 CatOuqi				= 14; // 猫欧气值
-	optional int32 CatLevel				= 15; // 猫等级
-	optional int32 CatStar				= 16; // 猫星级
-	optional bool IsZaned				= 17; // 是否被我赞过
-	optional bool IsFriend				= 18; // 是否为好友
-}
-
-// 请求排行榜
-message C2SPullRankingList {
-	optional int32 RankType				= 1; // 排行榜类型 
-	optional int32 StartRank			= 2; // 开始排名
-	optional int32 RankNum				= 3; // 排名数
-	optional int32 Param			 	= 4; // 额外参数 (RankType为2时是关卡ID，RankType为4时是玩家欧气值最大的猫ID)
-}
-
-// 返回排行榜
-message S2CPullRankingListResult {
-	optional int32 RankType				= 1; // 排行榜类型 (1 消除关卡总分排行  2 消除每关排行  3 魅力排行  4 欧气值排行  5 点赞排行)
-	optional int32 StartRank			= 2; // 开始排名
-	repeated RankingListItemInfo ItemList = 3; // 排行项
-	optional int32 SelfRank				= 4; // 本人名次
-	optional int32 SelfValue1			= 5; // 类型1 总分  2 积分  3 魅力值  4 猫ID
-	optional int32 SelfValue2		 	= 6; // 类型4时为 欧气值
-}
-
-// ----------------------------------------------------------------------------
-// 发送世界聊天消息
-message C2SWorldChatSend {
-	optional bytes Content				= 1;
-}
-message S2CWorldChatSendResult {
-	optional bytes Content				= 1;
-}
-
-// 拉取世界聊天消息
-message C2SWorldChatMsgPull {
-}
-message WorldChatItem {
-	optional bytes Content 				= 1;
-	optional int32 PlayerId				= 2;
-	optional string PlayerName			= 3;
-	optional string PlayerHead			= 4;
-	optional int32 PlayerLevel			= 5;
-	optional int32 IsZaned				= 6;
-	optional int32 IsFriend				= 7;
-	optional int32 SendTime				= 8;
-}
-message S2CWorldChatMsgPullResult {
-	repeated WorldChatItem Items		= 1; 
-}
-
-// 返回世界聊天封禁时间
-message S2CWorldChatForbid {
-	optional string EndTime = 1; // 封禁结束时间
-}
-
-// ----------------------------------------------------------------------------
-// 系统公告项
-message AnouncementItem {
-	optional int32 MsgType				= 1; // 公告类型（1 获得4/5星寄养卡  2 获得4阶装饰物  3 获得4阶装饰物配方  4 获得SSR猫  5 排行榜首位  6 猫满级  7 纯文本）
-	optional int32 PlayerId				= 2; // 玩家ID
-	optional string PlayerName			= 3; // 玩家昵称
-	optional int32 PlayerLevel			= 4; // 玩家等级
-	optional int32 SendTime				= 5; // 发送时间
-	optional int32 FosterCardTableId	= 6; // 获得寄养卡配置ID，对应获取寄养卡公告
-	optional int32 FormulaTableId		= 7; // 配方ID获得，对应获取装饰物配方公告
-	optional int32 BuildingTableId		= 8; // 获得装饰物配置ID，对应获得装饰物公告
-	optional int32 SSRCatTableId		= 9; // 获得SSR猫配置ID，对应获取SSR猫公告
-	optional int32 RankType				= 10; // 排行榜首位类型，对应排行榜公告
-	optional int32 StageId				= 11; // 关卡ID，对应积分排行榜公告
-	optional int32 CatFullLevelTableId	= 12; // 猫满级的配置ID，对应猫满级公告
-	optional string Content				= 13; // 文本内容，对应纯文本公告
-}
-
-// 系统公告通知
-message S2CAnouncementNotify {
-	repeated AnouncementItem Items		= 1; // 公告数据
-}

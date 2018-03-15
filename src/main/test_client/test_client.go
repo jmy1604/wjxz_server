@@ -9,6 +9,7 @@ import (
 	"libs/timer"
 	"net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 	"strings"
 	"sync"
 	"time"
@@ -120,14 +121,158 @@ const (
 	CMD_TYPE_LOGIN = 1 // 登录命令
 )
 
-type JsonLoginRes struct {
-	Code    int32
-	Account string
-	Token   string
-	HallIP  string
+type JsonRequestData struct {
+	MsgId   int32  // 消息ID
+	MsgData []byte // 消息体
+}
+
+type JsonResponseData struct {
+	Code    int32  // 错误码
+	MsgId   int32  // 消息ID
+	MsgData []byte // 消息体
 }
 
 var cur_hall_conn *HallConnection
+
+func get_res(url string) []byte {
+	return nil
+}
+
+func login_func(account string) {
+	/*var login_msg msg_client_message.C2SLoginRequest
+	login_msg.Acc = account
+	login_msg.Password = ""
+	login_msg.Channel = ""
+
+	var login_msg_data []byte
+	var err error
+	login_msg_data, err = proto.Marshal(&login_msg)*/
+	url_str := fmt.Sprintf(config.LoginUrl, account, "")
+
+	log.Debug("login Url str %s", url_str)
+
+	var resp *http.Response
+	var err error
+	if config.UseHttps {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err = client.Get(url_str)
+	} else {
+		resp, err = http.Get(url_str)
+	}
+	if nil != err {
+		log.Error("login http get err (%s)", err.Error())
+		return
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if nil != err {
+		log.Error("login ioutil readall failed err(%s) !", err.Error())
+		return
+	}
+
+	log.Debug("login result data: %v", data)
+
+	res := &JsonResponseData{}
+	err = json.Unmarshal(data, res)
+	if nil != err {
+		log.Error("login ummarshal failed err(%s)", err.Error())
+		return
+	}
+
+	if res.Code < 0 {
+		log.Warn("return error_code[%v]", res.Code)
+		return
+	}
+
+	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE) {
+		log.Warn("returned msg_id[%v] is not correct")
+		return
+	}
+
+	var msg msg_client_message.S2CLoginResponse
+	err = proto.Unmarshal(res.MsgData, &msg)
+	if err != nil {
+		log.Error("unmarshal error[%v]", err.Error())
+		return
+	}
+
+	if len(msg.GetServers()) == 0 {
+		log.Warn("no servers in server list")
+		return
+	}
+
+	select_server_func(account, msg.GetToken(), msg.GetServers()[0].GetId())
+}
+
+func select_server_func(account string, token string, server_id int32) {
+	/*var select_msg msg_client_message.C2SSelectServerRequest
+	select_msg.Acc = account
+	select_msg.Token = token
+	select_msg.ServerId = server_id
+
+	var select_msg_data []byte
+	var err error
+	select_msg_data, err = proto.Marshal(&select_msg)*/
+
+	url_str := fmt.Sprintf(config.SelectServerUrl, account, token, server_id)
+	log.Debug("select server Url str %s", url_str)
+
+	var resp *http.Response
+	var err error
+	if config.UseHttps {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err = client.Get(url_str)
+	} else {
+		resp, err = http.Get(url_str)
+	}
+	if nil != err {
+		log.Error("login http get err (%s)", err.Error())
+		return
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if nil != err {
+		log.Error("login ioutil readall failed err(%s) !", err.Error())
+		return
+	}
+
+	res := &JsonResponseData{}
+	err = json.Unmarshal(data, res)
+	if nil != err {
+		log.Error("login ummarshal failed err(%s)", err.Error())
+		return
+	}
+
+	if res.Code < 0 {
+		log.Warn("return error_code[%v]", res.Code)
+		return
+	}
+
+	if res.MsgId != int32(msg_client_message_id.MSGID_S2C_SELECT_SERVER_RESPONSE) {
+		log.Warn("returned msg_id[%v] is not correct")
+		return
+	}
+
+	var msg msg_client_message.S2CSelectServerResponse
+	err = proto.Unmarshal(res.MsgData, &msg)
+	if err != nil {
+		log.Error("unmarshal error[%v]", err.Error())
+		return
+	}
+
+	cur_hall_conn := new_hall_connect(msg.GetIP(), account, msg.GetToken(), config.UseHttps)
+	hall_conn_mgr.AddHallConn(cur_hall_conn)
+	req2s := &msg_client_message.C2SEnterGameRequest{}
+	req2s.Acc = account
+	req2s.Token = msg.GetToken()
+	cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), req2s)
+}
 
 func (this *TestClient) cmd_login(use_https bool) {
 	var acc string
@@ -147,204 +292,25 @@ func (this *TestClient) cmd_login(use_https bool) {
 		if config.AccountNum > 1 {
 			account = fmt.Sprintf("%s_%v", acc, i)
 		}
-		url_str := fmt.Sprintf(config.LoginUrl, account)
-		//url_str := fmt.Sprintf("http://123.207.182.67:15000/login?account=%s&token=0000", acc)
-		//url_str := fmt.Sprintf("http://192.168.10.113:35000/login?account=%s&token=0000", acc)
-		fmt.Println("Url str %s", url_str)
-		http.Get(url_str)
-		http.Get(url_str)
-		http.Get(url_str)
 
-		var resp *http.Response
-		var err error
-		if use_https {
-			tr := &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			}
-			client := &http.Client{Transport: tr}
-			resp, err = client.Get(url_str)
-		} else {
-			resp, err = http.Get(url_str)
-		}
-		if nil != err {
-			log.Error("login http get err (%s)", err.Error())
-			return
-		}
-
-		data, err := ioutil.ReadAll(resp.Body)
-		if nil != err {
-			log.Error("login ioutil readall failed err(%s) !", err.Error())
-			return
-		}
-
-		res := &JsonLoginRes{}
-		err = json.Unmarshal(data, res)
-		if nil != err {
-			log.Error("login ummarshal failed err(%s)", err.Error())
-			return
-		}
-
-		log.Info("login before connect hall, HallIP(%v), Account(%v), Token(%v)", res.HallIP, res.Account, res.Token)
-
-		cur_hall_conn = new_hall_connect(res.HallIP, res.Account, res.Token, use_https)
-		hall_conn_mgr.AddHallConn(cur_hall_conn)
-
-		req2s := &msg_client_message.C2SLoginRequest{}
-		req2s.Acc = proto.String(res.Account)
-		req2s.Token = proto.String(res.Token)
-		req2s.Channel = proto.String("test_channel")
-
-		cur_hall_conn.Send(req2s)
+		login_func(account)
 
 		if config.AccountNum > 1 {
-			log.Debug("Account[%v] logined, total count[%v]", res.Account, i+1)
+			log.Debug("Account[%v] logined, total count[%v]", account, i+1)
 		}
 	}
-}
-
-func (this *TestClient) cmd_options_get() {
-	if nil == cur_hall_conn || !cur_hall_conn.blogin {
-		log.Error("当前连接未登陆", cur_hall_conn)
-	} else {
-		req := &msg_client_message.C2SGetOptions{}
-		log.Info("获取选项保存值 [%v]", req)
-		cur_hall_conn.Send(req)
-	}
-}
-
-func (this *TestClient) cmd_stage_pass() {
-	if nil == cur_hall_conn || !cur_hall_conn.blogin {
-		log.Error("当前连接未登陆", cur_hall_conn)
-	} else {
-		req := &msg_client_message.C2SStagePass{}
-		fmt.Println("请输入关卡Id:")
-		var stageid int32
-		fmt.Scanf("%d\n", &stageid)
-		req.StageId = proto.Int32(stageid)
-		fmt.Println("请输入积分:")
-		var score int32
-		fmt.Scanf("%d\n", &score)
-		req.Score = proto.Int32(score)
-		fmt.Println("请输入星星:")
-		var stars int32
-		fmt.Scanf("%d\n", &stars)
-		req.Stars = proto.Int32(stars)
-		cur_hall_conn.Send(req)
-	}
-}
-
-func (this *TestClient) cmd_get_items() {
-	if nil == cur_hall_conn || !cur_hall_conn.blogin {
-		log.Error("当前连接未登陆", cur_hall_conn)
-	} else {
-		req := &msg_client_message.C2SGetItemInfos{}
-		cur_hall_conn.Send(req)
-	}
-}
-
-func (this TestClient) cmd_draw_cards() {
-	if nil == cur_hall_conn || !cur_hall_conn.blogin {
-		log.Error("当前连接未登陆", cur_hall_conn)
-	} else {
-		req := &msg_client_message.C2SDraw{}
-		fmt.Println("请输入抽取类型:")
-		var drawtype int32
-		fmt.Scanf("%d\n", &drawtype)
-		req.DrawType = proto.Int32(drawtype)
-		fmt.Println("请输入抽取次数:")
-		var drawcount int32
-		fmt.Scanf("%d\n", &drawcount)
-		req.DrawCount = proto.Int32(drawcount)
-		cur_hall_conn.Send(req)
-	}
-}
-
-func (this *TestClient) cmd_get_base_info() {
-	req := &msg_client_message.C2SGetBaseInfo{}
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_change_nick() {
-	var new_nick string
-	fmt.Println("请输入新昵称:")
-	fmt.Scanf("%s\n", &new_nick)
-	req := &msg_client_message.C2SChgName{}
-	req.Name = proto.String(new_nick)
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_heart_beat() {
-	log.Info("心跳")
-	cur_hall_conn.Send(&msg_client_message.HeartBeat{})
-}
-
-func (this *TestClient) cmd_get_info() {
-	fmt.Println("获取基本信息")
-	req := &msg_client_message.C2SGetInfo{}
-	req.Stage = proto.Bool(true)
-
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_unlock_chapter() {
-	fmt.Println("请输入章节Id:")
-	var chapter_id int32
-	fmt.Scanf("%d\n", &chapter_id)
-
-	fmt.Println("请输入解锁类型(0时间/1星星/2钻石/3请求好友):")
-	var unlock_type int32
-	fmt.Scanf("%d\n", &unlock_type)
-
-	req := &msg_client_message.C2SChapterUnlock{}
-	req.ChapterId = proto.Int32(chapter_id)
-	req.UnLockType = proto.Int32(unlock_type)
-
-	if 3 == unlock_type {
-		fmt.Println("请输入请求好友的数目:")
-		var friend_num int32
-		fmt.Scanf("%d\n", &friend_num)
-		if friend_num <= 0 {
-			fmt.Println("你输入的好友数目[%d]由错误", friend_num)
-			return
-		}
-		req.FriendIds = make([]int32, 0, friend_num)
-
-		var friend_id int32
-		for idx := int32(0); idx < friend_num; idx++ {
-			fmt.Println("请输入第%d个好友的Id:", idx)
-			fmt.Scanf("%d\n", &friend_id)
-
-			req.FriendIds = append(req.FriendIds, friend_id)
-		}
-	}
-
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_get_all_act() {
-	req := &msg_client_message.C2SGetAllActivityInfos{}
-	cur_hall_conn.Send(req)
-}
-
-func (this *TestClient) cmd_get_act_reward() {
-	fmt.Println("获取活动奖励")
-	req := &msg_client_message.C2SGetActivityReward{}
-	fmt.Println("请输入活动Id:")
-	var act_id int32
-	fmt.Scanf("%d\n", &act_id)
-	req.ActivityCfgId = proto.Int32(act_id)
-	fmt.Println("请输入附加参数:")
-	var extra_param int32
-	fmt.Scanf("%d\n", &extra_param)
-	req.ExtraParams = make([]int32, 1)
-	req.ExtraParams[0] = extra_param
-
-	cur_hall_conn.Send(req)
 }
 
 var is_test bool
 
 func (this *TestClient) OnTick(t timer.TickTime) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+
+		this.shutdown_completed = true
+	}()
 	if !is_test {
 		fmt.Printf("请输入命令:\n")
 		var cmd_str string
@@ -355,54 +321,9 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 				this.cmd_login(true)
 				is_test = true
 			}
-		case "options_get":
-			{
-				this.cmd_options_get()
-			}
-		case "stage_pass":
-			{
-				this.cmd_stage_pass()
-			}
-		case "get_items":
-			{
-				this.cmd_get_items()
-			}
-		case "draw_card":
-			{
-				this.cmd_draw_cards()
-			}
-		case "get_base_info":
-			{
-				this.cmd_get_base_info()
-			}
-		case "rename_nick":
-			{
-				this.cmd_change_nick()
-			}
 		case "enter_test":
 			{
 				is_test = true
-			}
-		case "heart_beat":
-			{
-				this.cmd_heart_beat()
-			}
-
-		case "get_info":
-			{
-				this.cmd_get_info()
-			}
-		case "unlock_chapter":
-			{
-				this.cmd_unlock_chapter()
-			}
-		case "get_all_acts":
-			{
-				this.cmd_get_all_act()
-			}
-		case "get_act_reward":
-			{
-				this.cmd_get_act_reward()
 			}
 		}
 	} else {
@@ -427,23 +348,34 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 						return
 					}
 					req := &msg_client_message.C2S_TEST_COMMAND{}
-					req.Cmd = proto.String(strs[0])
-					req.Args = strs[1:]
+					req.Cmd = strs[0]
+					if len(strs) > 1 {
+						req.Args = strs[1:]
+					} else {
+						req.Args = make([]string, 0)
+					}
 					if config.AccountNum > 1 {
 						n := (config.AccountNum + 100 - 1) / 100
 						for i := int32(0); i < n; i++ {
 							go func() {
+								defer func() {
+									if err := recover(); err != nil {
+										log.Stack(err)
+									}
+
+									this.shutdown_completed = true
+								}()
 								for j := i * 100; j < i*(100+1); j++ {
 									if int(j) >= len(hall_conn_mgr.acc_arr) {
 										break
 									}
 									conn := hall_conn_mgr.acc_arr[j]
-									conn.Send(req)
+									conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)
 								}
 							}()
 						}
 					} else {
-						cur_hall_conn.Send(req)
+						cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)
 					}
 				}
 			}

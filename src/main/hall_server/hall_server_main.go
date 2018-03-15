@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"libs/log"
 	"os"
-	"public_message/gen_go/server_message"
+	_ "public_message/gen_go/server_message"
 	"time"
 )
 
@@ -90,7 +90,6 @@ func main() {
 
 	// 加载日志配置
 	log.Init("", config.LogConfigDir, true)
-	log.Event("配置:网络协议版本", int32(msg_server_message.E_VERSION_NUMBER))
 	log.Event("配置:服务器监听客户端地址", config.ListenClientInIP)
 	log.Event("配置:最大客户端连接数)", config.MaxClientConnections)
 	log.Event("连接数据库", config.MYSQL_NAME, log.Property{"地址", config.MYSQL_IP})
@@ -145,13 +144,6 @@ func main() {
 	if !login_conn_mgr.Init() {
 		log.Error("login_conn_mgr init failed")
 		return
-	}
-
-	if !payback_mgr.Init() {
-		log.Error("payback_mgr init failed")
-		return
-	} else {
-		log.Info("payback_mgr init succeed !")
 	}
 
 	// 初始化CenterServer

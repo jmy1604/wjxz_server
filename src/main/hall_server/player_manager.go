@@ -5,7 +5,8 @@ import (
 	"libs/socket"
 	"net/http"
 	"public_message/gen_go/client_message"
-	"public_message/gen_go/server_message"
+	"public_message/gen_go/client_message_id"
+	_ "public_message/gen_go/server_message"
 	"strings"
 	"sync"
 
@@ -227,50 +228,62 @@ func (this *PlayerManager) SendMsgToAllPlayers(msg proto.Message) {
 
 //==============================================================================
 func (this *PlayerManager) RegMsgHandler() {
-	msg_handler_mgr.SetMsgHandler(msg_client_message.ID_C2SLoginRequest, C2SLoginRequestHandler)
+	msg_handler_mgr.SetMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), C2SEnterGameRequestHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), C2STestCommandHandler)
 }
 
-func C2SLoginRequestHandler(w http.ResponseWriter, r *http.Request, msg proto.Message) (int32, *Player) {
+func base_msgid2msg(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST) {
+		return &msg_client_message.C2SEnterGameRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND) {
+		return &msg_client_message.C2S_TEST_COMMAND{}
+	}
+	return nil
+}
+
+func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg proto.Message) (int32, *Player) {
 	var p *Player
-	req := msg.(*msg_client_message.C2SLoginRequest)
+	req := msg.(*msg_client_message.C2SEnterGameRequest)
 
 	acc := req.GetAcc()
 	if "" == acc {
-		log.Error("PlayerLoginRequestHandler acc empty !")
+		log.Error("PlayerEnterGameHandler acc empty !")
 		return -1, p
 	}
 
 	token_info := login_token_mgr.GetTockenByAcc(acc)
 	if nil == token_info {
-		log.Error("PlayerLoginRequestHandler account[%v] no token info!", acc)
+		log.Error("PlayerEnterGameHandler account[%v] no token info!", acc)
 		return -2, p
 	}
 
 	if req.GetToken() != token_info.token {
-		log.Error("PlayerLoginRequestHandler token check failed !(%s) != (%s)", req.GetToken(), token_info.token)
+		log.Error("PlayerEnterGameHandler token check failed !(%s) != (%s)", req.GetToken(), token_info.token)
 		return -3, p
 	}
 
-	playerid := token_info.playerid
-	pdb := dbc.Players.GetRow(playerid)
-	p = player_mgr.GetPlayerById(playerid)
+	//p = player_mgr.GetPlayerById(player_id)
+	p = player_mgr.GetPlayerByAcc(acc)
 	if nil == p {
+		//pdb := dbc.Players.GetRow(p.Id)
+		//if nil == pdb {
+		global_row := dbc.Global.GetRow()
+		player_id := global_row.GetNextPlayerId()
+		pdb := dbc.Players.AddRow(player_id)
 		if nil == pdb {
-			pdb = dbc.Players.AddRow(playerid)
-			if nil == pdb {
-				log.Error("player_db_to_msg AddRow pid(%d) failed !", playerid)
-				return -4, p
-			}
-
-			pdb.SetAccount(token_info.acc)
-			p = new_player(playerid, token_info.acc, token_info.token, pdb)
-
-			p.OnCreate()
-
-			log.Info("player_db_to_msg new player(%d) !", playerid)
-		} else {
-			p = new_player(playerid, token_info.acc, token_info.token, pdb)
+			log.Error("player_db_to_msg AddRow pid(%d) failed !", player_id)
+			return -4, p
 		}
+
+		pdb.SetAccount(token_info.acc)
+		p = new_player(player_id, token_info.acc, token_info.token, pdb)
+
+		p.OnCreate()
+
+		log.Info("player_db_to_msg new player(%d) !", player_id)
+		//} else {
+		//	p = new_player(p.Id, token_info.acc, token_info.token, pdb)
+		//}
 		player_mgr.Add2AccMap(p)
 		player_mgr.Add2IdMap(p)
 	} else {
@@ -285,17 +298,13 @@ func C2SLoginRequestHandler(w http.ResponseWriter, r *http.Request, msg proto.Me
 
 	p.bhandling = true
 
-	res := &msg_client_message.S2CLoginResponse{}
-	res.Acc = proto.String(req.GetAcc())
-	res.PlayerId = proto.Int32(playerid)
-	res.Name = proto.String(p.db.GetName())
-
-	log.Info("PlayerLoginRequestHandler %s %s %s", req.GetAcc(), req.GetToken())
-
-	p.Send(res)
-	//p.Send(res)
-
+	res := &msg_client_message.S2CEnterGameResponse{}
+	res.Acc = acc
+	res.PlayerId = p.Id
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_RESPONSE), res)
 	p.OnLogin()
+
+	log.Info("PlayerEnterGameHandler account[%s] token[%s]", req.GetAcc(), req.GetToken())
 
 	return 1, p
 }
@@ -306,7 +315,7 @@ func HeartBeatHandler(conn *socket.TcpConn, msg proto.Message) {
 }
 
 func C2SC2SGetPlayerInfoHandler(conn *socket.TcpConn, msg proto.Message) {
-	req := msg.(*msg_client_message.C2SGetPlayerInfo)
+	/*req := msg.(*msg_client_message.C2SGetPlayerInfo)
 	if nil == conn || nil == req {
 		log.Error("C2SC2SGetPlayerInfoHandler conn or req nil [%d]", nil == req)
 		return
@@ -322,14 +331,14 @@ func C2SC2SGetPlayerInfoHandler(conn *socket.TcpConn, msg proto.Message) {
 	req2co.PlayerId = proto.Int32(p.Id)
 	req2co.TgtPlayerId = proto.Int32(req.GetPlayerId())
 
-	center_conn.Send(req2co)
+	center_conn.Send(req2co)*/
 
 	return
 }
 
 // ----------------------------------------------------------------------------
 func C2HGetPlayerInfoHandler(c *CenterConnection, msg proto.Message) {
-	req := msg.(*msg_server_message.GetPlayerInfo)
+	/*req := msg.(*msg_server_message.GetPlayerInfo)
 	if nil == c || nil == req {
 		log.Error("C2HGetPlayerInfoHandler c or req nil [%v]", nil == req)
 		return
@@ -347,11 +356,11 @@ func C2HGetPlayerInfoHandler(c *CenterConnection, msg proto.Message) {
 	res2co.TgtPlayerId = proto.Int32(tgt_pid)
 	res2co.PlayerId = proto.Int32(req.GetPlayerId())
 
-	c.Send(res2co)
+	c.Send(res2co)*/
 }
 
 func C2HRetPlayerInfoHandler(c *CenterConnection, msg proto.Message) {
-	res := msg.(*msg_server_message.RetPlayerInfo)
+	/*res := msg.(*msg_server_message.RetPlayerInfo)
 	if nil == c || nil == res {
 		log.Error("C2HRetPlayerInfoHandler c or res nil [%v]", nil == res)
 		return
@@ -395,7 +404,7 @@ func C2HRetPlayerInfoHandler(c *CenterConnection, msg proto.Message) {
 	res2cli := &msg_client_message.S2CRetPlayerInfo{}
 	res2cli.BaseInfo = tmp_bi
 
-	p.Send(res2cli)
+	p.Send(res2cli)*/
 
 	return
 }

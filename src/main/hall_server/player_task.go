@@ -19,6 +19,100 @@ const (
 	TASK_STATE_REWARD   = 2 // 已领奖
 )
 
+func (this *dbPlayerDialyTaskColumn) ChkResetDialyTask() {
+	//rm_ids := make(map[int32]bool)
+	this.m_row.m_lock.UnSafeLock("dbPlayerDialyTaskColumn.ChkResetDialyTask")
+	defer this.m_row.m_lock.UnSafeUnlock()
+
+	daily_tasks := task_table_mgr.GetDailyTasks()
+	if daily_tasks == nil {
+		return
+	}
+
+	for id, task := range daily_tasks {
+		d := this.m_data[id]
+		if d == nil {
+			data := &dbPlayerDialyTaskData{}
+			data.TaskId = task.Id
+			data.Value = 0
+			data.RewardUnix = 0
+			this.m_data[id] = data
+		} else {
+			if d.RewardUnix > 0 || d.Value < task.CompleteNum {
+				d.Value = 0
+				d.RewardUnix = 0
+			}
+		}
+	}
+
+	this.m_changed = true
+
+	return
+}
+
+func (this *dbPlayerDialyTaskColumn) FillDialyTaskMsg(p *Player) *msg_client_message.S2CSyncDialyTask {
+	var tmp_item *msg_client_message.DialyTaskData
+	this.m_row.m_lock.UnSafeRLock("dbPlayerDialyTaskColumn.ChkResetDialyTask")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	ret_msg := &msg_client_message.S2CSyncDialyTask{}
+	ret_msg.TaskList = make([]*msg_client_message.DialyTaskData, 0, len(this.m_data))
+	for _, val := range this.m_data {
+		if nil == val {
+			continue
+		}
+
+		tmp_item = &msg_client_message.DialyTaskData{}
+		tmp_item.TaskId = val.TaskId
+		tmp_item.TaskValue = val.Value
+		if val.RewardUnix > 0 {
+			tmp_item.TaskState = TASK_STATE_REWARD
+		} else if p.IsTaskCompleteById(val.TaskId) {
+			tmp_item.TaskState = TASK_STATE_COMPLETE
+		} else {
+			tmp_item.TaskState = TASK_STATE_DOING
+		}
+		//tmp_item.RewardUnix = proto.Int32(val.RewardUnix)
+		ret_msg.TaskList = append(ret_msg.TaskList, tmp_item)
+	}
+
+	return ret_msg
+}
+
+func (this *dbPlayerAchieveColumn) FillAchieveMsg(p *Player) *msg_client_message.S2CSyncAchieveData {
+	ret_msg := &msg_client_message.S2CSyncAchieveData{}
+	var tmp_item *msg_client_message.AchieveData
+	this.m_row.m_lock.UnSafeRLock("dbPlayerAchieveColumn.FillAchieveMsg")
+	defer this.m_row.m_lock.RUnlock()
+
+	tmp_len := int32(len(this.m_data))
+	if tmp_len < 1 {
+		return nil
+	}
+
+	ret_msg.AchieveList = make([]*msg_client_message.AchieveData, 0, tmp_len)
+	for _, val := range this.m_data {
+		if nil == val {
+			continue
+		}
+
+		tmp_item = &msg_client_message.AchieveData{}
+		tmp_item.AchieveId = val.AchieveId
+		tmp_item.AchieveValue = val.Value
+		// 已领奖
+		if val.RewardUnix > 0 {
+			tmp_item.AchieveState = TASK_STATE_REWARD
+		} else if p.IsTaskCompleteById(val.AchieveId) {
+			tmp_item.AchieveState = TASK_STATE_COMPLETE
+		} else {
+			tmp_item.AchieveState = TASK_STATE_DOING
+		}
+		//tmp_item.RewardUnix = proto.Int32(val.RewardUnix)
+		ret_msg.AchieveList = append(ret_msg.AchieveList, tmp_item)
+	}
+
+	return ret_msg
+}
+
 func (this *Player) ChkPlayerDialyTask() {
 	//cur_unix := int32(time.Now().Unix())
 	last_up_unix := this.db.Info.GetLastDialyTaskUpUinx()
@@ -33,21 +127,21 @@ func (this *Player) ChkPlayerDialyTask() {
 
 func (this *Player) SyncPlayerDialyTask() {
 	this.ChkPlayerDialyTask()
-	res2cli := this.db.DialyTasks.FillDialyTaskMsg(this)
+	/*res2cli := this.db.DialyTasks.FillDialyTaskMsg(this)
 	if nil == res2cli || len(res2cli.TaskList) < 1 {
 		return
 	}
-	this.Send(res2cli)
+	this.Send(res2cli)*/
 	return
 }
 
 func (this *Player) SyncPlayerAchieve() {
-	res2cli := this.db.Achieves.FillAchieveMsg(this)
+	/*res2cli := this.db.Achieves.FillAchieveMsg(this)
 	if nil == res2cli || len(res2cli.AchieveList) < 1 {
 		return
 	}
 	this.Send(res2cli)
-	return
+	return*/
 }
 
 func (this *Player) IsPrevAchieveReward(task *table_config.XmlTaskItem) bool {
@@ -111,17 +205,17 @@ func (this *Player) check_add_next_task(task *table_config.XmlTaskItem, add_val 
 // ============================================================================
 
 func (this *Player) NotifyTaskValue(notify_task *msg_client_message.S2CNotifyTaskValueChg, task_id, value, state int32) {
-	notify_task.TaskId = proto.Int32(task_id)
-	notify_task.TaskValue = proto.Int32(value)
-	notify_task.TaskState = proto.Int32(state)
-	this.Send(notify_task)
+	notify_task.TaskId = task_id
+	notify_task.TaskValue = value
+	notify_task.TaskState = state
+	//this.Send(notify_task)
 }
 
 func (this *Player) NotifyAchieveValue(notify_achieve *msg_client_message.S2CNotifyAchieveValueChg, task_id, value, state int32) {
-	notify_achieve.AchieveId = proto.Int32(task_id)
-	notify_achieve.AchieveValue = proto.Int32(value)
-	notify_achieve.AchieveState = proto.Int32(state)
-	this.Send(notify_achieve)
+	notify_achieve.AchieveId = task_id
+	notify_achieve.AchieveValue = value
+	notify_achieve.AchieveState = state
+	//this.Send(notify_achieve)
 }
 
 // 前置任务是否已完成
@@ -420,19 +514,19 @@ func (p *Player) get_daily_reward(task_id int32) int32 {
 	p.NotifyTaskValue(notify_task, task_id, cur_val, TASK_STATE_REWARD)
 
 	for i := 0; i < len(task_cfg.Rewards); i++ {
-		p.AddItemResource(task_cfg.Rewards[i].ItemId, task_cfg.Rewards[i].Num, "gettaskreward", "dailytask")
+		//p.AddItemResource(task_cfg.Rewards[i].ItemId, task_cfg.Rewards[i].Num, "gettaskreward", "dailytask")
 	}
-	cur_lvl, cur_exp := p.AddExp(task_cfg.Exp, "gettaskreward", "dialytask")
+	//cur_lvl, cur_exp := p.AddExp(task_cfg.Exp, "gettaskreward", "dialytask")
 
-	p.SendItemsUpdate()
+	//p.SendItemsUpdate()
 
-	res2cli := &msg_client_message.S2CRetTaskReward{}
+	/*res2cli := &msg_client_message.S2CRetTaskReward{}
 	res2cli.Coin = proto.Int32(p.GetCoin())
 	res2cli.CurLvl = proto.Int32(cur_lvl)
 	res2cli.Exp = proto.Int32(cur_exp)
 	res2cli.Diamond = proto.Int32(p.db.Info.GetDiamond())
 
-	p.Send(res2cli)
+	p.Send(res2cli)*/
 
 	return 1
 }
@@ -473,9 +567,9 @@ func (p *Player) get_achieve_reward(achieve_id int32) int32 {
 	p.NotifyAchieveValue(notify_achieve, achieve_id, cur_val, TASK_STATE_REWARD)
 
 	for i := 0; i < len(achieve_cfg.Rewards); i++ {
-		p.AddItemResource(achieve_cfg.Rewards[i].ItemId, achieve_cfg.Rewards[i].Num, "gettaskreward", "dailytask")
+		//p.AddItemResource(achieve_cfg.Rewards[i].ItemId, achieve_cfg.Rewards[i].Num, "gettaskreward", "dailytask")
 	}
-	cur_lvl, cur_exp := p.AddExp(achieve_cfg.Exp, "gettaskreward", "dialytask")
+	/*cur_lvl, cur_exp := p.AddExp(achieve_cfg.Exp, "gettaskreward", "dialytask")
 
 	p.SendItemsUpdate()
 
@@ -486,7 +580,7 @@ func (p *Player) get_achieve_reward(achieve_id int32) int32 {
 	res2cli.Exp = proto.Int32(cur_exp)
 	res2cli.Diamond = proto.Int32(p.db.Info.GetDiamond())
 
-	p.Send(res2cli)
+	p.Send(res2cli)*/
 
 	p.db.Achieves.Remove(achieve_id)
 	var data dbPlayerFinishedAchieveData

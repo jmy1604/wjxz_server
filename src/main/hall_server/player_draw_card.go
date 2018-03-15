@@ -13,7 +13,7 @@ import (
 )
 
 func reg_player_draw_msg() {
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SDraw, C2SDrawHandler)
+	//msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SDraw, C2SDrawHandler)
 }
 
 func (this *Player) drop_item_by_id(id int32, check_same bool) (bool, *msg_client_message.ItemInfo) {
@@ -60,21 +60,21 @@ func (this *Player) drop_item(drop_lib *table_config.DropCardTypeLib, check_same
 			_, num := rand31n_from_range(tmp_item.Min, tmp_item.Max)
 			if nil != item_table_mgr.Map[tmp_item.DropType] {
 				if badd {
-					this.AddItem(tmp_item.DropType, num, "draw", "player", true)
+					//this.AddItem(tmp_item.DropType, num, "draw", "player", true)
 				}
 				item = &msg_client_message.ItemInfo{}
-				item.ItemCfgId = proto.Int32(tmp_item.DropType)
-				item.ItemNum = proto.Int32(num)
+				item.ItemCfgId = tmp_item.DropType
+				item.ItemNum = num
 
 			} else {
 				if badd {
-					if this.AddItemResource(tmp_item.DropType, num, "draw", "draw_item_resource") < 0 {
+					/*if this.AddItemResource(tmp_item.DropType, num, "draw", "draw_item_resource") < 0 {
 						log.Error("C2SDrawHandler rand dropid[%d] not item or cat or building or item resource", tmp_item.DropType)
 					} else {
 						item = &msg_client_message.ItemInfo{ItemCfgId: proto.Int32(tmp_item.DropType), ItemNum: proto.Int32(num), RemainSeconds: proto.Int32(0)}
-					}
+					}*/
 				} else {
-					item = &msg_client_message.ItemInfo{ItemCfgId: proto.Int32(tmp_item.DropType), ItemNum: proto.Int32(num), RemainSeconds: proto.Int32(0)}
+					item = &msg_client_message.ItemInfo{ItemCfgId: tmp_item.DropType, ItemNum: num, RemainSeconds: 0}
 				}
 			}
 			if check_same {
@@ -172,8 +172,8 @@ func (this *Player) DropItems3(items_info []int32, items map[int32]*msg_client_m
 
 				if tmp_item.Weight > rand_val {
 					if nil != item_table_mgr.Map[tmp_item.DropType] {
-						_, num := rand31n_from_range(tmp_item.Min, tmp_item.Max)
-						items[tmp_item.DropType] = this.AddItem(tmp_item.DropType, num, "draw", "player", true)
+						/*_, num := rand31n_from_range(tmp_item.Min, tmp_item.Max)
+						items[tmp_item.DropType] = this.AddItem(tmp_item.DropType, num, "draw", "player", true)*/
 					} else {
 						log.Error("C2SDrawHandler rand dropid[%d] not item or cat", tmp_item.DropType)
 					}
@@ -194,7 +194,7 @@ func (this *Player) DrawCard(draw_type, draw_count int32) int32 {
 		return -1
 	}
 
-	num := this.GetItemResourceValue(extract.CostId)
+	/*num := this.GetItemResourceValue(extract.CostId)
 	if num < extract.CostNum*draw_count {
 		log.Error("Player[%v] draw card need item[%v] num[%v] not enough", this.Id, extract.CostId, extract.CostNum*draw_count)
 		return int32(msg_client_message.E_ERR_ITEM_NUM_NOT_ENOUGH)
@@ -227,13 +227,13 @@ func (this *Player) DrawCard(draw_type, draw_count int32) int32 {
 	this.RemoveItemResource(extract.CostId, extract.CostNum*draw_count, "draw_card", "draw")
 
 	this.SendItemsUpdate()
-	this.Send(res2cli)
+	this.Send(res2cli)*/
 
 	return 1
 }
 
 func C2SDrawHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SDraw)
+	/*req := msg.(*msg_client_message.C2SDraw)
 	if nil == req || nil == p {
 		log.Error("C2SDrawHandler req or p nil [%v]", nil == p)
 		return -1
@@ -242,5 +242,6 @@ func C2SDrawHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto
 	draw_type := req.GetDrawType()
 	draw_num := req.GetDrawCount()
 
-	return p.DrawCard(draw_type, draw_num)
+	return p.DrawCard(draw_type, draw_num)*/
+	return 1
 }

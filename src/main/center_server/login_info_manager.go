@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 type LoginInfo struct {
@@ -155,9 +155,9 @@ func (this *LoginInfoManager) GetInfoList() (info_list []*msg_server_message.Log
 	i := 0
 	for _, v := range this.logins {
 		info_list[i] = &msg_server_message.LoginServerInfo{}
-		info_list[i].ServerId = proto.Int32(v.Id)
-		info_list[i].ListenMatchIP = proto.String(v.ListenMatchIP)
-		info_list[i].ListenClientIP = proto.String(v.ListenClientIP)
+		info_list[i].ServerId = v.Id
+		info_list[i].ListenMatchIP = v.ListenMatchIP
+		info_list[i].ListenClientIP = v.ListenClientIP
 		i += 1
 	}
 	return

@@ -10,12 +10,14 @@ import (
 	"libs/utils"
 	"net"
 	"net/http"
+	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 	"public_message/gen_go/server_message"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	_ "3p/code.google.com.protobuf/proto"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -241,6 +243,7 @@ var login_http_mux map[string]func(http.ResponseWriter, *http.Request)
 func (this *LoginServer) reg_http_mux() {
 	login_http_mux = make(map[string]func(http.ResponseWriter, *http.Request))
 	login_http_mux["/login"] = login_http_handler
+	login_http_mux["/select_server"] = select_server_http_handler
 }
 
 func (this *LoginHttpHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -256,16 +259,148 @@ func (this *LoginHttpHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if h, ok := login_http_mux[act_str]; ok {
 		h(w, r)
 	}
+	return
+}
+
+type JsonRequestData struct {
+	MsgId   int32  // 消息ID
+	MsgData []byte // 消息体
+}
+
+type JsonResponseData struct {
+	Code    int32  // 错误码
+	MsgId   int32  // 消息ID
+	MsgData []byte // 消息体
+}
+
+func login_handler(account, password string) (err_code int32, resp_data []byte) {
+	/*if has_account_login(account) {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_ALREADY_LOGINED)
+		log.Error("account[%v] already logined", account)
+		return
+	}*/
+
+	account_login(account)
+
+	// 验证
+	token := fmt.Sprintf("%v_%v", time.Now().Unix()+time.Now().UnixNano(), account)
+	acc := get_account(account)
+	acc.token = token
+
+	response := &msg_client_message.S2CLoginResponse{
+		Acc:   account,
+		Token: token,
+	}
+
+	if server_list.Servers == nil {
+		response.Servers = make([]*msg_client_message.ServerInfo, 0)
+	} else {
+		l := len(server_list.Servers)
+		response.Servers = make([]*msg_client_message.ServerInfo, l)
+		for i := 0; i < l; i++ {
+			response.Servers[i] = &msg_client_message.ServerInfo{
+				Id:   server_list.Servers[i].Id,
+				Name: server_list.Servers[i].Name,
+				IP:   server_list.Servers[i].IP,
+			}
+		}
+	}
+
+	var err error
+	resp_data, err = proto.Marshal(response)
+	if err != nil {
+		err_code = int32(msg_client_message.E_ERR_INTERNAL)
+		log.Error("login_handler marshal response error: %v", err.Error())
+		return
+	}
+
+	log.Debug("Account[%v] logined", account)
 
 	return
 }
 
-type JsonLoginRes struct {
-	Code          int32
-	Account       string
-	Token         string
-	HallIP        string
-	ForbidEndTime string
+func select_server_handler(account, token string, server_id int32) (err_code int32, resp_data []byte) {
+	/*var msg msg_client_message.C2SSelectServerRequest
+	err := proto.Unmarshal(req_data, &msg)
+	if err != nil {
+		err_code = int32(msg_client_message.E_ERR_INTERNAL)
+		log.Error("select_server_handler unmarshal proto error: %v", err.Error())
+		return
+	}*/
+
+	acc := get_account(account)
+	if acc == nil {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		log.Error("select_server_handler player[%v] not found", account)
+		return
+	}
+
+	if acc.state != 1 {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_ALREADY_SELECTED_SERVER)
+		log.Error("select_server_handler player[%v] already selected server", account)
+		return
+	}
+
+	if token != acc.token {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_TOKEN_ERROR)
+		log.Error("select_server_handler player[%v] token[%v] invalid, need[%v]", account, token, acc.token)
+		return
+	}
+
+	sinfo := server_list.GetById(server_id)
+	if sinfo == nil {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
+		log.Error("select_server_handler player[%v] select server[%v] not found")
+		return
+	}
+
+	hall_agent := hall_agent_manager.GetAgentByID(server_id)
+	if nil == hall_agent {
+		err_code = int32(msg_client_message.E_ERR_PLAYER_SELECT_SERVER_NOT_FOUND)
+		log.Error("login_http_handler get hall_agent failed")
+		return
+	}
+
+	token = fmt.Sprintf("%v_%v", time.Now().Unix()+time.Now().UnixNano(), account)
+	req_2h := &msg_server_message.L2HSyncAccountToken{}
+	req_2h.Account = account
+	req_2h.Token = token
+	//req_2h.PlayerId = 0
+	hall_agent.Send(uint16(msg_server_message.MSGID_L2H_SYNC_ACCOUNT_TOKEN), req_2h)
+
+	var hall_ip string
+	if server.use_https {
+		hall_ip = "https://" + sinfo.IP
+	} else {
+		hall_ip = "http://" + sinfo.IP
+	}
+	response := &msg_client_message.S2CSelectServerResponse{
+		Acc:   account,
+		Token: token,
+		IP:    hall_ip,
+	}
+
+	var err error
+	resp_data, err = proto.Marshal(response)
+	if err != nil {
+		err_code = int32(msg_client_message.E_ERR_INTERNAL)
+		log.Error("select_server_handler marshal response error: %v", err.Error())
+		return
+	}
+
+	return
+}
+
+func response_error(err_code int32, w http.ResponseWriter) {
+	err_response := JsonResponseData{
+		Code: err_code,
+	}
+	data, err := json.Marshal(err_response)
+	if nil != err {
+		log.Error("login_http_handler json mashal error")
+		return
+	}
+	w.Write(data)
 }
 
 func login_http_handler(w http.ResponseWriter, r *http.Request) {
@@ -276,92 +411,126 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	account_str := r.URL.Query().Get("account")
-	if "" == account_str {
-		log.Error("login_http_handler get account failed")
+	// account
+	account := r.URL.Query().Get("account")
+	if "" == account {
+		response_error(int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR), w)
+		log.Error("login_http_handler get msg_id failed")
 		return
 	}
 
-	/*
-		cur_wait := server.get_c_wait_by_acc(account_str)
-		if nil != cur_wait {
-			log.Error("login_http_handler already in login !!")
+	// password
+	password := r.URL.Query().Get("password")
+	/*if "" == password {
+		response_error(int32(msg_client_message.E_ERR_PLAYER_ACC_OR_PASSWORD_ERROR), w)
+		log.Error("login_http_handler msg_data is empty")
+		return
+	}*/
+
+	log.Debug("account: %v, password: %v", account, password)
+
+	var err_code int32
+	var data []byte
+	err_code, data = login_handler(account, password)
+
+	if err_code < 0 {
+		response_error(err_code, w)
+		log.Error("login_http_handler err_code[%v]", err_code)
+		return
+	}
+
+	if data == nil {
+		response_error(-1, w)
+		log.Error("cant get response data failed")
+		return
+	}
+
+	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_LOGIN_RESPONSE), MsgData: data}
+	var err error
+	data, err = json.Marshal(http_res)
+	if nil != err {
+		log.Error("login_http_handler json mashal error")
+		return
+	}
+	w.Write(data)
+}
+
+func select_server_http_handler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
 			return
 		}
-	*/
+	}()
 
-	res_2c := &msg_server_message.L2CGetPlayerAccInfo{}
-	res_2c.Account = proto.String(account_str)
-	center_conn.Send(res_2c)
+	account := r.URL.Query().Get("account")
+	if "" == account {
+		response_error(-1, w)
+		log.Error("login_http_handler get account is empty")
+		return
+	}
 
-	log.Info("login_http_handler account(%s)", account_str)
+	token := r.URL.Query().Get("token")
+	if "" == token {
+		response_error(-1, w)
+		log.Error("login_http_handler get token is empty")
+		return
+	}
+
+	server_id_str := r.URL.Query().Get("server_id")
+	if "" == server_id_str {
+		response_error(-1, w)
+		log.Error("login_http_handler get server_id is empty")
+		return
+	}
+
+	server_id, err := strconv.Atoi(server_id_str)
+	if err != nil {
+		response_error(-1, w)
+		log.Error("login_http_handler transfer server_id[%v] error[%v]", server_id_str, err.Error())
+		return
+	}
+	log.Debug("account: %v, token: %v, server_id: %v", account, token, server_id)
+
+	var err_code int32
+	var data []byte
+	err_code, data = select_server_handler(account, token, int32(server_id))
+
+	/*res_2c := &msg_server_message.L2CGetPlayerAccInfo{}
+	res_2c.Account = account
+	center_conn.Send(uint16(msg_server_message.MSGID_L2C_GET_PLAYER_ACC_INFO), res_2c)
+
+	log.Info("login_http_handler account(%s)", account)
 	new_c_wait := &WaitCenterInfo{}
 	new_c_wait.res_chan = make(chan *msg_server_message.C2LPlayerAccInfo)
 	new_c_wait.create_time = int32(time.Now().Unix())
-	server.add_to_c_wait(account_str, new_c_wait)
+	server.add_to_c_wait(account, new_c_wait)
 
 	c2l_res, ok := <-new_c_wait.res_chan
 	if !ok || nil == c2l_res {
 		log.Error("login_http_handler wait chan failed", ok)
 		return
-	}
+	}*/
 
-	// 检查是否被封号
-	if 1 == c2l_res.GetIfForbidLogin() {
-		log.Info("login_http_handler account %d forbid end time %s", account_str, c2l_res.GetForbidEndTime())
-		http_res := &JsonLoginRes{Code: -1, Account: account_str, ForbidEndTime: c2l_res.GetForbidEndTime()}
-		data, err := json.Marshal(http_res)
-		if nil != err {
-			log.Error("login_http_handler json mashal error")
-			return
-		}
-		w.Write(data)
+	if err_code < 0 {
+		response_error(err_code, w)
+		log.Error("login_http_handler err_code[%v]", err_code)
 		return
-	} else {
-		token_str := r.URL.Query().Get("token")
-		if "" == token_str {
-			log.Error("login_http_handler token empty")
-			return
-		}
-
-		hall_id := c2l_res.GetHallId()
-		hall_agent := hall_agent_manager.GetAgentByID(hall_id)
-		if nil == hall_agent {
-			log.Error("login_http_handler get hall_agent failed")
-			http_res := &JsonLoginRes{Code: -1}
-			data, err := json.Marshal(http_res)
-			if nil == err {
-				w.Write(data)
-			} else {
-				log.Error("login_http_handler return -1 marshal json error !")
-			}
-
-			return
-		}
-
-		inner_token := fmt.Sprintf("%d", time.Now().Unix())
-		req_2h := &msg_server_message.L2HSyncAccountToken{}
-		req_2h.Account = proto.String(account_str)
-		req_2h.Token = proto.String(inner_token)
-		req_2h.PlayerId = proto.Int64(c2l_res.GetPlayerId())
-		hall_agent.Send(req_2h)
-
-		var hall_ip string
-		if server.use_https {
-			hall_ip = "https://" + c2l_res.GetHallIP()
-		} else {
-			hall_ip = "http://" + c2l_res.GetHallIP()
-		}
-		http_res := &JsonLoginRes{Code: 0, Account: account_str, Token: inner_token, HallIP: hall_ip}
-		data, err := json.Marshal(http_res)
-		if nil != err {
-			log.Error("login_http_handler json mashal error")
-			return
-		}
-		w.Write(data)
 	}
 
-	return
+	if data == nil {
+		response_error(-1, w)
+		log.Error("cant get response data")
+		return
+	}
+
+	http_res := &JsonResponseData{Code: 0, MsgId: int32(msg_client_message_id.MSGID_S2C_SELECT_SERVER_RESPONSE), MsgData: data}
+	data, err = json.Marshal(http_res)
+	if nil != err {
+		log.Error("login_http_handler json mashal error")
+		return
+	}
+	w.Write(data)
 }
 
 func Google_Login_Verify(token string) bool {
