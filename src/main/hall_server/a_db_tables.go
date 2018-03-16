@@ -403,7 +403,7 @@ func (this* dbPlayerGlobalData)clone_to(d *dbPlayerGlobalData){
 type dbPlayerRoleData struct{
 	Id int32
 	TableId int32
-	Jingjie int32
+	Rank int32
 	Level int32
 	Attr []int32
 }
@@ -414,7 +414,7 @@ func (this* dbPlayerRoleData)from_pb(pb *db.PlayerRole){
 	}
 	this.Id = pb.GetId()
 	this.TableId = pb.GetTableId()
-	this.Jingjie = pb.GetJingjie()
+	this.Rank = pb.GetRank()
 	this.Level = pb.GetLevel()
 	this.Attr = make([]int32,len(pb.GetAttr()))
 	for i, v := range pb.GetAttr() {
@@ -426,7 +426,7 @@ func (this* dbPlayerRoleData)to_pb()(pb *db.PlayerRole){
 	pb = &db.PlayerRole{}
 	pb.Id = proto.Int32(this.Id)
 	pb.TableId = proto.Int32(this.TableId)
-	pb.Jingjie = proto.Int32(this.Jingjie)
+	pb.Rank = proto.Int32(this.Rank)
 	pb.Level = proto.Int32(this.Level)
 	pb.Attr = make([]int32, len(this.Attr))
 	for i, v := range this.Attr {
@@ -437,7 +437,7 @@ func (this* dbPlayerRoleData)to_pb()(pb *db.PlayerRole){
 func (this* dbPlayerRoleData)clone_to(d *dbPlayerRoleData){
 	d.Id = this.Id
 	d.TableId = this.TableId
-	d.Jingjie = this.Jingjie
+	d.Rank = this.Rank
 	d.Level = this.Level
 	d.Attr = make([]int32, len(this.Attr))
 	for _ii, _vv := range this.Attr {
@@ -2038,25 +2038,25 @@ func (this *dbPlayerRoleColumn)SetTableId(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerRoleColumn)GetJingjie(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.GetJingjie")
+func (this *dbPlayerRoleColumn)GetRank(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.GetRank")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		return
 	}
-	v = d.Jingjie
+	v = d.Rank
 	return v,true
 }
-func (this *dbPlayerRoleColumn)SetJingjie(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerRoleColumn.SetJingjie")
+func (this *dbPlayerRoleColumn)SetRank(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleColumn.SetRank")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
 		return
 	}
-	d.Jingjie = v
+	d.Rank = v
 	this.m_changed = true
 	return true
 }

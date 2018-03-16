@@ -6,7 +6,7 @@ import (
 	_ "main/table_config"
 	"math/rand"
 	_ "net/http"
-	_ "public_message/gen_go/client_message"
+	"public_message/gen_go/client_message"
 	_ "public_message/gen_go/server_message"
 	"sync"
 	"time"
@@ -22,44 +22,6 @@ const (
 
 	BUILDING_ADD_MSG_INIT_LEN = 5
 	BUILDING_ADD_MSG_ADD_STEP = 2
-)
-
-// 基础属性
-const (
-	ATTR_HP_MAX              = 1  // 最大血量
-	ATTR_HP                  = 2  // 当前血量
-	ATTR_MP                  = 3  // 气势
-	ATTR_ATTACK              = 4  // 攻击
-	ATTR_DEFENSE             = 5  // 防御
-	ATTR_CRITICAL            = 6  // 暴击率
-	ATTR_CRITICAL_MULTI      = 7  // 暴击伤害倍率
-	ATTR_ANTI_CRITICAL       = 8  // 抗暴率
-	ATTR_BLOCK_RATE          = 9  // 格挡率
-	ATTR_BLOCK_DEFENSE_RATE  = 10 // 格挡减伤率
-	ATTR_BREAK_BLOCK_RATE    = 11 // 破格率
-	ATTR_SHIELD              = 12 // 护盾
-	ATTR_TOTAL_DAMAGE_ADD    = 13 // 总增伤
-	ATTR_CLOSE_DAMAGE_ADD    = 14 // 近战增伤
-	ATTR_REMOTE_DAMAGE_ADD   = 15 // 远程增伤
-	ATTR_NORMAL_DAMAGE_ADD   = 16 // 普攻增伤
-	ATTR_RAGE_DAMAGE_ADD     = 17 // 怒气增伤
-	ATTR_TOTAL_DAMAGE_SUB    = 18 // 总减伤
-	ATTR_CLOSE_DAMAGE_SUB    = 19 // 近战减伤
-	ATTR_REMOTE_DAMAGE_SUB   = 20 // 远程减伤
-	ATTR_NORMAL_DAMAGE_SUB   = 21 // 普攻减伤
-	ATTR_RAGE_DAMAGE_SUB     = 22 // 怒气减伤
-	ATTR_CLOSE_VAMPIRE       = 23 // 近战吸血
-	ATTR_REMOTE_VAMPIRE      = 24 // 远程吸血
-	ATTR_CURE_RATE_CORRECT   = 25 // 治疗率修正
-	ATTR_CURED_RATE_CORRECT  = 26 // 被治疗率修正
-	ATTR_CLOSE_COUNTER       = 27 // 近战反击系数
-	ATTR_REMOTE_COUNTER      = 28 // 远程反击系数
-	ATTR_DODGE_COUNT         = 29 // 闪避次数
-	ATTR_INJURED_MAX         = 30 // 受伤上限
-	ATTR_POISON_INJURED_RATE = 31 // 毒气受伤率
-	ATTR_BURN_INJURED_RATE   = 32 // 点燃受伤率
-	ATTR_BLEED_INJURED_RATE  = 33 // 流血受伤率
-	ATTR_COUNT_MAX           = 64
 )
 
 type PlayerMsgItem struct {
@@ -140,14 +102,14 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	return ret_p
 }
 
-func (this *Player) new_role(role_id int32, jingjie int32, level int32) bool {
+func (this *Player) new_role(role_id int32, rank int32, level int32) bool {
 	if this.db.Roles.HasIndex(role_id) {
 		log.Error("Player[%v] already has role[%v]", this.Id, role_id)
 		return false
 	}
 	var role dbPlayerRoleData
 	role.Id = role_id
-	role.Jingjie = jingjie
+	role.Rank = rank
 	role.Level = level
 	this.db.Roles.Add(&role)
 	return true
@@ -192,9 +154,10 @@ func (this *Player) rand_role() int32 {
 		this.db.Roles.Add(&dbPlayerRoleData{
 			Id:      id,
 			TableId: table_id,
-			Jingjie: 1,
+			Rank:    1,
 			Level:   1,
 		})
+		log.Debug("Player[%v] rand role[%v]", this.Id, table_id)
 	}
 
 	return id
@@ -724,3 +687,49 @@ func C2SWorldChatSendHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	}
 	return p.world_chat(req.GetContent())
 }*/
+
+func (this *Player) SetAttackTeam(team []int32) bool {
+	if team == nil {
+		return false
+	}
+	for i := 0; i < len(team); i++ {
+		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
+			break
+		}
+		if !this.db.Roles.HasIndex(team[i]) {
+			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
+			return false
+		}
+	}
+	this.db.BattleTeam.SetAttackMembers(team)
+	return true
+}
+
+func (this *Player) SetDefenseTeam(team []int32) bool {
+	if team == nil {
+		return false
+	}
+	for i := 0; i < len(team); i++ {
+		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
+			break
+		}
+		if !this.db.Roles.HasIndex(team[i]) {
+			log.Warn("Player[%v] not has role[%v] for set defense team", this.Id, team[i])
+			return false
+		}
+	}
+	this.db.BattleTeam.SetDefenseMembers(team)
+	return true
+}
+
+func (this *Player) Fight2Player(player_id int32) int32 {
+	p := player_mgr.GetPlayerById(player_id)
+	if p == nil {
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+	}
+	// 先手值
+	if rand.Intn(2) == 1 {
+
+	}
+	return 1
+}

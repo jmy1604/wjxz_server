@@ -180,10 +180,12 @@ message C2SEnterGameRequest {
 	string Acc						= 1;
 	string Token					= 2;
 }
+// 返回
 message S2CEnterGameResponse {
 	string Acc						= 1;
 	int32 PlayerId					= 2;
 }
+// 通知客户端进入游戏服务器完成
 message S2CEnterGameCompleteNotify {
 }
 

@@ -884,6 +884,7 @@ func (m *C2SEnterGameRequest) GetToken() string {
 	return ""
 }
 
+// 返回
 type S2CEnterGameResponse struct {
 	Acc      string `protobuf:"bytes,1,opt,name=Acc" json:"Acc,omitempty"`
 	PlayerId int32  `protobuf:"varint,2,opt,name=PlayerId" json:"PlayerId,omitempty"`
@@ -908,6 +909,7 @@ func (m *S2CEnterGameResponse) GetPlayerId() int32 {
 	return 0
 }
 
+// 通知客户端进入游戏服务器完成
 type S2CEnterGameCompleteNotify struct {
 }
 

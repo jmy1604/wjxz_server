@@ -432,6 +432,7 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 	var err_code int32
 	var data []byte
 	err_code, data = login_handler(account, password)
+	log.Info("@@@@@@ data = %v", data)
 
 	if err_code < 0 {
 		response_error(err_code, w)
@@ -453,6 +454,7 @@ func login_http_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
+
 }
 
 func select_server_http_handler(w http.ResponseWriter, r *http.Request) {

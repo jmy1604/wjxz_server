@@ -41,7 +41,7 @@ message PlayerGlobal{
 message PlayerRole{
 	optional int32 Id=1;
 	optional int32 TableId=2;
-	optional int32 Jingjie=3;
+	optional int32 Rank=3;
 	optional int32 Level=4;
 	repeated int32 Attr=5;
 }

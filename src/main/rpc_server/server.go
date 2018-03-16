@@ -45,9 +45,9 @@ func (this *RpcServer) Init() (err error) {
 }
 
 func (this *RpcServer) load_config() bool {
-	if !shop_mgr.Init() {
+	/*if !shop_mgr.Init() {
 		return false
-	}
+	}*/
 	if !global_config_mgr.Init("../game_data/global.json") {
 		return false
 	}

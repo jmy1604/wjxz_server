@@ -52,10 +52,6 @@ func (this *HallServer) Init() (ok bool) {
 		return
 	}
 
-	/*if !global_id.Load("../game_data/global_id.json") {
-		return
-	}*/
-
 	world_chat_mgr.Init()
 	anouncement_mgr.Init()
 
@@ -85,7 +81,7 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("cfg_position init succeed")
 	}
 
-	if !item_table_mgr.Init() {
+	/*if !item_table_mgr.Init() {
 		return errors.New("cfg_item_mgr init failed!")
 	} else {
 		log.Info("cfg_item_mgr init succeed!")
@@ -115,7 +111,7 @@ func (this *HallServer) OnInit() (err error) {
 		return errors.New("extract_table_mgr init failed")
 	} else {
 		log.Info("extract_table_mgr init succeed")
-	}
+	}*/
 
 	if !gm_command_mgr.Init() {
 		log.Error("gm_command_mgr init failed")
@@ -124,7 +120,7 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("gm_command_mgr init succeed !")
 	}
 
-	if !cfg_player_level_mgr.Init() {
+	/*if !cfg_player_level_mgr.Init() {
 		log.Error("cfg_player_level_mgr init failed")
 		return errors.New("cfg_player_level_mgr init failed!")
 	} else {
@@ -186,13 +182,27 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("google pay db load succeed")
 	}
 
-	os_player_mgr.Init()
+	os_player_mgr.Init()*/
 
 	if !card_table_mgr.Init() {
 		log.Error("card_table_mgr init failed")
 		return errors.New("card_table_mgr init failed")
 	} else {
 		log.Info("card_table_mgr init succeed")
+	}
+
+	if !skill_table_mgr.Init() {
+		log.Error("skill_table_mgr init failed")
+		return errors.New("skill_table_mgr init failed")
+	} else {
+		log.Info("skill_table_mgr init succeed")
+	}
+
+	if !buff_table_mgr.Init() {
+		log.Error("buff_table_mgr init failed")
+		return errors.New("buff_table_mgr init failed")
+	} else {
+		log.Info("buff_table_mgr init succeed")
 	}
 
 	return
@@ -334,15 +344,13 @@ func (this *HallServer) OnUpdate(c *socket.TcpConn, t timer.TickTime) {
 var global_config_mgr table_config.GlobalConfigManager
 var task_table_mgr table_config.TaskTableMgr
 var item_table_mgr table_config.CfgItemManager
-var stage_table_mgr table_config.CfgStageManager
 var cfg_drop_card_mgr table_config.CfgDropCardManager
-var cfg_player_level_mgr table_config.CfgPlayerLevelManager
 var shop_table_mgr table_config.ShopTableManager
-var box_table_mgr table_config.BoxTableManager
-var cfg_chapter_mgr table_config.CfgChapterManager
-var level_table_mgr table_config.LevelTableMgr
 var handbook_table_mgr table_config.HandbookTableMgr
 var suit_table_mgr table_config.SuitTableMgr
 var extract_table_mgr table_config.ExtractTableManager
 var cfg_position table_config.CfgPosition
+
 var card_table_mgr table_config.CardTableMgr
+var skill_table_mgr table_config.SkillTableMgr
+var buff_table_mgr table_config.StatusTableMgr

@@ -7,23 +7,24 @@ import (
 )
 
 type XmlCardItem struct {
-	Id             int32 `xml:"ID,attr"`
-	Rank           int32 `xml:"Rank,attr"`
-	ClientId       int32 `xml:"ClientID,attr"`
-	MaxLevel       int32 `xml:"MaxLevel,attr"`
-	MaxRank        int32 `xml:"MaxRank,attr"`
-	Rarity         int32 `xml:"Rarity,attr"`
-	Type           int32 `xml:"Type,attr"`
-	Camp           int32 `xml:"Camp,attr"`
-	BaseHP         int32 `xml:"BaseHP,attr"`
-	BaseAttack     int32 `xml:"BaseAttack,attr"`
-	BaseDefence    int32 `xml:"BaseDefence,attr"`
-	GrowthHP       int32 `xml:"GrowthHP,attr"`
-	GrowthAttack   int32 `xml:"GrowthAttack,attr"`
-	GrowthDefence  int32 `xml:"GrowthDefence,attr"`
-	NormalSkillID  int32 `xml:"NormalSkillID,attr"`
-	SuperSkillID   int32 `xml:"SuperSkillID,attr"`
-	PassiveSkillID int32 `xml:"PassiveSkillID,attr"`
+	Id                int32  `xml:"ID,attr"`
+	Rank              int32  `xml:"Rank,attr"`
+	ClientId          int32  `xml:"ClientID,attr"`
+	MaxLevel          int32  `xml:"MaxLevel,attr"`
+	MaxRank           int32  `xml:"MaxRank,attr"`
+	Rarity            int32  `xml:"Rarity,attr"`
+	Type              int32  `xml:"Type,attr"`
+	Camp              int32  `xml:"Camp,attr"`
+	BaseHP            int32  `xml:"BaseHP,attr"`
+	BaseAttack        int32  `xml:"BaseAttack,attr"`
+	BaseDefence       int32  `xml:"BaseDefence,attr"`
+	GrowthHP          int32  `xml:"GrowthHP,attr"`
+	GrowthAttack      int32  `xml:"GrowthAttack,attr"`
+	GrowthDefence     int32  `xml:"GrowthDefence,attr"`
+	NormalSkillID     int32  `xml:"NormalSkillID,attr"`
+	SuperSkillID      int32  `xml:"SuperSkillID,attr"`
+	PassiveSkillIDStr string `xml:"PassiveSkillID,attr"`
+	PassiveSkillIds   []int32
 }
 
 type XmlCardConfig struct {
@@ -73,6 +74,13 @@ func (this *CardTableMgr) Load() bool {
 	var tmp_item *XmlCardItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
+
+		pids := parse_xml_str_arr(tmp_item.PassiveSkillIDStr, ",")
+		if pids == nil {
+			tmp_item.PassiveSkillIds = make([]int32, 0)
+		} else {
+			tmp_item.PassiveSkillIds = pids
+		}
 
 		this.Map[tmp_item.Id] = tmp_item
 		this.Array = append(this.Array, tmp_item)
