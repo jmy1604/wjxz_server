@@ -139,7 +139,8 @@ func (this *BattleTeam) Init(p *Player, is_attack bool) {
 	this.curr_attack = 0
 }
 
-func (this *BattleTeam) get_default_targets() {
+func (this *BattleTeam) get_default_targets(team *BattleTeam) (is_enemy bool, pos []int32) {
+	return
 }
 
 // find targets
