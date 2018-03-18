@@ -207,11 +207,48 @@ func (this *Player) get_default_targets(self_pos int32, target_team *BattleTeam,
 
 // 后排目标选择
 func (this *Player) get_back_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
+		for i := BATTLE_FORMATION_LINE_NUM - 1; i > 0; i-- {
+			for j := 0; j < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; j++ {
+				p := int32(i)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + int32(j)
+				if target_team.members[p] != nil {
+					pos = append(pos, p)
+					break
+				}
+			}
+		}
+	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
+		is_empty := false
+		for i := BATTLE_FORMATION_LINE_NUM - 1; i > 0; i-- {
+			is_empty, pos = check_team_column(int32(i), target_team)
+			if !is_empty {
+				break
+			}
+		}
+	} else {
+		log.Warn("Range type %v cant get back targets", skill_data.RangeType)
+	}
 	return
 }
 
 // 血最少选择
 func (this *Player) get_hp_min_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE {
+		hp := int32(0)
+		p := int32(-1)
+		for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+			m := target_team.members[i]
+			if m != nil {
+				if hp == 0 || hp > m.hp {
+					hp = m.hp
+					p = int32(i)
+				}
+			}
+		}
+		pos = append(pos, p)
+	} else {
+		log.Warn("Range type %v cant get hp min targets", skill_data.RangeType)
+	}
 	return
 }
 
@@ -222,5 +259,10 @@ func (this *Player) get_random_targets(self_pos int32, target_team *BattleTeam, 
 
 // 强制自身选择
 func (this *Player) get_self_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE {
+
+	} else {
+		log.Warn("Range type %v cant get self targets", skill_data.RangeType)
+	}
 	return
 }
