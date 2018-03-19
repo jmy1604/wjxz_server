@@ -3,6 +3,9 @@ package main
 import (
 	"libs/log"
 	"main/table_config"
+	"math"
+	"math/rand"
+	"time"
 )
 
 // 技能类型
@@ -47,7 +50,7 @@ const (
 )
 
 // 获取行数顺序
-func get_rows_order(self_pos int32) (rows_order []int32) {
+func _get_rows_order(self_pos int32) (rows_order []int32) {
 	if self_pos%BATTLE_FORMATION_ONE_LINE_MEMBER_NUM == 0 {
 		rows_order = []int32{0, 1, 2}
 	} else if self_pos%BATTLE_FORMATION_ONE_LINE_MEMBER_NUM == 1 {
@@ -61,7 +64,7 @@ func get_rows_order(self_pos int32) (rows_order []int32) {
 }
 
 // 行是否为空
-func check_team_row(row_index int32, target_team *BattleTeam) (is_empty bool, pos []int32) {
+func _check_team_row(row_index int32, target_team *BattleTeam) (is_empty bool, pos []int32) {
 	is_empty = true
 	for i := 0; i < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; i++ {
 		p := row_index + int32(BATTLE_FORMATION_LINE_NUM*i)
@@ -76,7 +79,7 @@ func check_team_row(row_index int32, target_team *BattleTeam) (is_empty bool, po
 }
 
 // 列是否为空
-func check_team_column(column_index int32, target_team *BattleTeam) (is_empty bool, pos []int32) {
+func _check_team_column(column_index int32, target_team *BattleTeam) (is_empty bool, pos []int32) {
 	is_empty = true
 	for i := 0; i < BATTLE_FORMATION_LINE_NUM; i++ {
 		p := int(column_index)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + i
@@ -91,7 +94,7 @@ func check_team_column(column_index int32, target_team *BattleTeam) (is_empty bo
 }
 
 // 十字攻击范围
-func get_team_cross_targets() [][]int32 {
+func _get_team_cross_targets() [][]int32 {
 	return [][]int32{
 		[]int32{0, 2, 3},
 		[]int32{1, 0, 2, 4},
@@ -106,7 +109,7 @@ func get_team_cross_targets() [][]int32 {
 }
 
 // 大十字攻击范围
-func get_team_big_cross_targets() [][]int32 {
+func _get_team_big_cross_targets() [][]int32 {
 	return [][]int32{
 		[]int32{0, 1, 2, 3, 6},
 		[]int32{1, 0, 2, 4, 7},
@@ -121,13 +124,13 @@ func get_team_big_cross_targets() [][]int32 {
 }
 
 // 单个默认目标
-func get_single_default_target(self_pos int32, target_team *BattleTeam) (pos int32) {
+func _get_single_default_target(self_pos int32, target_team *BattleTeam) (pos int32) {
 	pos = int32(-1)
 	m := target_team.members[self_pos]
 	if m != nil {
 		pos = self_pos
 	} else {
-		rows_order := get_rows_order(self_pos)
+		rows_order := _get_rows_order(self_pos)
 		for l := 0; l < len(rows_order); l++ {
 			for i := 1; i < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; i++ {
 				p := l*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + i
@@ -142,18 +145,18 @@ func get_single_default_target(self_pos int32, target_team *BattleTeam) (pos int
 }
 
 // 默认目标选择
-func (this *Player) get_default_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
-		pos = []int32{get_single_default_target(self_pos, target_team)}
+		pos = []int32{_get_single_default_target(self_pos, target_team)}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_ROW { //横排
-		rows := get_rows_order(self_pos)
+		rows := _get_rows_order(self_pos)
 		if rows == nil {
 			log.Warn("get rows failed")
 			return
 		}
 		is_empty := false
 		for i := 0; i < len(rows); i++ {
-			is_empty, pos = check_team_row(rows[i], target_team)
+			is_empty, pos = _check_team_row(rows[i], target_team)
 			if !is_empty {
 				break
 			}
@@ -161,7 +164,7 @@ func (this *Player) get_default_targets(self_pos int32, target_team *BattleTeam,
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
 		for c := 0; c < BATTLE_FORMATION_LINE_NUM; c++ {
 			is_empty := false
-			is_empty, pos = check_team_column(int32(c), target_team)
+			is_empty, pos = _check_team_column(int32(c), target_team)
 			if !is_empty {
 				break
 			}
@@ -170,24 +173,24 @@ func (this *Player) get_default_targets(self_pos int32, target_team *BattleTeam,
 		// 默认多体不存在
 		log.Warn("Cant get target pos on default multi members")
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_CROSS { // 十字
-		p := get_single_default_target(self_pos, target_team)
+		p := _get_single_default_target(self_pos, target_team)
 		if p < 0 {
 			log.Error("Get single target pos by self_pos[%v] failed", self_pos)
 			return
 		}
-		ps := get_team_cross_targets()[p]
+		ps := _get_team_cross_targets()[p]
 		for i := 0; i < len(ps); i++ {
 			if target_team.members[ps[i]] != nil {
 				pos = append(pos, ps[i])
 			}
 		}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_BIG_CROSS { // 大十字
-		p := get_single_default_target(self_pos, target_team)
+		p := _get_single_default_target(self_pos, target_team)
 		if p < 0 {
 			log.Error("Get single target pos by self_pos[%v] failed", self_pos)
 			return
 		}
-		ps := get_team_big_cross_targets()[p]
+		ps := _get_team_big_cross_targets()[p]
 		for i := 0; i < len(ps); i++ {
 			if target_team.members[ps[i]] != nil {
 				pos = append(pos, ps[i])
@@ -206,7 +209,7 @@ func (this *Player) get_default_targets(self_pos int32, target_team *BattleTeam,
 }
 
 // 后排目标选择
-func (this *Player) get_back_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+func skill_get_back_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
 		for i := BATTLE_FORMATION_LINE_NUM - 1; i > 0; i-- {
 			for j := 0; j < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; j++ {
@@ -220,7 +223,7 @@ func (this *Player) get_back_targets(self_pos int32, target_team *BattleTeam, sk
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
 		is_empty := false
 		for i := BATTLE_FORMATION_LINE_NUM - 1; i > 0; i-- {
-			is_empty, pos = check_team_column(int32(i), target_team)
+			is_empty, pos = _check_team_column(int32(i), target_team)
 			if !is_empty {
 				break
 			}
@@ -232,7 +235,7 @@ func (this *Player) get_back_targets(self_pos int32, target_team *BattleTeam, sk
 }
 
 // 血最少选择
-func (this *Player) get_hp_min_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+func skill_get_hp_min_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE {
 		hp := int32(0)
 		p := int32(-1)
@@ -252,17 +255,237 @@ func (this *Player) get_hp_min_targets(self_pos int32, target_team *BattleTeam, 
 	return
 }
 
-// 随机选择
-func (this *Player) get_random_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+// 随机一个目标
+func _random_one_target(self_pos int32, target_team *BattleTeam, except_pos []int32) (pos int32) {
+	pos = int32(-1)
+	c := int32(0)
+	r := rand.Int31n(BATTLE_TEAM_MEMBER_MAX_NUM)
+	for {
+		used := false
+		if except_pos != nil {
+			for i := 0; i < len(except_pos); i++ {
+				if r == except_pos[i] {
+					used = true
+					break
+				}
+			}
+		}
+		if !used && (self_pos < 0 || self_pos != r) && target_team.members[r] != nil {
+			pos = r
+			break
+		}
+		r = (r + 1) % BATTLE_TEAM_MEMBER_MAX_NUM
+		c += 1
+		if c >= BATTLE_TEAM_MEMBER_MAX_NUM {
+			break
+		}
+	}
 	return
 }
 
-// 强制自身选择
-func (this *Player) get_self_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+// 随机选择
+func skill_get_random_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE {
-
+		rand.Seed(time.Now().Unix())
+		p := _random_one_target(self_pos, target_team, pos)
+		if p < 0 {
+			log.Error("Cant get random one target with self_pos %v", self_pos)
+			return
+		}
+		pos = append(pos, p)
+	} else if skill_data.RangeType == SKILL_RANGE_TYPE_MULTI {
+		rand.Seed(time.Now().Unix())
+		for i := int32(0); i < skill_data.MaxTarget; i++ {
+			p := _random_one_target(self_pos, target_team, pos)
+			if p >= 0 {
+				pos = append(pos, p)
+			}
+		}
 	} else {
-		log.Warn("Range type %v cant get self targets", skill_data.RangeType)
+		log.Warn("Range type %v cant get random targets", skill_data.RangeType)
 	}
 	return
+}
+
+// 技能效果类型
+const (
+	SKILL_EFFECT_TYPE_DIRECT_INJURY         = 1 // 直接伤害
+	SKILL_EFFECT_TYPE_CURE                  = 2 // 治疗
+	SKILL_EFFECT_TYPE_ADD_BUFF              = 3 // 施加BUFF
+	SKILL_EFFECT_TYPE_SUMMON                = 4 // 召唤技能
+	SKILL_EFFECT_TYPE_MODIFY_ATTR           = 5 // 改变下次计算时的角色参数
+	SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL   = 6 // 改变普通攻击技能ID
+	SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL     = 7 // 改变怒气攻击技能ID
+	SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM = 8 // 增加普攻次数
+	SKILL_EFFECT_TYPE_MODIFY_RAGE           = 9 // 改变怒气
+)
+
+// 技能直接伤害
+func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type, skill_fight_type int32, effect []int32) (target_damage, self_damage int32) {
+	// 增伤减伤总和
+	damage_add := self.attrs[ATTR_TOTAL_DAMAGE_ADD]
+	damage_sub := target.attrs[ATTR_TOTAL_DAMAGE_SUB]
+
+	// 类型
+	if skill_type == SKILL_TYPE_NORMAL {
+		damage_add += self.attrs[ATTR_NORMAL_DAMAGE_ADD]
+		damage_sub += target.attrs[ATTR_NORMAL_DAMAGE_SUB]
+	} else if skill_type == SKILL_TYPE_SUPER {
+		damage_add += self.attrs[ATTR_RAGE_DAMAGE_ADD]
+		damage_sub += target.attrs[ATTR_RAGE_DAMAGE_SUB]
+	} else {
+		log.Error("Invalid skill type: %v", skill_type)
+		return
+	}
+
+	// 战斗类型
+	if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
+		damage_add += self.attrs[ATTR_CLOSE_DAMAGE_ADD]
+		damage_sub += target.attrs[ATTR_CLOSE_DAMAGE_SUB]
+	} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
+		damage_add += self.attrs[ATTR_REMOTE_DAMAGE_ADD]
+		damage_sub += target.attrs[ATTR_REMOTE_DAMAGE_SUB]
+	} else {
+		log.Error("Invalid skill melee type: %v", skill_fight_type)
+		return
+	}
+
+	is_reflect_damage := false
+	// 角色类型克制
+	if self.card.Type == table_config.CARD_ROLE_TYPE_ATTACK && target.card.Type == table_config.CARD_ROLE_TYPE_SKILL {
+		damage_add += 1500
+		is_reflect_damage = true
+	} else if self.card.Type == table_config.CARD_ROLE_TYPE_SKILL && target.card.Type == table_config.CARD_ROLE_TYPE_DEFENSE {
+		damage_add += 1500
+		is_reflect_damage = true
+	} else if self.card.Type == table_config.CARD_ROLE_TYPE_DEFENSE && target.card.Type == table_config.CARD_ROLE_TYPE_ATTACK {
+		damage_add += 1500
+		is_reflect_damage = true
+	}
+
+	// 反伤
+	if is_reflect_damage {
+		var reflect_damage int32
+		if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
+			reflect_damage = target.attrs[ATTR_ATTACK] * target.attrs[ATTR_CLOSE_REFLECT] / 10000
+		} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
+			reflect_damage = target.attrs[ATTR_ATTACK] * target.attrs[ATTR_REMOTE_REFLECT] / 10000
+		}
+		if self.attrs[ATTR_HP] < reflect_damage {
+			self.attrs[ATTR_HP] = 0
+		} else {
+			self.attrs[ATTR_HP] -= reflect_damage
+		}
+	}
+
+	// 防御力
+	defense := target.attrs[ATTR_DEFENSE] * (10000 - self.attrs[ATTR_BREAK_ARMOR] + self.attrs[ATTR_ARMOR_ADD]) / 10000
+	if defense < 0 {
+		defense = 0
+	}
+	attack := self.attrs[ATTR_ATTACK] - defense
+	attack1 := self.attrs[ATTR_ATTACK] * self.attrs[ATTR_ATTACK] / (self.attrs[ATTR_ATTACK] + target.attrs[ATTR_DEFENSE]) / 5
+	if attack < attack1 {
+		attack = attack1
+	}
+	if attack < 1 {
+		attack = 1
+	}
+
+	// 基础技能伤害
+	base_skill_damage := self.attrs[ATTR_ATTACK] * effect[1] / 10000
+	target_damage = int32(float64(base_skill_damage) * math.Max(0.1, float64((10000+damage_add-damage_sub)/10000)))
+	if target_damage < 1 {
+		target_damage = 1
+	}
+
+	// 实际暴击率
+	critical := self.attrs[ATTR_CRITICAL] - self.attrs[ATTR_ANTI_CRITICAL]
+	if critical < 0 {
+		critical = 0
+	} else {
+		// 触发暴击
+		if critical < rand.Int31n(10000) {
+			target_damage *= int32(math.Max(1.5, float64((20000+self.attrs[ATTR_CRITICAL_MULTI])/10000)))
+		}
+	}
+	if critical > 0 {
+		// 实际格挡率
+		block := self.attrs[ATTR_BLOCK_RATE] - target.attrs[ATTR_BREAK_BLOCK_RATE]
+		target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64((50000-block))/10000))))
+	}
+
+	// 贯通
+	if effect[5] > 0 {
+		if target.attrs[ATTR_SHIELD] < target_damage {
+			target.attrs[ATTR_SHIELD] = 0
+		} else {
+			target.attrs[ATTR_SHIELD] -= target_damage
+		}
+	} else {
+		if target.attrs[ATTR_SHIELD] < target_damage {
+			target.attrs[ATTR_SHIELD] = 0
+			target_damage -= target.attrs[ATTR_SHIELD]
+		} else {
+			target.attrs[ATTR_SHIELD] -= target_damage
+			target_damage = 0
+		}
+	}
+
+	// 状态伤害
+
+	return
+}
+
+// 技能治疗效果
+func skill_effect_cure(self_mem *TeamMember, target_mem *TeamMember, effect []int32) (cure int32) {
+	cure = self_mem.attrs[ATTR_ATTACK]
+	cure = cure * effect[1] / 10000
+	cure = int32(math.Max(0, float64(cure*(10000+self_mem.attrs[ATTR_CURE_RATE_CORRECT]+target_mem.attrs[ATTR_CURED_RATE_CORRECT])/10000)))
+	return
+}
+
+// 技能效果
+func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) {
+	var effect [][]int32 = [][]int32{
+		skill_data.Effect1, skill_data.Effect2, skill_data.Effect3,
+	}
+	for i := 0; i < len(target_pos); i++ {
+		self := self_team.members[self_pos]
+		target := target_team.members[i]
+		if self == nil || target == nil {
+			continue
+		}
+		for i := 0; i < len(effect); i++ {
+			if effect[i] == nil {
+				continue
+			}
+			if effect[i][0] == SKILL_EFFECT_TYPE_DIRECT_INJURY {
+				// 直接伤害
+				target_dmg, self_dmg := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effect[i])
+				target.attrs[ATTR_HP] -= target_dmg
+				target.hp -= target_dmg
+				if target.attrs[ATTR_HP] <= 0 {
+					target.attrs[ATTR_HP] = 0
+					target.hp = 0
+				}
+				self.attrs[ATTR_HP] -= self_dmg
+				self.hp -= self_dmg
+				if self.attrs[ATTR_HP] <= 0 {
+					self.attrs[ATTR_HP] = 0
+					self.hp = 0
+				}
+			} else if effect[i][0] == SKILL_EFFECT_TYPE_CURE {
+				// 治疗
+				cure := skill_effect_cure(self, target, effect[i])
+				if target.attrs[ATTR_HP]+cure > target.attrs[ATTR_HP_MAX] {
+					target.attrs[ATTR_HP] = target.attrs[ATTR_HP_MAX]
+					target.hp = target.attrs[ATTR_HP]
+				}
+			} else if effect[i][0] == SKILL_EFFECT_TYPE_ADD_BUFF {
+				// 施加BUFF
+
+			}
+		}
+	}
 }

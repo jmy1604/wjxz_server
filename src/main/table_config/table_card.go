@@ -6,6 +6,12 @@ import (
 	"libs/log"
 )
 
+const (
+	CARD_ROLE_TYPE_ATTACK  = 1
+	CARD_ROLE_TYPE_DEFENSE = 2
+	CARD_ROLE_TYPE_SKILL   = 3
+)
+
 type XmlCardItem struct {
 	Id                int32  `xml:"ID,attr"`
 	Rank              int32  `xml:"Rank,attr"`

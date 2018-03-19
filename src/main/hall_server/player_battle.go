@@ -9,39 +9,42 @@ import (
 
 // 基础属性
 const (
-	ATTR_HP_MAX              = 1  // 最大血量
-	ATTR_HP                  = 2  // 当前血量
-	ATTR_MP                  = 3  // 气势
-	ATTR_ATTACK              = 4  // 攻击
-	ATTR_DEFENSE             = 5  // 防御
-	ATTR_CRITICAL            = 6  // 暴击率
-	ATTR_CRITICAL_MULTI      = 7  // 暴击伤害倍率
-	ATTR_ANTI_CRITICAL       = 8  // 抗暴率
-	ATTR_BLOCK_RATE          = 9  // 格挡率
-	ATTR_BLOCK_DEFENSE_RATE  = 10 // 格挡减伤率
-	ATTR_BREAK_BLOCK_RATE    = 11 // 破格率
-	ATTR_SHIELD              = 12 // 护盾
-	ATTR_TOTAL_DAMAGE_ADD    = 13 // 总增伤
-	ATTR_CLOSE_DAMAGE_ADD    = 14 // 近战增伤
-	ATTR_REMOTE_DAMAGE_ADD   = 15 // 远程增伤
-	ATTR_NORMAL_DAMAGE_ADD   = 16 // 普攻增伤
-	ATTR_RAGE_DAMAGE_ADD     = 17 // 怒气增伤
-	ATTR_TOTAL_DAMAGE_SUB    = 18 // 总减伤
-	ATTR_CLOSE_DAMAGE_SUB    = 19 // 近战减伤
-	ATTR_REMOTE_DAMAGE_SUB   = 20 // 远程减伤
-	ATTR_NORMAL_DAMAGE_SUB   = 21 // 普攻减伤
-	ATTR_RAGE_DAMAGE_SUB     = 22 // 怒气减伤
-	ATTR_CLOSE_VAMPIRE       = 23 // 近战吸血
-	ATTR_REMOTE_VAMPIRE      = 24 // 远程吸血
-	ATTR_CURE_RATE_CORRECT   = 25 // 治疗率修正
-	ATTR_CURED_RATE_CORRECT  = 26 // 被治疗率修正
-	ATTR_CLOSE_COUNTER       = 27 // 近战反击系数
-	ATTR_REMOTE_COUNTER      = 28 // 远程反击系数
-	ATTR_DODGE_COUNT         = 29 // 闪避次数
-	ATTR_INJURED_MAX         = 30 // 受伤上限
-	ATTR_POISON_INJURED_RATE = 31 // 毒气受伤率
-	ATTR_BURN_INJURED_RATE   = 32 // 点燃受伤率
-	ATTR_BLEED_INJURED_RATE  = 33 // 流血受伤率
+	ATTR_HP_MAX             = 1  // 最大血量
+	ATTR_HP                 = 2  // 当前血量
+	ATTR_MP                 = 3  // 气势
+	ATTR_ATTACK             = 4  // 攻击
+	ATTR_DEFENSE            = 5  // 防御
+	ATTR_DODGE_COUNT        = 6  // 闪避次数
+	ATTR_INJURED_MAX        = 7  // 受伤上限
+	ATTR_SHIELD             = 8  // 护盾
+	ATTR_CRITICAL           = 9  // 暴击率
+	ATTR_CRITICAL_MULTI     = 10 // 暴击伤害倍率
+	ATTR_ANTI_CRITICAL      = 11 // 抗暴率
+	ATTR_BLOCK_RATE         = 12 // 格挡率
+	ATTR_BLOCK_DEFENSE_RATE = 13 // 格挡减伤率
+	ATTR_BREAK_BLOCK_RATE   = 14 // 破格率
+
+	ATTR_TOTAL_DAMAGE_ADD    = 15 // 总增伤
+	ATTR_CLOSE_DAMAGE_ADD    = 16 // 近战增伤
+	ATTR_REMOTE_DAMAGE_ADD   = 17 // 远程增伤
+	ATTR_NORMAL_DAMAGE_ADD   = 18 // 普攻增伤
+	ATTR_RAGE_DAMAGE_ADD     = 19 // 怒气增伤
+	ATTR_TOTAL_DAMAGE_SUB    = 20 // 总减伤
+	ATTR_CLOSE_DAMAGE_SUB    = 21 // 近战减伤
+	ATTR_REMOTE_DAMAGE_SUB   = 22 // 远程减伤
+	ATTR_NORMAL_DAMAGE_SUB   = 23 // 普攻减伤
+	ATTR_RAGE_DAMAGE_SUB     = 24 // 怒气减伤
+	ATTR_CLOSE_VAMPIRE       = 25 // 近战吸血
+	ATTR_REMOTE_VAMPIRE      = 26 // 远程吸血
+	ATTR_CURE_RATE_CORRECT   = 27 // 治疗率修正
+	ATTR_CURED_RATE_CORRECT  = 28 // 被治疗率修正
+	ATTR_CLOSE_REFLECT       = 29 // 近战反击系数
+	ATTR_REMOTE_REFLECT      = 30 // 远程反击系数
+	ATTR_ARMOR_ADD           = 31 // 护甲增益
+	ATTR_BREAK_ARMOR         = 32 // 破甲
+	ATTR_POISON_INJURED_RATE = 33 // 毒气受伤率
+	ATTR_BURN_INJURED_RATE   = 34 // 点燃受伤率
+	ATTR_BLEED_INJURED_RATE  = 35 // 流血受伤率
 	ATTR_COUNT_MAX           = 40
 )
 
@@ -139,14 +142,10 @@ func (this *BattleTeam) Init(p *Player, is_attack bool) {
 	this.curr_attack = 0
 }
 
-func (this *BattleTeam) get_default_targets(team *BattleTeam) (is_enemy bool, pos []int32) {
-	return
-}
-
 // find targets
-func (this *BattleTeam) FindTargets(team *BattleTeam) (is_enemy bool, pos []int32) {
+func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
 	skill_id := int32(0)
-	m := this.members[this.curr_attack]
+	m := this.members[self_index]
 
 	// 能量满用绝杀
 	if m.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
@@ -155,7 +154,7 @@ func (this *BattleTeam) FindTargets(team *BattleTeam) (is_enemy bool, pos []int3
 		skill_id = m.card.NormalSkillID
 	}
 
-	skill := skill_table_mgr.Get(skill_id)
+	skill = skill_table_mgr.Get(skill_id)
 	if skill == nil {
 		log.Error("Cant get skill by id[%v]", skill_id)
 		return
@@ -185,36 +184,47 @@ func (this *BattleTeam) FindTargets(team *BattleTeam) (is_enemy bool, pos []int3
 	}
 
 	if skill.SkillTarget == SKILL_TARGET_TYPE_DEFAULT {
-
+		pos = skill_get_default_targets(self_index, team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_BACK {
-
+		pos = skill_get_back_targets(self_index, team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_HP_MIN {
-
+		pos = skill_get_hp_min_targets(self_index, team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_RANDOM {
-
+		pos = skill_get_random_targets(self_index, team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_SELF {
-
+		pos = []int32{this.curr_attack}
 	} else {
 		log.Error("Invalid skill target type: %v", skill.SkillTarget)
 		return
 	}
 
-	/*for i := 0; i < BATTLE_FORMATION_LINE_NUM; i++ {
-		a := pos % BATTLE_FORMATION_ONE_LINE_MEMBER_NUM
-		pos2 := i*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + a
-		if team[1].members[pos2] != nil {
-			m2 = team[1].members[pos2]
-			break
-		}
-	}
-	if m2 == nil {
-		for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-			pos2 := (pos + i) % BATTLE_TEAM_MEMBER_MAX_NUM
-			if team[1].members[pos2] != nil {
-				m2 = team[1].members[pos2]
-				break
-			}
-		}
-	}*/
 	return
+}
+
+// do action
+func (this *BattleTeam) DoAction2Targets(target_team *BattleTeam, target_pos []int32, skill *table_config.XmlSkillItem) {
+	for i := 0; i < len(target_pos); i++ {
+		skill_effect(this, this.curr_attack, target_team, target_pos, skill)
+		this.members[this.curr_attack].energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
+	}
+}
+
+// attack
+func (this *BattleTeam) Attack(target_team *BattleTeam) {
+	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		if this.members[i] == nil {
+			continue
+		}
+		is_enemy, target_pos, skill := this.FindTargets(int32(i), target_team)
+		if target_pos == nil {
+			log.Warn("Cant find targets to attack")
+			return
+		}
+
+		if !is_enemy {
+			target_team = this
+		}
+
+		this.DoAction2Targets(target_team, target_pos, skill)
+	}
 }

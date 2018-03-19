@@ -17,11 +17,15 @@ type XmlSkillItem struct {
 	RangeType      int32  `xml:"RangeType,attr"`
 	SkillTarget    int32  `xml:"SkillTarget,attr"`
 	MaxTarget      int32  `xml:"MaxTarget,attr"`
+	MustHit        int32  `xml:"CertainHit,attr"`
 	SkillCastCount int32  `xml:"SkillCastCount,attr"`
-	Effect1        string `xml:"Effect1,attr"`
-	Effect2        string `xml:"Effect2,attr"`
-	Effect3        string `xml:"Effect3,attr"`
-	ComboSKill     int32  `xml:"ComboSKill,attr"`
+	Effect1Str     string `xml:"Effect1,attr"`
+	Effect1        []int32
+	Effect2Str     string `xml:"Effect2,attr"`
+	Effect2        []int32
+	Effect3Str     string `xml:"Effect3,attr"`
+	Effect3        []int32
+	ComboSKill     int32 `xml:"ComboSKill,attr"`
 }
 
 type XmlSkillConfig struct {
@@ -66,6 +70,18 @@ func (this *SkillTableMgr) Load() bool {
 	var tmp_item *XmlSkillItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
+		tmp_item.Effect1 = parse_xml_str_arr(tmp_item.Effect1Str, "|")
+		if tmp_item.Effect1 == nil {
+			tmp_item.Effect1 = make([]int32, 0)
+		}
+		tmp_item.Effect2 = parse_xml_str_arr(tmp_item.Effect2Str, "|")
+		if tmp_item.Effect2 == nil {
+			tmp_item.Effect2 = make([]int32, 0)
+		}
+		tmp_item.Effect3 = parse_xml_str_arr(tmp_item.Effect3Str, "|")
+		if tmp_item.Effect3 == nil {
+			tmp_item.Effect3 = make([]int32, 0)
+		}
 
 		this.Map[tmp_item.Id] = tmp_item
 		this.Array = append(this.Array, tmp_item)
