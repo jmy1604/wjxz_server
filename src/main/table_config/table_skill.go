@@ -70,15 +70,15 @@ func (this *SkillTableMgr) Load() bool {
 	var tmp_item *XmlSkillItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
-		tmp_item.Effect1 = parse_xml_str_arr(tmp_item.Effect1Str, "|")
+		tmp_item.Effect1 = parse_xml_str_arr2(tmp_item.Effect1Str, "|")
 		if tmp_item.Effect1 == nil {
 			tmp_item.Effect1 = make([]int32, 0)
 		}
-		tmp_item.Effect2 = parse_xml_str_arr(tmp_item.Effect2Str, "|")
+		tmp_item.Effect2 = parse_xml_str_arr2(tmp_item.Effect2Str, "|")
 		if tmp_item.Effect2 == nil {
 			tmp_item.Effect2 = make([]int32, 0)
 		}
-		tmp_item.Effect3 = parse_xml_str_arr(tmp_item.Effect3Str, "|")
+		tmp_item.Effect3 = parse_xml_str_arr2(tmp_item.Effect3Str, "|")
 		if tmp_item.Effect3 == nil {
 			tmp_item.Effect3 = make([]int32, 0)
 		}

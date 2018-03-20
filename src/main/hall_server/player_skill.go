@@ -132,8 +132,8 @@ func _get_single_default_target(self_pos int32, target_team *BattleTeam) (pos in
 	} else {
 		rows_order := _get_rows_order(self_pos)
 		for l := 0; l < len(rows_order); l++ {
-			for i := 1; i < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; i++ {
-				p := l*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + i
+			for i := 0; i < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; i++ {
+				p := int(rows_order[l])*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + i
 				if target_team.members[p] != nil {
 					pos = int32(p)
 					break
@@ -322,6 +322,11 @@ const (
 
 // 技能直接伤害
 func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type, skill_fight_type int32, effect []int32) (target_damage, self_damage int32) {
+	if len(effect) < 6 {
+		log.Error("skill effect length %v not enough", len(effect))
+		return
+	}
+
 	// 增伤减伤总和
 	damage_add := self.attrs[ATTR_TOTAL_DAMAGE_ADD]
 	damage_sub := target.attrs[ATTR_TOTAL_DAMAGE_SUB]
@@ -384,7 +389,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		defense = 0
 	}
 	attack := self.attrs[ATTR_ATTACK] - defense
-	attack1 := self.attrs[ATTR_ATTACK] * self.attrs[ATTR_ATTACK] / (self.attrs[ATTR_ATTACK] + target.attrs[ATTR_DEFENSE]) / 5
+	attack1 := self.attrs[ATTR_ATTACK] * self.attrs[ATTR_ATTACK] / (self.attrs[ATTR_ATTACK] + defense) / 5
 	if attack < attack1 {
 		attack = attack1
 	}
@@ -393,26 +398,32 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	}
 
 	// 基础技能伤害
-	base_skill_damage := self.attrs[ATTR_ATTACK] * effect[1] / 10000
+	base_skill_damage := attack * effect[1] / 10000
 	target_damage = int32(float64(base_skill_damage) * math.Max(0.1, float64((10000+damage_add-damage_sub)/10000)))
 	if target_damage < 1 {
 		target_damage = 1
 	}
 
 	// 实际暴击率
+	is_critical := false
 	critical := self.attrs[ATTR_CRITICAL] - self.attrs[ATTR_ANTI_CRITICAL]
 	if critical < 0 {
 		critical = 0
 	} else {
 		// 触发暴击
-		if critical < rand.Int31n(10000) {
+		if critical > rand.Int31n(10000) {
 			target_damage *= int32(math.Max(1.5, float64((20000+self.attrs[ATTR_CRITICAL_MULTI])/10000)))
+			is_critical = true
+			log.Debug("####### target_damage[%v]", target_damage)
 		}
 	}
-	if critical > 0 {
+	if !is_critical {
 		// 实际格挡率
-		block := self.attrs[ATTR_BLOCK_RATE] - target.attrs[ATTR_BREAK_BLOCK_RATE]
-		target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64((50000-block))/10000))))
+		block := target.attrs[ATTR_BLOCK_RATE] - self.attrs[ATTR_BREAK_BLOCK_RATE]
+		if block > rand.Int31n(10000) {
+			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64((5000-self.attrs[ATTR_BLOCK_DEFENSE_RATE]))/10000))))
+			log.Debug("@@@@@@@ target_damage[%v]", target_damage)
+		}
 	}
 
 	// 贯通
@@ -439,6 +450,10 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 
 // 技能治疗效果
 func skill_effect_cure(self_mem *TeamMember, target_mem *TeamMember, effect []int32) (cure int32) {
+	if len(effect) < 2 {
+		log.Error("cure skill effect length %v not enough", len(effect))
+		return
+	}
 	cure = self_mem.attrs[ATTR_ATTACK]
 	cure = cure * effect[1] / 10000
 	cure = int32(math.Max(0, float64(cure*(10000+self_mem.attrs[ATTR_CURE_RATE_CORRECT]+target_mem.attrs[ATTR_CURED_RATE_CORRECT])/10000)))
@@ -450,14 +465,17 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	var effect [][]int32 = [][]int32{
 		skill_data.Effect1, skill_data.Effect2, skill_data.Effect3,
 	}
+	self := self_team.members[self_pos]
+	if self == nil {
+		return
+	}
 	for i := 0; i < len(target_pos); i++ {
-		self := self_team.members[self_pos]
-		target := target_team.members[i]
-		if self == nil || target == nil {
+		target := target_team.members[target_pos[i]]
+		if target == nil {
 			continue
 		}
 		for i := 0; i < len(effect); i++ {
-			if effect[i] == nil {
+			if effect[i] == nil || len(effect[i]) < 1 {
 				continue
 			}
 			if effect[i][0] == SKILL_EFFECT_TYPE_DIRECT_INJURY {
@@ -475,13 +493,17 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					self.attrs[ATTR_HP] = 0
 					self.hp = 0
 				}
+				log.Debug("role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
 			} else if effect[i][0] == SKILL_EFFECT_TYPE_CURE {
 				// 治疗
 				cure := skill_effect_cure(self, target, effect[i])
 				if target.attrs[ATTR_HP]+cure > target.attrs[ATTR_HP_MAX] {
 					target.attrs[ATTR_HP] = target.attrs[ATTR_HP_MAX]
 					target.hp = target.attrs[ATTR_HP]
+				} else {
+					target.attrs[ATTR_HP] += cure
 				}
+				log.Debug("role[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self.id, skill_data.Id, target.id, cure)
 			} else if effect[i][0] == SKILL_EFFECT_TYPE_ADD_BUFF {
 				// 施加BUFF
 

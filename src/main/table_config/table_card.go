@@ -96,6 +96,7 @@ func (this *CardTableMgr) Load() bool {
 			a = make([]*XmlCardItem, 0)
 		}
 		a = append(a, tmp_item)
+		this.Id2RankArray[tmp_item.Id] = a
 	}
 
 	return true

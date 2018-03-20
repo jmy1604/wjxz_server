@@ -987,6 +987,20 @@ func rand_role_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func list_role_cmd(p *Player, args []string) int32 {
+	all := p.db.Roles.GetAllIndex()
+	if all != nil {
+		for i := 0; i < len(all); i++ {
+			table_id, o := p.db.Roles.GetTableId(all[i])
+			if !o {
+				continue
+			}
+			log.Debug("role_id:%v, table_id:%v", all[i], table_id)
+		}
+	}
+	return 1
+}
+
 func create_battle_team_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
@@ -1008,7 +1022,91 @@ func create_battle_team_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func set_attack_team_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var role_id int
+	var team []int32
+	for i := 0; i < len(args); i++ {
+		role_id, err = strconv.Atoi(args[i])
+		if err != nil {
+			log.Error("转换角色ID[%v]错误[%v]", role_id, err.Error())
+			return -1
+		}
+		team = append(team, int32(role_id))
+	}
+
+	if !p.SetAttackTeam(team) {
+		log.Error("设置玩家[%v]攻击阵容失败", p.Id)
+		return -1
+	}
+
+	return 1
+}
+
+func set_defense_team_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var role_id int
+	var team []int32
+	for i := 0; i < len(args); i++ {
+		role_id, err = strconv.Atoi(args[i])
+		if err != nil {
+			log.Error("转换角色ID[%v]错误[%v]", role_id, err.Error())
+			return -1
+		}
+		team = append(team, int32(role_id))
+	}
+
+	if !p.SetDefenseTeam(team) {
+		log.Error("设置玩家[%v]防守阵容失败", p.Id)
+		return -1
+	}
+
+	return 1
+}
+
+func list_teams_cmd(p *Player, args []string) int32 {
+	log.Debug("attack team: %v", p.db.BattleTeam.GetAttackMembers())
+	log.Debug("defense team: %v", p.db.BattleTeam.GetDefenseMembers())
+	return 1
+}
+
 func pvp_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var player_id int
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换玩家ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	player := player_mgr.GetPlayerById(int32(player_id))
+	if player == nil {
+		log.Error("玩家[%v]找不到", player_id)
+		return -1
+	}
+
+	var my_team, target_team BattleTeam
+	my_team.Init(p, true)
+	target_team.Init(player, false)
+
+	my_team.DoRound(&target_team)
+
+	log.Debug("玩家[%v]pvp玩家[%v]", p.Id, player.Id)
 	return 1
 }
 
@@ -1067,7 +1165,12 @@ var test_cmd2funcs = map[string]test_cmd_func{
 		  "push_sysmsg_text":      push_sysmsg_text_cmd,
 		  "reset_day_sign_reward": reset_day_sign_reward,
 	*/
-	"rand_role": rand_role_cmd,
+	"rand_role":        rand_role_cmd,
+	"list_role":        list_role_cmd,
+	"set_attack_team":  set_attack_team_cmd,
+	"set_defense_team": set_defense_team_cmd,
+	"list_teams":       list_teams_cmd,
+	"pvp":              pvp_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {

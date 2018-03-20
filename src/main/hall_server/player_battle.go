@@ -57,6 +57,11 @@ const (
 	BATTLE_FORMATION_ONE_LINE_MEMBER_NUM = 3 // 每列人数
 )
 
+type MemberBuff struct {
+	id   int32
+	next *MemberBuff
+}
+
 type TeamMember struct {
 	id      int32
 	card    *table_config.XmlCardItem
@@ -64,6 +69,7 @@ type TeamMember struct {
 	energy  int32
 	attack  int32
 	defense int32
+	act_num int32 // 行动次数
 	attrs   []int32
 }
 
@@ -78,6 +84,30 @@ type ReportItem struct {
 	skill_id    int32
 	damage      int32
 	next        *ReportItem
+}
+
+func (this *TeamMember) round_start() {
+	this.act_num += 1
+	this.energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
+}
+
+func (this *TeamMember) get_use_skill() (skill_id int32) {
+	// 能量满用绝杀
+	if this.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
+		skill_id = this.card.SuperSkillID
+	} else if this.act_num > 0 {
+		skill_id = this.card.NormalSkillID
+	}
+	return
+}
+
+func (this *TeamMember) used_skill() {
+	if this.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
+		this.energy -= BATTLE_TEAM_MEMBER_MAX_ENERGY
+	}
+	if this.act_num > 0 {
+		this.act_num -= 1
+	}
 }
 
 // 利用玩家初始化
@@ -138,6 +168,18 @@ func (this *BattleTeam) Init(p *Player, is_attack bool) {
 		// 装备BUFF增加属性
 
 		this.members[i] = m
+
+		log.Debug("mem[%v]: role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
+	}
+	this.curr_attack = 0
+}
+
+// round start
+func (this *BattleTeam) RoundStart() {
+	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		if this.members[i] != nil {
+			this.members[i].round_start()
+		}
 	}
 	this.curr_attack = 0
 }
@@ -150,7 +192,7 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam) (is_enem
 	// 能量满用绝杀
 	if m.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
 		skill_id = m.card.SuperSkillID
-	} else {
+	} else if m.act_num > 0 {
 		skill_id = m.card.NormalSkillID
 	}
 
@@ -174,10 +216,9 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam) (is_enem
 	}
 
 	if skill.SkillEnemy == SKILL_ENEMY_TYPE_ENEMY {
-		//
+		is_enemy = true
 	} else if skill.SkillEnemy == SKILL_ENEMY_TYPE_OUR {
 		team = this
-		is_enemy = true
 	} else {
 		log.Error("Invalid skill enemy type[%v]", skill.SkillEnemy)
 		return
@@ -192,7 +233,7 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam) (is_enem
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_RANDOM {
 		pos = skill_get_random_targets(self_index, team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_SELF {
-		pos = []int32{this.curr_attack}
+		pos = []int32{self_index}
 	} else {
 		log.Error("Invalid skill target type: %v", skill.SkillTarget)
 		return
@@ -201,30 +242,74 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam) (is_enem
 	return
 }
 
-// do action
-func (this *BattleTeam) DoAction2Targets(target_team *BattleTeam, target_pos []int32, skill *table_config.XmlSkillItem) {
+// 使用技能
+func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam, target_pos []int32, skill *table_config.XmlSkillItem) {
 	for i := 0; i < len(target_pos); i++ {
-		skill_effect(this, this.curr_attack, target_team, target_pos, skill)
-		this.members[this.curr_attack].energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
+		skill_effect(this, self_index, target_team, target_pos, skill)
 	}
 }
 
-// attack
-func (this *BattleTeam) Attack(target_team *BattleTeam) {
-	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		if this.members[i] == nil {
-			continue
-		}
-		is_enemy, target_pos, skill := this.FindTargets(int32(i), target_team)
-		if target_pos == nil {
-			log.Warn("Cant find targets to attack")
-			return
+// 回合
+func (this *BattleTeam) DoRound(target_team *BattleTeam) {
+	this.RoundStart()
+	target_team.RoundStart()
+
+	var self_index, target_index int32
+	var mem *TeamMember
+	used_skill := false
+	for {
+		for used_skill = false; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
+			if used_skill {
+				break
+			}
+			mem = this.members[self_index]
+			if mem == nil {
+				continue
+			}
+			for mem.get_use_skill() > 0 {
+				is_enemy, target_pos, skill := this.FindTargets(self_index, target_team)
+				if target_pos == nil {
+					log.Warn("Cant find targets to attack")
+					return
+				}
+				log.Debug("team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", mem.id, is_enemy, target_pos, skill.Id)
+				if is_enemy {
+					skill_effect(this, self_index, target_team, target_pos, skill)
+				} else {
+					skill_effect(this, self_index, this, target_pos, skill)
+				}
+				mem.used_skill()
+				used_skill = true
+			}
 		}
 
-		if !is_enemy {
-			target_team = this
+		for used_skill = false; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
+			if used_skill {
+				break
+			}
+			mem = target_team.members[target_index]
+			if mem == nil || mem.get_use_skill() == 0 {
+				continue
+			}
+			for mem.get_use_skill() > 0 {
+				is_enemy, target_pos, skill := target_team.FindTargets(target_index, this)
+				if target_pos == nil {
+					log.Warn("Cant find targets to attack")
+					return
+				}
+				log.Debug("target team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", mem.id, is_enemy, target_pos, skill.Id)
+				if is_enemy {
+					skill_effect(target_team, target_index, this, target_pos, skill)
+				} else {
+					skill_effect(target_team, target_index, target_team, target_pos, skill)
+				}
+				mem.used_skill()
+				used_skill = true
+			}
 		}
 
-		this.DoAction2Targets(target_team, target_pos, skill)
+		if self_index >= BATTLE_TEAM_MEMBER_MAX_NUM && target_index >= BATTLE_TEAM_MEMBER_MAX_NUM {
+			break
+		}
 	}
 }
