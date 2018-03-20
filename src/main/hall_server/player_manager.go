@@ -237,6 +237,8 @@ func base_msgid2msg(msg_id uint16) proto.Message {
 		return &msg_client_message.C2SEnterGameRequest{}
 	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND) {
 		return &msg_client_message.C2S_TEST_COMMAND{}
+	} else {
+		log.Warn("Cant get base proto message by msg_id[%v]", msg_id)
 	}
 	return nil
 }
