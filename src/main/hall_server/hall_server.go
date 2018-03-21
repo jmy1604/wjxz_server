@@ -68,6 +68,8 @@ func (this *HallServer) Init() (ok bool) {
 }
 
 func (this *HallServer) OnInit() (err error) {
+	team_member_pool.Init()
+
 	reg_player_base_info_msg()
 	reg_player_guide_msg()
 	reg_player_friend_msg()
@@ -354,3 +356,5 @@ var cfg_position table_config.CfgPosition
 var card_table_mgr table_config.CardTableMgr
 var skill_table_mgr table_config.SkillTableMgr
 var buff_table_mgr table_config.StatusTableMgr
+
+var team_member_pool TeamMemberPool

@@ -466,12 +466,12 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		skill_data.Effect1, skill_data.Effect2, skill_data.Effect3,
 	}
 	self := self_team.members[self_pos]
-	if self == nil {
+	if self == nil || !self.enable {
 		return
 	}
 	for i := 0; i < len(target_pos); i++ {
 		target := target_team.members[target_pos[i]]
-		if target == nil {
+		if target == nil || !target.enable {
 			continue
 		}
 		for i := 0; i < len(effect); i++ {

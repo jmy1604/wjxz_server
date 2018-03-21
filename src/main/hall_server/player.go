@@ -53,9 +53,9 @@ type Player struct {
 	world_chat_data       PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data      PlayerAnouncementData // 公告缓存数据
 
-	stage_id     int32
-	stage_cat_id int32
-	stage_state  int32
+	attack_team  BattleTeam
+	defense_team BattleTeam
+	team_changed map[int32]bool
 
 	msg_acts_lock    *sync.Mutex
 	cur_msg_acts_len int32
@@ -105,6 +105,12 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 func (this *Player) new_role(role_id int32, rank int32, level int32) bool {
 	if this.db.Roles.HasIndex(role_id) {
 		log.Error("Player[%v] already has role[%v]", this.Id, role_id)
+		return false
+	}
+
+	card := card_table_mgr.GetRankCard(role_id, rank)
+	if card == nil {
+		log.Error("Cant get role card by id[%] rank[%v]", role_id, rank)
 		return false
 	}
 	var role dbPlayerRoleData
@@ -273,6 +279,7 @@ func (this *Player) OnLogin() {
 	gm_command_mgr.OnPlayerLogin(this)
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
+	this.team_changed = make(map[int32]bool)
 }
 
 func (this *Player) OnLogout() {
@@ -702,6 +709,10 @@ func (this *Player) SetAttackTeam(team []int32) bool {
 		}
 	}
 	this.db.BattleTeam.SetAttackMembers(team)
+	this.team_changed[BATTLE_ATTACK_TEAM] = true
+	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM) {
+		log.Warn("Player[%v] init attack team failed", this.Id)
+	}
 	return true
 }
 
@@ -719,6 +730,10 @@ func (this *Player) SetDefenseTeam(team []int32) bool {
 		}
 	}
 	this.db.BattleTeam.SetDefenseMembers(team)
+	this.team_changed[BATTLE_ATTACK_TEAM] = false
+	if !this.defense_team.Init(this, BATTLE_DEFENSE_TEAM) {
+		log.Warn("Player[%v] init defense team failed", this.Id)
+	}
 	return true
 }
 
@@ -727,9 +742,23 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	if p == nil {
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
-	// 先手值
-	if rand.Intn(2) == 1 {
 
+	changed, o := this.team_changed[BATTLE_ATTACK_TEAM]
+	if changed || !o {
+		if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM) {
+			log.Error("Player[%v] init attack team failed", this.Id)
+			return -1
+		}
 	}
+	changed, o = p.team_changed[BATTLE_ATTACK_TEAM]
+	if changed || !o {
+		if !p.defense_team.Init(this, BATTLE_DEFENSE_TEAM) {
+			log.Error("Player[%v] init defense team failed", player_id)
+			return -1
+		}
+	}
+
+	this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+
 	return 1
 }

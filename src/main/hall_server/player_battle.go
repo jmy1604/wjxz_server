@@ -5,6 +5,7 @@ import (
 	"main/table_config"
 	_ "math/rand"
 	_ "public_message/gen_go/client_message"
+	"sync"
 )
 
 // 基础属性
@@ -48,6 +49,17 @@ const (
 	ATTR_COUNT_MAX           = 40
 )
 
+// 战斗结束类型
+const (
+	BATTLE_END_BY_ALL_DEAD   = 1 // 一方全死
+	BATTLE_END_BY_ROUND_OVER = 2 // 回合用完
+)
+
+// 最大回合数
+const (
+	BATTLE_ROUND_MAX_NUM = 30
+)
+
 const (
 	BATTLE_TEAM_MEMBER_INIT_ENERGY       = 1 // 初始能量
 	BATTLE_TEAM_MEMBER_MAX_ENERGY        = 4 // 最大能量
@@ -55,6 +67,12 @@ const (
 	BATTLE_TEAM_MEMBER_MAX_NUM           = 9 // 最大人数
 	BATTLE_FORMATION_LINE_NUM            = 3 // 阵型列数
 	BATTLE_FORMATION_ONE_LINE_MEMBER_NUM = 3 // 每列人数
+)
+
+// 阵容类型
+const (
+	BATTLE_ATTACK_TEAM  = 1
+	BATTLE_DEFENSE_TEAM = 2
 )
 
 type MemberBuff struct {
@@ -71,6 +89,12 @@ type TeamMember struct {
 	defense int32
 	act_num int32 // 行动次数
 	attrs   []int32
+	enable  bool
+}
+
+type TeamMemberPool struct {
+	mems_pool *sync.Pool
+	locker    *sync.RWMutex
 }
 
 type BattleTeam struct {
@@ -84,6 +108,24 @@ type ReportItem struct {
 	skill_id    int32
 	damage      int32
 	next        *ReportItem
+}
+
+func (this *TeamMember) init(id int32, level int32, role_card *table_config.XmlCardItem) {
+	this.id = id
+	this.card = role_card
+	this.hp = role_card.BaseHP + (level-1)*role_card.GrowthHP/100
+	this.attack = role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100
+	this.defense = role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100
+	this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
+
+	if this.attrs == nil {
+		this.attrs = make([]int32, ATTR_COUNT_MAX)
+	}
+	this.attrs[ATTR_HP_MAX] = this.hp
+	this.attrs[ATTR_HP] = this.hp
+	this.attrs[ATTR_ATTACK] = this.attack
+	this.attrs[ATTR_DEFENSE] = this.defense
+	this.enable = true
 }
 
 func (this *TeamMember) round_start() {
@@ -110,21 +152,46 @@ func (this *TeamMember) used_skill() {
 	}
 }
 
-// 利用玩家初始化
-func (this *BattleTeam) Init(p *Player, is_attack bool) {
-	var members []int32
-	if is_attack {
-		members = p.db.BattleTeam.GetAttackMembers()
-	} else {
-		members = p.db.BattleTeam.GetDefenseMembers()
+func (this *TeamMemberPool) Init() {
+	this.mems_pool = &sync.Pool{
+		New: func() interface{} {
+			m := &TeamMember{}
+			return m
+		},
 	}
-	if members == nil {
-		return
+	this.locker = &sync.RWMutex{}
+}
+
+func (this *TeamMemberPool) Get() *TeamMember {
+	return this.mems_pool.Get().(*TeamMember)
+}
+
+func (this *TeamMemberPool) Put(m *TeamMember) {
+	this.mems_pool.Put(m)
+}
+
+// 利用玩家初始化
+func (this *BattleTeam) Init(p *Player, team_id int32) bool {
+	var members []int32
+	if team_id == BATTLE_ATTACK_TEAM {
+		members = p.db.BattleTeam.GetAttackMembers()
+	} else if team_id == BATTLE_DEFENSE_TEAM {
+		members = p.db.BattleTeam.GetDefenseMembers()
+	} else {
+		log.Warn("Unknown team id %v", team_id)
+		return false
 	}
 
-	this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
+	if this.members == nil {
+		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
+		for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+			this.members[i] = team_member_pool.Get()
+		}
+	}
+
 	for i := 0; i < len(members); i++ {
 		if members[i] <= 0 {
+			this.members[i].enable = false
 			continue
 		}
 
@@ -133,45 +200,36 @@ func (this *BattleTeam) Init(p *Player, is_attack bool) {
 		table_id, o = p.db.Roles.GetTableId(members[i])
 		if !o {
 			log.Error("Cant get table id by battle team member id[%v]", members[i])
-			return
+			return false
 		}
 		rank, o = p.db.Roles.GetRank(members[i])
 		if !o {
 			log.Error("Cant get rank by battle team member id[%v]", members[i])
-			return
+			return false
 		}
 		level, o = p.db.Roles.GetLevel(members[i])
 		if !o {
 			log.Error("Cant get level by battle team member id[%v]", members[i])
-			return
+			return false
 		}
 		role_card := card_table_mgr.GetRankCard(table_id, rank)
 		if role_card == nil {
 			log.Error("Cant get card by role_id[%v] and rank[%v]", table_id, rank)
-			return
+			return false
 		}
 
-		m := &TeamMember{}
-		m.id = members[i]
-		m.card = role_card
-		m.hp = role_card.BaseHP + (level-1)*role_card.GrowthHP/100
-		m.attack = role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100
-		m.defense = role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100
-		m.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
-
-		m.attrs = make([]int32, ATTR_COUNT_MAX)
-		m.attrs[ATTR_HP_MAX] = m.hp
-		m.attrs[ATTR_HP] = m.hp
-		m.attrs[ATTR_ATTACK] = m.attack
-		m.attrs[ATTR_DEFENSE] = m.defense
+		this.members[i].init(members[i], level, role_card)
 
 		// 装备BUFF增加属性
 
-		this.members[i] = m
-
+		m := this.members[i]
 		log.Debug("mem[%v]: role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
 	}
 	this.curr_attack = 0
+
+	p.team_changed[team_id] = false
+
+	return true
 }
 
 // round start
@@ -263,7 +321,7 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 				break
 			}
 			mem = this.members[self_index]
-			if mem == nil {
+			if mem == nil || !mem.enable {
 				continue
 			}
 			for mem.get_use_skill() > 0 {
@@ -288,7 +346,7 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 				break
 			}
 			mem = target_team.members[target_index]
-			if mem == nil || mem.get_use_skill() == 0 {
+			if mem == nil || !mem.enable || mem.get_use_skill() == 0 {
 				continue
 			}
 			for mem.get_use_skill() > 0 {
@@ -312,4 +370,36 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 			break
 		}
 	}
+}
+
+// 开打
+func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) {
+	round_max := end_param
+	if end_type == BATTLE_END_BY_ALL_DEAD {
+		round_max = BATTLE_ROUND_MAX_NUM
+	} else if end_type == BATTLE_END_BY_ROUND_OVER {
+	}
+
+	for c := int32(0); c < round_max; c++ {
+		log.Debug("------ Round[%v]", c+1)
+		this.DoRound(target_team)
+		if this.IsAllDead() || target_team.IsAllDead() {
+			break
+		}
+	}
+}
+
+// 是否全挂
+func (this *BattleTeam) IsAllDead() bool {
+	all_dead := true
+	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		if this.members[i] == nil || !this.members[i].enable {
+			continue
+		}
+		if this.members[i].attrs[ATTR_HP] > 0 {
+			all_dead = false
+			break
+		}
+	}
+	return all_dead
 }

@@ -1100,11 +1100,7 @@ func pvp_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	var my_team, target_team BattleTeam
-	my_team.Init(p, true)
-	target_team.Init(player, false)
-
-	my_team.DoRound(&target_team)
+	p.Fight2Player(int32(player_id))
 
 	log.Debug("玩家[%v]pvp玩家[%v]", p.Id, player.Id)
 	return 1

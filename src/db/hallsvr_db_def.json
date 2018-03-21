@@ -140,7 +140,19 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"AttackMembers","Repeated":true},
-						{"Type":"int32","Index":2,"Name":"DefenseMembers","Repeated":true}
+						{"Type":"int32","Index":2,"Name":"DefenseMembers","Repeated":true},
+					]
+				},
+				{
+					"DBColumnName":"BattleTeamChanged",
+					"InUse":true,
+					"ColumnName":"BattleTeamChanged",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"TeamId"},
+						{"Type":"int32","Index":2,"Name":"Changed"}
 					]
 				},
 				{

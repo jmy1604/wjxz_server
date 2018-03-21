@@ -646,11 +646,11 @@ func (this *H2H_PlayerProc) Zan(args *rpc_common.H2H_ZanPlayer, result *rpc_comm
 }
 
 type H2R_RankingListProc struct {
-	stage_total_score_ranking_list  *CommonRankingList
-	stage_score_ranking_list_map    map[int32]*CommonRankingList
+	stage_total_score_ranking_list  *utils.CommonRankingList
+	stage_score_ranking_list_map    map[int32]*utils.CommonRankingList
 	stage_score_ranking_list_locker *sync.RWMutex
-	charm_ranking_list              *CommonRankingList
-	zaned_ranking_list              *CommonRankingList
+	charm_ranking_list              *utils.CommonRankingList
+	zaned_ranking_list              *utils.CommonRankingList
 	total_score_item_pool           *sync.Pool
 	score_item_pool                 *sync.Pool
 	charm_item_pool                 *sync.Pool
@@ -661,11 +661,11 @@ type H2R_RankingListProc struct {
 const RANKING_LIST_MAX_RANK int32 = 10000
 
 func (this *H2R_RankingListProc) Init() {
-	this.stage_total_score_ranking_list = NewCommonRankingList(&RankStageTotalScoreItem{}, RANKING_LIST_MAX_RANK)
-	this.stage_score_ranking_list_map = make(map[int32]*CommonRankingList)
+	this.stage_total_score_ranking_list = utils.NewCommonRankingList(&RankStageTotalScoreItem{}, RANKING_LIST_MAX_RANK)
+	this.stage_score_ranking_list_map = make(map[int32]*utils.CommonRankingList)
 	this.stage_score_ranking_list_locker = &sync.RWMutex{}
-	this.charm_ranking_list = NewCommonRankingList(&RankCharmItem{}, RANKING_LIST_MAX_RANK)
-	this.zaned_ranking_list = NewCommonRankingList(&RankZanedItem{}, RANKING_LIST_MAX_RANK)
+	this.charm_ranking_list = utils.NewCommonRankingList(&RankCharmItem{}, RANKING_LIST_MAX_RANK)
+	this.zaned_ranking_list = utils.NewCommonRankingList(&RankZanedItem{}, RANKING_LIST_MAX_RANK)
 	this.total_score_item_pool = &sync.Pool{
 		New: func() interface{} {
 			return &rpc_common.H2R_RankStageTotalScore{}
@@ -757,13 +757,13 @@ func (this *H2R_RankingListProc) GetStageTotalScoreRankRange(args *rpc_common.H2
 	return nil
 }
 
-func (this *H2R_RankingListProc) GetStageScoreRankList(stage_id int32) *CommonRankingList {
+func (this *H2R_RankingListProc) GetStageScoreRankList(stage_id int32) *utils.CommonRankingList {
 	this.stage_score_ranking_list_locker.RLock()
 	rank_list := this.stage_score_ranking_list_map[stage_id]
 	this.stage_score_ranking_list_locker.RUnlock()
 	if rank_list == nil {
 		this.stage_score_ranking_list_locker.Lock()
-		rank_list = NewCommonRankingList(&RankStageScoreItem{}, RANKING_LIST_MAX_RANK)
+		rank_list = utils.NewCommonRankingList(&RankStageScoreItem{}, RANKING_LIST_MAX_RANK)
 		this.stage_score_ranking_list_map[stage_id] = rank_list
 		this.stage_score_ranking_list_locker.Unlock()
 	}
@@ -1012,7 +1012,7 @@ func (this *H2R_RankingListProc) anouncement_stage_total_score_first_rank(before
 	}
 }
 
-func (this *H2R_RankingListProc) anouncement_stage_score_first_rank(rank_list *CommonRankingList, stage_id int32, before_first_item utils.SkiplistNodeValue) {
+func (this *H2R_RankingListProc) anouncement_stage_score_first_rank(rank_list *utils.CommonRankingList, stage_id int32, before_first_item utils.SkiplistNodeValue) {
 	first_item := rank_list.GetByRank(1)
 	if before_first_item == nil || !before_first_item.KeyEqual(first_item) {
 		first_item_node := first_item.(*RankStageScoreItem)

@@ -55,6 +55,15 @@ message PlayerBattleTeam{
 	repeated int32 DefenseMembers=2;
 }
 
+message PlayerBattleTeamChanged{
+	optional int32 TeamId=1;
+	optional int32 Changed=2;
+}
+
+message PlayerBattleTeamChangedList{
+	repeated PlayerBattleTeamChanged List=1;
+}
+
 message PlayerStage{
 	optional int32 StageId=1;
 	optional int32 Stars=2;
