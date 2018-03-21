@@ -8,7 +8,6 @@ import (
 	"libs/timer"
 	"libs/utils"
 	"main/table_config"
-	_ "public_message/gen_go/client_message"
 	"sync"
 	"time"
 
@@ -69,6 +68,7 @@ func (this *HallServer) Init() (ok bool) {
 
 func (this *HallServer) OnInit() (err error) {
 	team_member_pool.Init()
+	battle_report_pool.Init()
 
 	reg_player_base_info_msg()
 	reg_player_guide_msg()
@@ -358,3 +358,4 @@ var skill_table_mgr table_config.SkillTableMgr
 var buff_table_mgr table_config.StatusTableMgr
 
 var team_member_pool TeamMemberPool
+var battle_report_pool BattleReportPool

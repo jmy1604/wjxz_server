@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"public_message/gen_go/client_message"
+	"sync"
 	"time"
 )
 
@@ -493,6 +494,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					self.attrs[ATTR_HP] = 0
 					self.hp = 0
 				}
+				report = battle_report_pool.Get()
 				log.Debug("role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
 			} else if effect[i][0] == SKILL_EFFECT_TYPE_CURE {
 				// 治疗
@@ -512,4 +514,26 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	}
 
 	return
+}
+
+// 战报
+type BattleReportPool struct {
+	pool *sync.Pool
+}
+
+func (this *BattleReportPool) Init() {
+	this.pool = &sync.Pool{
+		New: func() interface{} {
+			m := &msg_client_message.BattleReportItem{}
+			return m
+		},
+	}
+}
+
+func (this *BattleReportPool) Get() *msg_client_message.BattleReportItem {
+	return this.pool.Get().(*msg_client_message.BattleReportItem)
+}
+
+func (this *BattleReportPool) Put(m *msg_client_message.BattleReportItem) {
+	this.pool.Put(m)
 }
