@@ -5,6 +5,7 @@ import (
 	"main/table_config"
 	"math"
 	"math/rand"
+	"public_message/gen_go/client_message"
 	"time"
 )
 
@@ -322,7 +323,7 @@ const (
 
 // 技能直接伤害
 func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type, skill_fight_type int32, effect []int32) (target_damage, self_damage int32) {
-	if len(effect) < 6 {
+	if len(effect) < 4 {
 		log.Error("skill effect length %v not enough", len(effect))
 		return
 	}
@@ -399,7 +400,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 
 	// 基础技能伤害
 	base_skill_damage := attack * effect[1] / 10000
-	target_damage = int32(float64(base_skill_damage) * math.Max(0.1, float64((10000+damage_add-damage_sub)/10000)))
+	target_damage = int32(float64(base_skill_damage) * math.Max(0.1, float64((10000+damage_add-damage_sub)/10000)) * float64(10000+self.attrs[ATTR_DAMAGE_PERCENT_BONUS]) / 10000)
 	if target_damage < 1 {
 		target_damage = 1
 	}
@@ -427,7 +428,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	}
 
 	// 贯通
-	if effect[5] > 0 {
+	if effect[3] > 0 {
 		if target.attrs[ATTR_SHIELD] < target_damage {
 			target.attrs[ATTR_SHIELD] = 0
 		} else {
@@ -461,14 +462,13 @@ func skill_effect_cure(self_mem *TeamMember, target_mem *TeamMember, effect []in
 }
 
 // 技能效果
-func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) {
-	var effect [][]int32 = [][]int32{
-		skill_data.Effect1, skill_data.Effect2, skill_data.Effect3,
-	}
+func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (report *msg_client_message.BattleReportItem) {
+	effect := skill_data.Effects
 	self := self_team.members[self_pos]
 	if self == nil || !self.enable {
 		return
 	}
+
 	for i := 0; i < len(target_pos); i++ {
 		target := target_team.members[target_pos[i]]
 		if target == nil || !target.enable {
@@ -510,4 +510,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			}
 		}
 	}
+
+	return
 }

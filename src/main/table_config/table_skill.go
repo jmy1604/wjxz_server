@@ -7,25 +7,45 @@ import (
 )
 
 type XmlSkillItem struct {
-	Id             int32  `xml:"ID,attr"`
-	Type           int32  `xml:"Type,attr"`
-	SkillAttr      int32  `xml:"SkillAttr,attr"`
-	SkillBuff      int32  `xml:"SkillBuff,attr"`
-	SkillTrigger   int32  `xml:"SkillTrigger,attr"`
-	SkillMelee     int32  `xml:"SkillMelee,attr"`
-	SkillEnemy     int32  `xml:"SkillEnemy,attr"`
-	RangeType      int32  `xml:"RangeType,attr"`
-	SkillTarget    int32  `xml:"SkillTarget,attr"`
-	MaxTarget      int32  `xml:"MaxTarget,attr"`
-	MustHit        int32  `xml:"CertainHit,attr"`
-	SkillCastCount int32  `xml:"SkillCastCount,attr"`
-	Effect1Str     string `xml:"Effect1,attr"`
-	Effect1        []int32
-	Effect2Str     string `xml:"Effect2,attr"`
-	Effect2        []int32
-	Effect3Str     string `xml:"Effect3,attr"`
-	Effect3        []int32
-	ComboSKill     int32 `xml:"ComboSKill,attr"`
+	Id             int32 `xml:"ID,attr"`
+	Type           int32 `xml:"Type,attr"`
+	SkillAttr      int32 `xml:"SkillAttr,attr"`
+	SkillBuff      int32 `xml:"SkillBuff,attr"`
+	SkillTrigger   int32 `xml:"SkillTrigger,attr"`
+	SkillMelee     int32 `xml:"SkillMelee,attr"`
+	SkillEnemy     int32 `xml:"SkillEnemy,attr"`
+	RangeType      int32 `xml:"RangeType,attr"`
+	SkillTarget    int32 `xml:"SkillTarget,attr"`
+	MaxTarget      int32 `xml:"MaxTarget,attr"`
+	MustHit        int32 `xml:"CertainHit,attr"`
+	SkillCastCount int32 `xml:"SkillCastCount,attr"`
+
+	Effect1Cond1Str string `xml:"Effect1Cond1,attr"`
+	Effect1Cond2Str string `xml:"Effect1Cond2,attr"`
+	Effect1Str      string `xml:"Effect1,attr"`
+	Effect1         []int32
+	Effect1Cond1    []int32
+	Effect1Cond2    []int32
+
+	Effect2Cond1Str string `xml:"Effect2Cond1,attr"`
+	Effect2Cond2Str string `xml:"Effect2Cond2,attr"`
+	Effect2Str      string `xml:"Effect2,attr"`
+	Effect2         []int32
+	Effect2Cond1    []int32
+	Effect2Cond2    []int32
+
+	Effect3Cond1Str string `xml:"Effect3Cond1,attr"`
+	Effect3Cond2Str string `xml:"Effect3Cond2,attr"`
+	Effect3Str      string `xml:"Effect3,attr"`
+	Effect3         []int32
+	Effect3Cond1    []int32
+	Effect3Cond2    []int32
+
+	Effects       [][]int32
+	EffectsCond1s [][]int32
+	EffectsCond2s [][]int32
+
+	ComboSKill int32 `xml:"ComboSKill,attr"`
 }
 
 type XmlSkillConfig struct {
@@ -70,17 +90,53 @@ func (this *SkillTableMgr) Load() bool {
 	var tmp_item *XmlSkillItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
+		tmp_item.Effect1Cond1 = parse_xml_str_arr2(tmp_item.Effect1Cond1Str, "|")
+		if tmp_item.Effect1Cond1 == nil {
+			tmp_item.Effect1Cond1 = make([]int32, 0)
+		}
+		tmp_item.Effect1Cond2 = parse_xml_str_arr2(tmp_item.Effect1Cond2Str, "|")
+		if tmp_item.Effect1Cond2 == nil {
+			tmp_item.Effect1Cond2 = make([]int32, 0)
+		}
 		tmp_item.Effect1 = parse_xml_str_arr2(tmp_item.Effect1Str, "|")
 		if tmp_item.Effect1 == nil {
 			tmp_item.Effect1 = make([]int32, 0)
+		}
+
+		tmp_item.Effect2Cond1 = parse_xml_str_arr2(tmp_item.Effect2Cond1Str, "|")
+		if tmp_item.Effect2Cond1 == nil {
+			tmp_item.Effect2Cond1 = make([]int32, 0)
+		}
+		tmp_item.Effect2Cond2 = parse_xml_str_arr2(tmp_item.Effect2Cond2Str, "|")
+		if tmp_item.Effect2Cond2 == nil {
+			tmp_item.Effect2Cond2 = make([]int32, 0)
 		}
 		tmp_item.Effect2 = parse_xml_str_arr2(tmp_item.Effect2Str, "|")
 		if tmp_item.Effect2 == nil {
 			tmp_item.Effect2 = make([]int32, 0)
 		}
+
+		tmp_item.Effect3Cond1 = parse_xml_str_arr2(tmp_item.Effect3Cond1Str, "|")
+		if tmp_item.Effect3Cond1 == nil {
+			tmp_item.Effect3Cond1 = make([]int32, 0)
+		}
+		tmp_item.Effect3Cond2 = parse_xml_str_arr2(tmp_item.Effect3Cond2Str, "|")
+		if tmp_item.Effect3Cond2 == nil {
+			tmp_item.Effect3Cond2 = make([]int32, 0)
+		}
 		tmp_item.Effect3 = parse_xml_str_arr2(tmp_item.Effect3Str, "|")
 		if tmp_item.Effect3 == nil {
 			tmp_item.Effect3 = make([]int32, 0)
+		}
+
+		tmp_item.Effects = [][]int32{
+			tmp_item.Effect1, tmp_item.Effect2, tmp_item.Effect3,
+		}
+		tmp_item.EffectsCond1s = [][]int32{
+			tmp_item.Effect1Cond1, tmp_item.Effect2Cond1, tmp_item.Effect3Cond1,
+		}
+		tmp_item.EffectsCond2s = [][]int32{
+			tmp_item.Effect1Cond2, tmp_item.Effect2Cond2, tmp_item.Effect3Cond2,
 		}
 
 		this.Map[tmp_item.Id] = tmp_item

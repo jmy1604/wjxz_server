@@ -25,28 +25,32 @@ const (
 	ATTR_BLOCK_DEFENSE_RATE = 13 // 格挡减伤率
 	ATTR_BREAK_BLOCK_RATE   = 14 // 破格率
 
-	ATTR_TOTAL_DAMAGE_ADD    = 15 // 总增伤
-	ATTR_CLOSE_DAMAGE_ADD    = 16 // 近战增伤
-	ATTR_REMOTE_DAMAGE_ADD   = 17 // 远程增伤
-	ATTR_NORMAL_DAMAGE_ADD   = 18 // 普攻增伤
-	ATTR_RAGE_DAMAGE_ADD     = 19 // 怒气增伤
-	ATTR_TOTAL_DAMAGE_SUB    = 20 // 总减伤
-	ATTR_CLOSE_DAMAGE_SUB    = 21 // 近战减伤
-	ATTR_REMOTE_DAMAGE_SUB   = 22 // 远程减伤
-	ATTR_NORMAL_DAMAGE_SUB   = 23 // 普攻减伤
-	ATTR_RAGE_DAMAGE_SUB     = 24 // 怒气减伤
-	ATTR_CLOSE_VAMPIRE       = 25 // 近战吸血
-	ATTR_REMOTE_VAMPIRE      = 26 // 远程吸血
-	ATTR_CURE_RATE_CORRECT   = 27 // 治疗率修正
-	ATTR_CURED_RATE_CORRECT  = 28 // 被治疗率修正
-	ATTR_CLOSE_REFLECT       = 29 // 近战反击系数
-	ATTR_REMOTE_REFLECT      = 30 // 远程反击系数
-	ATTR_ARMOR_ADD           = 31 // 护甲增益
-	ATTR_BREAK_ARMOR         = 32 // 破甲
-	ATTR_POISON_INJURED_RATE = 33 // 毒气受伤率
-	ATTR_BURN_INJURED_RATE   = 34 // 点燃受伤率
-	ATTR_BLEED_INJURED_RATE  = 35 // 流血受伤率
-	ATTR_COUNT_MAX           = 40
+	ATTR_TOTAL_DAMAGE_ADD      = 15 // 总增伤
+	ATTR_CLOSE_DAMAGE_ADD      = 16 // 近战增伤
+	ATTR_REMOTE_DAMAGE_ADD     = 17 // 远程增伤
+	ATTR_NORMAL_DAMAGE_ADD     = 18 // 普攻增伤
+	ATTR_RAGE_DAMAGE_ADD       = 19 // 怒气增伤
+	ATTR_TOTAL_DAMAGE_SUB      = 20 // 总减伤
+	ATTR_CLOSE_DAMAGE_SUB      = 21 // 近战减伤
+	ATTR_REMOTE_DAMAGE_SUB     = 22 // 远程减伤
+	ATTR_NORMAL_DAMAGE_SUB     = 23 // 普攻减伤
+	ATTR_RAGE_DAMAGE_SUB       = 24 // 怒气减伤
+	ATTR_CLOSE_VAMPIRE         = 25 // 近战吸血
+	ATTR_REMOTE_VAMPIRE        = 26 // 远程吸血
+	ATTR_CURE_RATE_CORRECT     = 27 // 治疗率修正
+	ATTR_CURED_RATE_CORRECT    = 28 // 被治疗率修正
+	ATTR_CLOSE_REFLECT         = 29 // 近战反击系数
+	ATTR_REMOTE_REFLECT        = 30 // 远程反击系数
+	ATTR_ARMOR_ADD             = 31 // 护甲增益
+	ATTR_BREAK_ARMOR           = 32 // 破甲
+	ATTR_POISON_INJURED_RATE   = 33 // 毒气受伤率
+	ATTR_BURN_INJURED_RATE     = 34 // 点燃受伤率
+	ATTR_BLEED_INJURED_RATE    = 35 // 流血受伤率
+	ATTR_HP_PERCENT_BONUS      = 36 // 血量百分比
+	ATTR_ATTACK_PERCENT_BONUS  = 37 // 攻击百分比
+	ATTR_DEFENSE_PERCENT_BONUS = 38 // 防御百分比
+	ATTR_DAMAGE_PERCENT_BONUS  = 39 // 伤害百分比
+	ATTR_COUNT_MAX             = 50
 )
 
 // 战斗结束类型
@@ -113,9 +117,9 @@ type ReportItem struct {
 func (this *TeamMember) init(id int32, level int32, role_card *table_config.XmlCardItem) {
 	this.id = id
 	this.card = role_card
-	this.hp = role_card.BaseHP + (level-1)*role_card.GrowthHP/100
-	this.attack = role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100
-	this.defense = role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100
+	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
+	this.attack = (role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
+	this.defense = (role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
 	this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
 
 	if this.attrs == nil {

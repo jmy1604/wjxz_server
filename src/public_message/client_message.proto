@@ -190,6 +190,36 @@ message S2CEnterGameCompleteNotify {
 }
 
 
+//------------------------------ 战斗 ----------------------------------------
+// 
+message BattleMemberItem {
+	int32 Pos								= 1; // 位置
+	int32 HP								= 2; // 血量
+	int32 MaxHP								= 3; // 最大血量
+	int32 Damage 							= 4; // 伤害
+	int32 Energy							= 5; // 能量
+	bool IsDead								= 6; // 是否死亡
+}
+
+// 战报
+message BattleReportItem {
+	int32 SkillId							= 1; // 技能ID
+	BattleMemberItem User					= 2; // 技能使用者
+	repeated BattleMemberItem BeHiters 		= 3; // 技能受击者
+}
+
+// 请求战斗结果
+message C2SBattleResultRequest {
+	repeated int32 AttackMembers 			= 1; // 阵型
+	int32 FightPlayerId						= 2; // 对方ID
+}
+message S2CBattleResultResponse {
+	bool Result								= 1; // 1 赢  0 输
+	repeated BattleReportItem Reports 		= 2; // 战报
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 // 按昵称查找好友信息
 message C2SFriendSearch {
 	string Key 			= 1; // 搜索内容
