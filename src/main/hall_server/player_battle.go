@@ -5,7 +5,6 @@ import (
 	"main/table_config"
 	_ "math/rand"
 	_ "public_message/gen_go/client_message"
-	"sync"
 )
 
 // 基础属性
@@ -79,42 +78,39 @@ const (
 	BATTLE_DEFENSE_TEAM = 2
 )
 
-type MemberBuff struct {
-	id   int32
-	next *MemberBuff
+type Buff struct {
+	buff            *table_config.XmlStatusItem
+	attack          int32
+	dmg_add         int32
+	skill_dmg_coeff int32
+	param           int32
+	round_num       int32
+	next            *Buff
+	prev            *Buff
+}
+
+type BuffList struct {
+	head *Buff
+	tail *Buff
 }
 
 type TeamMember struct {
-	id      int32
-	card    *table_config.XmlCardItem
-	hp      int32
-	energy  int32
-	attack  int32
-	defense int32
-	act_num int32 // 行动次数
-	attrs   []int32
-	enable  bool
-}
-
-type TeamMemberPool struct {
-	mems_pool *sync.Pool
-	locker    *sync.RWMutex
-}
-
-type BattleTeam struct {
-	curr_attack int32 // 当前进攻的索引
-	members     []*TeamMember
-}
-
-type ReportItem struct {
-	attacker    *TeamMember
-	be_attacker *TeamMember
-	skill_id    int32
-	damage      int32
-	next        *ReportItem
+	id           int32
+	card         *table_config.XmlCardItem
+	hp           int32
+	energy       int32
+	attack       int32
+	defense      int32
+	act_num      int32 // 行动次数
+	attrs        []int32
+	bufflist_arr []BuffList
 }
 
 func (this *TeamMember) init(id int32, level int32, role_card *table_config.XmlCardItem) {
+	if this.attrs == nil {
+		this.attrs = make([]int32, ATTR_COUNT_MAX)
+	}
+
 	this.id = id
 	this.card = role_card
 	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
@@ -122,19 +118,43 @@ func (this *TeamMember) init(id int32, level int32, role_card *table_config.XmlC
 	this.defense = (role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
 	this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
 
-	if this.attrs == nil {
-		this.attrs = make([]int32, ATTR_COUNT_MAX)
-	}
 	this.attrs[ATTR_HP_MAX] = this.hp
 	this.attrs[ATTR_HP] = this.hp
 	this.attrs[ATTR_ATTACK] = this.attack
 	this.attrs[ATTR_DEFENSE] = this.defense
-	this.enable = true
 }
 
 func (this *TeamMember) round_start() {
 	this.act_num += 1
 	this.energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
+}
+
+func (this *TeamMember) round_end() {
+	for i := 0; i < len(this.bufflist_arr); i++ {
+		buffs := this.bufflist_arr[i]
+		bf := buffs.head
+		for bf != nil {
+			if bf.buff.Effect[0] == BUFF_EFFECT_TYPE_DAMAGE {
+				dmg := buff_effect_damage(bf.attack, bf.dmg_add, 0, bf.buff.Effect[1], this)
+				this.attrs[ATTR_HP] -= dmg
+				if this.attrs[ATTR_HP] < 0 {
+					this.attrs[ATTR_HP] = 0
+				}
+			}
+			bf.round_num -= 1
+			next := bf.next
+			if bf.round_num <= 0 {
+				if bf.prev != nil {
+					bf.prev.next = bf.next
+				}
+				if bf.next != nil {
+					bf.next.prev = bf.prev
+				}
+				buff_pool.Put(bf)
+			}
+			bf = next
+		}
+	}
 }
 
 func (this *TeamMember) get_use_skill() (skill_id int32) {
@@ -156,22 +176,88 @@ func (this *TeamMember) used_skill() {
 	}
 }
 
-func (this *TeamMemberPool) Init() {
-	this.mems_pool = &sync.Pool{
-		New: func() interface{} {
-			m := &TeamMember{}
-			return m
-		},
+func (this *TeamMember) add_buff(attacker *TeamMember, skill_effect []int32) (buff_id int32) {
+	b := buff_table_mgr.Get(skill_effect[1])
+	if b == nil {
+		return
 	}
-	this.locker = &sync.RWMutex{}
+
+	if this.bufflist_arr == nil {
+		this.bufflist_arr = make([]BuffList, BUFF_EFFECT_TYPE_COUNT)
+	}
+
+	// 互斥
+	for i := 0; i < len(this.bufflist_arr); i++ {
+		h := this.bufflist_arr[i]
+		hh := h.head
+		for hh != nil {
+			for j := 0; j < len(hh.buff.ResistMutexTypes); j++ {
+				if b.MutexType == hh.buff.ResistMutexTypes[j] {
+					log.Debug("BUFF[%v]类型[%v]排斥BUFF[%v]类型[%v]", hh.buff.Id, hh.buff.MutexType, b.Id, b.MutexType)
+					return
+				}
+			}
+			for j := 0; j < len(hh.buff.ResistMutexIDs); j++ {
+				if b.Id == hh.buff.ResistMutexIDs[j] {
+					log.Debug("BUFF[%v]排斥BUFF[%v]", hh.buff.Id, b.Id)
+					return
+				}
+			}
+			for j := 0; j < len(hh.buff.CancelMutexTypes); j++ {
+				if b.MutexType == hh.buff.CancelMutexTypes[j] {
+					if hh.prev != nil {
+						hh.prev.next = hh.next
+					}
+					if hh.next != nil {
+						hh.next.prev = hh.prev
+					}
+					buff_pool.Put(hh)
+					log.Debug("BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
+				}
+			}
+			for j := 0; j < len(hh.buff.CancelMutexIDs); j++ {
+				if b.Id == hh.buff.CancelMutexIDs[i] {
+					if hh.prev != nil {
+						hh.prev.next = hh.next
+					}
+					if hh.next != nil {
+						hh.next.prev = hh.prev
+					}
+					buff_pool.Put(hh)
+					log.Debug("BUFF[%v]驱散了BUFF[%v]", b.Id, hh.buff.Id)
+				}
+			}
+			hh = hh.next
+		}
+	}
+
+	buffs := &this.bufflist_arr[b.Effect[0]]
+	buff := buff_pool.Get()
+	buff.buff = b
+	buff.attack = attacker.attrs[ATTR_ATTACK]
+	buff.dmg_add = attacker.attrs[ATTR_TOTAL_DAMAGE_ADD]
+	buff.param = skill_effect[3]
+	buff.round_num = skill_effect[4]
+	if buffs.head == nil {
+		buffs.tail = buff
+		buffs.head = buff
+	} else {
+		buff.prev = buffs.tail
+		buffs.tail.next = buff
+	}
+
+	return b.Id
 }
 
-func (this *TeamMemberPool) Get() *TeamMember {
-	return this.mems_pool.Get().(*TeamMember)
+func (this *TeamMember) remove_buff_effect(buff *Buff) {
+	if buff.buff.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
+		this.attrs[buff.buff.Effect[1]] -= buff.param
+	}
 }
 
-func (this *TeamMemberPool) Put(m *TeamMember) {
-	this.mems_pool.Put(m)
+type BattleTeam struct {
+	curr_attack int32 // 当前进攻的索引
+	members     []*TeamMember
 }
 
 // 利用玩家初始化
@@ -188,14 +274,15 @@ func (this *BattleTeam) Init(p *Player, team_id int32) bool {
 
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
-		for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-			this.members[i] = team_member_pool.Get()
-		}
 	}
 
 	for i := 0; i < len(members); i++ {
 		if members[i] <= 0 {
-			this.members[i].enable = false
+			this.members[i] = nil
+			continue
+		}
+
+		if this.members[i] != nil && members[i] == this.members[i].id {
 			continue
 		}
 
@@ -222,12 +309,15 @@ func (this *BattleTeam) Init(p *Player, team_id int32) bool {
 			return false
 		}
 
-		this.members[i].init(members[i], level, role_card)
+		m := p.team_member_mgr[members[i]]
+		if m == nil {
+			m = team_member_pool.Get()
+		}
+		m.init(members[i], level, role_card)
+		this.members[i] = m
 
 		// 装备BUFF增加属性
-
-		m := this.members[i]
-		log.Debug("mem[%v]: role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
+		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
 	}
 	this.curr_attack = 0
 
@@ -244,6 +334,15 @@ func (this *BattleTeam) RoundStart() {
 		}
 	}
 	this.curr_attack = 0
+}
+
+// round end
+func (this *BattleTeam) RoundEnd() {
+	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		if this.members[i] != nil {
+			this.members[i].round_end()
+		}
+	}
 }
 
 // find targets
@@ -304,13 +403,6 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam) (is_enem
 	return
 }
 
-// 使用技能
-func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam, target_pos []int32, skill *table_config.XmlSkillItem) {
-	for i := 0; i < len(target_pos); i++ {
-		skill_effect(this, self_index, target_team, target_pos, skill)
-	}
-}
-
 // 回合
 func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	this.RoundStart()
@@ -325,7 +417,7 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 				break
 			}
 			mem = this.members[self_index]
-			if mem == nil || !mem.enable {
+			if mem == nil {
 				continue
 			}
 			for mem.get_use_skill() > 0 {
@@ -350,7 +442,7 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 				break
 			}
 			mem = target_team.members[target_index]
-			if mem == nil || !mem.enable || mem.get_use_skill() == 0 {
+			if mem == nil || mem.get_use_skill() == 0 {
 				continue
 			}
 			for mem.get_use_skill() > 0 {
@@ -374,6 +466,9 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 			break
 		}
 	}
+
+	this.RoundEnd()
+	target_team.RoundEnd()
 }
 
 // 开打
@@ -385,7 +480,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	}
 
 	for c := int32(0); c < round_max; c++ {
-		log.Debug("------ Round[%v]", c+1)
+		log.Debug("-------------------- Round[%v] --------------------", c+1)
 		this.DoRound(target_team)
 		if this.IsAllDead() || target_team.IsAllDead() {
 			break
@@ -397,7 +492,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 func (this *BattleTeam) IsAllDead() bool {
 	all_dead := true
 	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		if this.members[i] == nil || !this.members[i].enable {
+		if this.members[i] == nil {
 			continue
 		}
 		if this.members[i].attrs[ATTR_HP] > 0 {

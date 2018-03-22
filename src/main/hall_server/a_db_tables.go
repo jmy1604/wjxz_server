@@ -302,14 +302,11 @@ type dbPlayerInfoData struct{
 	Lvl int32
 	Exp int32
 	CreateUnix int32
-	FirstPayState int32
 	ChangeNameCount int32
 	LastDialyTaskUpUinx int32
 	Icon string
 	CustomIcon string
-	CharmVal int32
 	LastLogin int32
-	Zan int32
 	Spirit int32
 	FriendPoints int32
 	SaveLastSpiritPointTime int32
@@ -324,14 +321,11 @@ func (this* dbPlayerInfoData)from_pb(pb *db.PlayerInfo){
 	this.Lvl = pb.GetLvl()
 	this.Exp = pb.GetExp()
 	this.CreateUnix = pb.GetCreateUnix()
-	this.FirstPayState = pb.GetFirstPayState()
 	this.ChangeNameCount = pb.GetChangeNameCount()
 	this.LastDialyTaskUpUinx = pb.GetLastDialyTaskUpUinx()
 	this.Icon = pb.GetIcon()
 	this.CustomIcon = pb.GetCustomIcon()
-	this.CharmVal = pb.GetCharmVal()
 	this.LastLogin = pb.GetLastLogin()
-	this.Zan = pb.GetZan()
 	this.Spirit = pb.GetSpirit()
 	this.FriendPoints = pb.GetFriendPoints()
 	this.SaveLastSpiritPointTime = pb.GetSaveLastSpiritPointTime()
@@ -345,14 +339,11 @@ func (this* dbPlayerInfoData)to_pb()(pb *db.PlayerInfo){
 	pb.Lvl = proto.Int32(this.Lvl)
 	pb.Exp = proto.Int32(this.Exp)
 	pb.CreateUnix = proto.Int32(this.CreateUnix)
-	pb.FirstPayState = proto.Int32(this.FirstPayState)
 	pb.ChangeNameCount = proto.Int32(this.ChangeNameCount)
 	pb.LastDialyTaskUpUinx = proto.Int32(this.LastDialyTaskUpUinx)
 	pb.Icon = proto.String(this.Icon)
 	pb.CustomIcon = proto.String(this.CustomIcon)
-	pb.CharmVal = proto.Int32(this.CharmVal)
 	pb.LastLogin = proto.Int32(this.LastLogin)
-	pb.Zan = proto.Int32(this.Zan)
 	pb.Spirit = proto.Int32(this.Spirit)
 	pb.FriendPoints = proto.Int32(this.FriendPoints)
 	pb.SaveLastSpiritPointTime = proto.Int32(this.SaveLastSpiritPointTime)
@@ -365,14 +356,11 @@ func (this* dbPlayerInfoData)clone_to(d *dbPlayerInfoData){
 	d.Lvl = this.Lvl
 	d.Exp = this.Exp
 	d.CreateUnix = this.CreateUnix
-	d.FirstPayState = this.FirstPayState
 	d.ChangeNameCount = this.ChangeNameCount
 	d.LastDialyTaskUpUinx = this.LastDialyTaskUpUinx
 	d.Icon = this.Icon
 	d.CustomIcon = this.CustomIcon
-	d.CharmVal = this.CharmVal
 	d.LastLogin = this.LastLogin
-	d.Zan = this.Zan
 	d.Spirit = this.Spirit
 	d.FriendPoints = this.FriendPoints
 	d.SaveLastSpiritPointTime = this.SaveLastSpiritPointTime
@@ -486,29 +474,6 @@ func (this* dbPlayerBattleTeamData)clone_to(d *dbPlayerBattleTeamData){
 	for _ii, _vv := range this.DefenseMembers {
 		d.DefenseMembers[_ii]=_vv
 	}
-	return
-}
-type dbPlayerBattleTeamChangedData struct{
-	TeamId int32
-	Changed int32
-}
-func (this* dbPlayerBattleTeamChangedData)from_pb(pb *db.PlayerBattleTeamChanged){
-	if pb == nil {
-		return
-	}
-	this.TeamId = pb.GetTeamId()
-	this.Changed = pb.GetChanged()
-	return
-}
-func (this* dbPlayerBattleTeamChangedData)to_pb()(pb *db.PlayerBattleTeamChanged){
-	pb = &db.PlayerBattleTeamChanged{}
-	pb.TeamId = proto.Int32(this.TeamId)
-	pb.Changed = proto.Int32(this.Changed)
-	return
-}
-func (this* dbPlayerBattleTeamChangedData)clone_to(d *dbPlayerBattleTeamChangedData){
-	d.TeamId = this.TeamId
-	d.Changed = this.Changed
 	return
 }
 type dbPlayerStageData struct{
@@ -1621,19 +1586,6 @@ func (this *dbPlayerInfoColumn)SetCreateUnix(v int32){
 	this.m_changed = true
 	return
 }
-func (this *dbPlayerInfoColumn)GetFirstPayState( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetFirstPayState")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.FirstPayState
-	return
-}
-func (this *dbPlayerInfoColumn)SetFirstPayState(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetFirstPayState")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.FirstPayState = v
-	this.m_changed = true
-	return
-}
 func (this *dbPlayerInfoColumn)GetChangeNameCount( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetChangeNameCount")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -1693,26 +1645,6 @@ func (this *dbPlayerInfoColumn)SetCustomIcon(v string){
 	this.m_changed = true
 	return
 }
-func (this *dbPlayerInfoColumn)GetCharmVal( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetCharmVal")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.CharmVal
-	return
-}
-func (this *dbPlayerInfoColumn)SetCharmVal(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetCharmVal")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.CharmVal = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)IncbyCharmVal(v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.IncbyCharmVal")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.CharmVal += v
-	this.m_changed = true
-	return this.m_data.CharmVal
-}
 func (this *dbPlayerInfoColumn)GetLastLogin( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetLastLogin")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -1725,26 +1657,6 @@ func (this *dbPlayerInfoColumn)SetLastLogin(v int32){
 	this.m_data.LastLogin = v
 	this.m_changed = true
 	return
-}
-func (this *dbPlayerInfoColumn)GetZan( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetZan")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.Zan
-	return
-}
-func (this *dbPlayerInfoColumn)SetZan(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetZan")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.Zan = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)IncbyZan(v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.IncbyZan")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.Zan += v
-	this.m_changed = true
-	return this.m_data.Zan
 }
 func (this *dbPlayerInfoColumn)GetSpirit( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetSpirit")
@@ -2217,155 +2129,6 @@ func (this *dbPlayerBattleTeamColumn)SetDefenseMembers(v []int32){
 	}
 	this.m_changed = true
 	return
-}
-type dbPlayerBattleTeamChangedColumn struct{
-	m_row *dbPlayerRow
-	m_data map[int32]*dbPlayerBattleTeamChangedData
-	m_changed bool
-}
-func (this *dbPlayerBattleTeamChangedColumn)load(data []byte)(err error){
-	if data == nil || len(data) == 0 {
-		this.m_changed = false
-		return nil
-	}
-	pb := &db.PlayerBattleTeamChangedList{}
-	err = proto.Unmarshal(data, pb)
-	if err != nil {
-		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	for _, v := range pb.List {
-		d := &dbPlayerBattleTeamChangedData{}
-		d.from_pb(v)
-		this.m_data[int32(d.TeamId)] = d
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerBattleTeamChangedColumn)save( )(data []byte,err error){
-	pb := &db.PlayerBattleTeamChangedList{}
-	pb.List=make([]*db.PlayerBattleTeamChanged,len(this.m_data))
-	i:=0
-	for _, v := range this.m_data {
-		pb.List[i] = v.to_pb()
-		i++
-	}
-	data, err = proto.Marshal(pb)
-	if err != nil {
-		log.Error("Marshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerBattleTeamChangedColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamChangedColumn.HasIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	_, has = this.m_data[id]
-	return
-}
-func (this *dbPlayerBattleTeamChangedColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamChangedColumn.GetAllIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]int32, len(this.m_data))
-	i := 0
-	for k, _ := range this.m_data {
-		list[i] = k
-		i++
-	}
-	return
-}
-func (this *dbPlayerBattleTeamChangedColumn)GetAll()(list []dbPlayerBattleTeamChangedData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamChangedColumn.GetAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbPlayerBattleTeamChangedData, len(this.m_data))
-	i := 0
-	for _, v := range this.m_data {
-		v.clone_to(&list[i])
-		i++
-	}
-	return
-}
-func (this *dbPlayerBattleTeamChangedColumn)Get(id int32)(v *dbPlayerBattleTeamChangedData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamChangedColumn.Get")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return nil
-	}
-	v=&dbPlayerBattleTeamChangedData{}
-	d.clone_to(v)
-	return
-}
-func (this *dbPlayerBattleTeamChangedColumn)Set(v dbPlayerBattleTeamChangedData)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamChangedColumn.Set")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.TeamId)]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.TeamId)
-		return false
-	}
-	v.clone_to(d)
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerBattleTeamChangedColumn)Add(v *dbPlayerBattleTeamChangedData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamChangedColumn.Add")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.TeamId)]
-	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.TeamId)
-		return false
-	}
-	d:=&dbPlayerBattleTeamChangedData{}
-	v.clone_to(d)
-	this.m_data[int32(v.TeamId)]=d
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerBattleTeamChangedColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamChangedColumn.Remove")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[id]
-	if has {
-		delete(this.m_data,id)
-	}
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerBattleTeamChangedColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamChangedColumn.Clear")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbPlayerBattleTeamChangedData)
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerBattleTeamChangedColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamChangedColumn.NumAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	return int32(len(this.m_data))
-}
-func (this *dbPlayerBattleTeamChangedColumn)GetChanged(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamChangedColumn.GetChanged")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.Changed
-	return v,true
-}
-func (this *dbPlayerBattleTeamChangedColumn)SetChanged(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamChangedColumn.SetChanged")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.Changed = v
-	this.m_changed = true
-	return true
 }
 type dbPlayerStageColumn struct{
 	m_row *dbPlayerRow
@@ -6660,7 +6423,6 @@ type dbPlayerRow struct {
 	Global dbPlayerGlobalColumn
 	Roles dbPlayerRoleColumn
 	BattleTeam dbPlayerBattleTeamColumn
-	BattleTeamChangeds dbPlayerBattleTeamChangedColumn
 	Stages dbPlayerStageColumn
 	ChapterUnLock dbPlayerChapterUnLockColumn
 	Items dbPlayerItemColumn
@@ -6703,8 +6465,6 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.Roles.m_data=make(map[int32]*dbPlayerRoleData)
 	this.BattleTeam.m_row=this
 	this.BattleTeam.m_data=&dbPlayerBattleTeamData{}
-	this.BattleTeamChangeds.m_row=this
-	this.BattleTeamChangeds.m_data=make(map[int32]*dbPlayerBattleTeamChangedData)
 	this.Stages.m_row=this
 	this.Stages.m_data=make(map[int32]*dbPlayerStageData)
 	this.ChapterUnLock.m_row=this
@@ -6766,7 +6526,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(34)
+		db_args:=new_db_args(33)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
@@ -6794,12 +6554,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dBattleTeam)
-		dBattleTeamChangeds,db_err:=this.BattleTeamChangeds.save()
-		if db_err!=nil{
-			log.Error("insert save BattleTeamChanged failed")
-			return db_err,false,0,"",nil
-		}
-		db_args.Push(dBattleTeamChangeds)
 		dStages,db_err:=this.Stages.save()
 		if db_err!=nil{
 			log.Error("insert save Stage failed")
@@ -6959,9 +6713,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Global.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.BattleTeamChangeds.m_changed||this.Stages.m_changed||this.ChapterUnLock.m_changed||this.Items.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.Chests.m_changed||this.Mails.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Global.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.Stages.m_changed||this.ChapterUnLock.m_changed||this.Items.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.Chests.m_changed||this.Mails.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(34)
+			db_args:=new_db_args(33)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -7005,15 +6759,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 					return err,false,0,"",nil
 				}
 				db_args.Push(dBattleTeam)
-			}
-			if this.BattleTeamChangeds.m_changed{
-				update_string+="BattleTeamChangeds=?,"
-				dBattleTeamChangeds,err:=this.BattleTeamChangeds.save()
-				if err!=nil{
-					log.Error("insert save BattleTeamChanged failed")
-					return err,false,0,"",nil
-				}
-				db_args.Push(dBattleTeamChangeds)
 			}
 			if this.Stages.m_changed{
 				update_string+="Stages=?,"
@@ -7263,7 +7008,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Global.m_changed = false
 	this.Roles.m_changed = false
 	this.BattleTeam.m_changed = false
-	this.BattleTeamChangeds.m_changed = false
 	this.Stages.m_changed = false
 	this.ChapterUnLock.m_changed = false
 	this.Items.m_changed = false
@@ -7434,14 +7178,6 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN BattleTeam LONGBLOB")
 		if err != nil {
 			log.Error("ADD COLUMN BattleTeam failed")
-			return
-		}
-	}
-	_, hasBattleTeamChanged := columns["BattleTeamChangeds"]
-	if !hasBattleTeamChanged {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN BattleTeamChangeds LONGBLOB")
-		if err != nil {
-			log.Error("ADD COLUMN BattleTeamChangeds failed")
 			return
 		}
 	}
@@ -7656,7 +7392,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Global,Roles,BattleTeam,BattleTeamChangeds,Stages,ChapterUnLock,Items,ShopItems,ShopLimitedInfos,Chests,Mails,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Global,Roles,BattleTeam,Stages,ChapterUnLock,Items,ShopItems,ShopLimitedInfos,Chests,Mails,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -7664,7 +7400,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Global,Roles,BattleTeam,BattleTeamChangeds,Stages,ChapterUnLock,Items,ShopItems,ShopLimitedInfos,Chests,Mails,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Global,Roles,BattleTeam,Stages,ChapterUnLock,Items,ShopItems,ShopLimitedInfos,Chests,Mails,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -7715,7 +7451,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dGlobal []byte
 	var dRoles []byte
 	var dBattleTeam []byte
-	var dBattleTeamChangeds []byte
 	var dStages []byte
 	var dChapterUnLock []byte
 	var dItems []byte
@@ -7744,7 +7479,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dFirstDrawCards []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dGlobal,&dRoles,&dBattleTeam,&dBattleTeamChangeds,&dStages,&dChapterUnLock,&dItems,&dShopItems,&dShopLimitedInfos,&dChests,&dMails,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dGlobal,&dRoles,&dBattleTeam,&dStages,&dChapterUnLock,&dItems,&dShopItems,&dShopLimitedInfos,&dChests,&dMails,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
 		if err != nil {
 			log.Error("Scan")
 			return
@@ -7773,11 +7508,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.BattleTeam.load(dBattleTeam)
 		if err != nil {
 			log.Error("BattleTeam %v", PlayerId)
-			return
-		}
-		err = row.BattleTeamChangeds.load(dBattleTeamChangeds)
-		if err != nil {
-			log.Error("BattleTeamChangeds %v", PlayerId)
 			return
 		}
 		err = row.Stages.load(dStages)

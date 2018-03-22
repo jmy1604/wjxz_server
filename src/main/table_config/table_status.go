@@ -9,7 +9,8 @@ import (
 type XmlStatusItem struct {
 	Id               int32  `xml:"BuffID,attr"`
 	Type             int32  `xml:"Type,attr"`
-	Effect           string `xml:"Effect,attr"`
+	EffectStr        string `xml:"Effect,attr"`
+	Effect           []int32
 	ResistCountMax   int32  `xml:"ResistCountMax,attr"`
 	MutexType        int32  `xml:"MutexType,attr"`
 	ResistMutexType  string `xml:"ResistMutexType,attr"`
@@ -66,19 +67,23 @@ func (this *StatusTableMgr) Load() bool {
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
 
-		tmp_item.ResistMutexTypes = parse_xml_str_arr(tmp_item.ResistMutexType, ",")
+		tmp_item.Effect = parse_xml_str_arr2(tmp_item.EffectStr, "|")
+		if tmp_item.Effect == nil {
+			tmp_item.Effect = make([]int32, 0)
+		}
+		tmp_item.ResistMutexTypes = parse_xml_str_arr2(tmp_item.ResistMutexType, ",")
 		if tmp_item.ResistMutexTypes == nil {
 			tmp_item.ResistMutexTypes = make([]int32, 0)
 		}
-		tmp_item.CancelMutexTypes = parse_xml_str_arr(tmp_item.CancelMutexType, ",")
+		tmp_item.CancelMutexTypes = parse_xml_str_arr2(tmp_item.CancelMutexType, ",")
 		if tmp_item.CancelMutexTypes == nil {
 			tmp_item.CancelMutexTypes = make([]int32, 0)
 		}
-		tmp_item.ResistMutexIDs = parse_xml_str_arr(tmp_item.ResistMutexID, ",")
+		tmp_item.ResistMutexIDs = parse_xml_str_arr2(tmp_item.ResistMutexID, ",")
 		if tmp_item.ResistMutexIDs == nil {
 			tmp_item.ResistMutexIDs = make([]int32, 0)
 		}
-		tmp_item.CancelMutexIDs = parse_xml_str_arr(tmp_item.CancelMutexID, ",")
+		tmp_item.CancelMutexIDs = parse_xml_str_arr2(tmp_item.CancelMutexID, ",")
 		if tmp_item.CancelMutexIDs == nil {
 			tmp_item.CancelMutexIDs = make([]int32, 0)
 		}

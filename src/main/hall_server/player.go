@@ -53,9 +53,10 @@ type Player struct {
 	world_chat_data       PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data      PlayerAnouncementData // 公告缓存数据
 
-	attack_team  BattleTeam
-	defense_team BattleTeam
-	team_changed map[int32]bool
+	team_member_mgr map[int32]*TeamMember
+	attack_team     BattleTeam
+	defense_team    BattleTeam
+	team_changed    map[int32]bool
 
 	msg_acts_lock    *sync.Mutex
 	cur_msg_acts_len int32
@@ -279,6 +280,7 @@ func (this *Player) OnLogin() {
 	gm_command_mgr.OnPlayerLogin(this)
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
+	this.team_member_mgr = make(map[int32]*TeamMember)
 	this.team_changed = make(map[int32]bool)
 }
 

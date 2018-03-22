@@ -324,31 +324,6 @@ func (this *H2H_PlayerProc) UpdateBaseInfo(args *rpc_common.H2H_BaseInfo, result
 	return nil
 }
 
-// 点赞
-func (this *H2H_PlayerProc) Zan(args *rpc_common.H2H_ZanPlayer, result *rpc_common.H2H_ZanPlayerResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	p := player_mgr.GetPlayerById(args.ToPlayerId)
-	if p == nil {
-		err_str := fmt.Sprintf("RPC H2H_PlayerProc::Zan @@@ not found player[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	zan := p.db.Info.IncbyZan(1)
-
-	result.FromPlayerId = args.FromPlayerId
-	result.ToPlayerId = args.ToPlayerId
-	result.ToPlayerZanNum = zan
-
-	log.Debug("RPC H2H_PlayerProc @@@ Player[%v] zan player[%v], total zan[%v]", args.FromPlayerId, args.ToPlayerId, zan)
-
-	return nil
-}
-
 // 向另一个HallServer请求玩家数据
 type R2H_PlayerStageInfoProc struct {
 }

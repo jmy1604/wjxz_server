@@ -6,7 +6,6 @@ import (
 	"math"
 	"math/rand"
 	"public_message/gen_go/client_message"
-	"sync"
 	"time"
 )
 
@@ -49,6 +48,17 @@ const (
 	SKILL_TARGET_TYPE_HP_MIN  = 3 // 血最少
 	SKILL_TARGET_TYPE_RANDOM  = 4 // 随机
 	SKILL_TARGET_TYPE_SELF    = 5 // 自身
+)
+
+// BUFF效果类型
+const (
+	BUFF_EFFECT_TYPE_DAMAGE                = 1
+	BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK = 2
+	BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK  = 3
+	BUFF_EFFECT_TYPE_DISABLE_ACTION        = 4
+	BUFF_EFFECT_TYPE_MODIFY_ATTR           = 5
+	BUFF_EFFECT_TYPE_DODGE                 = 6
+	BUFF_EFFECT_TYPE_COUNT                 = 8
 )
 
 // 获取行数顺序
@@ -213,7 +223,7 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 // 后排目标选择
 func skill_get_back_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
-		for i := BATTLE_FORMATION_LINE_NUM - 1; i > 0; i-- {
+		for i := BATTLE_FORMATION_LINE_NUM - 1; i >= 0; i-- {
 			for j := 0; j < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; j++ {
 				p := int32(i)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + int32(j)
 				if target_team.members[p] != nil {
@@ -224,7 +234,7 @@ func skill_get_back_targets(self_pos int32, target_team *BattleTeam, skill_data 
 		}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
 		is_empty := false
-		for i := BATTLE_FORMATION_LINE_NUM - 1; i > 0; i-- {
+		for i := BATTLE_FORMATION_LINE_NUM - 1; i >= 0; i-- {
 			is_empty, pos = _check_team_column(int32(i), target_team)
 			if !is_empty {
 				break
@@ -311,15 +321,16 @@ func skill_get_random_targets(self_pos int32, target_team *BattleTeam, skill_dat
 
 // 技能效果类型
 const (
-	SKILL_EFFECT_TYPE_DIRECT_INJURY         = 1 // 直接伤害
-	SKILL_EFFECT_TYPE_CURE                  = 2 // 治疗
-	SKILL_EFFECT_TYPE_ADD_BUFF              = 3 // 施加BUFF
-	SKILL_EFFECT_TYPE_SUMMON                = 4 // 召唤技能
-	SKILL_EFFECT_TYPE_MODIFY_ATTR           = 5 // 改变下次计算时的角色参数
-	SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL   = 6 // 改变普通攻击技能ID
-	SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL     = 7 // 改变怒气攻击技能ID
-	SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM = 8 // 增加普攻次数
-	SKILL_EFFECT_TYPE_MODIFY_RAGE           = 9 // 改变怒气
+	SKILL_EFFECT_TYPE_DIRECT_INJURY         = 1  // 直接伤害
+	SKILL_EFFECT_TYPE_CURE                  = 2  // 治疗
+	SKILL_EFFECT_TYPE_ADD_BUFF              = 3  // 施加BUFF
+	SKILL_EFFECT_TYPE_SUMMON                = 4  // 召唤技能
+	SKILL_EFFECT_TYPE_MODIFY_ATTR           = 5  // 改变下次计算时的角色参数
+	SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL   = 6  // 改变普通攻击技能ID
+	SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL     = 7  // 改变怒气攻击技能ID
+	SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM = 8  // 增加普攻次数
+	SKILL_EFFECT_TYPE_MODIFY_RAGE           = 9  // 改变怒气
+	SKILL_EFFECT_TYPE_AURA                  = 10 // 光环
 )
 
 // 技能直接伤害
@@ -462,26 +473,36 @@ func skill_effect_cure(self_mem *TeamMember, target_mem *TeamMember, effect []in
 	return
 }
 
+// 施加BUFF
+func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect []int32) (buff_id int32) {
+	if len(effect) < 5 {
+		log.Error("add buff skill effect length %v not enough", len(effect))
+		return
+	}
+	buff_id = target_mem.add_buff(self_mem, effect)
+	return
+}
+
 // 技能效果
 func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (report *msg_client_message.BattleReportItem) {
-	effect := skill_data.Effects
+	effects := skill_data.Effects
 	self := self_team.members[self_pos]
-	if self == nil || !self.enable {
+	if self == nil {
 		return
 	}
 
 	for i := 0; i < len(target_pos); i++ {
 		target := target_team.members[target_pos[i]]
-		if target == nil || !target.enable {
+		if target == nil {
 			continue
 		}
-		for i := 0; i < len(effect); i++ {
-			if effect[i] == nil || len(effect[i]) < 1 {
+		for i := 0; i < len(effects); i++ {
+			if effects[i] == nil || len(effects[i]) < 1 {
 				continue
 			}
-			if effect[i][0] == SKILL_EFFECT_TYPE_DIRECT_INJURY {
+			if effects[i][0] == SKILL_EFFECT_TYPE_DIRECT_INJURY {
 				// 直接伤害
-				target_dmg, self_dmg := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effect[i])
+				target_dmg, self_dmg := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effects[i])
 				target.attrs[ATTR_HP] -= target_dmg
 				target.hp -= target_dmg
 				if target.attrs[ATTR_HP] <= 0 {
@@ -496,9 +517,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				report = battle_report_pool.Get()
 				log.Debug("role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
-			} else if effect[i][0] == SKILL_EFFECT_TYPE_CURE {
+			} else if effects[i][0] == SKILL_EFFECT_TYPE_CURE {
 				// 治疗
-				cure := skill_effect_cure(self, target, effect[i])
+				cure := skill_effect_cure(self, target, effects[i])
 				if target.attrs[ATTR_HP]+cure > target.attrs[ATTR_HP_MAX] {
 					target.attrs[ATTR_HP] = target.attrs[ATTR_HP_MAX]
 					target.hp = target.attrs[ATTR_HP]
@@ -506,9 +527,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					target.attrs[ATTR_HP] += cure
 				}
 				log.Debug("role[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self.id, skill_data.Id, target.id, cure)
-			} else if effect[i][0] == SKILL_EFFECT_TYPE_ADD_BUFF {
+			} else if effects[i][0] == SKILL_EFFECT_TYPE_ADD_BUFF {
 				// 施加BUFF
-
+				skill_effect_add_buff(self, target, effects[i])
 			}
 		}
 	}
@@ -516,24 +537,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	return
 }
 
-// 战报
-type BattleReportPool struct {
-	pool *sync.Pool
-}
-
-func (this *BattleReportPool) Init() {
-	this.pool = &sync.Pool{
-		New: func() interface{} {
-			m := &msg_client_message.BattleReportItem{}
-			return m
-		},
-	}
-}
-
-func (this *BattleReportPool) Get() *msg_client_message.BattleReportItem {
-	return this.pool.Get().(*msg_client_message.BattleReportItem)
-}
-
-func (this *BattleReportPool) Put(m *msg_client_message.BattleReportItem) {
-	this.pool.Put(m)
+// 状态伤害效果
+func buff_effect_damage(user_attack, user_damage_add, skill_damage_coeff, attr int32, target *TeamMember) (damage int32) {
+	base_damage := user_attack * skill_damage_coeff / 10000
+	f := float64(10000 + user_damage_add - target.attrs[ATTR_TOTAL_DAMAGE_SUB] + target.attrs[attr])
+	damage = int32(math.Max(1, float64(base_damage)*math.Max(0.1, f)/10000))
+	return
 }

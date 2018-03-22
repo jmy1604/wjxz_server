@@ -18,14 +18,11 @@ message PlayerInfo{
 	optional int32 Lvl=1;
 	optional int32 Exp=2;
 	optional int32 CreateUnix=3;
-	optional int32 FirstPayState=4;
 	optional int32 ChangeNameCount=5;
 	optional int32 LastDialyTaskUpUinx=6;
 	optional string Icon=7;
 	optional string CustomIcon=8;
-	optional int32 CharmVal=9;
 	optional int32 LastLogin=10;
-	optional int32 Zan=11;
 	optional int32 Spirit=12;
 	optional int32 FriendPoints=13;
 	optional int32 SaveLastSpiritPointTime=14;
@@ -53,15 +50,6 @@ message PlayerRoleList{
 message PlayerBattleTeam{
 	repeated int32 AttackMembers=1;
 	repeated int32 DefenseMembers=2;
-}
-
-message PlayerBattleTeamChanged{
-	optional int32 TeamId=1;
-	optional int32 Changed=2;
-}
-
-message PlayerBattleTeamChangedList{
-	repeated PlayerBattleTeamChanged List=1;
 }
 
 message PlayerStage{
