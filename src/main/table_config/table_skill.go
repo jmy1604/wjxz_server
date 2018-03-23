@@ -7,18 +7,26 @@ import (
 )
 
 type XmlSkillItem struct {
-	Id             int32 `xml:"ID,attr"`
-	Type           int32 `xml:"Type,attr"`
-	SkillAttr      int32 `xml:"SkillAttr,attr"`
-	SkillBuff      int32 `xml:"SkillBuff,attr"`
-	SkillTrigger   int32 `xml:"SkillTrigger,attr"`
-	SkillMelee     int32 `xml:"SkillMelee,attr"`
-	SkillEnemy     int32 `xml:"SkillEnemy,attr"`
-	RangeType      int32 `xml:"RangeType,attr"`
-	SkillTarget    int32 `xml:"SkillTarget,attr"`
-	MaxTarget      int32 `xml:"MaxTarget,attr"`
-	MustHit        int32 `xml:"CertainHit,attr"`
-	SkillCastCount int32 `xml:"SkillCastCount,attr"`
+	Id                   int32  `xml:"ID,attr"`
+	Type                 int32  `xml:"Type,attr"`
+	SkillAttrStr         string `xml:"SkillAttr,attr"`
+	SkillAttr            []int32
+	SkillTriggerType     int32  `xml:"SkillTriggerType,attr"`
+	TriggerCondition1Str string `xml:"TriggerCondition1,attr"`
+	TriggerCondition1    []int32
+	TriggerCondition2Str string `xml:"TriggerCondition2,attr"`
+	TriggerCondition2    []int32
+	TriggerRoundMax      int32
+	TriggerBattleMax     int32
+	SkillBuff            int32 `xml:"SkillBuff,attr"`
+	SkillTrigger         int32 `xml:"SkillTrigger,attr"`
+	SkillMelee           int32 `xml:"SkillMelee,attr"`
+	SkillEnemy           int32 `xml:"SkillEnemy,attr"`
+	RangeType            int32 `xml:"RangeType,attr"`
+	SkillTarget          int32 `xml:"SkillTarget,attr"`
+	MaxTarget            int32 `xml:"MaxTarget,attr"`
+	MustHit              int32 `xml:"CertainHit,attr"`
+	SkillCastCount       int32 `xml:"SkillCastCount,attr"`
 
 	Effect1Cond1Str string `xml:"Effect1Cond1,attr"`
 	Effect1Cond2Str string `xml:"Effect1Cond2,attr"`
@@ -90,6 +98,21 @@ func (this *SkillTableMgr) Load() bool {
 	var tmp_item *XmlSkillItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
+		tmp_item.SkillAttr = parse_xml_str_arr2(tmp_item.SkillAttrStr, ",")
+		if tmp_item.SkillAttr == nil {
+			tmp_item.SkillAttr = make([]int32, 0)
+		}
+
+		tmp_item.TriggerCondition1 = parse_xml_str_arr2(tmp_item.TriggerCondition1Str, "|")
+		if tmp_item.TriggerCondition1 == nil {
+			tmp_item.TriggerCondition1 = make([]int32, 0)
+		}
+
+		tmp_item.TriggerCondition2 = parse_xml_str_arr2(tmp_item.TriggerCondition2Str, "|")
+		if tmp_item.TriggerCondition2 == nil {
+			tmp_item.TriggerCondition2 = make([]int32, 0)
+		}
+
 		tmp_item.Effect1Cond1 = parse_xml_str_arr2(tmp_item.Effect1Cond1Str, "|")
 		if tmp_item.Effect1Cond1 == nil {
 			tmp_item.Effect1Cond1 = make([]int32, 0)

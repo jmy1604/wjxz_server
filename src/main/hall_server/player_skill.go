@@ -771,6 +771,3 @@ func buff_effect_damage(user_attack, user_damage_add, skill_damage_coeff, attr i
 	damage = int32(math.Max(1, float64(base_damage)*math.Max(0.1, f)/10000))
 	return
 }
-
-type Aura struct {
-}
