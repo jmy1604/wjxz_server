@@ -3,7 +3,7 @@ package main
 import (
 	"libs/log"
 	"main/table_config"
-	_ "math/rand"
+	"math/rand"
 	_ "public_message/gen_go/client_message"
 )
 
@@ -78,23 +78,8 @@ const (
 	BATTLE_DEFENSE_TEAM = 2
 )
 
-type Buff struct {
-	buff            *table_config.XmlStatusItem
-	attack          int32
-	dmg_add         int32
-	skill_dmg_coeff int32
-	param           int32
-	round_num       int32
-	next            *Buff
-	prev            *Buff
-}
-
-type BuffList struct {
-	head *Buff
-	tail *Buff
-}
-
 type TeamMember struct {
+	team         *BattleTeam
 	id           int32
 	card         *table_config.XmlCardItem
 	hp           int32
@@ -106,11 +91,12 @@ type TeamMember struct {
 	bufflist_arr []BuffList
 }
 
-func (this *TeamMember) init(id int32, level int32, role_card *table_config.XmlCardItem) {
+func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem) {
 	if this.attrs == nil {
 		this.attrs = make([]int32, ATTR_COUNT_MAX)
 	}
 
+	this.team = team
 	this.id = id
 	this.card = role_card
 	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
@@ -124,6 +110,23 @@ func (this *TeamMember) init(id int32, level int32, role_card *table_config.XmlC
 	this.attrs[ATTR_DEFENSE] = this.defense
 }
 
+func (this *TeamMember) add_hp(hp int32) {
+	if hp > 0 {
+		if this.attrs[ATTR_HP]+hp > this.attrs[ATTR_HP_MAX] {
+			this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
+		} else {
+			this.attrs[ATTR_HP] += hp
+		}
+	} else if hp < 0 {
+		if this.attrs[ATTR_HP]+hp < 0 {
+			this.attrs[ATTR_HP] = 0
+		} else {
+			this.attrs[ATTR_HP] += hp
+		}
+	}
+	this.hp = this.attrs[ATTR_HP]
+}
+
 func (this *TeamMember) round_start() {
 	this.act_num += 1
 	this.energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
@@ -132,28 +135,7 @@ func (this *TeamMember) round_start() {
 func (this *TeamMember) round_end() {
 	for i := 0; i < len(this.bufflist_arr); i++ {
 		buffs := this.bufflist_arr[i]
-		bf := buffs.head
-		for bf != nil {
-			if bf.buff.Effect[0] == BUFF_EFFECT_TYPE_DAMAGE {
-				dmg := buff_effect_damage(bf.attack, bf.dmg_add, 0, bf.buff.Effect[1], this)
-				this.attrs[ATTR_HP] -= dmg
-				if this.attrs[ATTR_HP] < 0 {
-					this.attrs[ATTR_HP] = 0
-				}
-			}
-			bf.round_num -= 1
-			next := bf.next
-			if bf.round_num <= 0 {
-				if bf.prev != nil {
-					bf.prev.next = bf.next
-				}
-				if bf.next != nil {
-					bf.next.prev = bf.prev
-				}
-				buff_pool.Put(bf)
-			}
-			bf = next
-		}
+		buffs.on_round_end()
 	}
 }
 
@@ -184,75 +166,109 @@ func (this *TeamMember) add_buff(attacker *TeamMember, skill_effect []int32) (bu
 
 	if this.bufflist_arr == nil {
 		this.bufflist_arr = make([]BuffList, BUFF_EFFECT_TYPE_COUNT)
+		for i := 0; i < BUFF_EFFECT_TYPE_COUNT; i++ {
+			this.bufflist_arr[i].owner = this
+		}
 	}
 
 	// 互斥
 	for i := 0; i < len(this.bufflist_arr); i++ {
-		h := this.bufflist_arr[i]
-		hh := h.head
-		for hh != nil {
-			for j := 0; j < len(hh.buff.ResistMutexTypes); j++ {
-				if b.MutexType == hh.buff.ResistMutexTypes[j] {
-					log.Debug("BUFF[%v]类型[%v]排斥BUFF[%v]类型[%v]", hh.buff.Id, hh.buff.MutexType, b.Id, b.MutexType)
-					return
-				}
-			}
-			for j := 0; j < len(hh.buff.ResistMutexIDs); j++ {
-				if b.Id == hh.buff.ResistMutexIDs[j] {
-					log.Debug("BUFF[%v]排斥BUFF[%v]", hh.buff.Id, b.Id)
-					return
-				}
-			}
-			for j := 0; j < len(hh.buff.CancelMutexTypes); j++ {
-				if b.MutexType == hh.buff.CancelMutexTypes[j] {
-					if hh.prev != nil {
-						hh.prev.next = hh.next
-					}
-					if hh.next != nil {
-						hh.next.prev = hh.prev
-					}
-					buff_pool.Put(hh)
-					log.Debug("BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
-				}
-			}
-			for j := 0; j < len(hh.buff.CancelMutexIDs); j++ {
-				if b.Id == hh.buff.CancelMutexIDs[i] {
-					if hh.prev != nil {
-						hh.prev.next = hh.next
-					}
-					if hh.next != nil {
-						hh.next.prev = hh.prev
-					}
-					buff_pool.Put(hh)
-					log.Debug("BUFF[%v]驱散了BUFF[%v]", b.Id, hh.buff.Id)
-				}
-			}
-			hh = hh.next
+		h := &this.bufflist_arr[i]
+		if h.check_buff_mutex(b) {
+			return
 		}
 	}
 
-	buffs := &this.bufflist_arr[b.Effect[0]]
-	buff := buff_pool.Get()
-	buff.buff = b
-	buff.attack = attacker.attrs[ATTR_ATTACK]
-	buff.dmg_add = attacker.attrs[ATTR_TOTAL_DAMAGE_ADD]
-	buff.param = skill_effect[3]
-	buff.round_num = skill_effect[4]
-	if buffs.head == nil {
-		buffs.tail = buff
-		buffs.head = buff
-	} else {
-		buff.prev = buffs.tail
-		buffs.tail.next = buff
+	if rand.Int31n(10000) >= skill_effect[2] {
+		return
 	}
 
-	return b.Id
+	return this.bufflist_arr[b.Effect[0]].add_buff(attacker, b, skill_effect)
+}
+
+func (this *TeamMember) has_buff(buff_id int32) bool {
+	if this.bufflist_arr != nil {
+		for i := 0; i < len(this.bufflist_arr); i++ {
+			bufflist := &this.bufflist_arr[i]
+			buff := bufflist.head
+			for buff != nil {
+				if buff.buff.Id == buff_id {
+					return true
+				}
+			}
+		}
+	}
+	return false
 }
 
 func (this *TeamMember) remove_buff_effect(buff *Buff) {
 	if buff.buff.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
-		this.attrs[buff.buff.Effect[1]] -= buff.param
+		if this.attrs[buff.buff.Effect[1]] < buff.param {
+			this.attrs[buff.buff.Effect[1]] = 0
+		} else {
+			this.attrs[buff.buff.Effect[1]] -= buff.param
+		}
+
+		if buff.buff.Effect[1] == ATTR_HP_MAX && this.attrs[ATTR_HP] > this.attrs[ATTR_HP_MAX] {
+			this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
+		}
 	}
+}
+
+func (this *TeamMember) is_disable_normal_attack() bool {
+	if this.bufflist_arr == nil {
+		return false
+	}
+	disable := false
+	bufflist := &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK]
+	if bufflist.head != nil {
+		disable = true
+	} else {
+		bufflist = &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
+		if bufflist.head != nil {
+			disable = true
+		}
+	}
+	return disable
+}
+
+func (this *TeamMember) is_disable_super_attack() bool {
+	if this.bufflist_arr == nil {
+		return false
+	}
+	disable := false
+	bufflist := &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK]
+	if bufflist.head != nil {
+		disable = true
+	} else {
+		bufflist = &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
+		if bufflist.head != nil {
+			disable = true
+		}
+	}
+	return disable
+}
+
+func (this *TeamMember) is_disable_attack() bool {
+	if this.bufflist_arr == nil {
+		return false
+	}
+	disable := false
+	bufflist := &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
+	if bufflist.head != nil {
+		disable = true
+	} else {
+		bufflist = &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK]
+		if bufflist.head != nil {
+			disable = true
+		} else {
+			bufflist = &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK]
+			if bufflist.head != nil {
+				disable = true
+			}
+		}
+	}
+	return disable
 }
 
 type BattleTeam struct {
@@ -313,7 +329,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32) bool {
 		if m == nil {
 			m = team_member_pool.Get()
 		}
-		m.init(members[i], level, role_card)
+		m.init(this, members[i], level, role_card)
 		this.members[i] = m
 
 		// 装备BUFF增加属性
@@ -346,15 +362,29 @@ func (this *BattleTeam) RoundEnd() {
 }
 
 // find targets
-func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
+func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam, trigger_skill int32) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
 	skill_id := int32(0)
 	m := this.members[self_index]
 
-	// 能量满用绝杀
-	if m.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
-		skill_id = m.card.SuperSkillID
-	} else if m.act_num > 0 {
-		skill_id = m.card.NormalSkillID
+	if trigger_skill == 0 {
+		// 能量满用绝杀
+		if m.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
+			if m.is_disable_super_attack() {
+				return
+			}
+			skill_id = m.card.SuperSkillID
+		} else if m.act_num > 0 {
+			if m.is_disable_normal_attack() {
+				return
+			}
+			skill_id = m.card.NormalSkillID
+		}
+	} else {
+		skill_id = trigger_skill
+	}
+
+	if m.is_disable_attack() {
+		return
 	}
 
 	skill = skill_table_mgr.Get(skill_id)
@@ -403,63 +433,55 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam) (is_enem
 	return
 }
 
+func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) {
+	mem := this.members[self_index]
+	if mem == nil {
+		return
+	}
+	for mem.get_use_skill() > 0 {
+		is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, 0)
+		if target_pos == nil {
+			log.Warn("Cant find targets to attack")
+			return
+		}
+		log.Debug("team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", mem.id, is_enemy, target_pos, skill.Id)
+		if !is_enemy {
+			target_team = this
+		}
+		skill_effect(this, self_index, target_team, target_pos, skill)
+		if skill.ComboSKill > 0 {
+			is_enemy, target_pos, skill = this.FindTargets(self_index, target_team, skill.ComboSKill)
+			if !is_enemy {
+				target_team = this
+			}
+			skill_effect(this, self_index, target_team, target_pos, skill)
+		}
+		mem.used_skill()
+	}
+}
+
 // 回合
 func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	this.RoundStart()
 	target_team.RoundStart()
 
 	var self_index, target_index int32
-	var mem *TeamMember
 	used_skill := false
 	for {
 		for used_skill = false; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
 			if used_skill {
 				break
 			}
-			mem = this.members[self_index]
-			if mem == nil {
-				continue
-			}
-			for mem.get_use_skill() > 0 {
-				is_enemy, target_pos, skill := this.FindTargets(self_index, target_team)
-				if target_pos == nil {
-					log.Warn("Cant find targets to attack")
-					return
-				}
-				log.Debug("team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", mem.id, is_enemy, target_pos, skill.Id)
-				if is_enemy {
-					skill_effect(this, self_index, target_team, target_pos, skill)
-				} else {
-					skill_effect(this, self_index, this, target_pos, skill)
-				}
-				mem.used_skill()
-				used_skill = true
-			}
+			this.UseSkill(self_index, target_team)
+			used_skill = true
 		}
 
 		for used_skill = false; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
 			if used_skill {
 				break
 			}
-			mem = target_team.members[target_index]
-			if mem == nil || mem.get_use_skill() == 0 {
-				continue
-			}
-			for mem.get_use_skill() > 0 {
-				is_enemy, target_pos, skill := target_team.FindTargets(target_index, this)
-				if target_pos == nil {
-					log.Warn("Cant find targets to attack")
-					return
-				}
-				log.Debug("target team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", mem.id, is_enemy, target_pos, skill.Id)
-				if is_enemy {
-					skill_effect(target_team, target_index, this, target_pos, skill)
-				} else {
-					skill_effect(target_team, target_index, target_team, target_pos, skill)
-				}
-				mem.used_skill()
-				used_skill = true
-			}
+			target_team.UseSkill(target_index, this)
+			used_skill = true
 		}
 
 		if self_index >= BATTLE_TEAM_MEMBER_MAX_NUM && target_index >= BATTLE_TEAM_MEMBER_MAX_NUM {
@@ -480,9 +502,14 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	}
 
 	for c := int32(0); c < round_max; c++ {
-		log.Debug("-------------------- Round[%v] --------------------", c+1)
+		log.Debug("------------------------------------ Round[%v] ----------------------------------", c+1)
 		this.DoRound(target_team)
-		if this.IsAllDead() || target_team.IsAllDead() {
+		if this.IsAllDead() {
+			log.Debug("self all dead")
+			break
+		}
+		if target_team.IsAllDead() {
+			log.Debug("target all dead")
 			break
 		}
 	}
@@ -501,4 +528,17 @@ func (this *BattleTeam) IsAllDead() bool {
 		}
 	}
 	return all_dead
+}
+
+// 是否有某个角色
+func (this *BattleTeam) HasRole(role_id int32) bool {
+	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		if this.members[i] == nil {
+			continue
+		}
+		if this.members[i].card.Id == role_id {
+			return true
+		}
+	}
+	return false
 }

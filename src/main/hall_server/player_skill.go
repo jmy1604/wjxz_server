@@ -319,6 +319,94 @@ func skill_get_random_targets(self_pos int32, target_team *BattleTeam, skill_dat
 	return
 }
 
+// 技能条件
+const (
+	SKILL_COND_TYPE_NONE           = iota
+	SKILL_COND_TYPE_HAS_LABEL      = 1
+	SKILL_COND_TYPE_HAS_BUFF       = 2
+	SKILL_COND_TYPE_HP_NOT_LESS    = 3
+	SKILL_COND_TYPE_HP_GREATER     = 4
+	SKILL_COND_TYPE_HP_NOT_GREATER = 5
+	SKILL_COND_TYPE_HP_LESS        = 6
+	SKILL_COND_TYPE_MP_NOT_LESS    = 7
+	SKILL_COND_TYPE_MP_NOT_GREATER = 8
+	SKILL_COND_TYPE_TEAM_HAS_ROLE  = 9
+	SKILL_COND_TYPE_IS_TYPE        = 10
+	SKILL_COND_TYPE_IS_CAMP        = 11
+)
+
+func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
+	if len(effect_cond) > 0 {
+		if effect_cond[0] == SKILL_COND_TYPE_NONE {
+			return true
+		}
+		if effect_cond[0] == SKILL_COND_TYPE_HAS_LABEL {
+			if mem.card.Label != effect_cond[1] {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_HAS_BUFF {
+			if mem.has_buff(effect_cond[1]) {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_HP_NOT_LESS {
+			if mem.attrs[ATTR_HP] >= effect_cond[1] {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_HP_GREATER {
+			if mem.attrs[ATTR_HP] > effect_cond[1] {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_HP_NOT_GREATER {
+			if mem.attrs[ATTR_HP] <= effect_cond[1] {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_HP_LESS {
+			if mem.attrs[ATTR_HP] < effect_cond[1] {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_MP_NOT_LESS {
+			if mem.attrs[ATTR_MP] >= effect_cond[1] {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_MP_NOT_GREATER {
+			if mem.attrs[ATTR_MP] <= effect_cond[1] {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_TEAM_HAS_ROLE {
+			if mem.team.HasRole(effect_cond[1]) {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_IS_TYPE {
+			if mem.card.Type == effect_cond[1] {
+				return true
+			}
+		} else if effect_cond[0] == SKILL_COND_TYPE_IS_CAMP {
+			if mem.card.Camp == effect_cond[1] {
+				return true
+			}
+		} else {
+			log.Warn("skill effect cond %v unknown", effect_cond[0])
+		}
+	}
+	return true
+}
+
+func skill_check_cond(self *TeamMember, target *TeamMember, effect_cond1 []int32, effect_cond2 []int32) bool {
+	if len(effect_cond1) == 0 && len(effect_cond2) == 0 {
+		return true
+	}
+
+	if !_skill_check_cond(self, effect_cond1) {
+		return false
+	}
+
+	if !_skill_check_cond(target, effect_cond2) {
+		return false
+	}
+
+	return true
+}
+
 // 技能效果类型
 const (
 	SKILL_EFFECT_TYPE_DIRECT_INJURY         = 1  // 直接伤害
@@ -500,41 +588,180 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			if effects[i] == nil || len(effects[i]) < 1 {
 				continue
 			}
-			if effects[i][0] == SKILL_EFFECT_TYPE_DIRECT_INJURY {
+			if !skill_check_cond(self, target, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
+				log.Debug("self[%v] cant use skill[%v] to target[%v]")
+				continue
+			}
+			effect_type := effects[i][0]
+			if effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
 				// 直接伤害
 				target_dmg, self_dmg := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effects[i])
-				target.attrs[ATTR_HP] -= target_dmg
-				target.hp -= target_dmg
-				if target.attrs[ATTR_HP] <= 0 {
-					target.attrs[ATTR_HP] = 0
-					target.hp = 0
+				if target_dmg != 0 {
+					target.add_hp(-target_dmg)
 				}
-				self.attrs[ATTR_HP] -= self_dmg
-				self.hp -= self_dmg
-				if self.attrs[ATTR_HP] <= 0 {
-					self.attrs[ATTR_HP] = 0
-					self.hp = 0
+				if self_dmg != 0 {
+					self.add_hp(-self_dmg)
 				}
 				report = battle_report_pool.Get()
 				log.Debug("role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
-			} else if effects[i][0] == SKILL_EFFECT_TYPE_CURE {
+			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
 				// 治疗
 				cure := skill_effect_cure(self, target, effects[i])
-				if target.attrs[ATTR_HP]+cure > target.attrs[ATTR_HP_MAX] {
-					target.attrs[ATTR_HP] = target.attrs[ATTR_HP_MAX]
-					target.hp = target.attrs[ATTR_HP]
-				} else {
-					target.attrs[ATTR_HP] += cure
+				if cure != 0 {
+					target.add_hp(cure)
 				}
 				log.Debug("role[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self.id, skill_data.Id, target.id, cure)
-			} else if effects[i][0] == SKILL_EFFECT_TYPE_ADD_BUFF {
+			} else if effect_type == SKILL_EFFECT_TYPE_ADD_BUFF {
 				// 施加BUFF
-				skill_effect_add_buff(self, target, effects[i])
+				buff_id := skill_effect_add_buff(self, target, effects[i])
+				if buff_id > 0 {
+					log.Debug("role[%v] use skill[%v] to target[%v] add buff[%v]", self.id, skill_data.Id, target.id, buff_id)
+				}
+			} else if effect_type == SKILL_EFFECT_TYPE_SUMMON {
+				// 召唤
+			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_ATTR {
+				// 改变下次计算时的角色参数
+				for i := 0; i < (len(effects[i])-1)/2; i++ {
+					target.attrs[effects[i][1+2*i]] = effects[i][1+2*i+1]
+				}
+			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
+				// 改变普通攻击技能ID
+			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL {
+				// 改变必杀技ID
+			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE {
+				// 改变怒气
+				if effects[i][3] > 0 {
+					if rand.Int31n(10000) > effects[i][3] {
+						target.energy += effects[i][1]
+						self.energy += effects[i][2]
+					}
+				}
+			} else if effect_type == SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM {
+				// 增加行动次数
+				target.act_num += effects[i][1]
+			} else if effect_type == SKILL_EFFECT_TYPE_AURA {
+				// 产生光环
 			}
+		}
+		if self.attrs[ATTR_HP] <= 0 {
+			log.Debug("skill user[%v] dead", self.id)
+		}
+		if target.attrs[ATTR_HP] <= 0 {
+			log.Debug("skill target[%v] dead", target.id)
 		}
 	}
 
 	return
+}
+
+type Buff struct {
+	buff      *table_config.XmlStatusItem
+	attack    int32
+	dmg_add   int32
+	param     int32
+	round_num int32
+	next      *Buff
+	prev      *Buff
+}
+
+type BuffList struct {
+	owner *TeamMember
+	head  *Buff
+	tail  *Buff
+}
+
+func (this *BuffList) remove_buff(buff *Buff) {
+	if buff.prev != nil {
+		buff.prev.next = buff.next
+	}
+	if buff.next != nil {
+		buff.next.prev = buff.prev
+	}
+	if buff == this.head {
+		this.head = buff.next
+	}
+	if buff == this.tail {
+		this.tail = buff.prev
+	}
+	this.owner.remove_buff_effect(buff)
+	//buff_pool.Put(buff)
+	log.Debug("@@@@@@@@@ remove buff[%v]", buff.buff.Id)
+}
+
+func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
+	hh := this.head
+	for hh != nil {
+		next := hh.next
+		for j := 0; j < len(hh.buff.ResistMutexTypes); j++ {
+			if b.MutexType == hh.buff.ResistMutexTypes[j] {
+				log.Debug("BUFF[%v]类型[%v]排斥BUFF[%v]类型[%v]", hh.buff.Id, hh.buff.MutexType, b.Id, b.MutexType)
+				return true
+			}
+		}
+		for j := 0; j < len(hh.buff.ResistMutexIDs); j++ {
+			if b.Id == hh.buff.ResistMutexIDs[j] {
+				log.Debug("BUFF[%v]排斥BUFF[%v]", hh.buff.Id, b.Id)
+				return true
+			}
+		}
+		for j := 0; j < len(hh.buff.CancelMutexTypes); j++ {
+			if b.MutexType == hh.buff.CancelMutexTypes[j] {
+				this.remove_buff(hh)
+				log.Debug("BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
+			}
+		}
+		for j := 0; j < len(hh.buff.CancelMutexIDs); j++ {
+			if b.Id == hh.buff.CancelMutexIDs[j] {
+				this.remove_buff(hh)
+				log.Debug("BUFF[%v]驱散了BUFF[%v]", b.Id, hh.buff.Id)
+			}
+		}
+		hh = next
+	}
+	return false
+}
+
+func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusItem, skill_effect []int32) (buff_id int32) {
+	buff := buff_pool.Get()
+	buff.buff = b
+	buff.attack = attacker.attrs[ATTR_ATTACK]
+	buff.dmg_add = attacker.attrs[ATTR_TOTAL_DAMAGE_ADD]
+	buff.param = skill_effect[3]
+	buff.round_num = skill_effect[4]
+	buff.next = nil
+	buff.prev = nil
+	if this.head == nil {
+		this.tail = buff
+		this.head = buff
+	} else {
+		buff.prev = this.tail
+		this.tail.next = buff
+		this.tail = buff
+	}
+	buff_id = b.Id
+	log.Debug("######### add buff[%v]", b.Id)
+	return
+}
+
+func (this *BuffList) on_round_end() {
+	bf := this.head
+	for bf != nil {
+		next := bf.next
+		if bf.round_num > 0 {
+			if bf.buff.Effect[0] == BUFF_EFFECT_TYPE_DAMAGE {
+				dmg := buff_effect_damage(bf.attack, bf.dmg_add, bf.param, bf.buff.Effect[1], this.owner)
+				this.owner.add_hp(-dmg)
+				log.Debug("role[%v] hp damage[%v] on buff[%v] left round[%v] end", this.owner.id, dmg, bf.buff.Id, bf.round_num)
+			}
+
+			bf.round_num -= 1
+			if bf.round_num <= 0 {
+				this.remove_buff(bf)
+				log.Debug("role[%v] buff[%v] round over", this.owner.id, bf.buff.Id)
+			}
+		}
+		bf = next
+	}
 }
 
 // 状态伤害效果
@@ -543,4 +770,7 @@ func buff_effect_damage(user_attack, user_damage_add, skill_damage_coeff, attr i
 	f := float64(10000 + user_damage_add - target.attrs[ATTR_TOTAL_DAMAGE_SUB] + target.attrs[attr])
 	damage = int32(math.Max(1, float64(base_damage)*math.Max(0.1, f)/10000))
 	return
+}
+
+type Aura struct {
 }

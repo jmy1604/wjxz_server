@@ -198,7 +198,6 @@ message BattleMemberItem {
 	int32 MaxHP								= 3; // 最大血量
 	int32 Damage 							= 4; // 伤害
 	int32 Energy							= 5; // 能量
-	bool IsDead								= 6; // 是否死亡
 }
 
 // 战报

@@ -21,6 +21,7 @@ type XmlCardItem struct {
 	Rarity            int32  `xml:"Rarity,attr"`
 	Type              int32  `xml:"Type,attr"`
 	Camp              int32  `xml:"Camp,attr"`
+	Label             int32  `xml:"Label,attr"`
 	BaseHP            int32  `xml:"BaseHP,attr"`
 	BaseAttack        int32  `xml:"BaseAttack,attr"`
 	BaseDefence       int32  `xml:"BaseDefence,attr"`
