@@ -643,12 +643,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 产生光环
 			}
 		}
-		if self.attrs[ATTR_HP] <= 0 {
-			log.Debug("skill user[%v] dead", self.id)
-		}
-		if target.attrs[ATTR_HP] <= 0 {
-			log.Debug("skill target[%v] dead", target.id)
-		}
 	}
 
 	return
@@ -665,9 +659,10 @@ type Buff struct {
 }
 
 type BuffList struct {
-	owner *TeamMember
-	head  *Buff
-	tail  *Buff
+	owner     *TeamMember
+	head      *Buff
+	tail      *Buff
+	tmp_buffs map[*Buff]bool
 }
 
 func (this *BuffList) remove_buff(buff *Buff) {
@@ -684,8 +679,14 @@ func (this *BuffList) remove_buff(buff *Buff) {
 		this.tail = buff.prev
 	}
 	this.owner.remove_buff_effect(buff)
-	//buff_pool.Put(buff)
-	log.Debug("@@@@@@@@@ remove buff[%v]", buff.buff.Id)
+
+	buff_pool.Put(buff)
+	if this.tmp_buffs == nil {
+		this.tmp_buffs = make(map[*Buff]bool)
+	}
+	this.tmp_buffs[buff] = true
+
+	log.Debug("@@@@@@@@@ remove buff[%v][%p][%v]", buff.buff.Id, buff, buff)
 }
 
 func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
@@ -728,18 +729,29 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 	buff.dmg_add = attacker.attrs[ATTR_TOTAL_DAMAGE_ADD]
 	buff.param = skill_effect[3]
 	buff.round_num = skill_effect[4]
-	buff.next = nil
-	buff.prev = nil
+
 	if this.head == nil {
-		this.tail = buff
+		buff.prev = nil
 		this.head = buff
 	} else {
 		buff.prev = this.tail
 		this.tail.next = buff
-		this.tail = buff
 	}
+	this.tail = buff
+	this.tail.next = nil
+
 	buff_id = b.Id
-	log.Debug("######### add buff[%v]", b.Id)
+
+	if this.tmp_buffs == nil {
+		this.tmp_buffs = make(map[*Buff]bool)
+	}
+	if _, o := this.tmp_buffs[buff]; o {
+		log.Debug("@@@@@@@@@@@@@@@@@@@@ has buff cache %p %v", buff, buff)
+	}
+
+	delete(this.tmp_buffs, buff)
+
+	log.Debug("######### add buff[%v] [%p] [%v]", b.Id, buff, buff)
 	return
 }
 

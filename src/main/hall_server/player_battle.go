@@ -81,6 +81,7 @@ const (
 type TeamMember struct {
 	team         *BattleTeam
 	id           int32
+	level        int32
 	card         *table_config.XmlCardItem
 	hp           int32
 	energy       int32
@@ -91,13 +92,42 @@ type TeamMember struct {
 	bufflist_arr []BuffList
 }
 
+func (this *TeamMember) add_skill_attr(skill_id int32) {
+	skill := skill_table_mgr.Get(skill_id)
+	if skill != nil {
+		for i := 0; i < len(skill.SkillAttr)/2; i++ {
+			attr := skill.SkillAttr[2*i]
+			if attr == ATTR_HP {
+				this.add_hp(skill.SkillAttr[2*i+1])
+			} else if attr == ATTR_HP_MAX {
+				this.add_max_hp(skill.SkillAttr[2*i+1])
+			} else {
+				this.attrs[skill.SkillAttr[2*i]] = skill.SkillAttr[2*i+1]
+			}
+		}
+	}
+}
+
 func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem) {
 	if this.attrs == nil {
 		this.attrs = make([]int32, ATTR_COUNT_MAX)
+	} else {
+		for i := 0; i < len(this.attrs); i++ {
+			this.attrs[i] = 0
+		}
+	}
+
+	if this.bufflist_arr != nil {
+		for i := 0; i < len(this.bufflist_arr); i++ {
+			this.bufflist_arr[i].head = nil
+			this.bufflist_arr[i].tail = nil
+			this.bufflist_arr[i].owner = nil
+		}
 	}
 
 	this.team = team
 	this.id = id
+	this.level = level
 	this.card = role_card
 	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
 	this.attack = (role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
@@ -108,6 +138,17 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	this.attrs[ATTR_HP] = this.hp
 	this.attrs[ATTR_ATTACK] = this.attack
 	this.attrs[ATTR_DEFENSE] = this.defense
+
+	// 技能增加属性
+	if role_card.NormalSkillID > 0 {
+		this.add_skill_attr(role_card.NormalSkillID)
+	}
+	if role_card.SuperSkillID > 0 {
+		this.add_skill_attr(role_card.SuperSkillID)
+	}
+	for i := 0; i < len(role_card.PassiveSkillIds); i++ {
+		this.add_skill_attr(role_card.PassiveSkillIds[i])
+	}
 }
 
 func (this *TeamMember) add_hp(hp int32) {
@@ -125,6 +166,15 @@ func (this *TeamMember) add_hp(hp int32) {
 		}
 	}
 	this.hp = this.attrs[ATTR_HP]
+}
+
+func (this *TeamMember) add_max_hp(add int32) {
+	if add < 0 {
+		if this.attrs[ATTR_HP_MAX]+add < this.attrs[ATTR_HP] {
+			this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX] + add
+		}
+	}
+	this.attrs[ATTR_HP_MAX] += add
 }
 
 func (this *TeamMember) round_start() {
@@ -298,9 +348,9 @@ func (this *BattleTeam) Init(p *Player, team_id int32) bool {
 			continue
 		}
 
-		if this.members[i] != nil && members[i] == this.members[i].id {
-			continue
-		}
+		//if this.members[i] != nil && members[i] == this.members[i].id {
+		//	continue
+		//s}
 
 		var table_id, rank, level int32
 		var o bool

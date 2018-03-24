@@ -745,20 +745,20 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
 
-	changed, o := this.team_changed[BATTLE_ATTACK_TEAM]
-	if changed || !o {
-		if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM) {
-			log.Error("Player[%v] init attack team failed", this.Id)
-			return -1
-		}
+	//changed, o := this.team_changed[BATTLE_ATTACK_TEAM]
+	//if changed || !o {
+	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM) {
+		log.Error("Player[%v] init attack team failed", this.Id)
+		return -1
 	}
-	changed, o = p.team_changed[BATTLE_ATTACK_TEAM]
-	if changed || !o {
-		if !p.defense_team.Init(this, BATTLE_DEFENSE_TEAM) {
-			log.Error("Player[%v] init defense team failed", player_id)
-			return -1
-		}
+	//}
+	//changed, o = p.team_changed[BATTLE_ATTACK_TEAM]
+	//if changed || !o {
+	if !p.defense_team.Init(this, BATTLE_DEFENSE_TEAM) {
+		log.Error("Player[%v] init defense team failed", player_id)
+		return -1
 	}
+	//}
 
 	this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
 
