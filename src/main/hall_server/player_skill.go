@@ -659,10 +659,22 @@ type Buff struct {
 }
 
 type BuffList struct {
-	owner     *TeamMember
-	head      *Buff
-	tail      *Buff
-	tmp_buffs map[*Buff]bool
+	owner *TeamMember
+	head  *Buff
+	tail  *Buff
+	//tmp_buffs map[*Buff]bool
+}
+
+func (this *BuffList) clear() {
+	b := this.head
+	for b != nil {
+		next := b.next
+		buff_pool.Put(b)
+		b = next
+	}
+	this.head = nil
+	this.tail = nil
+	this.owner = nil
 }
 
 func (this *BuffList) remove_buff(buff *Buff) {
@@ -681,10 +693,10 @@ func (this *BuffList) remove_buff(buff *Buff) {
 	this.owner.remove_buff_effect(buff)
 
 	buff_pool.Put(buff)
-	if this.tmp_buffs == nil {
+	/*if this.tmp_buffs == nil {
 		this.tmp_buffs = make(map[*Buff]bool)
 	}
-	this.tmp_buffs[buff] = true
+	this.tmp_buffs[buff] = true*/
 
 	log.Debug("@@@@@@@@@ remove buff[%v][%p][%v]", buff.buff.Id, buff, buff)
 }
@@ -742,14 +754,10 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 
 	buff_id = b.Id
 
-	if this.tmp_buffs == nil {
+	/*if this.tmp_buffs == nil {
 		this.tmp_buffs = make(map[*Buff]bool)
 	}
-	if _, o := this.tmp_buffs[buff]; o {
-		log.Debug("@@@@@@@@@@@@@@@@@@@@ has buff cache %p %v", buff, buff)
-	}
-
-	delete(this.tmp_buffs, buff)
+	delete(this.tmp_buffs, buff)*/
 
 	log.Debug("######### add buff[%v] [%p] [%v]", b.Id, buff, buff)
 	return

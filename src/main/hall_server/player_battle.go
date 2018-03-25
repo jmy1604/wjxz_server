@@ -119,9 +119,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 
 	if this.bufflist_arr != nil {
 		for i := 0; i < len(this.bufflist_arr); i++ {
-			this.bufflist_arr[i].head = nil
-			this.bufflist_arr[i].tail = nil
-			this.bufflist_arr[i].owner = nil
+			this.bufflist_arr[i].clear()
 		}
 	}
 
@@ -483,16 +481,16 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam, trigger_
 	return
 }
 
-func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) {
+func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int32 {
 	mem := this.members[self_index]
 	if mem == nil {
-		return
+		return -1
 	}
 	for mem.get_use_skill() > 0 {
 		is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, 0)
 		if target_pos == nil {
 			log.Warn("Cant find targets to attack")
-			return
+			return 0
 		}
 		log.Debug("team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", mem.id, is_enemy, target_pos, skill.Id)
 		if !is_enemy {
@@ -508,6 +506,8 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) {
 		}
 		mem.used_skill()
 	}
+
+	return 1
 }
 
 // 回合
@@ -516,26 +516,18 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	target_team.RoundStart()
 
 	var self_index, target_index int32
-	used_skill := false
-	for {
-		for used_skill = false; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
-			if used_skill {
+	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM && target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
+		for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
+			if this.UseSkill(self_index, target_team) >= 0 {
+				self_index += 1
 				break
 			}
-			this.UseSkill(self_index, target_team)
-			used_skill = true
 		}
-
-		for used_skill = false; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
-			if used_skill {
+		for ; target_index < BATTLE_TEAM_MEMBER_MAX_NUM; target_index++ {
+			if target_team.UseSkill(target_index, this) >= 0 {
+				target_index += 1
 				break
 			}
-			target_team.UseSkill(target_index, this)
-			used_skill = true
-		}
-
-		if self_index >= BATTLE_TEAM_MEMBER_MAX_NUM && target_index >= BATTLE_TEAM_MEMBER_MAX_NUM {
-			break
 		}
 	}
 
