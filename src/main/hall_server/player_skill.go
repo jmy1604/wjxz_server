@@ -391,17 +391,27 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 	return true
 }
 
-func skill_check_cond(self *TeamMember, target *TeamMember, effect_cond1 []int32, effect_cond2 []int32) bool {
+func skill_check_cond(self *TeamMember, target_pos []int32, target_team *BattleTeam, effect_cond1 []int32, effect_cond2 []int32) bool {
 	if len(effect_cond1) == 0 && len(effect_cond2) == 0 {
 		return true
 	}
 
-	if !_skill_check_cond(self, effect_cond1) {
+	if self != nil && !_skill_check_cond(self, effect_cond1) {
 		return false
 	}
 
-	if !_skill_check_cond(target, effect_cond2) {
-		return false
+	// 有一个满足就满足
+	if target_pos != nil && target_team != nil {
+		b := false
+		for i := 0; i < len(target_pos); i++ {
+			target := target_team.members[target_pos[i]]
+			if target != nil && _skill_check_cond(target, effect_cond2) {
+				b = true
+			}
+			if !b {
+				return false
+			}
+		}
 	}
 
 	return true
@@ -579,21 +589,35 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		return
 	}
 
-	for i := 0; i < len(target_pos); i++ {
-		target := target_team.members[target_pos[i]]
-		if target == nil {
+	for i := 0; i < len(effects); i++ {
+		if effects[i] == nil || len(effects[i]) < 1 {
 			continue
 		}
-		for i := 0; i < len(effects); i++ {
-			if effects[i] == nil || len(effects[i]) < 1 {
+
+		if !skill_check_cond(self, target_pos, target_team, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
+			log.Debug("self[%v] cant use skill[%v] to target[%v]")
+			continue
+		}
+
+		effect_type := effects[i][0]
+
+		// 被动技，攻击计算伤害前触发
+		if skill_data.Type != SKILL_TYPE_PASSIVE && effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
+			passive_skill_effect(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_pos, target_team)
+		}
+
+		for j := 0; j < len(target_pos); j++ {
+			target := target_team.members[target_pos[j]]
+			if target == nil {
 				continue
 			}
-			if !skill_check_cond(self, target, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
-				log.Debug("self[%v] cant use skill[%v] to target[%v]")
-				continue
-			}
-			effect_type := effects[i][0]
+
 			if effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
+				// 被动技，被击伤害前触发
+				if skill_data.Type != SKILL_TYPE_PASSIVE {
+					passive_skill_effect(EVENT_BEFORE_DAMAGE_ON_BE_ATTACK, target_team, target_pos[i], []int32{self_pos}, self_team)
+				}
+
 				// 直接伤害
 				target_dmg, self_dmg := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effects[i])
 				if target_dmg != 0 {
@@ -645,7 +669,199 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		}
 	}
 
+	// 是放大招后被动技
+	if skill_data.Type == SKILL_TYPE_NORMAL {
+		passive_skill_effect(EVENT_AFTER_USE_NORMAL_SKILL, self_team, self_pos, target_pos, target_team)
+	} else if skill_data.Type == SKILL_TYPE_SUPER {
+		passive_skill_effect(EVENT_AFTER_USE_SUPER_SKILL, self_team, self_pos, target_pos, target_team)
+	}
+
+	// 被动技，攻击后和被攻击后
+	if skill_data.Type == SKILL_TYPE_NORMAL || skill_data.Type == SKILL_TYPE_SUPER {
+		passive_skill_effect(EVENT_AFTER_ATTACK, self_team, self_pos, target_pos, target_team)
+		if target_pos != nil {
+			for i := 0; i < len(target_pos); i++ {
+				target := target_team.members[target_pos[i]]
+				if target != nil {
+					passive_skill_effect(EVENT_AFTER_BE_ATTACK, target_team, target_pos[i], []int32{self_pos}, self_team)
+				}
+			}
+		}
+	}
+
 	return
+}
+
+// 被动技效果
+func passive_skill_effect(trigger_event int32, self_team *BattleTeam, self_pos int32, trigger_pos []int32, target_team *BattleTeam) {
+	self := self_team.members[self_pos]
+	if self == nil {
+		return
+	}
+	for i := 0; i < len(self.card.PassiveSkillIds); i++ {
+		skill := skill_table_mgr.Get(self.card.PassiveSkillIds[i])
+		if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
+			continue
+		}
+
+		if skill.SkillTriggerType == trigger_event {
+			switch trigger_event {
+			case EVENT_GLOBAL:
+				{
+					// 全局
+				}
+			case EVENT_ENTER_BATTLE:
+				{
+					// 进场
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_AFTER_USE_NORMAL_SKILL:
+				{
+					// 普通攻击后
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_AFTER_USE_SUPER_SKILL:
+				{
+					// 大招攻击后
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BEFORE_DAMAGE_ON_ATTACK:
+				{
+					// 攻击计算伤害前触发
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BEFORE_DAMAGE_ON_BE_ATTACK:
+				{
+					// 被击计算伤害前触发
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_AFTER_ATTACK:
+				{
+					// 任何攻击后
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_AFTER_BE_ATTACK:
+				{
+					// 任何被攻击后
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BE_BLOCK:
+				{
+					// 被格挡时触发
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BE_CRITICAL:
+				{
+					// 被暴击时
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_CRITICAL:
+				{
+					// 暴击时
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BLOCK:
+				{
+					// 格挡时
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BEFORE_ROUND:
+				{
+					// 回合行动前触发
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_AFTER_SELF_DEAD:
+				{
+					// 自身彻底死亡
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_AFTER_TEAMMATE_DEAD:
+				{
+					// 队友彻底死亡
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_AFTER_ENEMY_DEAD:
+				{
+					// 对手彻底死亡
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_ON_CURE:
+				{
+					// 治疗时
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BEFORE_NORMAL_ATTACK:
+				{
+					// 普通攻击前
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BEFORE_RAGE_ATTACK:
+				{
+					// 怒气攻击前
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_KILL_ENEMY:
+				{
+					// 杀死对手
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_BEFORE_SELF_DEAD:
+				{
+					// 自身死亡前
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			case EVENT_HP_CHANGED:
+				{
+					// 血量变化
+					if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+						self_team.UseOnceSkill(self_pos, target_team, 0)
+					}
+				}
+			default:
+				log.Warn("Unknown event %v", trigger_event)
+			}
+		}
+	}
 }
 
 type Buff struct {

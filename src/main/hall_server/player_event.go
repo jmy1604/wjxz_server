@@ -24,9 +24,3 @@ const (
 	EVENT_BEFORE_SELF_DEAD           = 20   // 自己死亡前
 	EVENT_HP_CHANGED                 = 21   // 血量变化
 )
-
-type PlayerEvent struct {
-	id     int32
-	param1 int32
-	param2 interface{}
-}

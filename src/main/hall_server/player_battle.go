@@ -481,32 +481,33 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam, trigger_
 	return
 }
 
+func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
+	is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, 0)
+	if target_pos == nil {
+		log.Warn("Cant find targets to attack")
+		return nil
+	}
+	log.Debug("team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", self_index, is_enemy, target_pos, skill.Id)
+	if !is_enemy {
+		target_team = this
+	}
+	skill_effect(this, self_index, target_team, target_pos, skill)
+
+	return skill
+}
+
 func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int32 {
 	mem := this.members[self_index]
 	if mem == nil {
 		return -1
 	}
 	for mem.get_use_skill() > 0 {
-		is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, 0)
-		if target_pos == nil {
-			log.Warn("Cant find targets to attack")
-			return 0
-		}
-		log.Debug("team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", mem.id, is_enemy, target_pos, skill.Id)
-		if !is_enemy {
-			target_team = this
-		}
-		skill_effect(this, self_index, target_team, target_pos, skill)
-		if skill.ComboSKill > 0 {
-			is_enemy, target_pos, skill = this.FindTargets(self_index, target_team, skill.ComboSKill)
-			if !is_enemy {
-				target_team = this
-			}
-			skill_effect(this, self_index, target_team, target_pos, skill)
+		skill := this.UseOnceSkill(self_index, target_team, 0)
+		if skill.ComboSkill > 0 {
+			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
 	}
-
 	return 1
 }
 
@@ -541,6 +542,12 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	if end_type == BATTLE_END_BY_ALL_DEAD {
 		round_max = BATTLE_ROUND_MAX_NUM
 	} else if end_type == BATTLE_END_BY_ROUND_OVER {
+	}
+
+	// 进场被动技
+	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		passive_skill_effect(EVENT_ENTER_BATTLE, this, i, nil, target_team)
+		passive_skill_effect(EVENT_ENTER_BATTLE, target_team, i, nil, this)
 	}
 
 	for c := int32(0); c < round_max; c++ {
