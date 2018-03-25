@@ -18,8 +18,6 @@ type XmlSkillItem struct {
 	TriggerCondition2    []int32
 	TriggerRoundMax      int32
 	TriggerBattleMax     int32
-	SkillBuff            int32 `xml:"SkillBuff,attr"`
-	SkillTrigger         int32 `xml:"SkillTrigger,attr"`
 	SkillMelee           int32 `xml:"SkillMelee,attr"`
 	SkillEnemy           int32 `xml:"SkillEnemy,attr"`
 	RangeType            int32 `xml:"RangeType,attr"`
@@ -53,7 +51,7 @@ type XmlSkillItem struct {
 	EffectsCond1s [][]int32
 	EffectsCond2s [][]int32
 
-	ComboSKill int32 `xml:"ComboSKill,attr"`
+	ComboSkill int32 `xml:"ComboSKill,attr"`
 }
 
 type XmlSkillConfig struct {
