@@ -681,10 +681,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		passive_skill_effect(EVENT_AFTER_ATTACK, self_team, self_pos, target_pos, target_team)
 		if target_pos != nil {
 			for i := 0; i < len(target_pos); i++ {
-				target := target_team.members[target_pos[i]]
-				if target != nil {
-					passive_skill_effect(EVENT_AFTER_BE_ATTACK, target_team, target_pos[i], []int32{self_pos}, self_team)
-				}
+				passive_skill_effect(EVENT_AFTER_BE_ATTACK, target_team, target_pos[i], []int32{self_pos}, self_team)
 			}
 		}
 	}
