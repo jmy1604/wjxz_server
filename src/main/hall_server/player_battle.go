@@ -78,33 +78,120 @@ const (
 	BATTLE_DEFENSE_TEAM = 2
 )
 
+type MemberPassiveTriggerData struct {
+	skill      *table_config.XmlSkillItem
+	battle_num int32
+	round_num  int32
+}
+
 type TeamMember struct {
-	team         *BattleTeam
-	id           int32
-	level        int32
-	card         *table_config.XmlCardItem
-	hp           int32
-	energy       int32
-	attack       int32
-	defense      int32
-	act_num      int32 // 行动次数
-	attrs        []int32
-	bufflist_arr []BuffList
+	team             *BattleTeam
+	id               int32
+	level            int32
+	card             *table_config.XmlCardItem
+	hp               int32
+	energy           int32
+	attack           int32
+	defense          int32
+	act_num          int32 // 行动次数
+	attrs            []int32
+	bufflist_arr     []BuffList
+	passive_triggers map[int32][]*MemberPassiveTriggerData
 }
 
 func (this *TeamMember) add_skill_attr(skill_id int32) {
 	skill := skill_table_mgr.Get(skill_id)
-	if skill != nil {
-		for i := 0; i < len(skill.SkillAttr)/2; i++ {
-			attr := skill.SkillAttr[2*i]
-			if attr == ATTR_HP {
-				this.add_hp(skill.SkillAttr[2*i+1])
-			} else if attr == ATTR_HP_MAX {
-				this.add_max_hp(skill.SkillAttr[2*i+1])
-			} else {
-				this.attrs[skill.SkillAttr[2*i]] = skill.SkillAttr[2*i+1]
-			}
+	if skill == nil {
+		return
+	}
+	for i := 0; i < len(skill.SkillAttr)/2; i++ {
+		attr := skill.SkillAttr[2*i]
+		if attr == ATTR_HP {
+			this.add_hp(skill.SkillAttr[2*i+1])
+		} else if attr == ATTR_HP_MAX {
+			this.add_max_hp(skill.SkillAttr[2*i+1])
+		} else {
+			this.attrs[skill.SkillAttr[2*i]] = skill.SkillAttr[2*i+1]
 		}
+	}
+}
+
+func (this *TeamMember) init_passive_data(role_card *table_config.XmlCardItem) {
+	if role_card.PassiveSkillIds == nil {
+		return
+	}
+	for i := 0; i < len(role_card.PassiveSkillIds); i++ {
+		skill := skill_table_mgr.Get(role_card.PassiveSkillIds[i])
+		if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
+			continue
+		}
+
+		if skill.TriggerBattleMax <= 0 || skill.TriggerRoundMax <= 0 {
+			continue
+		}
+
+		if this.passive_triggers == nil {
+			this.passive_triggers = make(map[int32][]*MemberPassiveTriggerData)
+		}
+
+		d := passive_trigger_data_pool.Get()
+		d.skill = skill
+		d.battle_num = skill.TriggerBattleMax
+		d.round_num = skill.TriggerRoundMax
+		datas := this.passive_triggers[skill.SkillTriggerType]
+		if datas == nil {
+			this.passive_triggers[skill.SkillTriggerType] = []*MemberPassiveTriggerData{d}
+		} else {
+			this.passive_triggers[skill.SkillTriggerType] = append(datas, d)
+		}
+	}
+}
+
+func (this *TeamMember) can_passive_trigger(trigger_event int32, skill_id int32) (trigger bool) {
+	d, o := this.passive_triggers[trigger_event]
+	if !o || d == nil {
+		return
+	}
+
+	for i := 0; i < len(d); i++ {
+		if d[i] == nil {
+			continue
+		}
+		if d[i].skill.Id != skill_id {
+			continue
+		}
+		if d[i].battle_num > 0 && d[i].round_num > 0 {
+			trigger = true
+		}
+		break
+	}
+
+	return
+}
+
+func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id int32) {
+	d, o := this.passive_triggers[trigger_event]
+	if !o || d == nil {
+		return
+	}
+
+	for i := 0; i < len(d); i++ {
+		if d[i] == nil {
+			continue
+		}
+		if d[i].skill.Id != skill_id {
+			continue
+		}
+		if d[i].battle_num > 0 {
+			d[i].battle_num -= 1
+		}
+		if d[i].round_num > 0 {
+			d[i].round_num -= 1
+		}
+		if d[i].battle_num <= 0 || d[i].round_num <= 0 {
+			passive_trigger_data_pool.Put(d[i])
+		}
+		break
 	}
 }
 
@@ -147,6 +234,8 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	for i := 0; i < len(role_card.PassiveSkillIds); i++ {
 		this.add_skill_attr(role_card.PassiveSkillIds[i])
 	}
+
+	this.init_passive_data(role_card)
 }
 
 func (this *TeamMember) add_hp(hp int32) {
@@ -184,6 +273,17 @@ func (this *TeamMember) round_end() {
 	for i := 0; i < len(this.bufflist_arr); i++ {
 		buffs := this.bufflist_arr[i]
 		buffs.on_round_end()
+	}
+
+	for _, v := range this.passive_triggers {
+		if v == nil {
+			continue
+		}
+		for i := 0; i < len(v); i++ {
+			if v[i].skill.TriggerRoundMax > 0 {
+				v[i].round_num = v[i].skill.TriggerRoundMax
+			}
+		}
 	}
 }
 
@@ -319,6 +419,13 @@ func (this *TeamMember) is_disable_attack() bool {
 	return disable
 }
 
+func (this *TeamMember) is_dead() bool {
+	if this.hp > 0 {
+		return false
+	}
+	return true
+}
+
 type BattleTeam struct {
 	curr_attack int32 // 当前进攻的索引
 	members     []*TeamMember
@@ -410,7 +517,7 @@ func (this *BattleTeam) RoundEnd() {
 }
 
 // find targets
-func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam, trigger_skill int32) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
+func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, trigger_skill int32) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
 	skill_id := int32(0)
 	m := this.members[self_index]
 
@@ -457,22 +564,26 @@ func (this *BattleTeam) FindTargets(self_index int32, team *BattleTeam, trigger_
 	if skill.SkillEnemy == SKILL_ENEMY_TYPE_ENEMY {
 		is_enemy = true
 	} else if skill.SkillEnemy == SKILL_ENEMY_TYPE_OUR {
-		team = this
+		target_team = this
 	} else {
 		log.Error("Invalid skill enemy type[%v]", skill.SkillEnemy)
 		return
 	}
 
 	if skill.SkillTarget == SKILL_TARGET_TYPE_DEFAULT {
-		pos = skill_get_default_targets(self_index, team, skill)
+		pos = skill_get_default_targets(self_index, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_BACK {
-		pos = skill_get_back_targets(self_index, team, skill)
+		pos = skill_get_back_targets(self_index, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_HP_MIN {
-		pos = skill_get_hp_min_targets(self_index, team, skill)
+		pos = skill_get_hp_min_targets(self_index, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_RANDOM {
-		pos = skill_get_random_targets(self_index, team, skill)
+		pos = skill_get_random_targets(self_index, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_SELF {
 		pos = []int32{self_index}
+	} else if skill.SkillTarget == SKILL_TARGET_TYPE_TRIGGER_OBJECT {
+
+	} else if skill.SkillTarget == SKILL_TARGET_TYPE_CROPSE {
+
 	} else {
 		log.Error("Invalid skill target type: %v", skill.SkillTarget)
 		return
@@ -516,6 +627,12 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	this.RoundStart()
 	target_team.RoundStart()
 
+	// 被动技，回合行动前触发
+	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		passive_skill_effect(EVENT_BEFORE_ROUND, this, i, nil, target_team)
+		passive_skill_effect(EVENT_BEFORE_ROUND, target_team, i, nil, this)
+	}
+
 	var self_index, target_index int32
 	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM && target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
 		for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
@@ -544,7 +661,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	} else if end_type == BATTLE_END_BY_ROUND_OVER {
 	}
 
-	// 进场被动技
+	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
 		passive_skill_effect(EVENT_ENTER_BATTLE, this, i, nil, target_team)
 		passive_skill_effect(EVENT_ENTER_BATTLE, target_team, i, nil, this)

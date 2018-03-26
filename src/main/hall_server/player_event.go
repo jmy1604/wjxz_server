@@ -7,8 +7,8 @@ const (
 	EVENT_AFTER_USE_NORMAL_SKILL     = 3    // 释放普攻后
 	EVENT_BEFORE_DAMAGE_ON_ATTACK    = 4    // 攻击计算伤害前
 	EVENT_BEFORE_DAMAGE_ON_BE_ATTACK = 5    // 被击计算伤害前
-	EVENT_AFTER_ATTACK               = 6    // 任何攻击后
-	EVENT_AFTER_BE_ATTACK            = 7    // 任何被攻击后
+	EVENT_AFTER_DAMAGE_ON_ATTACK     = 6    // 任何攻击后
+	EVENT_AFTER_DAMAGE_ON_BE_ATTACK  = 7    // 任何被攻击后
 	EVENT_BE_BLOCK                   = 8    // 被格挡
 	EVENT_BE_CRITICAL                = 9    // 被暴击
 	EVENT_CRITICAL                   = 10   // 暴击

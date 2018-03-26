@@ -71,3 +71,24 @@ func (this *BuffPool) Get() *Buff {
 func (this *BuffPool) Put(b *Buff) {
 	this.pool.Put(b)
 }
+
+// MemberPassiveTriggerData
+type MemberPassiveTriggerDataPool struct {
+	pool *sync.Pool
+}
+
+func (this *MemberPassiveTriggerDataPool) Init() {
+	this.pool = &sync.Pool{
+		New: func() interface{} {
+			return &MemberPassiveTriggerData{}
+		},
+	}
+}
+
+func (this *MemberPassiveTriggerDataPool) Get() *MemberPassiveTriggerData {
+	return this.pool.Get().(*MemberPassiveTriggerData)
+}
+
+func (this *MemberPassiveTriggerDataPool) Put(d *MemberPassiveTriggerData) {
+	this.pool.Put(d)
+}
