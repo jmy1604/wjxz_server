@@ -178,6 +178,7 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 				break
 			}
 		}
+		log.Debug("!!!!!!!!!!!!!!!!!! pos[%v]", pos)
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
 		for c := 0; c < BATTLE_FORMATION_LINE_NUM; c++ {
 			is_empty := false

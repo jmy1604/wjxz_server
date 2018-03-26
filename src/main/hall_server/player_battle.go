@@ -600,7 +600,7 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
 	is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, 0)
 	if target_pos == nil {
-		log.Warn("Cant find targets to attack")
+		log.Warn("Self index[%v] Cant find targets to attack with skill[%v]", self_index, skill.Id)
 		return nil
 	}
 	log.Debug("team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", self_index, is_enemy, target_pos, skill.Id)
@@ -618,7 +618,13 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 		return -1
 	}
 	for mem.get_use_skill() > 0 {
+		if target_team.IsAllDead() {
+			return 0
+		}
 		skill := this.UseOnceSkill(self_index, target_team, 0)
+		if skill == nil {
+			break
+		}
 		if skill.ComboSkill > 0 {
 			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
@@ -693,7 +699,7 @@ func (this *BattleTeam) IsAllDead() bool {
 		if this.members[i] == nil {
 			continue
 		}
-		if this.members[i].attrs[ATTR_HP] > 0 {
+		if !this.members[i].is_dead() {
 			all_dead = false
 			break
 		}
