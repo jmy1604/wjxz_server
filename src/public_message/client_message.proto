@@ -15,6 +15,10 @@ enum E_ERR {
 	PLAYER_SELECT_SERVER_NOT_FOUND			= -7; // 选择服务器不存在
 	PLAYER_ALREADY_SELECTED_SERVER			= -8; // 玩家已经选择过服务器
 	
+	// 战斗
+	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -1000;
+	PLAYER_SET_DEFENSE_MEMBERS_FAILED		= -1001;
+	
 	// 玩家
 	PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
 	PLAYER_RENAME_NEW_CANT_SAME_TO_OLD 		= -100001; // 昵称不能与原来相同
@@ -198,23 +202,36 @@ message BattleMemberItem {
 	int32 MaxHP								= 3; // 最大血量
 	int32 Damage 							= 4; // 伤害
 	int32 Energy							= 5; // 能量
+	repeated int32 BuffIds					= 6; // BUFF
 }
 
-// 战报
+// 战报项
 message BattleReportItem {
-	int32 SkillId							= 1; // 技能ID
-	BattleMemberItem User					= 2; // 技能使用者
-	repeated BattleMemberItem BeHiters 		= 3; // 技能受击者
+	int32 Side								= 1; // 0 左边向右打  1 右边向左打
+	int32 SkillId							= 2; // 技能ID
+	BattleMemberItem User					= 3; // 技能使用者
+	repeated BattleMemberItem BeHiters 		= 4; // 技能受击者
+	bool IsPassive							= 5; // 是否被动技
+	bool IsCritical							= 6; // 是否暴击
+	bool IsBlock							= 7; // 是否格挡
+}
+
+// 一回合战报
+message BattleRoundReports {
+	int32 RoundNum							= 1; // 回合编号
+	repeated BattleReportItem items			= 2; // 回合战报列表
 }
 
 // 请求战斗结果
 message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
-	int32 FightPlayerId						= 2; // 对方ID
+	int32 FightPlayerId						= 2; // 对方玩家ID
 }
 message S2CBattleResultResponse {
-	bool Result								= 1; // 1 赢  0 输
-	repeated BattleReportItem Reports 		= 2; // 战报
+	bool IsWin								= 1; // true 赢  false 输
+	repeated BattleMemberItem MyTeam		= 2; // 战斗前我方阵容
+	repeated BattleMemberItem TargetTeam	= 3; // 战斗前敌方阵容
+	repeated BattleRoundReports Rounds 		= 4; // 回合
 }
 
 //////////////////////////////////////////////////////////////////////////////

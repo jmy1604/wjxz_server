@@ -593,12 +593,16 @@ func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect 
 }
 
 // 技能效果
-func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (report *msg_client_message.BattleReportItem) {
+func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (reports []*msg_client_message.BattleReportItem) {
 	effects := skill_data.Effects
 	self := self_team.members[self_pos]
 	if self == nil {
 		return
 	}
+
+	// 战报
+	report := build_battle_report_item(self_team, self_pos, 0, skill_data.Type, false, false, false)
+	reports = append(reports, report)
 
 	for i := 0; i < len(effects); i++ {
 		if effects[i] == nil || len(effects[i]) < 1 {
@@ -652,6 +656,19 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				// 直接伤害
 				target_dmg, self_dmg, is_block, is_critical := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effects[i])
+
+				//----------- 战报 -------------
+				report.User.Damage += self_dmg
+				report.IsPassive = false
+				if is_block {
+					report.IsBlock = is_block
+				}
+				if is_critical {
+					report.IsCritical = is_critical
+				}
+				build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg)
+				//------------------------------
+
 				if target_dmg != 0 {
 					target.add_hp(-target_dmg)
 					// 被动技，血量变化
@@ -720,7 +737,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 				}
 
-				report = battle_report_pool.Get()
 				log.Debug("role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
 			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
 				// 治疗

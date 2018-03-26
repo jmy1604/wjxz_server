@@ -92,3 +92,66 @@ func (this *MemberPassiveTriggerDataPool) Get() *MemberPassiveTriggerData {
 func (this *MemberPassiveTriggerDataPool) Put(d *MemberPassiveTriggerData) {
 	this.pool.Put(d)
 }
+
+// MsgBattleMemberItemPool
+type MsgBattleMemberItemPool struct {
+	pool *sync.Pool
+}
+
+func (this *MsgBattleMemberItemPool) Init() {
+	this.pool = &sync.Pool{
+		New: func() interface{} {
+			return &msg_client_message.BattleMemberItem{}
+		},
+	}
+}
+
+func (this *MsgBattleMemberItemPool) Get() *msg_client_message.BattleMemberItem {
+	return this.pool.Get().(*msg_client_message.BattleMemberItem)
+}
+
+func (this *MsgBattleMemberItemPool) Put(item *msg_client_message.BattleMemberItem) {
+	this.pool.Put(item)
+}
+
+// MsgBattleReportItemPool
+type MsgBattleReportItemPool struct {
+	pool *sync.Pool
+}
+
+func (this *MsgBattleReportItemPool) Init() {
+	this.pool = &sync.Pool{
+		New: func() interface{} {
+			return &msg_client_message.BattleReportItem{}
+		},
+	}
+}
+
+func (this *MsgBattleReportItemPool) Get() *msg_client_message.BattleReportItem {
+	return this.pool.Get().(*msg_client_message.BattleReportItem)
+}
+
+func (this *MsgBattleReportItemPool) Put(item *msg_client_message.BattleReportItem) {
+	this.pool.Put(item)
+}
+
+// MsgBattleRoundReportsPool
+type MsgBattleRoundReportsPool struct {
+	pool *sync.Pool
+}
+
+func (this *MsgBattleRoundReportsPool) Init() {
+	this.pool = &sync.Pool{
+		New: func() interface{} {
+			return &msg_client_message.BattleRoundReports{}
+		},
+	}
+}
+
+func (this *MsgBattleRoundReportsPool) Get() *msg_client_message.BattleRoundReports {
+	return this.pool.Get().(*msg_client_message.BattleRoundReports)
+}
+
+func (this *MsgBattleRoundReportsPool) Put(reports *msg_client_message.BattleRoundReports) {
+	this.pool.Put(reports)
+}

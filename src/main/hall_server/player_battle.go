@@ -4,7 +4,10 @@ import (
 	"libs/log"
 	"main/table_config"
 	"math/rand"
-	_ "public_message/gen_go/client_message"
+	"net/http"
+	"public_message/gen_go/client_message"
+
+	"github.com/golang/protobuf/proto"
 )
 
 // 基础属性
@@ -428,11 +431,12 @@ func (this *TeamMember) is_dead() bool {
 
 type BattleTeam struct {
 	curr_attack int32 // 当前进攻的索引
+	side        int32 // 0 左边 1 右边
 	members     []*TeamMember
 }
 
 // 利用玩家初始化
-func (this *BattleTeam) Init(p *Player, team_id int32) bool {
+func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	var members []int32
 	if team_id == BATTLE_ATTACK_TEAM {
 		members = p.db.BattleTeam.GetAttackMembers()
@@ -491,6 +495,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32) bool {
 		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
 	}
 	this.curr_attack = 0
+	this.side = side
 
 	p.team_changed[team_id] = false
 
@@ -707,4 +712,21 @@ func (this *BattleTeam) HasRole(role_id int32) bool {
 		}
 	}
 	return false
+}
+
+func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SBattleResultRequest)
+	if req == nil || p == nil {
+		log.Error("C2SWorldChatMsgPullHandler player[%v] proto is invalid", p.Id)
+		return -1
+	}
+
+	if !p.SetAttackTeam(req.AttackMembers) {
+		log.Error("Player[%v] set attack members[%v] failed", p.Id, req.AttackMembers)
+		return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
+	}
+
+	p.Fight2Player(req.FightPlayerId)
+
+	return 1
 }

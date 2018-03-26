@@ -712,7 +712,7 @@ func (this *Player) SetAttackTeam(team []int32) bool {
 	}
 	this.db.BattleTeam.SetAttackMembers(team)
 	this.team_changed[BATTLE_ATTACK_TEAM] = true
-	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM) {
+	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 		log.Warn("Player[%v] init attack team failed", this.Id)
 	}
 	return true
@@ -733,7 +733,7 @@ func (this *Player) SetDefenseTeam(team []int32) bool {
 	}
 	this.db.BattleTeam.SetDefenseMembers(team)
 	this.team_changed[BATTLE_ATTACK_TEAM] = false
-	if !this.defense_team.Init(this, BATTLE_DEFENSE_TEAM) {
+	if !this.defense_team.Init(this, BATTLE_DEFENSE_TEAM, 1) {
 		log.Warn("Player[%v] init defense team failed", this.Id)
 	}
 	return true
@@ -747,14 +747,14 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 
 	//changed, o := this.team_changed[BATTLE_ATTACK_TEAM]
 	//if changed || !o {
-	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM) {
+	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 		log.Error("Player[%v] init attack team failed", this.Id)
 		return -1
 	}
 	//}
 	//changed, o = p.team_changed[BATTLE_ATTACK_TEAM]
 	//if changed || !o {
-	if !p.defense_team.Init(this, BATTLE_DEFENSE_TEAM) {
+	if !p.defense_team.Init(this, BATTLE_DEFENSE_TEAM, 1) {
 		log.Error("Player[%v] init defense team failed", player_id)
 		return -1
 	}
