@@ -89,6 +89,7 @@ type MemberPassiveTriggerData struct {
 
 type TeamMember struct {
 	team             *BattleTeam
+	pos              int32
 	id               int32
 	level            int32
 	card             *table_config.XmlCardItem
@@ -430,9 +431,11 @@ func (this *TeamMember) is_dead() bool {
 }
 
 type BattleTeam struct {
-	curr_attack int32 // 当前进攻的索引
-	side        int32 // 0 左边 1 右边
-	members     []*TeamMember
+	curr_attack  int32 // 当前进攻的索引
+	side         int32 // 0 左边 1 右边
+	members      []*TeamMember
+	reports      []*msg_client_message.BattleReportItem
+	remove_buffs []*msg_client_message.BattleMemberBuff
 }
 
 // 利用玩家初始化
@@ -664,13 +667,72 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	target_team.RoundEnd()
 }
 
+// 回收战报
+func (this *BattleTeam) RecycleReports() {
+	if this.reports != nil {
+		for i := 0; i < len(this.reports); i++ {
+			r := this.reports[i]
+			if r == nil {
+				continue
+			}
+			// user
+			if r.User != nil {
+				msg_battle_member_item_pool.Put(r.User)
+			}
+			// behiters
+			if r.BeHiters != nil {
+				for j := 0; j < len(r.BeHiters); j++ {
+					if r.BeHiters[j] != nil {
+						msg_battle_member_item_pool.Put(r.BeHiters[j])
+					}
+				}
+			}
+			// add buffs
+			if r.AddBuffs != nil {
+				for j := 0; j < len(r.AddBuffs); j++ {
+					if r.AddBuffs[j] != nil {
+						msg_battle_buff_item_pool.Put(r.AddBuffs[j])
+					}
+				}
+			}
+			// remove buffs
+			if r.RemoveBuffs != nil {
+				for j := 0; j < len(r.RemoveBuffs); j++ {
+					if r.RemoveBuffs[j] != nil {
+						msg_battle_buff_item_pool.Put(r.RemoveBuffs[j])
+					}
+				}
+			}
+			msg_battle_reports_item_pool.Put(r)
+		}
+	}
+
+	if this.remove_buffs != nil {
+		for i := 0; i < len(this.remove_buffs); i++ {
+			b := this.remove_buffs[i]
+			if b == nil {
+				continue
+			}
+			msg_battle_buff_item_pool.Put(b)
+		}
+	}
+}
+
 // 开打
-func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) {
+func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) (is_win bool, rounds []*msg_client_message.BattleRoundReports) {
 	round_max := end_param
 	if end_type == BATTLE_END_BY_ALL_DEAD {
 		round_max = BATTLE_ROUND_MAX_NUM
 	} else if end_type == BATTLE_END_BY_ROUND_OVER {
 	}
+
+	this.RecycleReports()
+
+	// 存放战报
+	this.reports = make([]*msg_client_message.BattleReportItem, 0)
+	target_team.reports = this.reports
+	this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
+	target_team.remove_buffs = this.remove_buffs
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
@@ -686,10 +748,30 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 			break
 		}
 		if target_team.IsAllDead() {
+			is_win = true
 			log.Debug("target all dead")
 			break
 		}
+
+		round := msg_battle_round_reports_pool.Get()
+		round.Items = this.reports
+		round.RemoveBuffs = this.remove_buffs
+		round.RoundNum = c
+		rounds = append(rounds, round)
 	}
+
+	return
+}
+
+func (this *BattleTeam) _format_members_for_msg() (members []*msg_client_message.BattleMemberItem) {
+	for i := 0; i < len(this.members); i++ {
+		if this.members[i] == nil {
+			continue
+		}
+		mem := this.members[i].build_battle_item(int32(i), 0)
+		members = append(members, mem)
+	}
+	return
 }
 
 // 是否全挂

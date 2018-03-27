@@ -197,29 +197,40 @@ message S2CEnterGameCompleteNotify {
 //------------------------------ 战斗 ----------------------------------------
 // 
 message BattleMemberItem {
-	int32 Pos								= 1; // 位置
-	int32 HP								= 2; // 血量
-	int32 MaxHP								= 3; // 最大血量
-	int32 Damage 							= 4; // 伤害
-	int32 Energy							= 5; // 能量
-	repeated int32 BuffIds					= 6; // BUFF
+	int32 Id								= 1; // 实例ID
+	int32 Pos								= 2; // 位置
+	int32 HP								= 3; // 血量
+	int32 MaxHP								= 4; // 最大血量
+	int32 Damage 							= 5; // 伤害
+	int32 Energy							= 6; // 能量
+	int32 TableId							= 7; // 配置ID
 }
 
-// 战报项
+message BattleMemberBuff {
+	int32 Side								= 1; // 0 左  1 右
+	int32 MemId								= 2; // 实例ID
+	int32 Pos								= 3; // 位置
+	int32 BuffId 							= 4; // buff id
+}
+
+// 战报项(一次攻击的结果)
 message BattleReportItem {
 	int32 Side								= 1; // 0 左边向右打  1 右边向左打
 	int32 SkillId							= 2; // 技能ID
 	BattleMemberItem User					= 3; // 技能使用者
 	repeated BattleMemberItem BeHiters 		= 4; // 技能受击者
-	bool IsPassive							= 5; // 是否被动技
-	bool IsCritical							= 6; // 是否暴击
-	bool IsBlock							= 7; // 是否格挡
+	repeated BattleMemberBuff AddBuffs		= 5; // 增加的BUFF
+	repeated BattleMemberBuff RemoveBuffs   = 6; // 删除的BUFF
+	bool IsPassive							= 7; // 是否被动技
+	bool IsCritical							= 8; // 是否暴击
+	bool IsBlock							= 9; // 是否格挡
 }
 
 // 一回合战报
 message BattleRoundReports {
 	int32 RoundNum							= 1; // 回合编号
 	repeated BattleReportItem items			= 2; // 回合战报列表
+	repeated BattleMemberBuff RemoveBuffs   = 3; // 回合结束的BUFF
 }
 
 // 请求战斗结果

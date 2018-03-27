@@ -72,6 +72,7 @@ func (this *HallServer) OnInit() (err error) {
 	buff_pool.Init()
 	passive_trigger_data_pool.Init()
 	msg_battle_member_item_pool.Init()
+	msg_battle_buff_item_pool.Init()
 	msg_battle_reports_item_pool.Init()
 	msg_battle_round_reports_pool.Init()
 
@@ -367,5 +368,6 @@ var battle_report_pool BattleReportPool
 var buff_pool BuffPool
 var passive_trigger_data_pool MemberPassiveTriggerDataPool
 var msg_battle_member_item_pool MsgBattleMemberItemPool
+var msg_battle_buff_item_pool MsgBattleMemberBuffPool
 var msg_battle_reports_item_pool MsgBattleReportItemPool
 var msg_battle_round_reports_pool MsgBattleRoundReportsPool

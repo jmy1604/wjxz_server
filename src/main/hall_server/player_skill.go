@@ -594,7 +594,7 @@ func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect 
 }
 
 // 技能效果
-func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (reports []*msg_client_message.BattleReportItem) {
+func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) {
 	effects := skill_data.Effects
 	self := self_team.members[self_pos]
 	if self == nil {
@@ -602,8 +602,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	}
 
 	// 战报
-	report := build_battle_report_item(self_team, self_pos, 0, skill_data.Type, false, false, false)
-	reports = append(reports, report)
+	report := build_battle_report_item(self_team, self_pos, 0, skill_data.Id, false, false, false)
+	self_team.reports = append(self_team.reports, report)
 
 	for i := 0; i < len(effects); i++ {
 		if effects[i] == nil || len(effects[i]) < 1 {
@@ -743,6 +743,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 治疗
 				cure := skill_effect_cure(self, target, effects[i])
 				if cure != 0 {
+					// ------------------ 战报 -------------------
+					build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure)
+					// -------------------------------------------
 					target.add_hp(cure)
 					// 被动技，治疗时触发
 					if skill_data.Type != SKILL_TYPE_PASSIVE {
@@ -753,6 +756,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_BUFF {
 				// 施加BUFF
 				buff_id := skill_effect_add_buff(self, target, effects[i])
+				// -------------------- 战报 --------------------
+				build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
+				// ----------------------------------------------
 				if buff_id > 0 {
 					log.Debug("role[%v] use skill[%v] to target[%v] add buff[%v]", self.id, skill_data.Id, target.id, buff_id)
 				}
@@ -763,6 +769,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				for i := 0; i < (len(effects[i])-1)/2; i++ {
 					target.attrs[effects[i][1+2*i]] = effects[i][1+2*i+1]
 				}
+				// -------------------- 战报 --------------------
+				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
+				// ----------------------------------------------
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
 				// 改变普通攻击技能ID
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL {
@@ -773,6 +782,14 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					if rand.Int31n(10000) > effects[i][3] {
 						target.energy += effects[i][1]
 						self.energy += effects[i][2]
+						// -------------------- 战报 ----------------------
+						if effects[i][1] > 0 {
+							build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
+						}
+						if effects[i][2] > 0 {
+							report.User.Energy = self.energy
+						}
+						// ------------------------------------------------
 					}
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM {
@@ -883,6 +900,21 @@ func (this *BuffList) remove_buff(buff *Buff) {
 	log.Debug("@@@@@@@@@ remove buff[%v][%p][%v]", buff.buff.Id, buff, buff)
 }
 
+// 战报删除BUFF
+func (this *BuffList) add_remove_buff_report(buff_id int32) {
+	buff := msg_battle_buff_item_pool.Get()
+	buff.Pos = this.owner.pos
+	buff.BuffId = buff_id
+	buff.MemId = this.owner.id
+	buff.Side = this.owner.team.side
+	if this.owner.team.reports == nil {
+		report := msg_battle_reports_item_pool.Get()
+		this.owner.team.reports = []*msg_client_message.BattleReportItem{report}
+	}
+	r := this.owner.team.reports[len(this.owner.team.reports)-1]
+	r.RemoveBuffs = append(r.RemoveBuffs, buff)
+}
+
 func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 	hh := this.head
 	for hh != nil {
@@ -902,12 +934,14 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 		for j := 0; j < len(hh.buff.CancelMutexTypes); j++ {
 			if b.MutexType == hh.buff.CancelMutexTypes[j] {
 				this.remove_buff(hh)
+				this.add_remove_buff_report(hh.buff.Id)
 				log.Debug("BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
 			}
 		}
 		for j := 0; j < len(hh.buff.CancelMutexIDs); j++ {
 			if b.Id == hh.buff.CancelMutexIDs[j] {
 				this.remove_buff(hh)
+				this.add_remove_buff_report(hh.buff.Id)
 				log.Debug("BUFF[%v]驱散了BUFF[%v]", b.Id, hh.buff.Id)
 			}
 		}
@@ -954,6 +988,14 @@ func (this *BuffList) on_round_end() {
 			bf.round_num -= 1
 			if bf.round_num <= 0 {
 				this.remove_buff(bf)
+				// --------------------------- 战报 ---------------------------
+				b := msg_battle_buff_item_pool.Get()
+				b.BuffId = bf.buff.Id
+				b.Pos = this.owner.pos
+				b.MemId = this.owner.id
+				b.Side = this.owner.team.side
+				this.owner.team.remove_buffs = append(this.owner.team.remove_buffs, b)
+				// ------------------------------------------------------------
 				log.Debug("role[%v] buff[%v] round over", this.owner.id, bf.buff.Id)
 			}
 		}

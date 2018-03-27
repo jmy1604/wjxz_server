@@ -114,6 +114,27 @@ func (this *MsgBattleMemberItemPool) Put(item *msg_client_message.BattleMemberIt
 	this.pool.Put(item)
 }
 
+// MsgBattleMemberBuffPool
+type MsgBattleMemberBuffPool struct {
+	pool *sync.Pool
+}
+
+func (this *MsgBattleMemberBuffPool) Init() {
+	this.pool = &sync.Pool{
+		New: func() interface{} {
+			return &msg_client_message.BattleMemberBuff{}
+		},
+	}
+}
+
+func (this *MsgBattleMemberBuffPool) Get() *msg_client_message.BattleMemberBuff {
+	return this.pool.Get().(*msg_client_message.BattleMemberBuff)
+}
+
+func (this *MsgBattleMemberBuffPool) Put(buff *msg_client_message.BattleMemberBuff) {
+	this.pool.Put(buff)
+}
+
 // MsgBattleReportItemPool
 type MsgBattleReportItemPool struct {
 	pool *sync.Pool

@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	_ "net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 	_ "public_message/gen_go/server_message"
 	"sync"
 	"time"
@@ -760,7 +761,16 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	}
 	//}
 
-	this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+	is_win, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+
+	response := &msg_client_message.S2CBattleResultResponse{
+		IsWin:      is_win,
+		Rounds:     rounds,
+		MyTeam:     this.attack_team._format_members_for_msg(),
+		TargetTeam: p.defense_team._format_members_for_msg(),
+	}
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	return 1
 }
