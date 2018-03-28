@@ -166,6 +166,7 @@ func (this *MsgHandlerMgr) SetMsgHandler(msg_code uint16, msg_handler CLIENT_MSG
 
 func (this *MsgHandlerMgr) RegisterMsgHandler() {
 	this.SetMsgHandler(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_RESPONSE), S2CEnterGameHandler)
+	this.SetMsgHandler(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), S2CBattleResultHandler)
 }
 
 func hall_conn_msgid2msg(msg_id uint16) proto.Message {
@@ -173,6 +174,8 @@ func hall_conn_msgid2msg(msg_id uint16) proto.Message {
 		return &msg_client_message.S2CEnterGameResponse{}
 	} else if msg_id == uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_COMPLETE_NOTIFY) {
 		return &msg_client_message.S2CEnterGameCompleteNotify{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE) {
+		return &msg_client_message.S2CBattleResultResponse{}
 	} else {
 		log.Error("Cant found proto message by msg_id[%v]", msg_id)
 	}
@@ -192,4 +195,67 @@ func S2CEnterGameHandler(hall_conn *HallConnection, m proto.Message) {
 	log.Info("player[%v]收到进入游戏服务器返回 %v", res.GetAcc(), res)
 
 	return
+}
+
+func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
+	response := m.(*msg_client_message.S2CBattleResultResponse)
+	if response.IsWin {
+		log.Debug("Player[%v] wins", hall_conn.playerid)
+	} else {
+		log.Debug("Player[%v] lost", hall_conn.playerid)
+	}
+
+	if response.MyTeam != nil {
+		log.Debug("My team:")
+		for i := 0; i < len(response.MyTeam); i++ {
+			m := response.MyTeam[i]
+			if m == nil {
+				continue
+			}
+			log.Debug("		 Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
+		}
+	}
+	if response.TargetTeam != nil {
+		log.Debug("Target team:")
+		for i := 0; i < len(response.TargetTeam); i++ {
+			m := response.TargetTeam[i]
+			if m == nil {
+				continue
+			}
+			log.Debug("		 Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
+		}
+	}
+	if response.Rounds != nil {
+		log.Debug("Round num: %v", len(response.Rounds))
+		for i := 0; i < len(response.Rounds); i++ {
+			r := response.Rounds[i]
+			log.Debug("		 round[%v]", r.RoundNum)
+			if r.Reports != nil {
+				for j := 0; j < len(r.Reports); j++ {
+					rr := r.Reports[j]
+					log.Debug("		 	report: side[%v]", rr.Side)
+					log.Debug("					 skill_id: %v", rr.SkillId)
+					log.Debug("					 user: %v", rr.User)
+					if rr.BeHiters != nil {
+						for n := 0; n < len(rr.BeHiters); n++ {
+							log.Debug("					 behiter: %v", rr.BeHiters[n])
+						}
+					}
+					if rr.AddBuffs != nil {
+						for n := 0; n < len(rr.AddBuffs); n++ {
+							log.Debug("					 add buff: %v", rr.AddBuffs[n])
+						}
+					}
+					if rr.RemoveBuffs != nil {
+						for n := 0; n < len(rr.RemoveBuffs); n++ {
+							log.Debug("					 remove buff: %v", rr.RemoveBuffs[n])
+						}
+					}
+				}
+			}
+			if r.RemoveBuffs != nil {
+				log.Debug("		 	remove buffs: %v\n", r.RemoveBuffs)
+			}
+		}
+	}
 }

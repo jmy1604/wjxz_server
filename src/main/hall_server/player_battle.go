@@ -678,6 +678,7 @@ func (this *BattleTeam) RecycleReports() {
 			// user
 			if r.User != nil {
 				msg_battle_member_item_pool.Put(r.User)
+				r.User = nil
 			}
 			// behiters
 			if r.BeHiters != nil {
@@ -686,25 +687,32 @@ func (this *BattleTeam) RecycleReports() {
 						msg_battle_member_item_pool.Put(r.BeHiters[j])
 					}
 				}
+				r.BeHiters = nil
 			}
 			// add buffs
 			if r.AddBuffs != nil {
 				for j := 0; j < len(r.AddBuffs); j++ {
 					if r.AddBuffs[j] != nil {
 						msg_battle_buff_item_pool.Put(r.AddBuffs[j])
+						r.AddBuffs[j] = nil
 					}
 				}
+				r.AddBuffs = nil
 			}
 			// remove buffs
 			if r.RemoveBuffs != nil {
 				for j := 0; j < len(r.RemoveBuffs); j++ {
 					if r.RemoveBuffs[j] != nil {
 						msg_battle_buff_item_pool.Put(r.RemoveBuffs[j])
+						r.RemoveBuffs[j] = nil
 					}
 				}
+				r.RemoveBuffs = nil
 			}
 			msg_battle_reports_item_pool.Put(r)
+			this.reports[i] = nil
 		}
+		this.reports = nil
 	}
 
 	if this.remove_buffs != nil {
@@ -714,7 +722,9 @@ func (this *BattleTeam) RecycleReports() {
 				continue
 			}
 			msg_battle_buff_item_pool.Put(b)
+			this.remove_buffs[i] = nil
 		}
+		this.remove_buffs = nil
 	}
 }
 
@@ -730,9 +740,11 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	// 存放战报
 	this.reports = make([]*msg_client_message.BattleReportItem, 0)
-	target_team.reports = this.reports
 	this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
-	target_team.remove_buffs = this.remove_buffs
+	if this != target_team {
+		target_team.reports = this.reports
+		target_team.remove_buffs = this.remove_buffs
+	}
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
@@ -742,7 +754,15 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	for c := int32(0); c < round_max; c++ {
 		log.Debug("------------------------------------ Round[%v] ----------------------------------", c+1)
+
 		this.DoRound(target_team)
+
+		round := msg_battle_round_reports_pool.Get()
+		round.Reports = this.reports
+		round.RemoveBuffs = this.remove_buffs
+		round.RoundNum = c + 1
+		rounds = append(rounds, round)
+
 		if this.IsAllDead() {
 			log.Debug("self all dead")
 			break
@@ -753,11 +773,12 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 			break
 		}
 
-		round := msg_battle_round_reports_pool.Get()
-		round.Items = this.reports
-		round.RemoveBuffs = this.remove_buffs
-		round.RoundNum = c
-		rounds = append(rounds, round)
+		this.reports = make([]*msg_client_message.BattleReportItem, 0)
+		this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
+		if this != target_team {
+			target_team.reports = this.reports
+			target_team.remove_buffs = this.remove_buffs
+		}
 	}
 
 	return

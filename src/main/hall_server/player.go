@@ -761,13 +761,15 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	}
 	//}
 
+	my_team := this.attack_team._format_members_for_msg()
+	target_team := p.defense_team._format_members_for_msg()
 	is_win, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
 
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:      is_win,
 		Rounds:     rounds,
-		MyTeam:     this.attack_team._format_members_for_msg(),
-		TargetTeam: p.defense_team._format_members_for_msg(),
+		MyTeam:     my_team,
+		TargetTeam: target_team,
 	}
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)

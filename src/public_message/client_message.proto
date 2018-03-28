@@ -53,19 +53,19 @@ enum E_ERR {
 	SHOP_ITEM_NOT_ENOUGH					= -400004;
 	
 	// 任务错误码
-	TASK_NOT_FOUND				= -101600; // 任务不存在
-	TASK_NOT_COMPLETE				= -101601; // 任务未完成
-	TASK_NOT_REWARD				= -101602; // 未领奖
-	TASK_ALREADY_REWARDED			= -101603; // 已领奖
-	TASK_LEVEL_NOT_ENOUGH			= -101604; // 等级不足
-	TASK_PREV_NOT_COMPLETE		= -101605; // 前置任务未完成
+	TASK_NOT_FOUND							= -101600; // 任务不存在
+	TASK_NOT_COMPLETE						= -101601; // 任务未完成
+	TASK_NOT_REWARD							= -101602; // 未领奖
+	TASK_ALREADY_REWARDED					= -101603; // 已领奖
+	TASK_LEVEL_NOT_ENOUGH					= -101604; // 等级不足
+	TASK_PREV_NOT_COMPLETE					= -101605; // 前置任务未完成
 	
 	// 世界聊天
-	WORLDCHAT_SEND_MSG_COOLING_DOWN   = -102300; // 世界聊天发送消息还在冷却中
-	WORLDCHAT_SEND_MSG_BYTES_TOO_LONG = -102301; // 世界聊天消息超长
-	WORLDCHAT_CANT_SEND_WITH_NO_FREE	= -102302; // 世界聊天内部错误没有空闲的节点
-	WORLDCHAT_PULL_COOLING_DOWN       = -102303; // 世界聊天拉取消息还在冷却中
-	WORLDCHAT_SEND_MSG_BE_FORBIDEN    = -102304; // 你被禁言了
+	WORLDCHAT_SEND_MSG_COOLING_DOWN   		= -102300; // 世界聊天发送消息还在冷却中
+	WORLDCHAT_SEND_MSG_BYTES_TOO_LONG 		= -102301; // 世界聊天消息超长
+	WORLDCHAT_CANT_SEND_WITH_NO_FREE		= -102302; // 世界聊天内部错误没有空闲的节点
+	WORLDCHAT_PULL_COOLING_DOWN       		= -102303; // 世界聊天拉取消息还在冷却中
+	WORLDCHAT_SEND_MSG_BE_FORBIDEN   		= -102304; // 你被禁言了
 }
 
 ////////////////////////////////////end////////////////////////////////////////
@@ -193,9 +193,35 @@ message S2CEnterGameResponse {
 message S2CEnterGameCompleteNotify {
 }
 
+// 请求角色
+message C2SRolesRequest {
+}
+message AttrData {
+	int32 AttrId 					= 1;
+	int32 Value						= 2;
+}
+message Role {
+	int32 Id						= 1;
+	int32 TableId					= 2;
+	repeated AttrData Attrs			= 3;
+}
+// 请求角色返回
+message S2CRolesResponse {
+	repeated Role Roles				= 1;
+}
 
 //------------------------------ 战斗 ----------------------------------------
-// 
+// 设置阵营
+message C2SSetTeamRequest {
+	int32 TeamType							= 1; // 0 进攻阵容  1 防守阵容
+	repeated int32 TeamMembers				= 2;
+}
+message S2CSetTeamResponse {
+	int32 TeamType							= 1;
+	repeated int32 TeamMembers				= 2;
+}
+
+// 阵营成员
 message BattleMemberItem {
 	int32 Id								= 1; // 实例ID
 	int32 Pos								= 2; // 位置
@@ -229,7 +255,7 @@ message BattleReportItem {
 // 一回合战报
 message BattleRoundReports {
 	int32 RoundNum							= 1; // 回合编号
-	repeated BattleReportItem items			= 2; // 回合战报列表
+	repeated BattleReportItem Reports		= 2; // 回合战报列表
 	repeated BattleMemberBuff RemoveBuffs   = 3; // 回合结束的BUFF
 }
 

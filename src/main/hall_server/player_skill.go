@@ -658,6 +658,20 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 直接伤害
 				target_dmg, self_dmg, is_block, is_critical := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effects[i])
 
+				if target_dmg != 0 {
+					target.add_hp(-target_dmg)
+
+				}
+				if self_dmg != 0 {
+					// 被动技，自己死亡前触发
+					if !self.is_dead() && self.hp <= self_dmg {
+						if skill_data.Type != SKILL_TYPE_PASSIVE {
+							passive_skill_effect(EVENT_BEFORE_SELF_DEAD, self_team, self_pos, nil, nil)
+						}
+					}
+					self.add_hp(-self_dmg)
+				}
+
 				//----------- 战报 -------------
 				report.User.Damage += self_dmg
 				report.IsPassive = false
@@ -670,25 +684,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg)
 				//------------------------------
 
-				if target_dmg != 0 {
-					target.add_hp(-target_dmg)
-					// 被动技，血量变化
-					if skill_data.Type != SKILL_TYPE_PASSIVE {
-						passive_skill_effect(EVENT_HP_CHANGED, target_team, target_pos[j], nil, nil)
-					}
+				// 被动技，血量变化
+				if target_dmg != 0 && skill_data.Type != SKILL_TYPE_PASSIVE {
+					passive_skill_effect(EVENT_HP_CHANGED, target_team, target_pos[j], nil, nil)
 				}
-				if self_dmg != 0 {
-					// 被动技，自己死亡前触发
-					if !self.is_dead() && self.hp <= self_dmg {
-						if skill_data.Type != SKILL_TYPE_PASSIVE {
-							passive_skill_effect(EVENT_BEFORE_SELF_DEAD, self_team, self_pos, nil, nil)
-						}
-					}
-					self.add_hp(-self_dmg)
-					// 被动技，血量变化
-					if skill_data.Type != SKILL_TYPE_PASSIVE {
-						passive_skill_effect(EVENT_HP_CHANGED, self_team, self_pos, nil, nil)
-					}
+				// 被动技，血量变化
+				if self_dmg != 0 && skill_data.Type != SKILL_TYPE_PASSIVE {
+					passive_skill_effect(EVENT_HP_CHANGED, self_team, self_pos, nil, nil)
 				}
 
 				// 对方有死亡

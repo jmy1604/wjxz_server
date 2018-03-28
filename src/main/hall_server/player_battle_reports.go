@@ -7,6 +7,8 @@ import (
 
 func (this *TeamMember) build_battle_item(pos int32, damage int32) *msg_client_message.BattleMemberItem {
 	item := msg_battle_member_item_pool.Get()
+	item.Id = this.id
+	item.TableId = this.card.ClientId
 	item.Pos = pos
 	item.HP = this.hp
 	item.MaxHP = this.attrs[ATTR_HP_MAX]
@@ -55,6 +57,8 @@ func build_battle_report_add_buff(item *msg_client_message.BattleReportItem, tar
 	buff.Side = target_team.side
 	buff.Pos = target_pos
 	buff.BuffId = buff_id
+	mem := target_team.members[target_pos]
+	buff.MemId = mem.id
 	if item.AddBuffs == nil {
 		item.AddBuffs = []*msg_client_message.BattleMemberBuff{buff}
 	} else {
@@ -70,6 +74,8 @@ func build_battle_report_remove_buff(item *msg_client_message.BattleReportItem, 
 	buff.Side = target_team.side
 	buff.Pos = target_pos
 	buff.BuffId = buff_id
+	mem := target_team.members[target_pos]
+	buff.MemId = mem.id
 	if item.RemoveBuffs == nil {
 		item.RemoveBuffs = []*msg_client_message.BattleMemberBuff{buff}
 	} else {
