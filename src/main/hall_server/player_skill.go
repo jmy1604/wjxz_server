@@ -618,7 +618,7 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, effect [
 	}
 
 	if mem == nil {
-		log.Warn("Cant found empty pos to summon %v for team[%v]", effect[1])
+		log.Warn("Cant found empty pos to summon %v for team[%v]", effect[1], target_team.side)
 	}
 
 	return
