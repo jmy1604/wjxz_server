@@ -82,7 +82,7 @@ func (this *CardTableMgr) Load() bool {
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
 
-		pids := parse_xml_str_arr(tmp_item.PassiveSkillIDStr, ",")
+		pids := parse_xml_str_arr2(tmp_item.PassiveSkillIDStr, ",")
 		if pids == nil {
 			tmp_item.PassiveSkillIds = make([]int32, 0)
 		} else {

@@ -235,26 +235,31 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 					rr := r.Reports[j]
 					log.Debug("		 	report: side[%v]", rr.Side)
 					log.Debug("					 skill_id: %v", rr.SkillId)
-					log.Debug("					 user: %v", rr.User)
+					log.Debug("					 user: Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.User.Id, rr.User.Pos, rr.User.HP, rr.User.MaxHP, rr.User.Energy, rr.User.Damage, rr.User.TableId)
 					if rr.BeHiters != nil {
 						for n := 0; n < len(rr.BeHiters); n++ {
-							log.Debug("					 behiter: %v", rr.BeHiters[n])
+							log.Debug("					 behiter: Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.BeHiters[n].Id, rr.BeHiters[n].Pos, rr.BeHiters[n].HP, rr.BeHiters[n].MaxHP, rr.BeHiters[n].Energy, rr.BeHiters[n].Damage, rr.BeHiters[n].TableId)
 						}
 					}
 					if rr.AddBuffs != nil {
 						for n := 0; n < len(rr.AddBuffs); n++ {
-							log.Debug("					 add buff: %v", rr.AddBuffs[n])
+							log.Debug("					 add buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.AddBuffs[n].Side, rr.AddBuffs[n].Pos, rr.AddBuffs[n].BuffId, rr.AddBuffs[n].MemId)
 						}
 					}
 					if rr.RemoveBuffs != nil {
 						for n := 0; n < len(rr.RemoveBuffs); n++ {
-							log.Debug("					 remove buff: %v", rr.RemoveBuffs[n])
+							log.Debug("					 remove buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.RemoveBuffs[n].Side, rr.RemoveBuffs[n].Pos, rr.RemoveBuffs[n].BuffId, rr.RemoveBuffs[n].MemId)
 						}
 					}
+					log.Debug("					 is_critical: %v", rr.IsCritical)
+					log.Debug("					 is_block: %v", rr.IsBlock)
 				}
 			}
 			if r.RemoveBuffs != nil {
-				log.Debug("		 	remove buffs: %v\n", r.RemoveBuffs)
+				for j := 0; j < len(r.RemoveBuffs); j++ {
+					b := r.RemoveBuffs[j]
+					log.Debug("		 	remove buffs: Side[%v], Pos[%v], BuffId[%v], MemId[%v]\n", b.Side, b.Pos, b.BuffId, b.MemId)
+				}
 			}
 		}
 	}

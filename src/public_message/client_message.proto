@@ -230,6 +230,7 @@ message BattleMemberItem {
 	int32 Damage 							= 5; // 伤害
 	int32 Energy							= 6; // 能量
 	int32 TableId							= 7; // 配置ID
+	bool IsSummon						 	= 8; // 是否召唤出来
 }
 
 message BattleMemberBuff {
@@ -247,9 +248,8 @@ message BattleReportItem {
 	repeated BattleMemberItem BeHiters 		= 4; // 技能受击者
 	repeated BattleMemberBuff AddBuffs		= 5; // 增加的BUFF
 	repeated BattleMemberBuff RemoveBuffs   = 6; // 删除的BUFF
-	bool IsPassive							= 7; // 是否被动技
-	bool IsCritical							= 8; // 是否暴击
-	bool IsBlock							= 9; // 是否格挡
+	bool IsCritical							= 7; // 是否暴击
+	bool IsBlock							= 8; // 是否格挡
 }
 
 // 一回合战报

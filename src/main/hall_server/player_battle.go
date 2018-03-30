@@ -101,6 +101,7 @@ type TeamMember struct {
 	attrs            []int32
 	bufflist_arr     []BuffList
 	passive_triggers map[int32][]*MemberPassiveTriggerData
+	is_summon        bool
 }
 
 func (this *TeamMember) add_skill_attr(skill_id int32) {
@@ -130,9 +131,9 @@ func (this *TeamMember) init_passive_data(role_card *table_config.XmlCardItem) {
 			continue
 		}
 
-		if skill.TriggerBattleMax <= 0 || skill.TriggerRoundMax <= 0 {
+		/*if skill.TriggerBattleMax <= 0 || skill.TriggerRoundMax <= 0 {
 			continue
-		}
+		}*/
 
 		if this.passive_triggers == nil {
 			this.passive_triggers = make(map[int32][]*MemberPassiveTriggerData)
@@ -142,6 +143,12 @@ func (this *TeamMember) init_passive_data(role_card *table_config.XmlCardItem) {
 		d.skill = skill
 		d.battle_num = skill.TriggerBattleMax
 		d.round_num = skill.TriggerRoundMax
+		if skill.TriggerBattleMax <= 0 {
+			d.battle_num = -1
+		}
+		if skill.TriggerRoundMax <= 0 {
+			d.round_num = -1
+		}
 		datas := this.passive_triggers[skill.SkillTriggerType]
 		if datas == nil {
 			this.passive_triggers[skill.SkillTriggerType] = []*MemberPassiveTriggerData{d}
@@ -164,7 +171,7 @@ func (this *TeamMember) can_passive_trigger(trigger_event int32, skill_id int32)
 		if d[i].skill.Id != skill_id {
 			continue
 		}
-		if d[i].battle_num > 0 && d[i].round_num > 0 {
+		if d[i].battle_num != 0 && d[i].round_num != 0 {
 			trigger = true
 		}
 		break
@@ -192,7 +199,7 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 		if d[i].round_num > 0 {
 			d[i].round_num -= 1
 		}
-		if d[i].battle_num <= 0 || d[i].round_num <= 0 {
+		if d[i].battle_num == 0 || d[i].round_num == 0 {
 			passive_trigger_data_pool.Put(d[i])
 		}
 		break
@@ -430,12 +437,16 @@ func (this *TeamMember) is_dead() bool {
 	return true
 }
 
-type BattleTeam struct {
-	curr_attack  int32 // 当前进攻的索引
-	side         int32 // 0 左边 1 右边
-	members      []*TeamMember
+type BattleReports struct {
 	reports      []*msg_client_message.BattleReportItem
 	remove_buffs []*msg_client_message.BattleMemberBuff
+}
+
+type BattleTeam struct {
+	curr_attack int32 // 当前进攻的索引
+	side        int32 // 0 左边 1 右边
+	members     []*TeamMember
+	reports     *BattleReports
 }
 
 // 利用玩家初始化
@@ -601,7 +612,7 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 }
 
 func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
-	is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, 0)
+	is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, trigger_skill)
 	if target_pos == nil {
 		log.Warn("Self index[%v] Cant find targets to attack with skill[%v]", self_index, skill.Id)
 		return nil
@@ -643,12 +654,12 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 	// 被动技，回合行动前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect(EVENT_BEFORE_ROUND, this, i, nil, target_team)
-		passive_skill_effect(EVENT_BEFORE_ROUND, target_team, i, nil, this)
+		passive_skill_effect(EVENT_BEFORE_ROUND, this, i, target_team, nil)
+		passive_skill_effect(EVENT_BEFORE_ROUND, target_team, i, this, nil)
 	}
 
 	var self_index, target_index int32
-	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM && target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
+	for self_index < BATTLE_TEAM_MEMBER_MAX_NUM || target_index < BATTLE_TEAM_MEMBER_MAX_NUM {
 		for ; self_index < BATTLE_TEAM_MEMBER_MAX_NUM; self_index++ {
 			if this.UseSkill(self_index, target_team) >= 0 {
 				self_index += 1
@@ -669,9 +680,9 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 // 回收战报
 func (this *BattleTeam) RecycleReports() {
-	if this.reports != nil {
-		for i := 0; i < len(this.reports); i++ {
-			r := this.reports[i]
+	if this.reports != nil && this.reports.reports != nil {
+		for i := 0; i < len(this.reports.reports); i++ {
+			r := this.reports.reports[i]
 			if r == nil {
 				continue
 			}
@@ -710,21 +721,21 @@ func (this *BattleTeam) RecycleReports() {
 				r.RemoveBuffs = nil
 			}
 			msg_battle_reports_item_pool.Put(r)
-			this.reports[i] = nil
+			this.reports.reports[i] = nil
 		}
-		this.reports = nil
+		this.reports.reports = nil
 	}
 
-	if this.remove_buffs != nil {
-		for i := 0; i < len(this.remove_buffs); i++ {
-			b := this.remove_buffs[i]
+	if this.reports != nil && this.reports.remove_buffs != nil {
+		for i := 0; i < len(this.reports.remove_buffs); i++ {
+			b := this.reports.remove_buffs[i]
 			if b == nil {
 				continue
 			}
 			msg_battle_buff_item_pool.Put(b)
-			this.remove_buffs[i] = nil
+			this.reports.remove_buffs[i] = nil
 		}
-		this.remove_buffs = nil
+		this.reports.remove_buffs = nil
 	}
 }
 
@@ -739,17 +750,17 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	this.RecycleReports()
 
 	// 存放战报
-	this.reports = make([]*msg_client_message.BattleReportItem, 0)
-	this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
-	if this != target_team {
+	if this.reports == nil {
+		this.reports = &BattleReports{}
 		target_team.reports = this.reports
-		target_team.remove_buffs = this.remove_buffs
 	}
+	this.reports.reports = make([]*msg_client_message.BattleReportItem, 0)
+	this.reports.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect(EVENT_ENTER_BATTLE, this, i, nil, target_team)
-		passive_skill_effect(EVENT_ENTER_BATTLE, target_team, i, nil, this)
+		passive_skill_effect(EVENT_ENTER_BATTLE, this, i, target_team, nil)
+		passive_skill_effect(EVENT_ENTER_BATTLE, target_team, i, this, nil)
 	}
 
 	for c := int32(0); c < round_max; c++ {
@@ -758,8 +769,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.DoRound(target_team)
 
 		round := msg_battle_round_reports_pool.Get()
-		round.Reports = this.reports
-		round.RemoveBuffs = this.remove_buffs
+		round.Reports = this.reports.reports
+		round.RemoveBuffs = this.reports.remove_buffs
 		round.RoundNum = c + 1
 		rounds = append(rounds, round)
 
@@ -773,12 +784,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 			break
 		}
 
-		this.reports = make([]*msg_client_message.BattleReportItem, 0)
-		this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
-		if this != target_team {
-			target_team.reports = this.reports
-			target_team.remove_buffs = this.remove_buffs
-		}
+		this.reports.reports = make([]*msg_client_message.BattleReportItem, 0)
+		this.reports.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
 	}
 
 	return

@@ -593,6 +593,37 @@ func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect 
 	return
 }
 
+// 召唤
+func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, effect []int32) (mem *TeamMember) {
+	new_card := card_table_mgr.GetRankCard(effect[1], self_mem.card.Rank)
+	if new_card == nil {
+		log.Error("summon skill %v not found", effect[1])
+		return
+	}
+
+	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		if target_team.members[i] != nil {
+			continue
+		}
+		mem = team_member_pool.Get()
+		mem.init(target_team, 0, self_mem.level, new_card)
+		mem.hp = mem.hp * effect[2] / 10000
+		mem.attrs[ATTR_HP] = mem.hp
+		mem.attrs[ATTR_HP_MAX] = mem.hp
+		mem.attack = mem.attack * effect[3] / 10000
+		mem.attrs[ATTR_ATTACK] = mem.attack
+		mem.is_summon = true
+		target_team.members[i] = mem
+		break
+	}
+
+	if mem == nil {
+		log.Warn("Cant found empty pos to summon %v for team[%v]", effect[1])
+	}
+
+	return
+}
+
 // 技能效果
 func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) {
 	effects := skill_data.Effects
@@ -602,8 +633,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	}
 
 	// 战报
-	report := build_battle_report_item(self_team, self_pos, 0, skill_data.Id, false, false, false)
-	self_team.reports = append(self_team.reports, report)
+	report := build_battle_report_item(self_team, self_pos, 0, skill_data.Id, false, false)
+	self_team.reports.reports = append(self_team.reports.reports, report)
 
 	for i := 0; i < len(effects); i++ {
 		if effects[i] == nil || len(effects[i]) < 1 {
@@ -627,7 +658,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 		// 被动技，攻击计算伤害前触发
 		if skill_data.Type != SKILL_TYPE_PASSIVE && effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
-			passive_skill_effect(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_pos, target_team)
+			passive_skill_effect(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos)
 		}
 
 		// 对方是否有成员死亡
@@ -646,7 +677,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				// 被动技，被击计算伤害前触发
 				if skill_data.Type != SKILL_TYPE_PASSIVE {
-					passive_skill_effect(EVENT_BEFORE_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], []int32{self_pos}, self_team)
+					passive_skill_effect(EVENT_BEFORE_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos})
 				}
 
 				if self.is_dead() {
@@ -674,7 +705,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				//----------- 战报 -------------
 				report.User.Damage += self_dmg
-				report.IsPassive = false
 				if is_block {
 					report.IsBlock = is_block
 				}
@@ -702,12 +732,12 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if skill_data.Type != SKILL_TYPE_PASSIVE {
 					// 被击计算伤害后触发
 					if !self.is_dead() {
-						passive_skill_effect(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], []int32{self_pos}, self_team)
+						passive_skill_effect(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos})
 					}
 
 					// 自身死亡时触发
 					if self.is_dead() {
-						passive_skill_effect(EVENT_AFTER_SELF_DEAD, self_team, self_pos, nil, target_team)
+						passive_skill_effect(EVENT_AFTER_SELF_DEAD, self_team, self_pos, target_team, nil)
 						// 队友死亡触发
 						for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
 							team_mem := self_team.members[pos]
@@ -715,7 +745,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 								continue
 							}
 							if pos != self_pos {
-								passive_skill_effect(EVENT_AFTER_TEAMMATE_DEAD, self_team, pos, []int32{self_pos}, self_team)
+								passive_skill_effect(EVENT_AFTER_TEAMMATE_DEAD, self_team, pos, self_team, []int32{self_pos})
 							}
 						}
 						// 相对于敌方死亡时触发
@@ -724,23 +754,23 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							if team_mem == nil || team_mem.is_dead() {
 								continue
 							}
-							passive_skill_effect(EVENT_AFTER_ENEMY_DEAD, target_team, pos, []int32{self_pos}, self_team)
+							passive_skill_effect(EVENT_AFTER_ENEMY_DEAD, target_team, pos, self_team, []int32{self_pos})
 						}
 					}
 
 					// 格挡触发
 					if is_block {
-						passive_skill_effect(EVENT_BE_BLOCK, self_team, self_pos, []int32{target_pos[j]}, target_team)
-						passive_skill_effect(EVENT_BLOCK, target_team, target_pos[j], []int32{self_pos}, self_team)
+						passive_skill_effect(EVENT_BE_BLOCK, self_team, self_pos, target_team, []int32{target_pos[j]})
+						passive_skill_effect(EVENT_BLOCK, target_team, target_pos[j], self_team, []int32{self_pos})
 					}
 					// 暴击触发
 					if is_critical {
-						passive_skill_effect(EVENT_BE_CRITICAL, self_team, self_pos, []int32{target_pos[j]}, target_team)
-						passive_skill_effect(EVENT_CRITICAL, target_team, target_pos[j], []int32{self_pos}, self_team)
+						passive_skill_effect(EVENT_BE_CRITICAL, self_team, self_pos, target_team, []int32{target_pos[j]})
+						passive_skill_effect(EVENT_CRITICAL, target_team, target_pos[j], self_team, []int32{self_pos})
 					}
 				}
 
-				log.Debug("role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
+				log.Debug("self_team[%v] role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
 			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
 				// 治疗
 				cure := skill_effect_cure(self, target, effects[i])
@@ -751,10 +781,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					target.add_hp(cure)
 					// 被动技，治疗时触发
 					if skill_data.Type != SKILL_TYPE_PASSIVE {
-						passive_skill_effect(EVENT_ON_CURE, target_team, target_pos[j], []int32{self_pos}, self_team)
+						passive_skill_effect(EVENT_ON_CURE, target_team, target_pos[j], self_team, []int32{self_pos})
 					}
 				}
-				log.Debug("role[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self.id, skill_data.Id, target.id, cure)
+				log.Debug("self_team[%v] role[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self_team.side, self.id, skill_data.Id, target.id, cure)
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_BUFF {
 				// 施加BUFF
 				buff_id := skill_effect_add_buff(self, target, effects[i])
@@ -762,10 +792,15 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
 				// ----------------------------------------------
 				if buff_id > 0 {
-					log.Debug("role[%v] use skill[%v] to target[%v] add buff[%v]", self.id, skill_data.Id, target.id, buff_id)
+					log.Debug("self_team[%v] role[%v] use skill[%v] to target[%v] add buff[%v]", self_team.side, self.id, skill_data.Id, target.id, buff_id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_SUMMON {
 				// 召唤
+				mem := skill_effect_summon(self, target_team, effects[i])
+				if mem != nil {
+					build_battle_report_item_add_target_item(report, target_team, mem.pos, 0)
+					log.Debug("self_team[%v] role[%v] use skill[%v] to summon npc[%v]", self_team.side, self.id, skill_data.Id, mem.card.Id)
+				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_ATTR {
 				// 改变下次计算时的角色参数
 				for i := 0; i < (len(effects[i])-1)/2; i++ {
@@ -804,27 +839,27 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 		// 被动技，对方有死亡触发
 		if skill_data.Type != SKILL_TYPE_PASSIVE && has_target_dead {
-			passive_skill_effect(EVENT_AFTER_ENEMY_DEAD, self_team, self_pos, target_pos, target_team)
+			passive_skill_effect(EVENT_AFTER_ENEMY_DEAD, self_team, self_pos, target_team, target_pos)
 		}
 	}
 
 	// 被动技，放大招后
 	if skill_data.Type == SKILL_TYPE_NORMAL {
-		passive_skill_effect(EVENT_AFTER_USE_NORMAL_SKILL, self_team, self_pos, target_pos, target_team)
+		passive_skill_effect(EVENT_AFTER_USE_NORMAL_SKILL, self_team, self_pos, target_team, target_pos)
 	} else if skill_data.Type == SKILL_TYPE_SUPER {
-		passive_skill_effect(EVENT_AFTER_USE_SUPER_SKILL, self_team, self_pos, target_pos, target_team)
+		passive_skill_effect(EVENT_AFTER_USE_SUPER_SKILL, self_team, self_pos, target_team, target_pos)
 	}
 
 	// 被动技，攻击计算伤害后触发
 	if skill_data.Type != SKILL_TYPE_PASSIVE {
-		passive_skill_effect(EVENT_AFTER_DAMAGE_ON_ATTACK, self_team, self_pos, target_pos, target_team)
+		passive_skill_effect(EVENT_AFTER_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos)
 	}
 
 	return
 }
 
 // 被动技效果
-func passive_skill_effect(trigger_event int32, self_team *BattleTeam, self_pos int32, trigger_pos []int32, target_team *BattleTeam) {
+func passive_skill_effect(trigger_event int32, self_team *BattleTeam, self_pos int32, target_team *BattleTeam, trigger_pos []int32) {
 	self := self_team.members[self_pos]
 	if self == nil {
 		return
@@ -841,11 +876,22 @@ func passive_skill_effect(trigger_event int32, self_team *BattleTeam, self_pos i
 		}
 
 		if skill.SkillTriggerType == trigger_event {
+			log.Debug("******************************************************* skill_id[%v] trigger_event[%v]", skill.Id, trigger_event)
 			if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
 				if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
 					self_team.UseOnceSkill(self_pos, target_team, skill.Id)
+					if target_team != nil {
+						log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self_team.side, self_pos, target_team.side)
+					} else {
+						log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self_team.side, self_pos)
+					}
 				} else {
 					skill_effect(self_team, self_pos, target_team, trigger_pos, skill)
+					if target_team != nil && trigger_pos != nil {
+						log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self_team.side, self_pos, target_team.side, trigger_pos)
+					} else {
+						log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self_team.side, self_pos)
+					}
 				}
 			}
 		}
@@ -909,11 +955,11 @@ func (this *BuffList) add_remove_buff_report(buff_id int32) {
 	buff.BuffId = buff_id
 	buff.MemId = this.owner.id
 	buff.Side = this.owner.team.side
-	if this.owner.team.reports == nil {
+	if this.owner.team.reports.reports == nil {
 		report := msg_battle_reports_item_pool.Get()
-		this.owner.team.reports = []*msg_client_message.BattleReportItem{report}
+		this.owner.team.reports.reports = []*msg_client_message.BattleReportItem{report}
 	}
-	r := this.owner.team.reports[len(this.owner.team.reports)-1]
+	r := this.owner.team.reports.reports[len(this.owner.team.reports.reports)-1]
 	r.RemoveBuffs = append(r.RemoveBuffs, buff)
 }
 
@@ -922,26 +968,26 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 	for hh != nil {
 		next := hh.next
 		for j := 0; j < len(hh.buff.ResistMutexTypes); j++ {
-			if b.MutexType == hh.buff.ResistMutexTypes[j] {
+			if b.MutexType > 0 && b.MutexType == hh.buff.ResistMutexTypes[j] {
 				log.Debug("BUFF[%v]类型[%v]排斥BUFF[%v]类型[%v]", hh.buff.Id, hh.buff.MutexType, b.Id, b.MutexType)
 				return true
 			}
 		}
 		for j := 0; j < len(hh.buff.ResistMutexIDs); j++ {
-			if b.Id == hh.buff.ResistMutexIDs[j] {
+			if b.MutexType > 0 && b.Id == hh.buff.ResistMutexIDs[j] {
 				log.Debug("BUFF[%v]排斥BUFF[%v]", hh.buff.Id, b.Id)
 				return true
 			}
 		}
 		for j := 0; j < len(hh.buff.CancelMutexTypes); j++ {
-			if b.MutexType == hh.buff.CancelMutexTypes[j] {
+			if b.MutexType > 0 && b.MutexType == hh.buff.CancelMutexTypes[j] {
 				this.remove_buff(hh)
 				this.add_remove_buff_report(hh.buff.Id)
 				log.Debug("BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
 			}
 		}
 		for j := 0; j < len(hh.buff.CancelMutexIDs); j++ {
-			if b.Id == hh.buff.CancelMutexIDs[j] {
+			if b.MutexType > 0 && b.Id == hh.buff.CancelMutexIDs[j] {
 				this.remove_buff(hh)
 				this.add_remove_buff_report(hh.buff.Id)
 				log.Debug("BUFF[%v]驱散了BUFF[%v]", b.Id, hh.buff.Id)
@@ -996,7 +1042,7 @@ func (this *BuffList) on_round_end() {
 				b.Pos = this.owner.pos
 				b.MemId = this.owner.id
 				b.Side = this.owner.team.side
-				this.owner.team.remove_buffs = append(this.owner.team.remove_buffs, b)
+				this.owner.team.reports.remove_buffs = append(this.owner.team.reports.remove_buffs, b)
 				// ------------------------------------------------------------
 				log.Debug("role[%v] buff[%v] round over", this.owner.id, bf.buff.Id)
 			}

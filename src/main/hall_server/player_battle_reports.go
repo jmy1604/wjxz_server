@@ -14,10 +14,11 @@ func (this *TeamMember) build_battle_item(pos int32, damage int32) *msg_client_m
 	item.MaxHP = this.attrs[ATTR_HP_MAX]
 	item.Damage = damage
 	item.Energy = this.energy
+	item.IsSummon = this.is_summon
 	return item
 }
 
-func build_battle_report_item(self_team *BattleTeam, self_pos int32, self_damage int32, skill_id int32, is_passive, is_block, is_critical bool) *msg_client_message.BattleReportItem {
+func build_battle_report_item(self_team *BattleTeam, self_pos int32, self_damage int32, skill_id int32, is_block, is_critical bool) *msg_client_message.BattleReportItem {
 	item := msg_battle_reports_item_pool.Get()
 	item.Side = self_team.side
 	item.SkillId = skill_id
@@ -26,7 +27,6 @@ func build_battle_report_item(self_team *BattleTeam, self_pos int32, self_damage
 	item.BeHiters = make([]*msg_client_message.BattleMemberItem, 0)
 	item.AddBuffs = make([]*msg_client_message.BattleMemberBuff, 0)
 	item.RemoveBuffs = make([]*msg_client_message.BattleMemberBuff, 0)
-	item.IsPassive = is_passive
 	item.IsBlock = is_block
 	item.IsCritical = is_critical
 	return item

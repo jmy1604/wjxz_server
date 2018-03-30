@@ -223,7 +223,6 @@ func (this *PlayerManager) SendMsgToAllPlayers(msg proto.Message) {
 		log.Error("PlayerManager SendMsgToAllPlayers msg nil !")
 		return
 	}
-
 }
 
 //==============================================================================
@@ -315,101 +314,17 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 }
 
 func HeartBeatHandler(conn *socket.TcpConn, msg proto.Message) {
-
 	return
 }
 
 func C2SC2SGetPlayerInfoHandler(conn *socket.TcpConn, msg proto.Message) {
-	/*req := msg.(*msg_client_message.C2SGetPlayerInfo)
-	if nil == conn || nil == req {
-		log.Error("C2SC2SGetPlayerInfoHandler conn or req nil [%d]", nil == req)
-		return
-	}
-
-	p := player_mgr.GetPlayerById(int32(conn.T))
-	if nil == p {
-		log.Error("C2SC2SGetPlayerInfoHandler not login [%d]", conn.T)
-		return
-	}
-
-	req2co := &msg_server_message.GetPlayerInfo{}
-	req2co.PlayerId = proto.Int32(p.Id)
-	req2co.TgtPlayerId = proto.Int32(req.GetPlayerId())
-
-	center_conn.Send(req2co)*/
-
 	return
 }
 
 // ----------------------------------------------------------------------------
 func C2HGetPlayerInfoHandler(c *CenterConnection, msg proto.Message) {
-	/*req := msg.(*msg_server_message.GetPlayerInfo)
-	if nil == c || nil == req {
-		log.Error("C2HGetPlayerInfoHandler c or req nil [%v]", nil == req)
-		return
-	}
-
-	tgt_pid := req.GetTgtPlayerId()
-
-	tgp := player_mgr.GetPlayerById(tgt_pid)
-	if nil == tgp {
-		log.Error("C2HGetPlayerInfoHandler")
-		return
-	}
-
-	res2co := &msg_server_message.RetPlayerInfo{}
-	res2co.TgtPlayerId = proto.Int32(tgt_pid)
-	res2co.PlayerId = proto.Int32(req.GetPlayerId())
-
-	c.Send(res2co)*/
 }
 
 func C2HRetPlayerInfoHandler(c *CenterConnection, msg proto.Message) {
-	/*res := msg.(*msg_server_message.RetPlayerInfo)
-	if nil == c || nil == res {
-		log.Error("C2HRetPlayerInfoHandler c or res nil [%v]", nil == res)
-		return
-	}
-
-	p := player_mgr.GetPlayerById(res.GetPlayerId())
-	if nil == p {
-		log.Error("C2HRetPlayerInfoHandler p[%d] nil ", res.GetPlayerId())
-		return
-	}
-
-	tmp_bi := &msg_client_message.OtherPlayerBaseInfo{}
-	res_bi := res.GetBaseInfo()
-	if nil != res_bi {
-		tmp_bi.PlayerId = proto.Int32(res_bi.GetPlayerId())
-		tmp_bi.MatchScore = proto.Int32(res_bi.GetMatchScore())
-		tmp_bi.Coins = proto.Int32(res_bi.GetCoins())
-		tmp_bi.Diamonds = proto.Int32(res_bi.GetDiamonds())
-		tmp_bi.ArenaLvl = proto.Int32(res_bi.GetArenaLvl())
-		tmp_bi.MyLvl = proto.Int32(res_bi.GetMyLvl())
-		tmp_bi.WinCount = proto.Int32(res_bi.GetWinCount())
-		tmp_bi.CurLegBestScore = proto.Int32(res_bi.GetCurLegBestScore())
-		tmp_bi.LastLegBestScore = proto.Int32(res_bi.GetLastLegBestScore())
-		tmp_bi.OfenCardCfgId = proto.Int32(res_bi.GetOfenCardCfgId())
-		tmp_bi.DonateCount = proto.Int32(res_bi.GetDonateCount())
-		tmp_bi.CheModWinCount = proto.Int32(res_bi.GetCheModWinCount())
-		tmp_bi.CheModeOfenCardCfg = proto.Int32(res_bi.GetCheModeOfenCardCfg())
-		tmp_bi.Camp = proto.Int32(res_bi.GetCamp())
-		tmp_bi.CurLegScore = proto.Int32(res_bi.GetMatchScore())
-		tmp_bi.TongIcon = proto.Int32(res_bi.GetTongIcon())
-		tmp_bi.TongName = proto.String(res_bi.GetTongName())
-		tmp_bi.FightCardIds = res_bi.GetFightCardIds()
-		tmp_bi.FightCardLvls = res_bi.GetFightCardLvls()
-		tmp_bi.CurCardGetNum = proto.Int32(res_bi.GetCurCardGetNum())
-		tmp_bi.IfCaptain = proto.Int32(res_bi.GetIfCaptain())
-	} else {
-		log.Error("C2HRetPlayerInfoHandler tmp_bi nil")
-		return
-	}
-
-	res2cli := &msg_client_message.S2CRetPlayerInfo{}
-	res2cli.BaseInfo = tmp_bi
-
-	p.Send(res2cli)*/
-
 	return
 }
