@@ -39,7 +39,7 @@ var config ServerConfig
 var shutingdown bool
 
 func g_init() bool {
-	err := dbc.Preload()
+	/*err := dbc.Preload()
 	if nil != err {
 		log.Error("连接数据库预加载失败！！")
 		return false
@@ -53,7 +53,7 @@ func g_init() bool {
 		return false
 	} else {
 		log.Info("dbc_account Preload succeed !!")
-	}
+	}*/
 
 	if !signal_mgr.Init() {
 		log.Error("signal mgr init failed !")
@@ -142,7 +142,7 @@ func main() {
 	log.Event("配置:监听HallServer地址", config.ListenHallIP)
 	log.Event("配置:日志配置目录", config.LogConfigPath)
 
-	log.Event("连接数据库", config.MYSQL_NAME, log.Property{"地址", config.MYSQL_IP})
+	/*log.Event("连接数据库", config.MYSQL_NAME, log.Property{"地址", config.MYSQL_IP})
 	err = dbc.Conn(config.MYSQL_NAME, config.MYSQL_IP, config.MYSQL_ACCOUNT, config.MYSQL_PWD, config.MYSQL_COPY_PATH)
 	if err != nil {
 		log.Error("连接数据库失败 %v", err)
@@ -159,7 +159,7 @@ func main() {
 	} else {
 		log.Event("连接账号数据库成功", nil)
 		go dbc_account.Loop()
-	}
+	}*/
 
 	if !g_init() {
 		return
