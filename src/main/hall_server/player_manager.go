@@ -302,11 +302,10 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 
 	p.bhandling = true
 
-	res := &msg_client_message.S2CEnterGameResponse{}
-	res.Acc = acc
-	res.PlayerId = p.Id
-	p.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_RESPONSE), res)
+	p.send_enter_game(acc, p.Id)
 	p.OnLogin()
+	p.send_roles()
+	p.notify_enter_complete()
 
 	log.Info("PlayerEnterGameHandler account[%s] token[%s]", req.GetAcc(), req.GetToken())
 

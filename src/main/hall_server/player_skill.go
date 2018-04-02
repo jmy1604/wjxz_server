@@ -440,7 +440,7 @@ const (
 	SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL     = 7  // 改变怒气攻击技能ID
 	SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM = 8  // 增加普攻次数
 	SKILL_EFFECT_TYPE_MODIFY_RAGE           = 9  // 改变怒气
-	SKILL_EFFECT_TYPE_AURA                  = 10 // 光环
+	SKILL_EFFECT_TYPE_ADD_SHIELD            = 10 // 增加护盾
 )
 
 // 技能直接伤害
@@ -577,9 +577,22 @@ func skill_effect_cure(self_mem *TeamMember, target_mem *TeamMember, effect []in
 		log.Error("cure skill effect length %v not enough", len(effect))
 		return
 	}
-	cure = self_mem.attrs[ATTR_ATTACK]
-	cure = cure * effect[1] / 10000
+	cure = self_mem.attrs[ATTR_ATTACK]*effect[1]/10000 + target_mem.attrs[ATTR_HP_MAX]*effect[2]/10000
 	cure = int32(math.Max(0, float64(cure*(10000+self_mem.attrs[ATTR_CURE_RATE_CORRECT]+target_mem.attrs[ATTR_CURED_RATE_CORRECT])/10000)))
+	return
+}
+
+// 技能增加护盾效果
+func skill_effect_add_shield(self_mem *TeamMember, target_mem *TeamMember, effect []int32) (shield int32) {
+	if len(effect) < 2 {
+		log.Error("add shield skill effect length %v not enough", len(effect))
+		return
+	}
+
+	shield = self_mem.attrs[ATTR_ATTACK]*effect[1]/10000 + target_mem.attrs[ATTR_HP_MAX]*effect[2]/10000
+	if shield < 0 {
+		shield = 0
+	}
 	return
 }
 
@@ -606,13 +619,12 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, effect [
 			continue
 		}
 		mem = team_member_pool.Get()
-		mem.init(target_team, 0, self_mem.level, new_card)
+		mem.init(target_team, 0, self_mem.level, new_card, int32(i))
 		mem.hp = mem.hp * effect[2] / 10000
 		mem.attrs[ATTR_HP] = mem.hp
 		mem.attrs[ATTR_HP_MAX] = mem.hp
 		mem.attack = mem.attack * effect[3] / 10000
 		mem.attrs[ATTR_ATTACK] = mem.attack
-		mem.is_summon = true
 		target_team.members[i] = mem
 		break
 	}
@@ -622,6 +634,24 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, effect [
 	}
 
 	return
+}
+
+// 临时改变角色属性效果
+func skill_effect_temp_attrs(self_mem *TeamMember, effect []int32) {
+	self_mem.temp_changed_attrs = effect
+	for i := 0; i < (len(effect)-1)/2; i++ {
+		self_mem.add_attr(effect[1+2*i], effect[1+2*i+1])
+	}
+}
+
+// 清空临时属性
+func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
+	if self_mem.temp_changed_attrs != nil {
+		for i := 0; i < (len(self_mem.temp_changed_attrs)-1)/2; i++ {
+			self_mem.add_attr(self_mem.temp_changed_attrs[1+2*i], -self_mem.temp_changed_attrs[1+2*i+1])
+		}
+		self_mem.temp_changed_attrs = nil
+	}
 }
 
 // 技能效果
@@ -691,7 +721,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				if target_dmg != 0 {
 					target.add_hp(-target_dmg)
-
 				}
 				if self_dmg != 0 {
 					// 被动技，自己死亡前触发
@@ -798,21 +827,30 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 召唤
 				mem := skill_effect_summon(self, target_team, effects[i])
 				if mem != nil {
+					report.IsSummon = true
+					// --------------------- 战报 ----------------------
 					build_battle_report_item_add_target_item(report, target_team, mem.pos, 0)
+					// -------------------------------------------------
 					log.Debug("self_team[%v] role[%v] use skill[%v] to summon npc[%v]", self_team.side, self.id, skill_data.Id, mem.card.Id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_ATTR {
 				// 改变下次计算时的角色参数
-				for i := 0; i < (len(effects[i])-1)/2; i++ {
-					target.attrs[effects[i][1+2*i]] = effects[i][1+2*i+1]
-				}
+				skill_effect_temp_attrs(self, effects[i])
 				// -------------------- 战报 --------------------
 				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
 				// ----------------------------------------------
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
 				// 改变普通攻击技能ID
+				if effects[i][1] > 0 {
+					self.temp_normal_skill = effects[i][1]
+					log.Debug("self_team[%v] pos[%v] role[%v] changed normal skill to %v", self_team.side, self_pos, self.id, self.temp_normal_skill)
+				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL {
 				// 改变必杀技ID
+				if effects[i][1] > 0 {
+					self.temp_super_skill = effects[i][1]
+					log.Debug("self_team[%v] pos[%v] role[%v] changed super skill to %v", self_team.side, self_pos, self.id, self.temp_super_skill)
+				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE {
 				// 改变怒气
 				if effects[i][3] > 0 {
@@ -832,9 +870,18 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM {
 				// 增加行动次数
 				target.act_num += effects[i][1]
-			} else if effect_type == SKILL_EFFECT_TYPE_AURA {
-				// 产生光环
+			} else if effect_type == SKILL_EFFECT_TYPE_ADD_SHIELD {
+				// 增加护盾
+				shield := skill_effect_add_shield(self, target, effects[i])
+				if shield != 0 {
+					target.add_attr(ATTR_SHIELD, shield)
+					// ----------------------- 战报 -------------------------
+					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
+					// ------------------------------------------------------
+				}
 			}
+
+			skill_effect_clear_temp_attrs(self)
 		}
 
 		// 被动技，对方有死亡触发
@@ -1023,14 +1070,26 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 }
 
 func (this *BuffList) on_round_end() {
+	var item *msg_client_message.BattleMemberItem
 	bf := this.head
 	for bf != nil {
 		next := bf.next
 		if bf.round_num > 0 {
 			if bf.buff.Effect[0] == BUFF_EFFECT_TYPE_DAMAGE {
 				dmg := buff_effect_damage(bf.attack, bf.dmg_add, bf.param, bf.buff.Effect[1], this.owner)
-				this.owner.add_hp(-dmg)
-				log.Debug("role[%v] hp damage[%v] on buff[%v] left round[%v] end", this.owner.id, dmg, bf.buff.Id, bf.round_num)
+				if dmg != 0 {
+					this.owner.add_hp(-dmg)
+					// --------------------------- 战报 ---------------------------
+					// 血量变化的成员
+					if item == nil {
+						item = this.owner.build_battle_item(this.owner.pos, 0)
+						item.Side = this.owner.team.side
+						this.owner.team.reports.changed_members = append(this.owner.team.reports.changed_members, item)
+					}
+					item.Damage += dmg
+					// ------------------------------------------------------------
+					log.Debug("role[%v] hp damage[%v] on buff[%v] left round[%v] end", this.owner.id, dmg, bf.buff.Id, bf.round_num)
+				}
 			}
 
 			bf.round_num -= 1
@@ -1048,6 +1107,9 @@ func (this *BuffList) on_round_end() {
 			}
 		}
 		bf = next
+	}
+	if item != nil {
+		item.HP = this.owner.hp
 	}
 }
 

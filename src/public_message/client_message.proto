@@ -203,7 +203,9 @@ message AttrData {
 message Role {
 	int32 Id						= 1;
 	int32 TableId					= 2;
-	repeated AttrData Attrs			= 3;
+	int32 Rank						= 3;
+	int32 Level						= 4;
+	repeated int32 Attrs			= 5;
 }
 // 请求角色返回
 message S2CRolesResponse {
@@ -211,7 +213,7 @@ message S2CRolesResponse {
 }
 
 //------------------------------ 战斗 ----------------------------------------
-// 设置阵营
+// 设置阵容
 message C2SSetTeamRequest {
 	int32 TeamType							= 1; // 0 进攻阵容  1 防守阵容
 	repeated int32 TeamMembers				= 2;
@@ -230,7 +232,7 @@ message BattleMemberItem {
 	int32 Damage 							= 5; // 伤害
 	int32 Energy							= 6; // 能量
 	int32 TableId							= 7; // 配置ID
-	bool IsSummon						 	= 8; // 是否召唤出来
+	int32 Side								= 8; // 0 左  1 右
 }
 
 message BattleMemberBuff {
@@ -250,6 +252,7 @@ message BattleReportItem {
 	repeated BattleMemberBuff RemoveBuffs   = 6; // 删除的BUFF
 	bool IsCritical							= 7; // 是否暴击
 	bool IsBlock							= 8; // 是否格挡
+	bool IsSummon							= 9; // 是否召唤
 }
 
 // 一回合战报
@@ -257,6 +260,7 @@ message BattleRoundReports {
 	int32 RoundNum							= 1; // 回合编号
 	repeated BattleReportItem Reports		= 2; // 回合战报列表
 	repeated BattleMemberBuff RemoveBuffs   = 3; // 回合结束的BUFF
+	repeated BattleMemberItem ChangedMembers= 4; // 回合结束时BUFF影响的属性变化的成员
 }
 
 // 请求战斗结果
@@ -265,10 +269,11 @@ message C2SBattleResultRequest {
 	int32 FightPlayerId						= 2; // 对方玩家ID
 }
 message S2CBattleResultResponse {
-	bool IsWin								= 1; // true 赢  false 输
-	repeated BattleMemberItem MyTeam		= 2; // 战斗前我方阵容
-	repeated BattleMemberItem TargetTeam	= 3; // 战斗前敌方阵容
-	repeated BattleRoundReports Rounds 		= 4; // 回合
+	bool IsWin										= 1; // true 赢  false 输
+	repeated BattleMemberItem MyTeam				= 2; // 战斗前我方阵容
+	repeated BattleMemberItem TargetTeam			= 3; // 战斗前敌方阵容
+	repeated BattleReportItem BeforeEnterReports 	= 4; // 进场前战报，一般是被动技效果
+	repeated BattleRoundReports Rounds 				= 5; // 回合
 }
 
 //////////////////////////////////////////////////////////////////////////////

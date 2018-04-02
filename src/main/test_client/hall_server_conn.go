@@ -251,6 +251,7 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 							log.Debug("					 remove buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.RemoveBuffs[n].Side, rr.RemoveBuffs[n].Pos, rr.RemoveBuffs[n].BuffId, rr.RemoveBuffs[n].MemId)
 						}
 					}
+					log.Debug("					 is_summon: %v", rr.IsSummon)
 					log.Debug("					 is_critical: %v", rr.IsCritical)
 					log.Debug("					 is_block: %v", rr.IsBlock)
 				}
@@ -258,7 +259,13 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 			if r.RemoveBuffs != nil {
 				for j := 0; j < len(r.RemoveBuffs); j++ {
 					b := r.RemoveBuffs[j]
-					log.Debug("		 	remove buffs: Side[%v], Pos[%v], BuffId[%v], MemId[%v]\n", b.Side, b.Pos, b.BuffId, b.MemId)
+					log.Debug("		 	remove buffs: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", b.Side, b.Pos, b.BuffId, b.MemId)
+				}
+			}
+			if r.ChangedMembers != nil {
+				for j := 0; j < len(r.ChangedMembers); j++ {
+					m := r.ChangedMembers[j]
+					log.Debug("			changed member: Side[%v], Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
 				}
 			}
 		}

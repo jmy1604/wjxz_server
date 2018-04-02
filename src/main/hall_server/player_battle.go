@@ -88,20 +88,22 @@ type MemberPassiveTriggerData struct {
 }
 
 type TeamMember struct {
-	team             *BattleTeam
-	pos              int32
-	id               int32
-	level            int32
-	card             *table_config.XmlCardItem
-	hp               int32
-	energy           int32
-	attack           int32
-	defense          int32
-	act_num          int32 // 行动次数
-	attrs            []int32
-	bufflist_arr     []BuffList
-	passive_triggers map[int32][]*MemberPassiveTriggerData
-	is_summon        bool
+	team               *BattleTeam
+	pos                int32
+	id                 int32
+	level              int32
+	card               *table_config.XmlCardItem
+	hp                 int32
+	energy             int32
+	attack             int32
+	defense            int32
+	act_num            int32                                 // 行动次数
+	attrs              []int32                               // 属性
+	bufflist_arr       []BuffList                            // BUFF
+	passive_triggers   map[int32][]*MemberPassiveTriggerData // 被动技触发事件
+	temp_normal_skill  int32                                 // 临时普通攻击
+	temp_super_skill   int32                                 // 临时怒气攻击
+	temp_changed_attrs []int32                               // 临时改变的属性
 }
 
 func (this *TeamMember) add_skill_attr(skill_id int32) {
@@ -130,10 +132,6 @@ func (this *TeamMember) init_passive_data(role_card *table_config.XmlCardItem) {
 		if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
 			continue
 		}
-
-		/*if skill.TriggerBattleMax <= 0 || skill.TriggerRoundMax <= 0 {
-			continue
-		}*/
 
 		if this.passive_triggers == nil {
 			this.passive_triggers = make(map[int32][]*MemberPassiveTriggerData)
@@ -206,7 +204,7 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 	}
 }
 
-func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem) {
+func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
 	if this.attrs == nil {
 		this.attrs = make([]int32, ATTR_COUNT_MAX)
 	} else {
@@ -223,6 +221,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 
 	this.team = team
 	this.id = id
+	this.pos = pos
 	this.level = level
 	this.card = role_card
 	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
@@ -247,6 +246,16 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	}
 
 	this.init_passive_data(role_card)
+}
+
+func (this *TeamMember) add_attr(attr int32, value int32) {
+	if attr == ATTR_HP {
+		this.add_hp(value)
+	} else if attr == ATTR_HP_MAX {
+		this.add_max_hp(value)
+	} else {
+		this.attrs[attr] += value
+	}
 }
 
 func (this *TeamMember) add_hp(hp int32) {
@@ -438,15 +447,94 @@ func (this *TeamMember) is_dead() bool {
 }
 
 type BattleReports struct {
-	reports      []*msg_client_message.BattleReportItem
-	remove_buffs []*msg_client_message.BattleMemberBuff
+	reports         []*msg_client_message.BattleReportItem
+	remove_buffs    []*msg_client_message.BattleMemberBuff
+	changed_members []*msg_client_message.BattleMemberItem
+}
+
+func (this *BattleReports) Reset() {
+	this.reports = make([]*msg_client_message.BattleReportItem, 0)
+	this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
+	this.changed_members = make([]*msg_client_message.BattleMemberItem, 0)
+}
+
+func (this *BattleReports) Recycle() {
+	if this.reports != nil {
+		for i := 0; i < len(this.reports); i++ {
+			r := this.reports[i]
+			if r == nil {
+				continue
+			}
+			// user
+			if r.User != nil {
+				msg_battle_member_item_pool.Put(r.User)
+				r.User = nil
+			}
+			// behiters
+			if r.BeHiters != nil {
+				for j := 0; j < len(r.BeHiters); j++ {
+					if r.BeHiters[j] != nil {
+						msg_battle_member_item_pool.Put(r.BeHiters[j])
+					}
+				}
+				r.BeHiters = nil
+			}
+			// add buffs
+			if r.AddBuffs != nil {
+				for j := 0; j < len(r.AddBuffs); j++ {
+					if r.AddBuffs[j] != nil {
+						msg_battle_buff_item_pool.Put(r.AddBuffs[j])
+						r.AddBuffs[j] = nil
+					}
+				}
+				r.AddBuffs = nil
+			}
+			// remove buffs
+			if r.RemoveBuffs != nil {
+				for j := 0; j < len(r.RemoveBuffs); j++ {
+					if r.RemoveBuffs[j] != nil {
+						msg_battle_buff_item_pool.Put(r.RemoveBuffs[j])
+						r.RemoveBuffs[j] = nil
+					}
+				}
+				r.RemoveBuffs = nil
+			}
+			msg_battle_reports_item_pool.Put(r)
+			this.reports[i] = nil
+		}
+		this.reports = nil
+	}
+
+	if this.remove_buffs != nil {
+		for i := 0; i < len(this.remove_buffs); i++ {
+			b := this.remove_buffs[i]
+			if b == nil {
+				continue
+			}
+			msg_battle_buff_item_pool.Put(b)
+			this.remove_buffs[i] = nil
+		}
+		this.remove_buffs = nil
+	}
+
+	if this.changed_members != nil {
+		for i := 0; i < len(this.changed_members); i++ {
+			m := this.changed_members[i]
+			if m == nil {
+				continue
+			}
+			msg_battle_member_item_pool.Put(m)
+			this.changed_members[i] = nil
+		}
+		this.changed_members = nil
+	}
 }
 
 type BattleTeam struct {
 	curr_attack int32 // 当前进攻的索引
 	side        int32 // 0 左边 1 右边
 	members     []*TeamMember
-	reports     *BattleReports
+	reports     *BattleReports // 每回合战报
 }
 
 // 利用玩家初始化
@@ -473,7 +561,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 
 		//if this.members[i] != nil && members[i] == this.members[i].id {
 		//	continue
-		//s}
+		//}
 
 		var table_id, rank, level int32
 		var o bool
@@ -502,7 +590,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		if m == nil {
 			m = team_member_pool.Get()
 		}
-		m.init(this, members[i], level, role_card)
+		m.init(this, members[i], level, role_card, int32(i))
 		this.members[i] = m
 
 		// 装备BUFF增加属性
@@ -546,12 +634,20 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 			if m.is_disable_super_attack() {
 				return
 			}
-			skill_id = m.card.SuperSkillID
+			if m.temp_normal_skill > 0 {
+				skill_id = m.temp_normal_skill
+			} else {
+				skill_id = m.card.SuperSkillID
+			}
 		} else if m.act_num > 0 {
 			if m.is_disable_normal_attack() {
 				return
 			}
-			skill_id = m.card.NormalSkillID
+			if m.temp_super_skill > 0 {
+				skill_id = m.temp_super_skill
+			} else {
+				skill_id = m.card.NormalSkillID
+			}
 		}
 	} else {
 		skill_id = trigger_skill
@@ -614,14 +710,27 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
 	is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, trigger_skill)
 	if target_pos == nil {
-		log.Warn("Self index[%v] Cant find targets to attack with skill[%v]", self_index, skill.Id)
+		log.Warn("team[%v] member[%v] Cant find targets to attack with skill[%v]", self_index, skill.Id)
 		return nil
 	}
-	log.Debug("team member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", self_index, is_enemy, target_pos, skill.Id)
+
+	log.Debug("team[%v] member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_pos, skill.Id)
+
 	if !is_enemy {
 		target_team = this
 	}
+
 	skill_effect(this, self_index, target_team, target_pos, skill)
+
+	// 清除临时技能
+	m := this.members[self_index]
+	if m != nil {
+		if m.temp_normal_skill > 0 {
+			m.temp_normal_skill = 0
+		} else if m.temp_super_skill > 0 {
+			m.temp_super_skill = 0
+		}
+	}
 
 	return skill
 }
@@ -680,82 +789,23 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 // 回收战报
 func (this *BattleTeam) RecycleReports() {
-	if this.reports != nil && this.reports.reports != nil {
-		for i := 0; i < len(this.reports.reports); i++ {
-			r := this.reports.reports[i]
-			if r == nil {
-				continue
-			}
-			// user
-			if r.User != nil {
-				msg_battle_member_item_pool.Put(r.User)
-				r.User = nil
-			}
-			// behiters
-			if r.BeHiters != nil {
-				for j := 0; j < len(r.BeHiters); j++ {
-					if r.BeHiters[j] != nil {
-						msg_battle_member_item_pool.Put(r.BeHiters[j])
-					}
-				}
-				r.BeHiters = nil
-			}
-			// add buffs
-			if r.AddBuffs != nil {
-				for j := 0; j < len(r.AddBuffs); j++ {
-					if r.AddBuffs[j] != nil {
-						msg_battle_buff_item_pool.Put(r.AddBuffs[j])
-						r.AddBuffs[j] = nil
-					}
-				}
-				r.AddBuffs = nil
-			}
-			// remove buffs
-			if r.RemoveBuffs != nil {
-				for j := 0; j < len(r.RemoveBuffs); j++ {
-					if r.RemoveBuffs[j] != nil {
-						msg_battle_buff_item_pool.Put(r.RemoveBuffs[j])
-						r.RemoveBuffs[j] = nil
-					}
-				}
-				r.RemoveBuffs = nil
-			}
-			msg_battle_reports_item_pool.Put(r)
-			this.reports.reports[i] = nil
-		}
-		this.reports.reports = nil
-	}
 
-	if this.reports != nil && this.reports.remove_buffs != nil {
-		for i := 0; i < len(this.reports.remove_buffs); i++ {
-			b := this.reports.remove_buffs[i]
-			if b == nil {
-				continue
-			}
-			msg_battle_buff_item_pool.Put(b)
-			this.reports.remove_buffs[i] = nil
-		}
-		this.reports.remove_buffs = nil
-	}
 }
 
 // 开打
-func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) (is_win bool, rounds []*msg_client_message.BattleRoundReports) {
+func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) (is_win bool, before_enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports) {
 	round_max := end_param
 	if end_type == BATTLE_END_BY_ALL_DEAD {
 		round_max = BATTLE_ROUND_MAX_NUM
 	} else if end_type == BATTLE_END_BY_ROUND_OVER {
 	}
 
-	this.RecycleReports()
-
 	// 存放战报
 	if this.reports == nil {
 		this.reports = &BattleReports{}
 		target_team.reports = this.reports
 	}
-	this.reports.reports = make([]*msg_client_message.BattleReportItem, 0)
-	this.reports.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
+	this.reports.Reset()
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
@@ -763,14 +813,21 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		passive_skill_effect(EVENT_ENTER_BATTLE, target_team, i, this, nil)
 	}
 
+	/*if this.reports.reports != nil {
+		before_enter_reports = this.reports.reports
+		this.reports.Recycle()
+		this.reports.Reset()
+	}*/
+
 	for c := int32(0); c < round_max; c++ {
-		log.Debug("------------------------------------ Round[%v] ----------------------------------", c+1)
+		log.Debug("----------------------------------------------- Round[%v] --------------------------------------------", c+1)
 
 		this.DoRound(target_team)
 
 		round := msg_battle_round_reports_pool.Get()
 		round.Reports = this.reports.reports
 		round.RemoveBuffs = this.reports.remove_buffs
+		round.ChangedMembers = this.reports.changed_members
 		round.RoundNum = c + 1
 		rounds = append(rounds, round)
 
@@ -784,8 +841,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 			break
 		}
 
-		this.reports.reports = make([]*msg_client_message.BattleReportItem, 0)
-		this.reports.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
+		//this.reports.Recycle()
+		this.reports.Reset()
 	}
 
 	return
@@ -837,9 +894,10 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg prot
 		return -1
 	}
 
-	if !p.SetAttackTeam(req.AttackMembers) {
+	res := p.SetAttackTeam(req.AttackMembers)
+	if res < 0 {
 		log.Error("Player[%v] set attack members[%v] failed", p.Id, req.AttackMembers)
-		return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
+		return res
 	}
 
 	p.Fight2Player(req.FightPlayerId)

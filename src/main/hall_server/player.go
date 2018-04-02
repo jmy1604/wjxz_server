@@ -289,6 +289,41 @@ func (this *Player) OnLogout() {
 	log.Info("玩家[%d] 登出 ！！", this.Id)
 }
 
+func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleColumn.BuildMsg")
+	defer this.m_row.m_lock.UnSafeUnlock()
+
+	for _, v := range this.m_data {
+		role := &msg_client_message.Role{
+			Id:      v.Id,
+			TableId: v.TableId,
+			Rank:    v.Rank,
+			Level:   v.Level,
+			Attrs:   v.Attr,
+		}
+		roles = append(roles, role)
+	}
+	return
+}
+
+func (this *Player) send_enter_game(acc string, id int32) {
+	res := &msg_client_message.S2CEnterGameResponse{}
+	res.Acc = acc
+	res.PlayerId = id
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_RESPONSE), res)
+}
+
+func (this *Player) send_roles() {
+	msg := &msg_client_message.S2CRolesResponse{}
+	msg.Roles = this.db.Roles.BuildMsg()
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLES_RESPONSE), msg)
+}
+
+func (this *Player) notify_enter_complete() {
+	msg := &msg_client_message.S2CEnterGameCompleteNotify{}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_COMPLETE_NOTIFY), msg)
+}
+
 // ----------------------------------------------------------------------------
 
 // ======================================================================
@@ -698,17 +733,26 @@ func C2SWorldChatSendHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	return p.world_chat(req.GetContent())
 }*/
 
-func (this *Player) SetAttackTeam(team []int32) bool {
+func (this *Player) SetAttackTeam(team []int32) int32 {
 	if team == nil {
-		return false
+		return -1
 	}
+
+	used_id := make(map[int32]bool)
+	for i := 0; i < len(team); i++ {
+		if _, o := used_id[team[i]]; o {
+			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
+		}
+		used_id[team[i]] = true
+	}
+
 	for i := 0; i < len(team); i++ {
 		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
 			break
 		}
 		if !this.db.Roles.HasIndex(team[i]) {
 			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
-			return false
+			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
 		}
 	}
 	this.db.BattleTeam.SetAttackMembers(team)
@@ -716,20 +760,29 @@ func (this *Player) SetAttackTeam(team []int32) bool {
 	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 		log.Warn("Player[%v] init attack team failed", this.Id)
 	}
-	return true
+	return 1
 }
 
-func (this *Player) SetDefenseTeam(team []int32) bool {
+func (this *Player) SetDefenseTeam(team []int32) int32 {
 	if team == nil {
-		return false
+		return -1
 	}
+
+	used_id := make(map[int32]bool)
+	for i := 0; i < len(team); i++ {
+		if _, o := used_id[team[i]]; o {
+			return int32(msg_client_message.E_ERR_PLAYER_SET_DEFENSE_MEMBERS_FAILED)
+		}
+		used_id[team[i]] = true
+	}
+
 	for i := 0; i < len(team); i++ {
 		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
 			break
 		}
 		if !this.db.Roles.HasIndex(team[i]) {
 			log.Warn("Player[%v] not has role[%v] for set defense team", this.Id, team[i])
-			return false
+			return int32(msg_client_message.E_ERR_PLAYER_SET_DEFENSE_MEMBERS_FAILED)
 		}
 	}
 	this.db.BattleTeam.SetDefenseMembers(team)
@@ -737,7 +790,7 @@ func (this *Player) SetDefenseTeam(team []int32) bool {
 	if !this.defense_team.Init(this, BATTLE_DEFENSE_TEAM, 1) {
 		log.Warn("Player[%v] init defense team failed", this.Id)
 	}
-	return true
+	return 1
 }
 
 func (this *Player) Fight2Player(player_id int32) int32 {
@@ -763,13 +816,20 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 
 	my_team := this.attack_team._format_members_for_msg()
 	target_team := p.defense_team._format_members_for_msg()
-	is_win, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+	is_win, before_enter_reports, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+	if before_enter_reports == nil {
+		before_enter_reports = make([]*msg_client_message.BattleReportItem, 0)
+	}
+	if rounds == nil {
+		rounds = make([]*msg_client_message.BattleRoundReports, 0)
+	}
 
 	response := &msg_client_message.S2CBattleResultResponse{
-		IsWin:      is_win,
-		Rounds:     rounds,
-		MyTeam:     my_team,
-		TargetTeam: target_team,
+		IsWin:              is_win,
+		BeforeEnterReports: before_enter_reports,
+		Rounds:             rounds,
+		MyTeam:             my_team,
+		TargetTeam:         target_team,
 	}
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)

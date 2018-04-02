@@ -14,7 +14,6 @@ func (this *TeamMember) build_battle_item(pos int32, damage int32) *msg_client_m
 	item.MaxHP = this.attrs[ATTR_HP_MAX]
 	item.Damage = damage
 	item.Energy = this.energy
-	item.IsSummon = this.is_summon
 	return item
 }
 
