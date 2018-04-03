@@ -553,8 +553,10 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}
 
-	for i := 0; i < len(members); i++ {
-		if members[i] <= 0 {
+	log.Debug("!@!@!@!@!@!@ members: %v", members)
+
+	for i := 0; i < len(this.members); i++ {
+		if (i < len(members) && members[i] <= 0) || i >= len(members) {
 			this.members[i] = nil
 			continue
 		}
@@ -813,11 +815,10 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		passive_skill_effect(EVENT_ENTER_BATTLE, target_team, i, this, nil)
 	}
 
-	/*if this.reports.reports != nil {
+	if this.reports.reports != nil {
 		before_enter_reports = this.reports.reports
-		this.reports.Recycle()
-		this.reports.Reset()
-	}*/
+		this.reports.reports = make([]*msg_client_message.BattleReportItem, 0)
+	}
 
 	for c := int32(0); c < round_max; c++ {
 		log.Debug("----------------------------------------------- Round[%v] --------------------------------------------", c+1)
@@ -841,7 +842,6 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 			break
 		}
 
-		//this.reports.Recycle()
 		this.reports.Reset()
 	}
 

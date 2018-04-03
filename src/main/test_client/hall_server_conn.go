@@ -197,6 +197,30 @@ func S2CEnterGameHandler(hall_conn *HallConnection, m proto.Message) {
 	return
 }
 
+func output_report(rr *msg_client_message.BattleReportItem) {
+	log.Debug("		 	report: side[%v]", rr.Side)
+	log.Debug("					 skill_id: %v", rr.SkillId)
+	log.Debug("					 user: Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.User.Id, rr.User.Pos, rr.User.HP, rr.User.MaxHP, rr.User.Energy, rr.User.Damage, rr.User.TableId)
+	if rr.BeHiters != nil {
+		for n := 0; n < len(rr.BeHiters); n++ {
+			log.Debug("					 behiter: Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.BeHiters[n].Id, rr.BeHiters[n].Pos, rr.BeHiters[n].HP, rr.BeHiters[n].MaxHP, rr.BeHiters[n].Energy, rr.BeHiters[n].Damage, rr.BeHiters[n].TableId)
+		}
+	}
+	if rr.AddBuffs != nil {
+		for n := 0; n < len(rr.AddBuffs); n++ {
+			log.Debug("					 add buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.AddBuffs[n].Side, rr.AddBuffs[n].Pos, rr.AddBuffs[n].BuffId, rr.AddBuffs[n].MemId)
+		}
+	}
+	if rr.RemoveBuffs != nil {
+		for n := 0; n < len(rr.RemoveBuffs); n++ {
+			log.Debug("					 remove buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.RemoveBuffs[n].Side, rr.RemoveBuffs[n].Pos, rr.RemoveBuffs[n].BuffId, rr.RemoveBuffs[n].MemId)
+		}
+	}
+	log.Debug("					 is_summon: %v", rr.IsSummon)
+	log.Debug("					 is_critical: %v", rr.IsCritical)
+	log.Debug("					 is_block: %v", rr.IsBlock)
+}
+
 func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 	response := m.(*msg_client_message.S2CBattleResultResponse)
 	if response.IsWin {
@@ -225,35 +249,24 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 			log.Debug("		 Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
 		}
 	}
+
+	if response.BeforeEnterReports != nil {
+		log.Debug("   before enter:")
+		for i := 0; i < len(response.BeforeEnterReports); i++ {
+			r := response.BeforeEnterReports[i]
+			output_report(r)
+		}
+	}
+
 	if response.Rounds != nil {
 		log.Debug("Round num: %v", len(response.Rounds))
 		for i := 0; i < len(response.Rounds); i++ {
 			r := response.Rounds[i]
-			log.Debug("		 round[%v]", r.RoundNum)
+			log.Debug("	  round[%v]", r.RoundNum)
 			if r.Reports != nil {
 				for j := 0; j < len(r.Reports); j++ {
 					rr := r.Reports[j]
-					log.Debug("		 	report: side[%v]", rr.Side)
-					log.Debug("					 skill_id: %v", rr.SkillId)
-					log.Debug("					 user: Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.User.Id, rr.User.Pos, rr.User.HP, rr.User.MaxHP, rr.User.Energy, rr.User.Damage, rr.User.TableId)
-					if rr.BeHiters != nil {
-						for n := 0; n < len(rr.BeHiters); n++ {
-							log.Debug("					 behiter: Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.BeHiters[n].Id, rr.BeHiters[n].Pos, rr.BeHiters[n].HP, rr.BeHiters[n].MaxHP, rr.BeHiters[n].Energy, rr.BeHiters[n].Damage, rr.BeHiters[n].TableId)
-						}
-					}
-					if rr.AddBuffs != nil {
-						for n := 0; n < len(rr.AddBuffs); n++ {
-							log.Debug("					 add buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.AddBuffs[n].Side, rr.AddBuffs[n].Pos, rr.AddBuffs[n].BuffId, rr.AddBuffs[n].MemId)
-						}
-					}
-					if rr.RemoveBuffs != nil {
-						for n := 0; n < len(rr.RemoveBuffs); n++ {
-							log.Debug("					 remove buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.RemoveBuffs[n].Side, rr.RemoveBuffs[n].Pos, rr.RemoveBuffs[n].BuffId, rr.RemoveBuffs[n].MemId)
-						}
-					}
-					log.Debug("					 is_summon: %v", rr.IsSummon)
-					log.Debug("					 is_critical: %v", rr.IsCritical)
-					log.Debug("					 is_block: %v", rr.IsBlock)
+					output_report(rr)
 				}
 			}
 			if r.RemoveBuffs != nil {
