@@ -26,28 +26,28 @@ type DropCardTypeLib struct {
 	DropItems   []*XmlDropCardItem
 }
 
-type CfgDropCardManager struct {
+type DropCardManager struct {
 	Map map[int32]*DropCardTypeLib
 }
 
-func (this *CfgDropCardManager) Init() bool {
+func (this *DropCardManager) Init() bool {
 	if !this.Load() {
 		return false
 	}
 	return true
 }
 
-func (this *CfgDropCardManager) Load() bool {
+func (this *DropCardManager) Load() bool {
 	data, err := ioutil.ReadFile("../game_data/DropCard.xml")
 	if nil != err {
-		log.Error("CfgDropCardManager load read file failed[%s] !", err.Error())
+		log.Error("DropCardManager load read file failed[%s] !", err.Error())
 		return false
 	}
 
 	tmp_cfg := &XmlDropCardConfig{}
 	err = xml.Unmarshal(data, tmp_cfg)
 	if nil != err {
-		log.Error("CfgDropCardManager load xml unmarshal failed [%s]!", err.Error())
+		log.Error("DropCardManager load xml unmarshal failed [%s]!", err.Error())
 		return false
 	}
 

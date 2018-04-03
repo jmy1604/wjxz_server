@@ -52,7 +52,7 @@ const (
 	ATTR_ATTACK_PERCENT_BONUS  = 37 // 攻击百分比
 	ATTR_DEFENSE_PERCENT_BONUS = 38 // 防御百分比
 	ATTR_DAMAGE_PERCENT_BONUS  = 39 // 伤害百分比
-	ATTR_COUNT_MAX             = 50
+	ATTR_COUNT_MAX             = 40
 )
 
 // 战斗结束类型

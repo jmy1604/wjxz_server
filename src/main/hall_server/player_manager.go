@@ -297,7 +297,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 
 	ip_port := strings.Split(r.RemoteAddr, ":")
 	if len(ip_port) >= 2 {
-		p.pos = cfg_position.GetPosByIP(ip_port[0])
+		p.pos = position_table.GetPosByIP(ip_port[0])
 	}
 
 	p.bhandling = true

@@ -35,6 +35,15 @@ message PlayerGlobal{
 	optional int32 CurrentRoleId=1;
 }
 
+message PlayerItem{
+	optional int32 Id=1;
+	optional int32 Count=2;
+}
+
+message PlayerItemList{
+	repeated PlayerItem List=1;
+}
+
 message PlayerRole{
 	optional int32 Id=1;
 	optional int32 TableId=2;
@@ -71,17 +80,6 @@ message PlayerChapterUnLock{
 	repeated int32 PlayerIds=2;
 	repeated int32 CurHelpIds=3;
 	optional int32 StartUnix=4;
-}
-
-message PlayerItem{
-	optional int32 ItemCfgId=1;
-	optional int32 ItemNum=2;
-	optional int32 StartTimeUnix=3;
-	optional int32 RemainSeconds=4;
-}
-
-message PlayerItemList{
-	repeated PlayerItem List=1;
 }
 
 message PlayerShopItem{

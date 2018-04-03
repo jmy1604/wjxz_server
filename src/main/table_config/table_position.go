@@ -22,22 +22,22 @@ type XmlPositionConfig struct {
 	Items []XmlPositionItem `xml:"item"`
 }
 
-type CfgPosition struct {
+type PositionTable struct {
 	Pos2Item  map[int32]*XmlPositionItem
 	Name2Item map[string]*XmlPositionItem
 }
 
-func (this *CfgPosition) Init() bool {
+func (this *PositionTable) Init() bool {
 	data, err := ioutil.ReadFile("../game_data/position.xml")
 	if nil != err {
-		log.Error("CfgPosition Init failed to read file(%s)", err.Error())
+		log.Error("PositionTable Init failed to read file(%s)", err.Error())
 		return false
 	}
 
 	tmp_cfg := &XmlPositionConfig{}
 	err = xml.Unmarshal(data, tmp_cfg)
 	if nil != err {
-		log.Error("CfgPosition init unmarshal failed [%s]", err.Error())
+		log.Error("PositionTable init unmarshal failed [%s]", err.Error())
 		return false
 	}
 
@@ -60,24 +60,24 @@ func (this *CfgPosition) Init() bool {
 	return true
 }
 
-func (this *CfgPosition) InitIpMop() bool {
+func (this *PositionTable) InitIpMop() bool {
 	err := ip17mon.Init("../game_data/17monipdb.dat")
 	if nil != err {
-		log.Error("CfgPosition InitIpMop failed [%s]", err.Error())
+		log.Error("PositionTable InitIpMop failed [%s]", err.Error())
 		return false
 	}
 
 	return true
 }
 
-func (this *CfgPosition) GetPosByIP(s string) int32 {
+func (this *PositionTable) GetPosByIP(s string) int32 {
 	posinfo, err := ip17mon.Find(s)
 	if nil != err {
-		log.Error("CfgPosition GetPosByIP failed [%s]", err.Error())
+		log.Error("PositionTable GetPosByIP failed [%s]", err.Error())
 		return POSITION_GLOBAL
 	}
 
-	log.Info("CfgPosition  GetPosByIP %s:%s", posinfo.Country, posinfo.City)
+	log.Info("PositionTable  GetPosByIP %s:%s", posinfo.Country, posinfo.City)
 	cur_pos := this.Name2Item[posinfo.Country]
 	if nil == cur_pos {
 		return POSITION_GLOBAL

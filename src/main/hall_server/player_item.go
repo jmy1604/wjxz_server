@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "libs/log"
+	"libs/log"
 	_ "main/table_config"
 	_ "public_message/gen_go/client_message"
 	_ "sync"
@@ -33,6 +33,42 @@ const (
 	ITEM_RESOURCE_ID_TIME         = 11 // 时间
 	ITEM_RESOURCE_ID_STAR         = 12 // 星数
 )
+
+func (this *Player) add_item(id int32, count int32) bool {
+	item := item_table_mgr.Get(id)
+	if item == nil {
+		log.Error("item %v not found in table", id)
+		return false
+	}
+
+	if !this.db.Items.HasIndex(id) {
+		this.db.Items.Add(&dbPlayerItemData{
+			Id:    id,
+			Count: count,
+		})
+	} else {
+		this.db.Items.IncbyCount(id, count)
+	}
+	return true
+}
+
+func (this *Player) del_item(id int32, count int32) bool {
+	c, o := this.db.Items.GetCount(id)
+	if !o {
+		return false
+	}
+
+	if c < count {
+		return false
+	}
+
+	if c == count {
+		this.db.Items.Remove(id)
+	} else {
+		this.db.Items.IncbyCount(id, -count)
+	}
+	return true
+}
 
 /*
 type ItemChangeInfo struct {

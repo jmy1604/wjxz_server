@@ -113,6 +113,18 @@
 					]
 				},
 				{
+					"DBColumnName":"Item",
+					"InUse":true,
+					"ColumnName":"Item",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"Count","Incby":true}
+					]
+				},
+				{
 					"DBColumnName":"Role",
 					"InUse":true,
 					"ColumnName":"Role",
@@ -171,20 +183,6 @@
 						{"Type":"int32","Index":4,"Name":"StartUnix"}
 					]
 				},
-				{
-					"DBColumnName":"Item",
-					"InUse":true,
-					"ColumnName":"Item",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"ItemCfgId"},
-						{"Type":"int32","Index":2,"Name":"ItemNum"},
-						{"Type":"int32","Index":3,"Name":"StartTimeUnix"},
-						{"Type":"int32","Index":4,"Name":"RemainSeconds"}
-					]
-				},	
 				{
 					"DBColumnName":"ShopItem",
 					"InUse":true,

@@ -17,7 +17,7 @@ func reg_player_draw_msg() {
 }
 
 func (this *Player) drop_item_by_id(id int32, check_same bool) (bool, *msg_client_message.ItemInfo) {
-	drop_lib := cfg_drop_card_mgr.Map[id]
+	drop_lib := drop_card_table_mgr.Map[id]
 	if nil == drop_lib {
 		return false, nil
 	}
@@ -104,7 +104,7 @@ func (this *Player) DropItems(items_info []*table_config.ItemInfo, draw_count in
 	for count := int32(0); count < draw_count; count++ {
 		for i := 0; i < len(items_info); i++ {
 			for j := 0; j < int(items_info[i].Num); j++ {
-				draw_lib := cfg_drop_card_mgr.Map[items_info[i].Id]
+				draw_lib := drop_card_table_mgr.Map[items_info[i].Id]
 				if nil == draw_lib {
 					log.Error("Player[%v] draw card not found draw lib[%v]", this.Id, items_info[i].Id)
 					return false, nil
@@ -131,7 +131,7 @@ func (this *Player) DropItems2(items_info []int32, badd bool) (bool, []*msg_clie
 
 	rand.Seed(time.Now().Unix() + time.Now().UnixNano())
 	for i := 0; i < len(items_info)/2; i++ {
-		drop_lib := cfg_drop_card_mgr.Map[items_info[2*i]]
+		drop_lib := drop_card_table_mgr.Map[items_info[2*i]]
 		if nil == drop_lib {
 			return false, nil
 		}
@@ -153,7 +153,7 @@ func (this *Player) DropItems3(items_info []int32, items map[int32]*msg_client_m
 	}
 
 	for i := 0; i < len(items_info)/2; i++ {
-		draw_lib := cfg_drop_card_mgr.Map[items_info[2*i]]
+		draw_lib := drop_card_table_mgr.Map[items_info[2*i]]
 		if nil == draw_lib {
 			return false
 		}

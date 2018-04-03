@@ -83,19 +83,19 @@ func (this *HallServer) OnInit() (err error) {
 
 	player_mgr.RegMsgHandler()
 
-	if !cfg_position.Init() {
-		return errors.New("cfg_positioin init failed")
+	if !position_table.Init() {
+		return errors.New("positioin_table init failed")
 	} else {
-		log.Info("cfg_position init succeed")
+		log.Info("position_table init succeed")
 	}
 
-	/*if !item_table_mgr.Init() {
-		return errors.New("cfg_item_mgr init failed!")
+	if !item_table_mgr.Init() {
+		return errors.New("item_table_mgr init failed!")
 	} else {
-		log.Info("cfg_item_mgr init succeed!")
+		log.Info("item_table_mgr init succeed!")
 	}
 
-	if stage_table_mgr.Init() {
+	/*if stage_table_mgr.Init() {
 		return errors.New("cfg_stage_mgr init failed !")
 	} else {
 		log.Info("cfg_stage_mgr init succeed !")
@@ -351,13 +351,13 @@ func (this *HallServer) OnUpdate(c *socket.TcpConn, t timer.TickTime) {
 
 var global_config_mgr table_config.GlobalConfigManager
 var task_table_mgr table_config.TaskTableMgr
-var item_table_mgr table_config.CfgItemManager
-var cfg_drop_card_mgr table_config.CfgDropCardManager
+var item_table_mgr table_config.ItemTableMgr
+var drop_card_table_mgr table_config.DropCardManager
 var shop_table_mgr table_config.ShopTableManager
 var handbook_table_mgr table_config.HandbookTableMgr
 var suit_table_mgr table_config.SuitTableMgr
 var extract_table_mgr table_config.ExtractTableManager
-var cfg_position table_config.CfgPosition
+var position_table table_config.PositionTable
 
 var card_table_mgr table_config.CardTableMgr
 var skill_table_mgr table_config.SkillTableMgr
