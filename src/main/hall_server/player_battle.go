@@ -531,10 +531,11 @@ func (this *BattleReports) Recycle() {
 }
 
 type BattleTeam struct {
-	curr_attack int32 // 当前进攻的索引
-	side        int32 // 0 左边 1 右边
-	members     []*TeamMember
-	reports     *BattleReports // 每回合战报
+	curr_attack  int32          // 当前进攻的索引
+	side         int32          // 0 左边 1 右边
+	temp_curr_id int32          // 临时ID，用于标识召唤的角色
+	members      []*TeamMember  // 成员
+	reports      *BattleReports // 每回合战报
 }
 
 // 利用玩家初始化
@@ -600,6 +601,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	}
 	this.curr_attack = 0
 	this.side = side
+	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
 
 	p.team_changed[team_id] = false
 
@@ -792,6 +794,70 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 // 回收战报
 func (this *BattleTeam) RecycleReports() {
 
+}
+
+func _recycle_battle_reports(reports []*msg_client_message.BattleReportItem) {
+	if reports != nil {
+		for i := 0; i < len(reports); i++ {
+			if reports[i] != nil {
+				msg_battle_reports_item_pool.Put(reports[i])
+			}
+		}
+	}
+}
+
+func _recycle_battle_rounds(rounds []*msg_client_message.BattleRoundReports) {
+	if rounds == nil {
+		return
+	}
+	for n := 0; n < len(rounds); n++ {
+		if rounds[n] == nil {
+			continue
+		}
+		if rounds[n].Reports != nil {
+			for i := 0; i < len(rounds[n].Reports); i++ {
+				r := rounds[n].Reports[i]
+				if r == nil {
+					continue
+				}
+				// user
+				if r.User != nil {
+					msg_battle_member_item_pool.Put(r.User)
+					r.User = nil
+				}
+				// behiters
+				if r.BeHiters != nil {
+					for j := 0; j < len(r.BeHiters); j++ {
+						if r.BeHiters[j] != nil {
+							msg_battle_member_item_pool.Put(r.BeHiters[j])
+						}
+					}
+					r.BeHiters = nil
+				}
+				// add buffs
+				if r.AddBuffs != nil {
+					for j := 0; j < len(r.AddBuffs); j++ {
+						if r.AddBuffs[j] != nil {
+							msg_battle_buff_item_pool.Put(r.AddBuffs[j])
+							r.AddBuffs[j] = nil
+						}
+					}
+					r.AddBuffs = nil
+				}
+				// remove buffs
+				if r.RemoveBuffs != nil {
+					for j := 0; j < len(r.RemoveBuffs); j++ {
+						if r.RemoveBuffs[j] != nil {
+							msg_battle_buff_item_pool.Put(r.RemoveBuffs[j])
+							r.RemoveBuffs[j] = nil
+						}
+					}
+					r.RemoveBuffs = nil
+				}
+				msg_battle_reports_item_pool.Put(r)
+			}
+		}
+	}
 }
 
 // 开打

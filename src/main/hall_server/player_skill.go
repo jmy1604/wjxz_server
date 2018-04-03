@@ -619,7 +619,8 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, effect [
 			continue
 		}
 		mem = team_member_pool.Get()
-		mem.init(target_team, 0, self_mem.level, new_card, int32(i))
+		mem.init(target_team, self_mem.team.temp_curr_id, self_mem.level, new_card, int32(i))
+		self_mem.team.temp_curr_id += 1
 		mem.hp = mem.hp * effect[2] / 10000
 		mem.attrs[ATTR_HP] = mem.hp
 		mem.attrs[ATTR_HP_MAX] = mem.hp
