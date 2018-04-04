@@ -50,6 +50,7 @@ const (
 	SKILL_TARGET_TYPE_SELF           = 5 // 自身
 	SKILL_TARGET_TYPE_TRIGGER_OBJECT = 6 // 触发器的另一个对象
 	SKILL_TARGET_TYPE_CROPSE         = 7 // 尸体
+	SKILL_TARGET_TYPE_EMPTY_POS      = 8 // 空位
 )
 
 // BUFF效果类型
@@ -331,6 +332,21 @@ func skill_get_random_targets(self_pos int32, target_team *BattleTeam, skill_dat
 	return
 }
 
+// 寻找空位
+func skill_get_empty_pos(target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+	c := int32(0)
+	for j := 0; j < len(target_team.members); j++ {
+		if target_team.members[j] == nil {
+			pos = append(pos, int32(j))
+			c += 1
+			if c >= skill_data.MaxTarget {
+				break
+			}
+		}
+	}
+	return
+}
+
 // 技能条件
 const (
 	SKILL_COND_TYPE_NONE           = iota
@@ -607,32 +623,22 @@ func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect 
 }
 
 // 召唤
-func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, effect []int32) (mem *TeamMember) {
+func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_pos int32, effect []int32) (mem *TeamMember) {
 	new_card := card_table_mgr.GetRankCard(effect[1], self_mem.card.Rank)
 	if new_card == nil {
 		log.Error("summon skill %v not found", effect[1])
 		return
 	}
 
-	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		if target_team.members[i] != nil {
-			continue
-		}
-		mem = team_member_pool.Get()
-		mem.init(target_team, self_mem.team.temp_curr_id, self_mem.level, new_card, int32(i))
-		self_mem.team.temp_curr_id += 1
-		mem.hp = mem.hp * effect[2] / 10000
-		mem.attrs[ATTR_HP] = mem.hp
-		mem.attrs[ATTR_HP_MAX] = mem.hp
-		mem.attack = mem.attack * effect[3] / 10000
-		mem.attrs[ATTR_ATTACK] = mem.attack
-		target_team.members[i] = mem
-		break
-	}
-
-	if mem == nil {
-		log.Warn("Cant found empty pos to summon %v for team[%v]", effect[1], target_team.side)
-	}
+	mem = team_member_pool.Get()
+	mem.init(target_team, self_mem.team.temp_curr_id, self_mem.level, new_card, empty_pos)
+	self_mem.team.temp_curr_id += 1
+	mem.hp = mem.hp * effect[2] / 10000
+	mem.attrs[ATTR_HP] = mem.hp
+	mem.attrs[ATTR_HP_MAX] = mem.hp
+	mem.attack = mem.attack * effect[3] / 10000
+	mem.attrs[ATTR_ATTACK] = mem.attack
+	target_team.members[empty_pos] = mem
 
 	return
 }
@@ -826,7 +832,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_SUMMON {
 				// 召唤
-				mem := skill_effect_summon(self, target_team, effects[i])
+				mem := skill_effect_summon(self, target_team, target_pos[j], effects[i])
 				if mem != nil {
 					report.IsSummon = true
 					// --------------------- 战报 ----------------------

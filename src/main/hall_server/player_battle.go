@@ -703,6 +703,8 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_CROPSE {
 
+	} else if skill.SkillTarget == SKILL_TARGET_TYPE_EMPTY_POS {
+		pos = skill_get_empty_pos(target_team, skill)
 	} else {
 		log.Error("Invalid skill target type: %v", skill.SkillTarget)
 		return
