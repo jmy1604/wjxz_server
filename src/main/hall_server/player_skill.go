@@ -639,7 +639,6 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_po
 	mem.attack = mem.attack * effect[3] / 10000
 	mem.attrs[ATTR_ATTACK] = mem.attack
 	target_team.members[empty_pos] = mem
-
 	return
 }
 
