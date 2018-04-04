@@ -7,6 +7,7 @@ import (
 
 func (this *TeamMember) build_battle_item(pos int32, damage int32) *msg_client_message.BattleMemberItem {
 	item := msg_battle_member_item_pool.Get()
+	item.Side = this.team.side
 	item.Id = this.id
 	item.TableId = this.card.ClientId
 	item.Pos = pos

@@ -200,10 +200,10 @@ func S2CEnterGameHandler(hall_conn *HallConnection, m proto.Message) {
 func output_report(rr *msg_client_message.BattleReportItem) {
 	log.Debug("		 	report: side[%v]", rr.Side)
 	log.Debug("					 skill_id: %v", rr.SkillId)
-	log.Debug("					 user: Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.User.Id, rr.User.Pos, rr.User.HP, rr.User.MaxHP, rr.User.Energy, rr.User.Damage, rr.User.TableId)
+	log.Debug("					 user: Side[%v], Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.User.Side, rr.User.Id, rr.User.Pos, rr.User.HP, rr.User.MaxHP, rr.User.Energy, rr.User.Damage, rr.User.TableId)
 	if rr.BeHiters != nil {
 		for n := 0; n < len(rr.BeHiters); n++ {
-			log.Debug("					 behiter: Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.BeHiters[n].Id, rr.BeHiters[n].Pos, rr.BeHiters[n].HP, rr.BeHiters[n].MaxHP, rr.BeHiters[n].Energy, rr.BeHiters[n].Damage, rr.BeHiters[n].TableId)
+			log.Debug("					 behiter: Side[%v], Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.BeHiters[n].Side, rr.BeHiters[n].Id, rr.BeHiters[n].Pos, rr.BeHiters[n].HP, rr.BeHiters[n].MaxHP, rr.BeHiters[n].Energy, rr.BeHiters[n].Damage, rr.BeHiters[n].TableId)
 		}
 	}
 	if rr.AddBuffs != nil {
@@ -236,7 +236,7 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 			if m == nil {
 				continue
 			}
-			log.Debug("		 Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
+			log.Debug("		 Side:%v Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
 		}
 	}
 	if response.TargetTeam != nil {
@@ -246,7 +246,7 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 			if m == nil {
 				continue
 			}
-			log.Debug("		 Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
+			log.Debug("		 Side:%v Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
 		}
 	}
 
