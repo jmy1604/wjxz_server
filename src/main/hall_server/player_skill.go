@@ -678,9 +678,11 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			continue
 		}
 
-		if !skill_check_cond(self, target_pos, target_team, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
-			log.Debug("self[%v] cant use skill[%v] to target[%v]")
-			continue
+		if skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
+			if !skill_check_cond(self, target_pos, target_team, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
+				log.Debug("self[%v] cant use skill[%v] to target[%v]", self_pos, skill_data.Id, target_pos)
+				continue
+			}
 		}
 
 		effect_type := effects[i][0]

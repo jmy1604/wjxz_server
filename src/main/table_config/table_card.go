@@ -53,7 +53,7 @@ func (this *CardTableMgr) Init() bool {
 }
 
 func (this *CardTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/card.xml")
+	data, err := ioutil.ReadFile("../game_data/Card.xml")
 	if nil != err {
 		log.Error("CardTableMgr read file err[%s] !", err.Error())
 		return false

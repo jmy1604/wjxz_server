@@ -72,7 +72,7 @@ func (this *SkillTableMgr) Init() bool {
 }
 
 func (this *SkillTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/skill.xml")
+	data, err := ioutil.ReadFile("../game_data/Skill.xml")
 	if nil != err {
 		log.Error("SkillTableMgr read file err[%s] !", err.Error())
 		return false
