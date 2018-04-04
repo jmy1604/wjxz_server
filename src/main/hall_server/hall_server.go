@@ -89,11 +89,11 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("position_table init succeed")
 	}
 
-	if !item_table_mgr.Init() {
+	/*if !item_table_mgr.Init() {
 		return errors.New("item_table_mgr init failed!")
 	} else {
 		log.Info("item_table_mgr init succeed!")
-	}
+	}*/
 
 	/*if stage_table_mgr.Init() {
 		return errors.New("cfg_stage_mgr init failed !")

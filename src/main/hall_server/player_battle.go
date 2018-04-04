@@ -712,6 +712,11 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 }
 
 func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
+	self := this.members[self_index]
+	if self == nil || self.is_dead() {
+		return nil
+	}
+
 	is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, trigger_skill)
 	if target_pos == nil {
 		log.Warn("team[%v] member[%v] Cant find targets to attack with skill[%v]", self_index, skill.Id)

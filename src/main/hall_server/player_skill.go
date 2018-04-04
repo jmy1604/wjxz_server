@@ -143,7 +143,7 @@ func _get_team_big_cross_targets() [][]int32 {
 func _get_single_default_target(self_pos int32, target_team *BattleTeam) (pos int32) {
 	pos = int32(-1)
 	m := target_team.members[self_pos]
-	if m != nil {
+	if m != nil && !m.is_dead() {
 		pos = self_pos
 	} else {
 		rows_order := _get_rows_order(self_pos)

@@ -11,6 +11,7 @@ import (
 
 	_ "3p/code.google.com.protobuf/proto"
 	"github.com/golang/protobuf/proto"
+	"github.com/yuin/gopher-lua"
 )
 
 /*func player_info_cmd(p *Player, args []string) int32 {
@@ -977,6 +978,31 @@ func reset_day_sign_reward(p *Player, args []string) int32 {
 }
 */
 
+func test_lua_cmd(p *Player, args []string) int32 {
+	L := lua.NewState(lua.Options{SkipOpenLibs: true})
+	defer L.Close()
+	for _, pair := range []struct {
+		n string
+		f lua.LGFunction
+	}{
+		{lua.LoadLibName, lua.OpenPackage}, // Must be first
+		{lua.BaseLibName, lua.OpenBase},
+		{lua.TabLibName, lua.OpenTable},
+	} {
+		if err := L.CallByParam(lua.P{
+			Fn:      L.NewFunction(pair.f),
+			NRet:    0,
+			Protect: true,
+		}, lua.LString(pair.n)); err != nil {
+			panic(err)
+		}
+	}
+	if err := L.DoFile("main.lua"); err != nil {
+		panic(err)
+	}
+	return 1
+}
+
 func rand_role_cmd(p *Player, args []string) int32 {
 	role_id := p.rand_role()
 	if role_id <= 0 {
@@ -1161,6 +1187,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 		  "push_sysmsg_text":      push_sysmsg_text_cmd,
 		  "reset_day_sign_reward": reset_day_sign_reward,
 	*/
+	"test_lua":         test_lua_cmd,
 	"rand_role":        rand_role_cmd,
 	"list_role":        list_role_cmd,
 	"set_attack_team":  set_attack_team_cmd,
