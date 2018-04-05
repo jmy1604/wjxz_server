@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 )
 
 //const SHOP_LIMITED_ITEMS_FIRST_LOAD = "mm:shop_limited_items_first_load"

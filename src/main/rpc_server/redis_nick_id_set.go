@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 )
 
 //const NICK_ID_SET = "mm:nick_id_set"
