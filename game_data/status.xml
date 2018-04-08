@@ -63,8 +63,8 @@
      <item BuffID="227" Effect="5|35" Type="2" ResistCountMax="0" MutexType="3" ResistMutexType="" CancelMutexType="" ResistMutexID="0" CancelMutexID="" />
      <item BuffID="301" Effect="0" Type="3" ResistCountMax="0" MutexType="21" ResistMutexType="" CancelMutexType="13" ResistMutexID="0" CancelMutexID="" />
      <item BuffID="302" Effect="0" Type="3" ResistCountMax="0" MutexType="22" ResistMutexType="" CancelMutexType="1,2,3" ResistMutexID="0" CancelMutexID="" />
-     <item BuffID="401" Effect="0" Type="4" ResistCountMax="1" MutexType="31" ResistMutexType="" CancelMutexType="" ResistMutexID="0" CancelMutexID="" />
-     <item BuffID="402" Effect="0" Type="4" ResistCountMax="1" MutexType="32" ResistMutexType="" CancelMutexType="" ResistMutexID="0" CancelMutexID="" />
+     <item BuffID="401" Effect="0" Type="4" ResistCountMax="1" MutexType="31" ResistMutexType="21" CancelMutexType="" ResistMutexID="0" CancelMutexID="" />
+     <item BuffID="402" Effect="0" Type="4" ResistCountMax="1" MutexType="32" ResistMutexType="22" CancelMutexType="" ResistMutexID="0" CancelMutexID="" />
      <item BuffID="403" Effect="0" Type="4" ResistCountMax="1" MutexType="33" ResistMutexType="13" CancelMutexType="" ResistMutexID="0" CancelMutexID="" />
      <item BuffID="404" Effect="0" Type="4" ResistCountMax="1" MutexType="34" ResistMutexType="1,2,3" CancelMutexType="" ResistMutexID="0" CancelMutexID="" />
      <item BuffID="411" Effect="0" Type="4" ResistCountMax="0" MutexType="35" ResistMutexType="2" CancelMutexType="" ResistMutexID="0" CancelMutexID="" />
@@ -75,4 +75,5 @@
      <item BuffID="1005" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="5,1005" CancelMutexID="" />
      <item BuffID="1006" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="6,1006" CancelMutexID="" />
      <item BuffID="1007" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="7,1007" CancelMutexID="" />
+     <item BuffID="5001" Effect="7|20002" Type="1" ResistCountMax="0" MutexType="14" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
 </Config>

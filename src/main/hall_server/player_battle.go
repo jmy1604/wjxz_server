@@ -88,22 +88,23 @@ type MemberPassiveTriggerData struct {
 }
 
 type TeamMember struct {
-	team               *BattleTeam
-	pos                int32
-	id                 int32
-	level              int32
-	card               *table_config.XmlCardItem
-	hp                 int32
-	energy             int32
-	attack             int32
-	defense            int32
-	act_num            int32                                 // 行动次数
-	attrs              []int32                               // 属性
-	bufflist_arr       []BuffList                            // BUFF
-	passive_triggers   map[int32][]*MemberPassiveTriggerData // 被动技触发事件
-	temp_normal_skill  int32                                 // 临时普通攻击
-	temp_super_skill   int32                                 // 临时怒气攻击
-	temp_changed_attrs []int32                               // 临时改变的属性
+	team                *BattleTeam
+	pos                 int32
+	id                  int32
+	level               int32
+	card                *table_config.XmlCardItem
+	hp                  int32
+	energy              int32
+	attack              int32
+	defense             int32
+	act_num             int32                                 // 行动次数
+	attrs               []int32                               // 属性
+	bufflist_arr        []BuffList                            // BUFF
+	passive_triggers    map[int32][]*MemberPassiveTriggerData // 被动技触发事件
+	temp_normal_skill   int32                                 // 临时普通攻击
+	temp_super_skill    int32                                 // 临时怒气攻击
+	temp_changed_attrs  []int32                               // 临时改变的属性
+	buff_trigger_skills map[int32]int32                       // BUFF触发的技能
 }
 
 func (this *TeamMember) add_skill_attr(skill_id int32) {
@@ -128,32 +129,75 @@ func (this *TeamMember) init_passive_data(role_card *table_config.XmlCardItem) {
 		return
 	}
 	for i := 0; i < len(role_card.PassiveSkillIds); i++ {
-		skill := skill_table_mgr.Get(role_card.PassiveSkillIds[i])
-		if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
+		this.add_passive_trigger(role_card.PassiveSkillIds[i])
+	}
+}
+
+func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
+	skill := skill_table_mgr.Get(skill_id)
+	if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
+		return false
+	}
+
+	if this.passive_triggers == nil {
+		this.passive_triggers = make(map[int32][]*MemberPassiveTriggerData)
+	}
+
+	d := passive_trigger_data_pool.Get()
+	d.skill = skill
+	d.battle_num = skill.TriggerBattleMax
+	d.round_num = skill.TriggerRoundMax
+	if skill.TriggerBattleMax <= 0 {
+		d.battle_num = -1
+	}
+	if skill.TriggerRoundMax <= 0 {
+		d.round_num = -1
+	}
+	datas := this.passive_triggers[skill.SkillTriggerType]
+	if datas == nil {
+		this.passive_triggers[skill.SkillTriggerType] = []*MemberPassiveTriggerData{d}
+	} else {
+		this.passive_triggers[skill.SkillTriggerType] = append(datas, d)
+	}
+
+	return true
+}
+
+func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
+	skill := skill_table_mgr.Get(skill_id)
+	if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
+		return false
+	}
+
+	if this.passive_triggers == nil {
+		return false
+	}
+
+	triggers := this.passive_triggers[skill.SkillTriggerType]
+	if triggers == nil {
+		return false
+	}
+
+	l := len(triggers)
+	i := l - 1
+	for ; i >= 0; i-- {
+		if triggers[i] == nil {
 			continue
 		}
-
-		if this.passive_triggers == nil {
-			this.passive_triggers = make(map[int32][]*MemberPassiveTriggerData)
-		}
-
-		d := passive_trigger_data_pool.Get()
-		d.skill = skill
-		d.battle_num = skill.TriggerBattleMax
-		d.round_num = skill.TriggerRoundMax
-		if skill.TriggerBattleMax <= 0 {
-			d.battle_num = -1
-		}
-		if skill.TriggerRoundMax <= 0 {
-			d.round_num = -1
-		}
-		datas := this.passive_triggers[skill.SkillTriggerType]
-		if datas == nil {
-			this.passive_triggers[skill.SkillTriggerType] = []*MemberPassiveTriggerData{d}
-		} else {
-			this.passive_triggers[skill.SkillTriggerType] = append(datas, d)
+		if triggers[i].skill.Id == skill_id {
+			triggers[i] = nil
+			break
 		}
 	}
+
+	if i >= 0 {
+		for n := i; n < l-1; n++ {
+			triggers[n] = triggers[n+1]
+		}
+		this.passive_triggers[skill.SkillTriggerType] = triggers[:l-1]
+	}
+
+	return true
 }
 
 func (this *TeamMember) can_passive_trigger(trigger_event int32, skill_id int32) (trigger bool) {
@@ -370,15 +414,27 @@ func (this *TeamMember) has_buff(buff_id int32) bool {
 }
 
 func (this *TeamMember) remove_buff_effect(buff *Buff) {
-	if buff.buff.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
-		if this.attrs[buff.buff.Effect[1]] < buff.param {
-			this.attrs[buff.buff.Effect[1]] = 0
-		} else {
-			this.attrs[buff.buff.Effect[1]] -= buff.param
-		}
+	if buff.buff == nil || buff.buff.Effect == nil {
+		return
+	}
 
-		if buff.buff.Effect[1] == ATTR_HP_MAX && this.attrs[ATTR_HP] > this.attrs[ATTR_HP_MAX] {
-			this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
+	if len(buff.buff.Effect) >= 2 {
+		effect_type := buff.buff.Effect[0]
+		if effect_type == BUFF_EFFECT_TYPE_MODIFY_ATTR {
+			if this.attrs[buff.buff.Effect[1]] < buff.param {
+				this.attrs[buff.buff.Effect[1]] = 0
+			} else {
+				this.attrs[buff.buff.Effect[1]] -= buff.param
+			}
+
+			if buff.buff.Effect[1] == ATTR_HP_MAX && this.attrs[ATTR_HP] > this.attrs[ATTR_HP_MAX] {
+				this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
+			}
+		} else if effect_type == BUFF_EFFECT_TYPE_TRIGGER_SKILL {
+			if _, o := this.buff_trigger_skills[buff.buff.Effect[1]]; o {
+				delete(this.buff_trigger_skills, buff.buff.Effect[1])
+				this.delete_passive_trigger(buff.buff.Effect[1])
+			}
 		}
 	}
 }

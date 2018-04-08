@@ -61,6 +61,7 @@ const (
 	BUFF_EFFECT_TYPE_DISABLE_ACTION        = 4
 	BUFF_EFFECT_TYPE_MODIFY_ATTR           = 5
 	BUFF_EFFECT_TYPE_DODGE                 = 6
+	BUFF_EFFECT_TYPE_TRIGGER_SKILL         = 7
 	BUFF_EFFECT_TYPE_COUNT                 = 8
 )
 
@@ -704,12 +705,12 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 		for j := 0; j < len(target_pos); j++ {
 			target := target_team.members[target_pos[j]]
-			if target == nil {
+			if target == nil && skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
 				continue
 			}
 
 			if effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
-				if target.is_dead() {
+				if target == nil || target.is_dead() {
 					continue
 				}
 
@@ -809,6 +810,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				log.Debug("self_team[%v] role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
 			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
+				if target == nil {
+					continue
+				}
 				// 治疗
 				cure := skill_effect_cure(self, target, effects[i])
 				if cure != 0 {
@@ -823,13 +827,16 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				log.Debug("self_team[%v] role[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self_team.side, self.id, skill_data.Id, target.id, cure)
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_BUFF {
+				if target == nil {
+					continue
+				}
 				// 施加BUFF
 				buff_id := skill_effect_add_buff(self, target, effects[i])
 				// -------------------- 战报 --------------------
 				build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
 				// ----------------------------------------------
 				if buff_id > 0 {
-					log.Debug("self_team[%v] role[%v] use skill[%v] to target[%v] add buff[%v]", self_team.side, self.id, skill_data.Id, target.id, buff_id)
+					log.Debug("self_team[%v] role[%v] use skill[%v] to target[%v] 触发 buff[%v]", self_team.side, self.id, skill_data.Id, target.id, buff_id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_SUMMON {
 				// 召唤
@@ -842,6 +849,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					log.Debug("self_team[%v] role[%v] use skill[%v] to summon npc[%v]", self_team.side, self.id, skill_data.Id, mem.card.Id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_ATTR {
+				if target == nil {
+					continue
+				}
 				// 改变下次计算时的角色参数
 				skill_effect_temp_attrs(self, effects[i])
 				// -------------------- 战报 --------------------
@@ -860,6 +870,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					log.Debug("self_team[%v] pos[%v] role[%v] changed super skill to %v", self_team.side, self_pos, self.id, self.temp_super_skill)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE {
+				if target == nil {
+					continue
+				}
 				// 改变怒气
 				if effects[i][3] > 0 {
 					if rand.Int31n(10000) > effects[i][3] {
@@ -876,9 +889,15 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM {
+				if target == nil {
+					continue
+				}
 				// 增加行动次数
 				target.act_num += effects[i][1]
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_SHIELD {
+				if target == nil {
+					continue
+				}
 				// 增加护盾
 				shield := skill_effect_add_shield(self, target, effects[i])
 				if shield != 0 {
@@ -931,7 +950,7 @@ func passive_skill_effect(trigger_event int32, self_team *BattleTeam, self_pos i
 		}
 
 		if skill.SkillTriggerType == trigger_event {
-			log.Debug("******************************************************* skill_id[%v] trigger_event[%v]", skill.Id, trigger_event)
+			log.Debug("******************************************************* 被动技 skill_id[%v] trigger_event[%v]", skill.Id, trigger_event)
 			if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
 				if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
 					self_team.UseOnceSkill(self_pos, target_team, skill.Id)
@@ -956,13 +975,14 @@ func passive_skill_effect(trigger_event int32, self_team *BattleTeam, self_pos i
 }
 
 type Buff struct {
-	buff      *table_config.XmlStatusItem
-	attack    int32
-	dmg_add   int32
-	param     int32
-	round_num int32
-	next      *Buff
-	prev      *Buff
+	buff       *table_config.XmlStatusItem
+	attack     int32
+	dmg_add    int32
+	param      int32
+	round_num  int32
+	resist_num int32
+	next       *Buff
+	prev       *Buff
 }
 
 type BuffList struct {
@@ -1024,28 +1044,37 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 		next := hh.next
 		for j := 0; j < len(hh.buff.ResistMutexTypes); j++ {
 			if b.MutexType > 0 && b.MutexType == hh.buff.ResistMutexTypes[j] {
-				log.Debug("BUFF[%v]类型[%v]排斥BUFF[%v]类型[%v]", hh.buff.Id, hh.buff.MutexType, b.Id, b.MutexType)
+				log.Debug("Team[%v] role[%v] BUFF[%v]类型[%v]排斥BUFF[%v]类型[%v]", this.owner.team.side, this.owner.id, hh.buff.Id, hh.buff.MutexType, b.Id, b.MutexType)
 				return true
 			}
 		}
 		for j := 0; j < len(hh.buff.ResistMutexIDs); j++ {
 			if b.MutexType > 0 && b.Id == hh.buff.ResistMutexIDs[j] {
-				log.Debug("BUFF[%v]排斥BUFF[%v]", hh.buff.Id, b.Id)
+				log.Debug("Team[%v] role[%v] BUFF[%v]排斥BUFF[%v]", this.owner.team.side, this.owner.id, hh.buff.Id, b.Id)
 				return true
+			}
+		}
+		if hh.resist_num > 0 {
+			if hh.resist_num > 1 {
+				hh.resist_num -= 1
+			} else {
+				this.remove_buff(hh)
+				this.add_remove_buff_report(hh.buff.Id)
+				log.Debug("Team[%v] role[%v] BUFF[%v]类型免疫次数[%v]用完", this.owner.team.side, this.owner.id, hh.buff.Id, hh.buff.ResistCountMax)
 			}
 		}
 		for j := 0; j < len(hh.buff.CancelMutexTypes); j++ {
 			if b.MutexType > 0 && b.MutexType == hh.buff.CancelMutexTypes[j] {
 				this.remove_buff(hh)
 				this.add_remove_buff_report(hh.buff.Id)
-				log.Debug("BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
+				log.Debug("Team[%v] role[%v] BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", this.owner.team.side, this.owner.id, b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
 			}
 		}
 		for j := 0; j < len(hh.buff.CancelMutexIDs); j++ {
 			if b.MutexType > 0 && b.Id == hh.buff.CancelMutexIDs[j] {
 				this.remove_buff(hh)
 				this.add_remove_buff_report(hh.buff.Id)
-				log.Debug("BUFF[%v]驱散了BUFF[%v]", b.Id, hh.buff.Id)
+				log.Debug("Team[%v] role[%v] BUFF[%v]驱散了BUFF[%v]", this.owner.team.side, this.owner.id, b.Id, hh.buff.Id)
 			}
 		}
 		hh = next
@@ -1060,6 +1089,17 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 	buff.dmg_add = attacker.attrs[ATTR_TOTAL_DAMAGE_ADD]
 	buff.param = skill_effect[3]
 	buff.round_num = skill_effect[4]
+	buff.resist_num = b.ResistCountMax
+
+	// BUFF触发的技能
+	if b.Effect != nil && len(b.Effect) >= 2 && b.Effect[0] == BUFF_EFFECT_TYPE_TRIGGER_SKILL {
+		if this.owner.buff_trigger_skills == nil {
+			this.owner.buff_trigger_skills = make(map[int32]int32)
+		}
+		this.owner.buff_trigger_skills[b.Effect[1]] = b.Effect[1]
+		this.owner.add_passive_trigger(b.Effect[1])
+		log.Debug("Team[%v] Member[%v] 添加BUFF[%v] 增加了被动技[%v]", this.owner.team.side, this.owner.id, b.Id, b.Effect[1])
+	}
 
 	if this.head == nil {
 		buff.prev = nil
