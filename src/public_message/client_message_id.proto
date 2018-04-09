@@ -18,7 +18,8 @@ enum MSGID {
 	S2C_ENTER_GAME_RESPONSE			= 11001; // 进入游戏返回 S2CEnterGameResponse
 	S2C_ENTER_GAME_COMPLETE_NOTIFY 	= 11002; // 进入游戏完成 S2CEnterGameCompleteNotify
 	
-	S2C_ROLES_RESPONSE				= 11010; // 角色请求 C2SRolesRequest
+	S2C_ROLES_RESPONSE				= 11010; // 角色请求 S2CRolesRequest
+	S2C_ROLES_CHANGE_NOTIFY			= 11011; // 角色更新 S2CRolesChangeNotify
 	
 	C2S_BATTLE_RESULT_REQUEST		= 10100; // 战斗结果请求 C2SBattleResultRequest
 	S2C_BATTLE_RESULT_RESPONSE		= 10101; // 战斗结果请求返回 S2CBattleResultResponse

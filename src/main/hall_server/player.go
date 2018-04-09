@@ -1,18 +1,15 @@
 package main
 
 import (
-	//"fmt"
 	"libs/log"
 	_ "main/table_config"
 	"math/rand"
 	_ "net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
-	_ "public_message/gen_go/server_message"
 	"sync"
 	"time"
 
-	_ "3p/code.google.com.protobuf/proto"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -30,6 +27,49 @@ type PlayerMsgItem struct {
 	data_len      int32
 	data_head_len int32
 	msg_code      uint16
+}
+
+type IdChangeInfo struct {
+	add    []int32
+	remove []int32
+	update []int32
+}
+
+func (this *IdChangeInfo) is_changed() bool {
+	if this.add != nil || this.remove != nil || this.update != nil {
+		return true
+	}
+	return false
+}
+
+func (this *IdChangeInfo) id_add(id int32) {
+	if this.add == nil {
+		this.add = []int32{id}
+	} else {
+		this.add = append(this.add, id)
+	}
+}
+
+func (this *IdChangeInfo) id_remove(id int32) {
+	if this.remove == nil {
+		this.remove = []int32{id}
+	} else {
+		this.remove = append(this.remove, id)
+	}
+}
+
+func (this *IdChangeInfo) id_update(id int32) {
+	if this.update == nil {
+		this.update = []int32{id}
+	} else {
+		this.update = append(this.update, id)
+	}
+}
+
+func (this *IdChangeInfo) reset() {
+	this.add = nil
+	this.remove = nil
+	this.update = nil
 }
 
 type Player struct {
@@ -58,6 +98,9 @@ type Player struct {
 	attack_team     BattleTeam
 	defense_team    BattleTeam
 	team_changed    map[int32]bool
+
+	roles_id_change_info IdChangeInfo // 角色增删更新
+	items_id_change_info IdChangeInfo // 物品增删更新
 
 	msg_acts_lock    *sync.Mutex
 	cur_msg_acts_len int32
@@ -112,14 +155,18 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) bool {
 
 	card := card_table_mgr.GetRankCard(role_id, rank)
 	if card == nil {
-		log.Error("Cant get role card by id[%] rank[%v]", role_id, rank)
+		log.Error("Cant get role card by id[%v] rank[%v]", role_id, rank)
 		return false
 	}
 	var role dbPlayerRoleData
-	role.Id = role_id
+	role.TableId = role_id
+	role.Id = this.db.Global.IncbyCurrentRoleId(1)
 	role.Rank = rank
 	role.Level = level
 	this.db.Roles.Add(&role)
+
+	this.roles_id_change_info.id_add(role.Id)
+
 	return true
 }
 
@@ -165,10 +212,41 @@ func (this *Player) rand_role() int32 {
 			Rank:    1,
 			Level:   1,
 		})
+
+		this.roles_id_change_info.id_add(id)
 		log.Debug("Player[%v] rand role[%v]", this.Id, table_id)
 	}
 
 	return id
+}
+
+func (this *Player) check_and_send_roles_change() {
+	if this.roles_id_change_info.is_changed() {
+		var msg msg_client_message.S2CRolesChangeNotify
+		if this.roles_id_change_info.add != nil {
+			roles := this.db.Roles.BuildSomeMsg(this.roles_id_change_info.add)
+			if roles != nil {
+				msg.Adds = roles
+			}
+		}
+		if this.roles_id_change_info.remove != nil {
+			msg.Removes = this.roles_id_change_info.remove
+		}
+		if this.roles_id_change_info.update != nil {
+			roles := this.db.Roles.BuildSomeMsg(this.roles_id_change_info.update)
+			if roles != nil {
+				msg.Updates = roles
+			}
+		}
+		this.roles_id_change_info.reset()
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLES_CHANGE_NOTIFY), &msg)
+	}
+}
+
+func (this *Player) check_and_send_items_change() {
+	if this.items_id_change_info.is_changed() {
+		this.items_id_change_info.reset()
+	}
 }
 
 func (this *Player) add_msg_data(msg_code uint16, data []byte) {
@@ -203,16 +281,13 @@ func (this *Player) add_msg_data(msg_code uint16, data []byte) {
 	return
 }
 
-func (this *Player) SendBaseInfo() {
-}
-func (this *Player) ChkSendNotifyState() {
-}
-
 func (this *Player) PopCurMsgData() []byte {
 	if this.b_base_prop_chg {
-		this.SendBaseInfo()
+
 	}
-	this.ChkSendNotifyState()
+
+	this.check_and_send_roles_change()
+	this.check_and_send_items_change()
 	this.CheckAndAnouncement()
 
 	this.msg_items_lock.Lock()
@@ -260,6 +335,12 @@ func (this *Player) Send(msg_id uint16, msg proto.Message) {
 	this.add_msg_data(msg_id, data)
 }
 
+func (this *Player) add_init_roles() {
+	for _, id := range global_config_mgr.GetGlobalConfig().InitRoles {
+		this.new_role(int32(id), 1, 1)
+	}
+}
+
 func (this *Player) add_all_items() {
 }
 
@@ -271,6 +352,8 @@ func (this *Player) OnCreate() {
 	}
 	this.db.Info.SetLvl(1)
 	this.db.Info.SetCreateUnix(int32(time.Now().Unix()))
+	this.add_init_roles()
+
 	// 新任务
 	this.UpdateNewTasks(1, false)
 
@@ -290,10 +373,32 @@ func (this *Player) OnLogout() {
 }
 
 func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
-	this.m_row.m_lock.UnSafeLock("dbPlayerRoleColumn.BuildMsg")
-	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.BuildMsg")
+	defer this.m_row.m_lock.UnSafeRUnlock()
 
 	for _, v := range this.m_data {
+		role := &msg_client_message.Role{
+			Id:      v.Id,
+			TableId: v.TableId,
+			Rank:    v.Rank,
+			Level:   v.Level,
+			Attrs:   v.Attr,
+		}
+		roles = append(roles, role)
+	}
+	return
+}
+
+func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_message.Role) {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.BuildOneMsg")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	for i := 0; i < len(ids); i++ {
+		v, o := this.m_data[ids[i]]
+		if !o {
+			return
+		}
+
 		role := &msg_client_message.Role{
 			Id:      v.Id,
 			TableId: v.TableId,
@@ -816,20 +921,20 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 
 	my_team := this.attack_team._format_members_for_msg()
 	target_team := p.defense_team._format_members_for_msg()
-	is_win, before_enter_reports, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
-	if before_enter_reports == nil {
-		before_enter_reports = make([]*msg_client_message.BattleReportItem, 0)
+	is_win, enter_reports, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+	if enter_reports == nil {
+		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
 	}
 	if rounds == nil {
 		rounds = make([]*msg_client_message.BattleRoundReports, 0)
 	}
 
 	response := &msg_client_message.S2CBattleResultResponse{
-		IsWin:              is_win,
-		BeforeEnterReports: before_enter_reports,
-		Rounds:             rounds,
-		MyTeam:             my_team,
-		TargetTeam:         target_team,
+		IsWin:        is_win,
+		EnterReports: enter_reports,
+		Rounds:       rounds,
+		MyTeam:       my_team,
+		TargetTeam:   target_team,
 	}
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)

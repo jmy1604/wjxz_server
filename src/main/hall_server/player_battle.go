@@ -924,7 +924,7 @@ func _recycle_battle_rounds(rounds []*msg_client_message.BattleRoundReports) {
 }
 
 // 开打
-func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) (is_win bool, before_enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports) {
+func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) (is_win bool, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports) {
 	round_max := end_param
 	if end_type == BATTLE_END_BY_ALL_DEAD {
 		round_max = BATTLE_ROUND_MAX_NUM
@@ -945,7 +945,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	}
 
 	if this.reports.reports != nil {
-		before_enter_reports = this.reports.reports
+		enter_reports = this.reports.reports
 		this.reports.reports = make([]*msg_client_message.BattleReportItem, 0)
 	}
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"libs/log"
-	"libs/socket"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
@@ -267,6 +266,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 	}
 
 	//p = player_mgr.GetPlayerById(player_id)
+	is_new := false
 	p = player_mgr.GetPlayerByAcc(acc)
 	if nil == p {
 		//pdb := dbc.Players.GetRow(p.Id)
@@ -290,6 +290,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 		//}
 		player_mgr.Add2AccMap(p)
 		player_mgr.Add2IdMap(p)
+		is_new = true
 	} else {
 		p.Account = token_info.acc
 		p.Token = token_info.token
@@ -304,26 +305,12 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 
 	p.send_enter_game(acc, p.Id)
 	p.OnLogin()
-	p.send_roles()
+	if !is_new {
+		p.send_roles()
+	}
 	p.notify_enter_complete()
 
 	log.Info("PlayerEnterGameHandler account[%s] token[%s]", req.GetAcc(), req.GetToken())
 
 	return 1, p
-}
-
-func HeartBeatHandler(conn *socket.TcpConn, msg proto.Message) {
-	return
-}
-
-func C2SC2SGetPlayerInfoHandler(conn *socket.TcpConn, msg proto.Message) {
-	return
-}
-
-// ----------------------------------------------------------------------------
-func C2HGetPlayerInfoHandler(c *CenterConnection, msg proto.Message) {
-}
-
-func C2HRetPlayerInfoHandler(c *CenterConnection, msg proto.Message) {
-	return
 }

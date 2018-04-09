@@ -212,6 +212,13 @@ message S2CRolesResponse {
 	repeated Role Roles				= 1;
 }
 
+// 角色信息更新通知
+message S2CRolesChangeNotify {
+	repeated Role Adds 				= 1; // 增加
+	repeated int32 Removes          = 2; // 删除
+	repeated Role Updates			= 3; // 更新
+}
+
 //------------------------------ 战斗 ----------------------------------------
 // 设置阵容
 message C2SSetTeamRequest {
@@ -272,7 +279,7 @@ message S2CBattleResultResponse {
 	bool IsWin										= 1; // true 赢  false 输
 	repeated BattleMemberItem MyTeam				= 2; // 战斗前我方阵容
 	repeated BattleMemberItem TargetTeam			= 3; // 战斗前敌方阵容
-	repeated BattleReportItem BeforeEnterReports 	= 4; // 进场前战报，一般是被动技效果
+	repeated BattleReportItem EnterReports 			= 4; // 进场时战报，一般是被动技效果
 	repeated BattleRoundReports Rounds 				= 5; // 回合
 }
 

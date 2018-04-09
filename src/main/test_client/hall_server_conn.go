@@ -250,10 +250,10 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 		}
 	}
 
-	if response.BeforeEnterReports != nil {
+	if response.EnterReports != nil {
 		log.Debug("   before enter:")
-		for i := 0; i < len(response.BeforeEnterReports); i++ {
-			r := response.BeforeEnterReports[i]
+		for i := 0; i < len(response.EnterReports); i++ {
+			r := response.EnterReports[i]
 			output_report(r)
 		}
 	}
