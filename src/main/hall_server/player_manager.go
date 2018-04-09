@@ -229,6 +229,7 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), C2SEnterGameRequestHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), C2STestCommandHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST), C2SFightHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_SET_TEAM_REQUEST), C2SSetTeamHandler)
 }
 
 func base_msgid2msg(msg_id uint16) proto.Message {
@@ -238,6 +239,8 @@ func base_msgid2msg(msg_id uint16) proto.Message {
 		return &msg_client_message.C2S_TEST_COMMAND{}
 	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST) {
 		return &msg_client_message.C2SBattleResultRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_SET_TEAM_REQUEST) {
+		return &msg_client_message.C2SSetTeamRequest{}
 	} else {
 		log.Warn("Cant get base proto message by msg_id[%v]", msg_id)
 	}

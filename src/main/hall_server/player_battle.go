@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -1019,7 +1020,7 @@ func (this *BattleTeam) HasRole(role_id int32) bool {
 func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SBattleResultRequest)
 	if req == nil || p == nil {
-		log.Error("C2SWorldChatMsgPullHandler player[%v] proto is invalid", p.Id)
+		log.Error("C2SBattleResultRequest player[%v] proto is invalid", p.Id)
 		return -1
 	}
 
@@ -1030,6 +1031,30 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg prot
 	}
 
 	p.Fight2Player(req.FightPlayerId)
+
+	return 1
+}
+
+func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SSetTeamRequest)
+	if req == nil || p == nil {
+		log.Error("C2SSetTeamHandler player[%v] proto is invalid", p.Id)
+		return -1
+	}
+
+	tt := req.GetTeamType()
+	if tt == 0 {
+		p.SetAttackTeam(req.TeamMembers)
+	} else if tt == 1 {
+		p.SetDefenseTeam(req.TeamMembers)
+	} else {
+		log.Warn("Unknown team type[%v] to player[%v]", tt, p.Id)
+	}
+
+	response := &msg_client_message.S2CSetTeamResponse{}
+	response.TeamType = tt
+	response.TeamMembers = req.TeamMembers
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_SET_TEAM_RESPONSE), response)
 
 	return 1
 }
