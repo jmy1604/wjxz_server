@@ -88,6 +88,12 @@ type MemberPassiveTriggerData struct {
 	round_num  int32
 }
 
+type DelaySkill struct {
+	trigger_event int32
+	skill         *table_config.XmlSkillItem
+	trigger_pos   []int32
+}
+
 type TeamMember struct {
 	team                *BattleTeam
 	pos                 int32
@@ -106,6 +112,7 @@ type TeamMember struct {
 	temp_super_skill    int32                                 // 临时怒气攻击
 	temp_changed_attrs  []int32                               // 临时改变的属性
 	buff_trigger_skills map[int32]int32                       // BUFF触发的技能
+	delay_skills        []*DelaySkill                         // 延迟的技能效果
 }
 
 func (this *TeamMember) add_skill_attr(skill_id int32) {
@@ -195,7 +202,11 @@ func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
 		for n := i; n < l-1; n++ {
 			triggers[n] = triggers[n+1]
 		}
-		this.passive_triggers[skill.SkillTriggerType] = triggers[:l-1]
+		if l > 1 {
+			this.passive_triggers[skill.SkillTriggerType] = triggers[:l-1]
+		} else {
+			delete(this.passive_triggers, skill.SkillTriggerType)
+		}
 	}
 
 	return true
@@ -503,6 +514,52 @@ func (this *TeamMember) is_dead() bool {
 	return true
 }
 
+func (this *TeamMember) has_delay_skills() bool {
+	if this.delay_skills == nil {
+		return false
+	}
+	return true
+}
+
+func (this *TeamMember) push_delay_skill(trigger_event int32, skill *table_config.XmlSkillItem, trigger_pos []int32) {
+	ds := delay_skill_pool.Get()
+	ds.trigger_event = trigger_event
+	ds.skill = skill
+	ds.trigger_pos = trigger_pos
+	this.delay_skills = append(this.delay_skills, ds)
+}
+
+func (this *TeamMember) delay_skills_effect(target_team *BattleTeam) {
+	if this.delay_skills == nil {
+		return
+	}
+
+	for i := 0; i < len(this.delay_skills); i++ {
+		ds := this.delay_skills[i]
+		if ds == nil {
+			continue
+		}
+
+		// 延迟的被动技也要处理为连续技
+		if this.team.reports.reports != nil {
+			l := len(this.team.reports.reports)
+			this.team.reports.reports[l-1].HasCombo = true
+		}
+
+		one_passive_skill_effect(ds.trigger_event, ds.skill, this, target_team, ds.trigger_pos)
+	}
+}
+
+func (this *TeamMember) clear_delay_skills() {
+	if this.delay_skills == nil {
+		return
+	}
+	for i := 0; i < len(this.delay_skills); i++ {
+		delay_skill_pool.Put(this.delay_skills[i])
+	}
+	this.delay_skills = nil
+}
+
 type BattleReports struct {
 	reports         []*msg_client_message.BattleReportItem
 	remove_buffs    []*msg_client_message.BattleMemberBuff
@@ -800,6 +857,14 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 		}
 	}
 
+	// 是否有combo技能
+	if skill.ComboSkill > 0 {
+		if this.reports.reports != nil {
+			r := this.reports.reports[len(this.reports.reports)-1]
+			r.HasCombo = true
+		}
+	}
+
 	return skill
 }
 
@@ -820,6 +885,12 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
+
+		// 延迟的被动技
+		if mem.has_delay_skills() {
+			mem.delay_skills_effect(target_team)
+			mem.clear_delay_skills()
+		}
 	}
 	return 1
 }
@@ -831,8 +902,8 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 	// 被动技，回合行动前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect(EVENT_BEFORE_ROUND, this, i, target_team, nil)
-		passive_skill_effect(EVENT_BEFORE_ROUND, target_team, i, this, nil)
+		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, this, i, target_team, nil)
+		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, target_team, i, this, nil)
 	}
 
 	var self_index, target_index int32
@@ -941,8 +1012,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect(EVENT_ENTER_BATTLE, this, i, target_team, nil)
-		passive_skill_effect(EVENT_ENTER_BATTLE, target_team, i, this, nil)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, this, i, target_team, nil)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, target_team, i, this, nil)
 	}
 
 	if this.reports.reports != nil {
@@ -1024,10 +1095,12 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg prot
 		return -1
 	}
 
-	res := p.SetAttackTeam(req.AttackMembers)
-	if res < 0 {
-		log.Error("Player[%v] set attack members[%v] failed", p.Id, req.AttackMembers)
-		return res
+	if req.GetAttackMembers() != nil && len(req.GetAttackMembers()) > 0 {
+		res := p.SetAttackTeam(req.AttackMembers)
+		if res < 0 {
+			log.Error("Player[%v] set attack members[%v] failed", p.Id, req.AttackMembers)
+			return res
+		}
 	}
 
 	p.Fight2Player(req.FightPlayerId)

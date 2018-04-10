@@ -176,3 +176,24 @@ func (this *MsgBattleRoundReportsPool) Get() *msg_client_message.BattleRoundRepo
 func (this *MsgBattleRoundReportsPool) Put(reports *msg_client_message.BattleRoundReports) {
 	this.pool.Put(reports)
 }
+
+// DelaySkillPool
+type DelaySkillPool struct {
+	pool *sync.Pool
+}
+
+func (this *DelaySkillPool) Init() {
+	this.pool = &sync.Pool{
+		New: func() interface{} {
+			return &DelaySkill{}
+		},
+	}
+}
+
+func (this *DelaySkillPool) Get() *DelaySkill {
+	return this.pool.Get().(*DelaySkill)
+}
+
+func (this *DelaySkillPool) Put(ds *DelaySkill) {
+	this.pool.Put(ds)
+}

@@ -75,6 +75,7 @@ func (this *HallServer) OnInit() (err error) {
 	msg_battle_buff_item_pool.Init()
 	msg_battle_reports_item_pool.Init()
 	msg_battle_round_reports_pool.Init()
+	delay_skill_pool.Init()
 
 	reg_player_base_info_msg()
 	reg_player_guide_msg()
@@ -371,3 +372,4 @@ var msg_battle_member_item_pool MsgBattleMemberItemPool
 var msg_battle_buff_item_pool MsgBattleMemberBuffPool
 var msg_battle_reports_item_pool MsgBattleReportItemPool
 var msg_battle_round_reports_pool MsgBattleRoundReportsPool
+var delay_skill_pool DelaySkillPool

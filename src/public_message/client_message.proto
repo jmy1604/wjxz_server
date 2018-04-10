@@ -260,6 +260,7 @@ message BattleReportItem {
 	bool IsCritical							= 7; // 是否暴击
 	bool IsBlock							= 8; // 是否格挡
 	bool IsSummon							= 9; // 是否召唤
+	bool HasCombo							= 10; // 是否有连续技
 }
 
 // 一回合战报
