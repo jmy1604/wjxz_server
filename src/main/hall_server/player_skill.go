@@ -877,14 +877,16 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if effects[i][3] > 0 {
 					if rand.Int31n(10000) > effects[i][3] {
 						target.energy += effects[i][1]
+						if target.energy < 0 {
+							target.energy = 0
+						}
 						self.energy += effects[i][2]
+						if self.energy < 0 {
+							self.energy = 0
+						}
 						// -------------------- 战报 ----------------------
-						if effects[i][1] > 0 {
-							build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
-						}
-						if effects[i][2] > 0 {
-							report.User.Energy = self.energy
-						}
+						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
+						report.User.Energy = self.energy
 						// ------------------------------------------------
 					}
 				}
@@ -908,6 +910,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 			}
 
+			// 使用一次技能即清空临时属性
 			skill_effect_clear_temp_attrs(self)
 		}
 
@@ -1116,6 +1119,7 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 			}
 		}
 		hh = next
+		log.Debug("!!!!!!!!!!!!!!!!")
 	}
 	return false
 }
@@ -1147,7 +1151,7 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 		this.tail.next = buff
 	}
 	this.tail = buff
-	this.tail.next = nil
+	buff.next = nil
 
 	buff_id = b.Id
 
@@ -1193,6 +1197,7 @@ func (this *BuffList) on_round_end() {
 			}
 		}
 		bf = next
+		log.Debug("@@@@@@@@@@@@@@@@@@@")
 	}
 	if item != nil {
 		item.HP = this.owner.hp

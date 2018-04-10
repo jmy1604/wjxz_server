@@ -541,9 +541,12 @@ func (this *TeamMember) delay_skills_effect(target_team *BattleTeam) {
 		}
 
 		// 延迟的被动技也要处理为连续技
-		if this.team.reports.reports != nil {
-			l := len(this.team.reports.reports)
-			this.team.reports.reports[l-1].HasCombo = true
+		reports := this.team.reports.reports
+		if reports != nil {
+			l := len(reports)
+			if l > 0 {
+				reports[l-1].HasCombo = true
+			}
 			log.Debug("########################################### team[%v] member[%v] 后面有延迟被动技 %v", this.team.side, this.pos, ds.skill.Id)
 		}
 
@@ -718,7 +721,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	this.side = side
 	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
 
-	p.team_changed[team_id] = false
+	//p.team_changed[team_id] = false
 
 	return true
 }
@@ -860,8 +863,9 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 
 	// 是否有combo技能
 	if skill.ComboSkill > 0 {
-		if this.reports.reports != nil {
-			r := this.reports.reports[len(this.reports.reports)-1]
+		reports := this.reports.reports
+		if reports != nil && len(reports) > 0 {
+			r := reports[len(reports)-1]
 			r.HasCombo = true
 			log.Debug("########################################### Team[%v] member[%v] 后面有组合技 %v", this.side, self_index, skill.ComboSkill)
 		}

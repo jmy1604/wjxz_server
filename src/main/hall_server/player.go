@@ -339,7 +339,9 @@ func (this *Player) add_init_roles() {
 	var teams []int32
 	for _, id := range global_config_mgr.GetGlobalConfig().InitRoles {
 		iid := this.new_role(int32(id), 1, 1)
-		if teams != nil && len(teams) < BATTLE_TEAM_MEMBER_MAX_NUM {
+		if teams == nil {
+			teams = []int32{iid}
+		} else if len(teams) < BATTLE_TEAM_MEMBER_MAX_NUM {
 			teams = append(teams, iid)
 		}
 	}
@@ -371,7 +373,7 @@ func (this *Player) OnLogin() {
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	this.team_member_mgr = make(map[int32]*TeamMember)
-	this.team_changed = make(map[int32]bool)
+	//this.team_changed = make(map[int32]bool)
 }
 
 func (this *Player) OnLogout() {
@@ -933,7 +935,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	//}
 	//changed, o = p.team_changed[BATTLE_ATTACK_TEAM]
 	//if changed || !o {
-	if !p.defense_team.Init(this, BATTLE_DEFENSE_TEAM, 1) {
+	if !p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) {
 		log.Error("Player[%v] init defense team failed", player_id)
 		return -1
 	}
