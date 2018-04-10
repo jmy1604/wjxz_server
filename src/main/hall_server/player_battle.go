@@ -544,6 +544,7 @@ func (this *TeamMember) delay_skills_effect(target_team *BattleTeam) {
 		if this.team.reports.reports != nil {
 			l := len(this.team.reports.reports)
 			this.team.reports.reports[l-1].HasCombo = true
+			log.Debug("########################################### team[%v] member[%v] 后面有延迟被动技 %v", this.team.side, this.pos, ds.skill.Id)
 		}
 
 		one_passive_skill_effect(ds.trigger_event, ds.skill, this, target_team, ds.trigger_pos)
@@ -862,6 +863,7 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 		if this.reports.reports != nil {
 			r := this.reports.reports[len(this.reports.reports)-1]
 			r.HasCombo = true
+			log.Debug("########################################### Team[%v] member[%v] 后面有组合技 %v", this.side, self_index, skill.ComboSkill)
 		}
 	}
 
@@ -885,12 +887,11 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
-
-		// 延迟的被动技
-		if mem.has_delay_skills() {
-			mem.delay_skills_effect(target_team)
-			mem.clear_delay_skills()
-		}
+	}
+	// 延迟的被动技
+	if mem.has_delay_skills() {
+		mem.delay_skills_effect(target_team)
+		mem.clear_delay_skills()
 	}
 	return 1
 }

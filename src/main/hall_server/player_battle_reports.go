@@ -29,6 +29,7 @@ func build_battle_report_item(self_team *BattleTeam, self_pos int32, self_damage
 	item.RemoveBuffs = make([]*msg_client_message.BattleMemberBuff, 0)
 	item.IsBlock = is_block
 	item.IsCritical = is_critical
+	item.HasCombo = false
 	return item
 }
 

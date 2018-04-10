@@ -219,6 +219,7 @@ func output_report(rr *msg_client_message.BattleReportItem) {
 	log.Debug("					 is_summon: %v", rr.IsSummon)
 	log.Debug("					 is_critical: %v", rr.IsCritical)
 	log.Debug("					 is_block: %v", rr.IsBlock)
+	log.Debug("					 has_combo: %v", rr.HasCombo)
 }
 
 func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {

@@ -933,7 +933,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 }
 
 // 单个被动技
-func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillItem, self *TeamMember, target_team *BattleTeam, trigger_pos []int32) {
+func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillItem, self *TeamMember, target_team *BattleTeam, trigger_pos []int32) (triggered bool) {
 	if !self.can_passive_trigger(trigger_event, skill.Id) {
 		return
 	}
@@ -941,6 +941,13 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 	if skill.SkillTriggerType == trigger_event {
 		log.Debug("******************************************************* 被动技 skill_id[%v] trigger_event[%v]", skill.Id, trigger_event)
 		if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+			reports := self.team.reports.reports
+			if reports != nil && len(reports) > 0 {
+				r := reports[len(reports)-1]
+				if r != nil {
+					r.HasCombo = true
+				}
+			}
 			if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
 				self.team.UseOnceSkill(self.pos, target_team, skill.Id)
 				if target_team != nil {
@@ -956,10 +963,12 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 					log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
 				}
 			}
+			triggered = true
 		}
 	}
 
 	self.used_passive_trigger_count(trigger_event, skill.Id)
+	return
 }
 
 // 被动技效果
@@ -969,11 +978,14 @@ func passive_skill_effect(trigger_event int32, self *TeamMember, target_team *Ba
 		if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
 			continue
 		}
+
 		// 延迟触发
-		if skill.IsDelayLastSkill > 0 {
+		if skill.IsDelayLastSkill > 0 && trigger_event == skill.SkillTriggerType {
 			self.push_delay_skill(trigger_event, skill, trigger_pos)
+			log.Debug("Team[%v] member[%v] 触发了延迟被动技[%v]事件[%v]", self.team.side, self.pos, skill.Id, trigger_event)
 			continue
 		}
+
 		one_passive_skill_effect(trigger_event, skill, self, target_team, trigger_pos)
 	}
 }

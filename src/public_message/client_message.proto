@@ -229,6 +229,14 @@ message S2CSetTeamResponse {
 	int32 TeamType							= 1;
 	repeated int32 TeamMembers				= 2;
 }
+message TeamData {
+	int32 TeamType							= 1; // 阵容类型
+	repeated int32 TeamMembers				= 2; // 阵容
+}
+// 阵容数据
+message S2CTeamsResponse {
+	repeated TeamData Teams  				= 1;
+}
 
 // 阵营成员
 message BattleMemberItem {

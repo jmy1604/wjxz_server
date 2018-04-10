@@ -147,16 +147,16 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	return ret_p
 }
 
-func (this *Player) new_role(role_id int32, rank int32, level int32) bool {
+func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 	if this.db.Roles.HasIndex(role_id) {
 		log.Error("Player[%v] already has role[%v]", this.Id, role_id)
-		return false
+		return 0
 	}
 
 	card := card_table_mgr.GetRankCard(role_id, rank)
 	if card == nil {
 		log.Error("Cant get role card by id[%v] rank[%v]", role_id, rank)
-		return false
+		return 0
 	}
 	var role dbPlayerRoleData
 	role.TableId = role_id
@@ -167,7 +167,7 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) bool {
 
 	this.roles_id_change_info.id_add(role.Id)
 
-	return true
+	return role.Id
 }
 
 func (this *Player) has_role(id int32) bool {
@@ -336,9 +336,15 @@ func (this *Player) Send(msg_id uint16, msg proto.Message) {
 }
 
 func (this *Player) add_init_roles() {
+	var teams []int32
 	for _, id := range global_config_mgr.GetGlobalConfig().InitRoles {
-		this.new_role(int32(id), 1, 1)
+		iid := this.new_role(int32(id), 1, 1)
+		if teams != nil && len(teams) < BATTLE_TEAM_MEMBER_MAX_NUM {
+			teams = append(teams, iid)
+		}
 	}
+	this.db.BattleTeam.SetAttackMembers(teams)
+	this.db.BattleTeam.SetDefenseMembers(teams)
 }
 
 func (this *Player) add_all_items() {
@@ -422,6 +428,20 @@ func (this *Player) send_roles() {
 	msg := &msg_client_message.S2CRolesResponse{}
 	msg.Roles = this.db.Roles.BuildMsg()
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLES_RESPONSE), msg)
+}
+
+func (this *Player) send_teams() {
+	msg := &msg_client_message.S2CTeamsResponse{}
+	attack_team := &msg_client_message.TeamData{
+		TeamType:    0,
+		TeamMembers: this.db.BattleTeam.GetAttackMembers(),
+	}
+	defense_team := &msg_client_message.TeamData{
+		TeamType:    1,
+		TeamMembers: this.db.BattleTeam.GetDefenseMembers(),
+	}
+	msg.Teams = []*msg_client_message.TeamData{attack_team, defense_team}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_TEAMS_RESPONSE), msg)
 }
 
 func (this *Player) notify_enter_complete() {
