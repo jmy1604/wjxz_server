@@ -1184,16 +1184,17 @@ func (this *BuffList) on_round_end() {
 
 			bf.round_num -= 1
 			if bf.round_num <= 0 {
+				buff_id := bf.buff.Id
 				this.remove_buff(bf)
 				// --------------------------- 战报 ---------------------------
 				b := msg_battle_buff_item_pool.Get()
-				b.BuffId = bf.buff.Id
+				b.BuffId = buff_id
 				b.Pos = this.owner.pos
 				b.MemId = this.owner.id
 				b.Side = this.owner.team.side
 				this.owner.team.reports.remove_buffs = append(this.owner.team.reports.remove_buffs, b)
 				// ------------------------------------------------------------
-				log.Debug("role[%v] buff[%v] round over", this.owner.id, bf.buff.Id)
+				log.Debug("role[%v] buff[%v] round over", this.owner.id, buff_id)
 			}
 		}
 		bf = next

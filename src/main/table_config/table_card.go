@@ -116,7 +116,7 @@ func (this *CardTableMgr) GetRankCard(id int32, rank int32) *XmlCardItem {
 	if cards == nil {
 		return nil
 	}
-	if rank < 1 || int(rank) >= len(cards) {
+	if rank < 1 || int(rank) > len(cards) {
 		return nil
 	}
 	return cards[rank-1]
