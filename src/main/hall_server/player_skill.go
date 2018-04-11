@@ -1054,7 +1054,6 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 		log.Error("XXXXXXXXXXXXXXXXXXXXX Team[%v] member[%v] no buff[%p, team_side:%v, owner_pos:%v] to remove", this.owner.team.side, this.owner.pos, buff, buff.team_side, buff.owner_pos)
 		return false
 	}
-
 	if buff.prev != nil {
 		buff.prev.next = buff.next
 	}
@@ -1067,7 +1066,6 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 	if buff == this.tail {
 		this.tail = buff.prev
 	}
-	this.owner.remove_buff_effect(buff)
 
 	buff_pool.Put(buff)
 
@@ -1110,9 +1108,10 @@ func (this *BuffList) cost_resist_num(buff *Buff) {
 		if buff.resist_num > 1 {
 			buff.resist_num -= 1
 		} else {
+			b := buff.buff
 			this.remove_buff(buff)
-			this.add_remove_buff_report(buff.buff.Id)
-			log.Debug("Team[%v] member[%v] BUFF[%v]类型免疫次数[%v]用完", this.owner.team.side, this.owner.pos, buff.buff.Id, buff.buff.ResistCountMax)
+			this.add_remove_buff_report(b.Id)
+			log.Debug("Team[%v] member[%v] BUFF[%v]类型免疫次数[%v]用完", this.owner.team.side, this.owner.pos, b.Id, buff.buff.ResistCountMax)
 		}
 	}
 }
