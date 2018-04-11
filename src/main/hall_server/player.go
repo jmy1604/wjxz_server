@@ -98,7 +98,7 @@ type Player struct {
 	team_member_mgr map[int32]*TeamMember // 成员map
 	attack_team     BattleTeam            // 进攻阵营
 	defense_team    BattleTeam            // 防守阵营
-	is_defense      int32                 // 是否正在防守
+	use_defense     int32                 // 是否防守阵容
 	team_changed    map[int32]bool
 
 	roles_id_change_info IdChangeInfo // 角色增删更新
@@ -922,12 +922,12 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 	return 1
 }
 
-func (this *Player) CanSetDefensing() bool {
-	return atomic.CompareAndSwapInt32(&this.is_defense, 0, 1)
+func (this *Player) CanUseDefense() bool {
+	return atomic.CompareAndSwapInt32(&this.use_defense, 0, 1)
 }
 
-func (this *Player) CancelDefensing() bool {
-	return atomic.CompareAndSwapInt32(&this.is_defense, 1, 0)
+func (this *Player) CancelUseDefense() bool {
+	return atomic.CompareAndSwapInt32(&this.use_defense, 1, 0)
 }
 
 func (this *Player) Fight2Player(player_id int32) int32 {
@@ -937,7 +937,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	}
 
 	// 是否正在防守
-	if !p.CanSetDefensing() {
+	if !p.CanUseDefense() {
 		log.Warn("Player[%v] is defensing")
 		return int32(msg_client_message.E_ERR_PLAYER_IS_DEFENSING)
 	}
@@ -957,7 +957,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	is_win, enter_reports, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
 
 	// 对方防守结束
-	p.CancelDefensing()
+	p.CancelUseDefense()
 
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
