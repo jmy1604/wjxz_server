@@ -106,7 +106,7 @@ type TeamMember struct {
 	defense             int32
 	act_num             int32                                 // 行动次数
 	attrs               []int32                               // 属性
-	bufflist_arr        []BuffList                            // BUFF
+	bufflist_arr        []*BuffList                           // BUFF
 	passive_triggers    map[int32][]*MemberPassiveTriggerData // 被动技触发事件
 	temp_normal_skill   int32                                 // 临时普通攻击
 	temp_super_skill    int32                                 // 临时怒气攻击
@@ -272,6 +272,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	if this.bufflist_arr != nil {
 		for i := 0; i < len(this.bufflist_arr); i++ {
 			this.bufflist_arr[i].clear()
+			this.bufflist_arr[i].owner = this
 		}
 	}
 
@@ -389,16 +390,17 @@ func (this *TeamMember) add_buff(attacker *TeamMember, skill_effect []int32) (bu
 	}
 
 	if this.bufflist_arr == nil {
-		this.bufflist_arr = make([]BuffList, BUFF_EFFECT_TYPE_COUNT)
+		this.bufflist_arr = make([]*BuffList, BUFF_EFFECT_TYPE_COUNT)
 		for i := 0; i < BUFF_EFFECT_TYPE_COUNT; i++ {
+			this.bufflist_arr[i] = &BuffList{}
 			this.bufflist_arr[i].owner = this
 		}
 	}
 
 	// 互斥
 	for i := 0; i < len(this.bufflist_arr); i++ {
-		h := &this.bufflist_arr[i]
-		if h.check_buff_mutex(b) {
+		h := this.bufflist_arr[i]
+		if h != nil && h.check_buff_mutex(b) {
 			return
 		}
 	}
@@ -413,7 +415,7 @@ func (this *TeamMember) add_buff(attacker *TeamMember, skill_effect []int32) (bu
 func (this *TeamMember) has_buff(buff_id int32) bool {
 	if this.bufflist_arr != nil {
 		for i := 0; i < len(this.bufflist_arr); i++ {
-			bufflist := &this.bufflist_arr[i]
+			bufflist := this.bufflist_arr[i]
 			buff := bufflist.head
 			for buff != nil {
 				if buff.buff.Id == buff_id {
@@ -456,11 +458,11 @@ func (this *TeamMember) is_disable_normal_attack() bool {
 		return false
 	}
 	disable := false
-	bufflist := &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK]
+	bufflist := this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK]
 	if bufflist.head != nil {
 		disable = true
 	} else {
-		bufflist = &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
+		bufflist = this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
 		if bufflist.head != nil {
 			disable = true
 		}
@@ -473,11 +475,11 @@ func (this *TeamMember) is_disable_super_attack() bool {
 		return false
 	}
 	disable := false
-	bufflist := &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK]
+	bufflist := this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK]
 	if bufflist.head != nil {
 		disable = true
 	} else {
-		bufflist = &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
+		bufflist = this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
 		if bufflist.head != nil {
 			disable = true
 		}
@@ -490,15 +492,15 @@ func (this *TeamMember) is_disable_attack() bool {
 		return false
 	}
 	disable := false
-	bufflist := &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
+	bufflist := this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
 	if bufflist.head != nil {
 		disable = true
 	} else {
-		bufflist = &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK]
+		bufflist = this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK]
 		if bufflist.head != nil {
 			disable = true
 		} else {
-			bufflist = &this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK]
+			bufflist = this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK]
 			if bufflist.head != nil {
 				disable = true
 			}
@@ -707,9 +709,13 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 			return false
 		}
 
+		if p.team_member_mgr == nil {
+			p.team_member_mgr = make(map[int32]*TeamMember)
+		}
 		m := p.team_member_mgr[members[i]]
 		if m == nil {
 			m = team_member_pool.Get()
+			p.team_member_mgr[members[i]] = m
 		}
 		m.init(this, members[i], level, role_card, int32(i))
 		this.members[i] = m

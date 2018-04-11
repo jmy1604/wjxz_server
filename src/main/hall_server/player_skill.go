@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"libs/log"
 	"main/table_config"
 	"math"
@@ -808,7 +810,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 				}
 
-				log.Debug("self_team[%v] role[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.id, skill_data.Id, target.id, target_dmg, target.hp, self_dmg, self.hp)
+				log.Debug("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
 			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
 				if target == nil {
 					continue
@@ -825,7 +827,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						passive_skill_effect_with_self_pos(EVENT_ON_CURE, target_team, target_pos[j], self_team, []int32{self_pos})
 					}
 				}
-				log.Debug("self_team[%v] role[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self_team.side, self.id, skill_data.Id, target.id, cure)
+				log.Debug("self_team[%v] member[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, cure)
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_BUFF {
 				if target == nil {
 					continue
@@ -836,7 +838,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
 				// ----------------------------------------------
 				if buff_id > 0 {
-					log.Debug("self_team[%v] role[%v] use skill[%v] to target[%v] 触发 buff[%v]", self_team.side, self.id, skill_data.Id, target.id, buff_id)
+					log.Debug("self_team[%v] member[%v] use skill[%v] to target team[%v] member[%v] 触发 buff[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos, buff_id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_SUMMON {
 				// 召唤
@@ -846,7 +848,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					// --------------------- 战报 ----------------------
 					build_battle_report_item_add_target_item(report, target_team, mem.pos, 0)
 					// -------------------------------------------------
-					log.Debug("self_team[%v] role[%v] use skill[%v] to summon npc[%v]", self_team.side, self.id, skill_data.Id, mem.card.Id)
+					log.Debug("self_team[%v] member[%v] use skill[%v] to summon npc[%v]", self_team.side, self.pos, skill_data.Id, mem.card.Id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_ATTR {
 				if target == nil {
@@ -1011,12 +1013,28 @@ type Buff struct {
 	resist_num int32
 	next       *Buff
 	prev       *Buff
+	team_side  int32
+	owner_pos  int32
+}
+
+func (this *Buff) clear() {
+	this.buff = nil
+	this.attack = 0
+	this.dmg_add = 0
+	this.param = 0
+	this.round_num = 0
+	this.resist_num = 0
+	this.next = nil
+	this.prev = nil
+	this.team_side = 0
+	this.owner_pos = 0
 }
 
 type BuffList struct {
 	owner *TeamMember
 	head  *Buff
 	tail  *Buff
+	buffs map[*Buff]*Buff
 }
 
 func (this *BuffList) clear() {
@@ -1031,7 +1049,12 @@ func (this *BuffList) clear() {
 	this.owner = nil
 }
 
-func (this *BuffList) remove_buff(buff *Buff) {
+func (this *BuffList) remove_buff(buff *Buff) bool {
+	if this.buffs == nil || this.buffs[buff] == nil {
+		log.Error("XXXXXXXXXXXXXXXXXXXXX Team[%v] member[%v] no buff[%p, team_side:%v, owner_pos:%v] to remove", this.owner.team.side, this.owner.pos, buff, buff.team_side, buff.owner_pos)
+		return false
+	}
+
 	if buff.prev != nil {
 		buff.prev.next = buff.next
 	}
@@ -1048,7 +1071,21 @@ func (this *BuffList) remove_buff(buff *Buff) {
 
 	buff_pool.Put(buff)
 
-	log.Debug("@@@@@@@@@ remove buff[%v][%p][%v]", buff.buff.Id, buff, buff)
+	delete(this.buffs, buff)
+
+	log.Debug("@@@@@@@@@ Team[%v] member[%v] pointer[%p] remove buff[%v][%p][%v] head[%p,%v] tail[%p,%v]", this.owner.team.side, this.owner.pos, this.owner, buff.buff.Id, buff, buff, this.head, this.head, this.tail, this.tail)
+
+	// 测试
+	b := this.head
+	for b != nil {
+		if this.buffs[b] == nil {
+			s := fmt.Sprintf("============================ Team[%v] member[%v] no buff[%p,%v] after remove buff[%p,%v]", this.owner.team.side, this.owner.pos, b, b, buff, buff)
+			panic(errors.New(s))
+		}
+		b = b.next
+	}
+
+	return true
 }
 
 // 战报删除BUFF
@@ -1075,7 +1112,7 @@ func (this *BuffList) cost_resist_num(buff *Buff) {
 		} else {
 			this.remove_buff(buff)
 			this.add_remove_buff_report(buff.buff.Id)
-			log.Debug("Team[%v] role[%v] BUFF[%v]类型免疫次数[%v]用完", this.owner.team.side, this.owner.id, buff.buff.Id, buff.buff.ResistCountMax)
+			log.Debug("Team[%v] member[%v] BUFF[%v]类型免疫次数[%v]用完", this.owner.team.side, this.owner.pos, buff.buff.Id, buff.buff.ResistCountMax)
 		}
 	}
 }
@@ -1089,7 +1126,7 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 		for j := 0; j < len(hh.buff.ResistMutexTypes); j++ {
 			if b.MutexType > 0 && b.MutexType == hh.buff.ResistMutexTypes[j] {
 				this.cost_resist_num(hh)
-				log.Debug("Team[%v] role[%v] BUFF[%v]类型[%v]排斥BUFF[%v]类型[%v]", this.owner.team.side, this.owner.id, hh.buff.Id, hh.buff.MutexType, b.Id, b.MutexType)
+				log.Debug("Team[%v] member[%v] BUFF[%v]类型[%v]排斥BUFF[%v]类型[%v]", this.owner.team.side, this.owner.pos, hh.buff.Id, hh.buff.MutexType, b.Id, b.MutexType)
 				return true
 			}
 		}
@@ -1097,7 +1134,7 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 		for j := 0; j < len(hh.buff.ResistMutexIDs); j++ {
 			if b.MutexType > 0 && b.Id == hh.buff.ResistMutexIDs[j] {
 				this.cost_resist_num(hh)
-				log.Debug("Team[%v] role[%v] BUFF[%v]排斥BUFF[%v]", this.owner.team.side, this.owner.id, hh.buff.Id, b.Id)
+				log.Debug("Team[%v] member[%v] BUFF[%v]排斥BUFF[%v]", this.owner.team.side, this.owner.pos, hh.buff.Id, b.Id)
 				return true
 			}
 		}
@@ -1107,7 +1144,7 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 			if b.MutexType > 0 && b.MutexType == hh.buff.CancelMutexTypes[j] {
 				this.remove_buff(hh)
 				this.add_remove_buff_report(hh.buff.Id)
-				log.Debug("Team[%v] role[%v] BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", this.owner.team.side, this.owner.id, b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
+				log.Debug("Team[%v] member[%v] BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", this.owner.team.side, this.owner.pos, b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
 			}
 		}
 		// 驱散BUFF ID
@@ -1115,17 +1152,26 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 			if b.MutexType > 0 && b.Id == hh.buff.CancelMutexIDs[j] {
 				this.remove_buff(hh)
 				this.add_remove_buff_report(hh.buff.Id)
-				log.Debug("Team[%v] role[%v] BUFF[%v]驱散了BUFF[%v]", this.owner.team.side, this.owner.id, b.Id, hh.buff.Id)
+				log.Debug("Team[%v] member[%v] BUFF[%v]驱散了BUFF[%v]", this.owner.team.side, this.owner.pos, b.Id, hh.buff.Id)
 			}
 		}
 		hh = next
-		log.Debug("!!!!!!!!!!!!!!!!")
 	}
 	return false
 }
 
 func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusItem, skill_effect []int32) (buff_id int32) {
 	buff := buff_pool.Get()
+	buff.clear()
+
+	if this.buffs == nil {
+		this.buffs = make(map[*Buff]*Buff)
+	}
+	if _, o := this.buffs[buff]; o {
+		log.Error("XXXXXXXXXXXXXXXXXXX Team[%v] member[%v] add buff[%p] already exist", this.owner.team.side, this.owner.pos, buff)
+		return
+	}
+
 	buff.buff = b
 	buff.attack = attacker.attrs[ATTR_ATTACK]
 	buff.dmg_add = attacker.attrs[ATTR_TOTAL_DAMAGE_ADD]
@@ -1140,7 +1186,7 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 		}
 		this.owner.buff_trigger_skills[b.Effect[1]] = b.Effect[1]
 		this.owner.add_passive_trigger(b.Effect[1])
-		log.Debug("Team[%v] Member[%v] 添加BUFF[%v] 增加了被动技[%v]", this.owner.team.side, this.owner.id, b.Id, b.Effect[1])
+		log.Debug("Team[%v] member[%v] 添加BUFF[%v] 增加了被动技[%v]", this.owner.team.side, this.owner.pos, b.Id, b.Effect[1])
 	}
 
 	if this.head == nil {
@@ -1152,10 +1198,24 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 	}
 	this.tail = buff
 	buff.next = nil
+	buff.team_side = this.owner.team.side
+	buff.owner_pos = this.owner.pos
+
+	this.buffs[buff] = buff
 
 	buff_id = b.Id
 
-	log.Debug("######### add buff[%v] [%p] [%v]", b.Id, buff, buff)
+	log.Debug("######### Team[%v] member[%v] pointer[%p] add buff id[%v] pointer[%p] body[%v], head[%p,%v] tail[%p,%v]", this.owner.team.side, this.owner.pos, this.owner, b.Id, buff, buff, this.head, this.head, this.tail, this.tail)
+
+	// 测试
+	bb := this.head
+	for bb != nil {
+		if this.buffs[bb] == nil {
+			s := fmt.Sprintf("============================ Team[%v] member[%v] no buff[%p,%v] after add buff[%p,%v]", this.owner.team.side, this.owner.pos, bb, bb, buff, buff)
+			panic(errors.New(s))
+		}
+		bb = bb.next
+	}
 	return
 }
 
@@ -1178,7 +1238,7 @@ func (this *BuffList) on_round_end() {
 					}
 					item.Damage += dmg
 					// ------------------------------------------------------------
-					log.Debug("role[%v] hp damage[%v] on buff[%v] left round[%v] end", this.owner.id, dmg, bf.buff.Id, bf.round_num)
+					log.Debug("Team[%v] member[%v] hp damage[%v] on buff[%v] left round[%v] end", this.owner.team.side, this.owner.pos, dmg, bf.buff.Id, bf.round_num)
 				}
 			}
 
@@ -1194,11 +1254,10 @@ func (this *BuffList) on_round_end() {
 				b.Side = this.owner.team.side
 				this.owner.team.reports.remove_buffs = append(this.owner.team.reports.remove_buffs, b)
 				// ------------------------------------------------------------
-				log.Debug("role[%v] buff[%v] round over", this.owner.id, buff_id)
+				log.Debug("Team[%v] member[%v] buff[%v] round over", this.owner.team.side, this.owner.pos, buff_id)
 			}
 		}
 		bf = next
-		log.Debug("@@@@@@@@@@@@@@@@@@@")
 	}
 	if item != nil {
 		item.HP = this.owner.hp

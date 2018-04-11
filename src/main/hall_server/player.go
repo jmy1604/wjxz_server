@@ -8,6 +8,7 @@ import (
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -94,9 +95,10 @@ type Player struct {
 	world_chat_data       PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data      PlayerAnouncementData // 公告缓存数据
 
-	team_member_mgr map[int32]*TeamMember
-	attack_team     BattleTeam
-	defense_team    BattleTeam
+	team_member_mgr map[int32]*TeamMember // 成员map
+	attack_team     BattleTeam            // 进攻阵营
+	defense_team    BattleTeam            // 防守阵营
+	is_defense      int32                 // 是否正在防守
 	team_changed    map[int32]bool
 
 	roles_id_change_info IdChangeInfo // 角色增删更新
@@ -920,37 +922,49 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 	return 1
 }
 
+func (this *Player) CanSetDefensing() bool {
+	return atomic.CompareAndSwapInt32(&this.is_defense, 0, 1)
+}
+
+func (this *Player) CancelDefensing() bool {
+	return atomic.CompareAndSwapInt32(&this.is_defense, 1, 0)
+}
+
 func (this *Player) Fight2Player(player_id int32) int32 {
 	p := player_mgr.GetPlayerById(player_id)
 	if p == nil {
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
 
-	//changed, o := this.team_changed[BATTLE_ATTACK_TEAM]
-	//if changed || !o {
+	// 是否正在防守
+	if !p.CanSetDefensing() {
+		log.Warn("Player[%v] is defensing")
+		return int32(msg_client_message.E_ERR_PLAYER_IS_DEFENSING)
+	}
+
 	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 		log.Error("Player[%v] init attack team failed", this.Id)
 		return -1
 	}
-	//}
-	//changed, o = p.team_changed[BATTLE_ATTACK_TEAM]
-	//if changed || !o {
+
 	if !p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) {
 		log.Error("Player[%v] init defense team failed", player_id)
 		return -1
 	}
-	//}
 
 	my_team := this.attack_team._format_members_for_msg()
 	target_team := p.defense_team._format_members_for_msg()
 	is_win, enter_reports, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+
+	// 对方防守结束
+	p.CancelDefensing()
+
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
 	}
 	if rounds == nil {
 		rounds = make([]*msg_client_message.BattleRoundReports, 0)
 	}
-
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:        is_win,
 		EnterReports: enter_reports,
@@ -958,7 +972,6 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		MyTeam:       my_team,
 		TargetTeam:   target_team,
 	}
-
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	return 1
