@@ -40,21 +40,21 @@ func (this *RedisGlobalData) Init() bool {
 
 	/*--------------- 排行榜 --------------*/
 	// 关卡总分
-	if this.LoadStageTotalScoreRankItems() < 0 {
+	/*if this.LoadStageTotalScoreRankItems() < 0 {
 		return false
-	}
+	}*/
 	// 关卡积分
-	if this.LoadStageScoreRankItems() < 0 {
+	/*if this.LoadStageScoreRankItems() < 0 {
 		return false
-	}
+	}*/
 	// 魅力值
-	if this.LoadCharmRankItems() < 0 {
+	/*if this.LoadCharmRankItems() < 0 {
 		return false
-	}
+	}*/
 	// 被赞
-	if this.LoadZanedRankItems() < 0 {
+	/*if this.LoadZanedRankItems() < 0 {
 		return false
-	}
+	}*/
 	/*--------------------------------------*/
 
 	this.inited = true
