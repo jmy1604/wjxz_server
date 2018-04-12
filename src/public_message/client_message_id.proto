@@ -26,5 +26,5 @@ enum MSGID {
 	
 	C2S_SET_TEAM_REQUEST			= 10102; // 设置阵营 C2SSetTeamRequest
 	S2C_SET_TEAM_RESPONSE			= 10103; // 设置阵营返回 S2CSetTeamResponse
-	S2C_TEAMS_RESPONSE				= 10104; // 所有阵容列表返回
+	S2C_TEAMS_RESPONSE				= 10104; // 所有阵容列表返回 S2CTeamsResponse
 }

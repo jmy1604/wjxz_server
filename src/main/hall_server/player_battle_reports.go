@@ -9,7 +9,9 @@ func (this *TeamMember) build_battle_item(pos int32, damage int32) *msg_client_m
 	item := msg_battle_member_item_pool.Get()
 	item.Side = this.team.side
 	item.Id = this.id
-	item.TableId = this.card.ClientId
+	item.TableId = this.card.Id
+	item.Rank = this.card.Rank
+	item.Level = this.level
 	item.Pos = pos
 	item.HP = this.hp
 	item.MaxHP = this.attrs[ATTR_HP_MAX]
