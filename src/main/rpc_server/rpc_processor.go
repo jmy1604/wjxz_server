@@ -1184,11 +1184,11 @@ func (this *RpcServer) init_proc_service() bool {
 	}
 
 	// 排行榜调用注册
-	ranking_list_proc = &H2R_RankingListProc{}
+	/*ranking_list_proc = &H2R_RankingListProc{}
 	ranking_list_proc.Init()
 	if !this.rpc_service.Register(ranking_list_proc) {
 		return false
-	}
+	}*/
 
 	// 世界聊天调用注册
 	if !this.rpc_service.Register(&H2H_GlobalProc{}) {
