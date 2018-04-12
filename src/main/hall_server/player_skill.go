@@ -939,40 +939,43 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 // 单个被动技
 func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillItem, self *TeamMember, target_team *BattleTeam, trigger_pos []int32) (triggered bool) {
+	if skill.SkillTriggerType != trigger_event {
+		return
+	}
+
 	if !self.can_passive_trigger(trigger_event, skill.Id) {
 		return
 	}
 
-	if skill.SkillTriggerType == trigger_event {
-		log.Debug("******************************************************* 被动技 skill_id[%v] trigger_event[%v]", skill.Id, trigger_event)
-		if skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
-			reports := self.team.reports.reports
-			if reports != nil && len(reports) > 0 {
-				r := reports[len(reports)-1]
-				if r != nil {
-					r.HasCombo = true
-				}
-			}
-			if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
-				self.team.UseOnceSkill(self.pos, target_team, skill.Id)
-				if target_team != nil {
-					log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side)
-				} else {
-					log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
-				}
-			} else {
-				skill_effect(self.team, self.pos, target_team, trigger_pos, skill)
-				if target_team != nil && trigger_pos != nil {
-					log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side, trigger_pos)
-				} else {
-					log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
-				}
-			}
-			triggered = true
+	if !skill_check_cond(self, trigger_pos, target_team, skill.TriggerCondition1, skill.TriggerCondition2) {
+		return
+	}
+
+	reports := self.team.reports.reports
+	if reports != nil && len(reports) > 0 {
+		r := reports[len(reports)-1]
+		if r != nil {
+			r.HasCombo = true
+		}
+	}
+	if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
+		self.team.UseOnceSkill(self.pos, target_team, skill.Id)
+		if target_team != nil {
+			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side)
+		} else {
+			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
+		}
+	} else {
+		skill_effect(self.team, self.pos, target_team, trigger_pos, skill)
+		if target_team != nil && trigger_pos != nil {
+			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side, trigger_pos)
+		} else {
+			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
 		}
 	}
 
 	self.used_passive_trigger_count(trigger_event, skill.Id)
+	triggered = true
 	return
 }
 
