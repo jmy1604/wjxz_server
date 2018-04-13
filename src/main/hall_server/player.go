@@ -96,8 +96,8 @@ type Player struct {
 	anouncement_data      PlayerAnouncementData // 公告缓存数据
 
 	team_member_mgr map[int32]*TeamMember // 成员map
-	attack_team     BattleTeam            // 进攻阵营
-	defense_team    BattleTeam            // 防守阵营
+	attack_team     *BattleTeam           // 进攻阵营
+	defense_team    *BattleTeam           // 防守阵营
 	use_defense     int32                 // 是否防守阵容
 	team_changed    map[int32]bool
 
@@ -942,11 +942,17 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_IS_DEFENSING)
 	}
 
+	if this.attack_team == nil {
+		this.attack_team = &BattleTeam{}
+	}
 	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 		log.Error("Player[%v] init attack team failed", this.Id)
 		return -1
 	}
 
+	if p.defense_team == nil {
+		p.defense_team = &BattleTeam{}
+	}
 	if !p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) {
 		log.Error("Player[%v] init defense team failed", player_id)
 		return -1
@@ -954,7 +960,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 
 	my_team := this.attack_team._format_members_for_msg()
 	target_team := p.defense_team._format_members_for_msg()
-	is_win, enter_reports, rounds := this.attack_team.Fight(&p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+	is_win, enter_reports, rounds := this.attack_team.Fight(p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
 
 	// 对方防守结束
 	p.CancelUseDefense()

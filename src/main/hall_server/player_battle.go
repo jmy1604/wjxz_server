@@ -725,6 +725,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	}
 	this.curr_attack = 0
 	this.side = side
+	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, side)
 	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
 
 	//p.team_changed[team_id] = false
@@ -1066,6 +1067,8 @@ func (this *BattleTeam) _format_members_for_msg() (members []*msg_client_message
 			continue
 		}
 		mem := this.members[i].build_battle_item(int32(i), 0)
+		mem.Side = this.side
+		log.Debug("!!!!!!!!!!@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, this.side)
 		members = append(members, mem)
 	}
 	return
