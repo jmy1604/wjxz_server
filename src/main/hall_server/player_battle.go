@@ -567,15 +567,15 @@ func (this *TeamMember) clear_delay_skills() {
 }
 
 type BattleReports struct {
-	reports         []*msg_client_message.BattleReportItem
-	remove_buffs    []*msg_client_message.BattleMemberBuff
-	changed_members []*msg_client_message.BattleMemberItem
+	reports          []*msg_client_message.BattleReportItem
+	remove_buffs     []*msg_client_message.BattleMemberBuff
+	changed_fighters []*msg_client_message.BattleFighter
 }
 
 func (this *BattleReports) Reset() {
 	this.reports = make([]*msg_client_message.BattleReportItem, 0)
 	this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
-	this.changed_members = make([]*msg_client_message.BattleMemberItem, 0)
+	this.changed_fighters = make([]*msg_client_message.BattleFighter, 0)
 }
 
 func (this *BattleReports) Recycle() {
@@ -587,14 +587,14 @@ func (this *BattleReports) Recycle() {
 			}
 			// user
 			if r.User != nil {
-				msg_battle_member_item_pool.Put(r.User)
+				msg_battle_fighter_pool.Put(r.User)
 				r.User = nil
 			}
 			// behiters
 			if r.BeHiters != nil {
 				for j := 0; j < len(r.BeHiters); j++ {
 					if r.BeHiters[j] != nil {
-						msg_battle_member_item_pool.Put(r.BeHiters[j])
+						msg_battle_fighter_pool.Put(r.BeHiters[j])
 					}
 				}
 				r.BeHiters = nil
@@ -637,16 +637,16 @@ func (this *BattleReports) Recycle() {
 		this.remove_buffs = nil
 	}
 
-	if this.changed_members != nil {
-		for i := 0; i < len(this.changed_members); i++ {
-			m := this.changed_members[i]
+	if this.changed_fighters != nil {
+		for i := 0; i < len(this.changed_fighters); i++ {
+			m := this.changed_fighters[i]
 			if m == nil {
 				continue
 			}
-			msg_battle_member_item_pool.Put(m)
-			this.changed_members[i] = nil
+			msg_battle_fighter_pool.Put(m)
+			this.changed_fighters[i] = nil
 		}
-		this.changed_members = nil
+		this.changed_fighters = nil
 	}
 }
 
@@ -969,14 +969,14 @@ func _recycle_battle_rounds(rounds []*msg_client_message.BattleRoundReports) {
 				}
 				// user
 				if r.User != nil {
-					msg_battle_member_item_pool.Put(r.User)
+					msg_battle_fighter_pool.Put(r.User)
 					r.User = nil
 				}
 				// behiters
 				if r.BeHiters != nil {
 					for j := 0; j < len(r.BeHiters); j++ {
 						if r.BeHiters[j] != nil {
-							msg_battle_member_item_pool.Put(r.BeHiters[j])
+							msg_battle_fighter_pool.Put(r.BeHiters[j])
 						}
 					}
 					r.BeHiters = nil
@@ -1041,7 +1041,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		round := msg_battle_round_reports_pool.Get()
 		round.Reports = this.reports.reports
 		round.RemoveBuffs = this.reports.remove_buffs
-		round.ChangedMembers = this.reports.changed_members
+		round.ChangedFighters = this.reports.changed_fighters
 		round.RoundNum = c + 1
 		rounds = append(rounds, round)
 
@@ -1066,7 +1066,7 @@ func (this *BattleTeam) _format_members_for_msg() (members []*msg_client_message
 		if this.members[i] == nil {
 			continue
 		}
-		mem := this.members[i].build_battle_item(int32(i), 0)
+		mem := this.members[i].build_battle_member()
 		mem.Side = this.side
 		log.Debug("!!!!!!!!!!@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, this.side)
 		members = append(members, mem)

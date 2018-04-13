@@ -243,33 +243,42 @@ message BattleMemberItem {
 	int32 Pos								= 2; // 位置
 	int32 HP								= 3; // 血量
 	int32 MaxHP								= 4; // 最大血量
-	int32 Damage 							= 5; // 伤害
-	int32 Energy							= 6; // 能量
-	int32 TableId							= 7; // 配置ID
-	int32 Rank								= 8; // 品阶
-	int32 Level								= 9; // 等级
-	int32 Side								= 10; // 0 左  1 右
+	int32 Energy							= 5; // 能量
+	int32 TableId							= 6; // 配置ID
+	int32 Rank								= 7; // 品阶
+	int32 Level								= 8; // 等级
+	int32 Side								= 9; // 0 左  1 右
+}
+
+// 受击成员
+message BattleFighter {
+	int32 Pos								= 1; // 位置
+	int32 HP								= 2; // 血量
+	int32 MaxHP								= 3; // 最大血量
+	int32 Damage 							= 4; // 伤害
+	int32 Energy							= 5; // 能量
+	int32 Side								= 6; // 0 左  1 右
+	bool IsCritical							= 7; // 是否暴击
+	bool IsBlock							= 8; // 是否格挡
 }
 
 message BattleMemberBuff {
 	int32 Side								= 1; // 0 左  1 右
-	int32 MemId								= 2; // 实例ID
-	int32 Pos								= 3; // 位置
-	int32 BuffId 							= 4; // buff id
+	int32 Pos								= 2; // 位置
+	int32 BuffId 							= 3; // buff id
 }
 
 // 战报项(一次攻击的结果)
 message BattleReportItem {
 	int32 Side								= 1; // 0 左边向右打  1 右边向左打
 	int32 SkillId							= 2; // 技能ID
-	BattleMemberItem User					= 3; // 技能使用者
-	repeated BattleMemberItem BeHiters 		= 4; // 技能受击者
-	repeated BattleMemberBuff AddBuffs		= 5; // 增加的BUFF
-	repeated BattleMemberBuff RemoveBuffs   = 6; // 删除的BUFF
-	bool IsCritical							= 7; // 是否暴击
-	bool IsBlock							= 8; // 是否格挡
-	bool IsSummon							= 9; // 是否召唤
-	bool HasCombo							= 10; // 是否有连续技
+	BattleFighter User						= 3; // 技能使用者
+	repeated BattleFighter BeHiters 		= 4; // 技能受击者
+	repeated BattleMemberItem SummonNpcs	= 5; // 召唤出来的NPC
+	repeated BattleMemberBuff AddBuffs		= 6; // 增加的BUFF
+	repeated BattleMemberBuff RemoveBuffs   = 7; // 删除的BUFF
+	bool IsSummon							= 8; // 是否召唤
+	bool HasCombo							= 9; // 是否有连续技
 }
 
 // 一回合战报
@@ -277,7 +286,7 @@ message BattleRoundReports {
 	int32 RoundNum							= 1; // 回合编号
 	repeated BattleReportItem Reports		= 2; // 回合战报列表
 	repeated BattleMemberBuff RemoveBuffs   = 3; // 回合结束的BUFF
-	repeated BattleMemberItem ChangedMembers= 4; // 回合结束时BUFF影响的属性变化的成员
+	repeated BattleFighter ChangedFighters	= 4; // 回合结束时BUFF影响的属性变化的成员
 }
 
 // 请求战斗结果
@@ -286,11 +295,11 @@ message C2SBattleResultRequest {
 	int32 FightPlayerId						= 2; // 对方玩家ID
 }
 message S2CBattleResultResponse {
-	bool IsWin										= 1; // true 赢  false 输
-	repeated BattleMemberItem MyTeam				= 2; // 战斗前我方阵容
-	repeated BattleMemberItem TargetTeam			= 3; // 战斗前敌方阵容
-	repeated BattleReportItem EnterReports 			= 4; // 进场时战报，一般是被动技效果
-	repeated BattleRoundReports Rounds 				= 5; // 回合
+	bool IsWin								= 1; // true 赢  false 输
+	repeated BattleMemberItem MyTeam		= 2; // 战斗前我方阵容
+	repeated BattleMemberItem TargetTeam	= 3; // 战斗前敌方阵容
+	repeated BattleReportItem EnterReports 	= 4; // 进场时战报，一般是被动技效果
+	repeated BattleRoundReports Rounds 		= 5; // 回合
 }
 
 //////////////////////////////////////////////////////////////////////////////

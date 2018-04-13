@@ -672,7 +672,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	}
 
 	// 战报
-	report := build_battle_report_item(self_team, self_pos, 0, skill_data.Id, false, false)
+	report := build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
 	self_team.reports.reports = append(self_team.reports.reports, report)
 
 	for i := 0; i < len(effects); i++ {
@@ -745,13 +745,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				//----------- 战报 -------------
 				report.User.Damage += self_dmg
-				if is_block {
-					report.IsBlock = is_block
-				}
-				if is_critical {
-					report.IsCritical = is_critical
-				}
-				build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg)
+				build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg, is_critical, is_block)
 				//------------------------------
 
 				// 被动技，血量变化
@@ -819,7 +813,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				cure := skill_effect_cure(self, target, effects[i])
 				if cure != 0 {
 					// ------------------ 战报 -------------------
-					build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure)
+					build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure, false, false)
 					// -------------------------------------------
 					target.add_hp(cure)
 					// 被动技，治疗时触发
@@ -846,7 +840,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if mem != nil {
 					report.IsSummon = true
 					// --------------------- 战报 ----------------------
-					build_battle_report_item_add_target_item(report, target_team, mem.pos, 0)
+					build_battle_report_item_add_summon_npc(report, target_team, target_pos[j])
 					// -------------------------------------------------
 					log.Debug("self_team[%v] member[%v] use skill[%v] to summon npc[%v]", self_team.side, self.pos, skill_data.Id, mem.card.Id)
 				}
@@ -857,7 +851,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 改变下次计算时的角色参数
 				skill_effect_temp_attrs(self, effects[i])
 				// -------------------- 战报 --------------------
-				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
+				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
 				// ----------------------------------------------
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
 				// 改变普通攻击技能ID
@@ -887,7 +881,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							self.energy = 0
 						}
 						// -------------------- 战报 ----------------------
-						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
+						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
 						report.User.Energy = self.energy
 						// ------------------------------------------------
 					}
@@ -907,7 +901,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if shield != 0 {
 					target.add_attr(ATTR_SHIELD, shield)
 					// ----------------------- 战报 -------------------------
-					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0)
+					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
 					// ------------------------------------------------------
 				}
 			}
@@ -1094,7 +1088,6 @@ func (this *BuffList) add_remove_buff_report(buff_id int32) {
 	buff := msg_battle_buff_item_pool.Get()
 	buff.Pos = this.owner.pos
 	buff.BuffId = buff_id
-	buff.MemId = this.owner.id
 	buff.Side = this.owner.team.side
 	if this.owner.team.reports.reports == nil {
 		report := msg_battle_reports_item_pool.Get()
@@ -1222,7 +1215,7 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 }
 
 func (this *BuffList) on_round_end() {
-	var item *msg_client_message.BattleMemberItem
+	var item *msg_client_message.BattleFighter
 	bf := this.head
 	for bf != nil {
 		next := bf.next
@@ -1234,9 +1227,9 @@ func (this *BuffList) on_round_end() {
 					// --------------------------- 战报 ---------------------------
 					// 血量变化的成员
 					if item == nil {
-						item = this.owner.build_battle_item(this.owner.pos, 0)
+						item = this.owner.build_battle_fighter(0)
 						item.Side = this.owner.team.side
-						this.owner.team.reports.changed_members = append(this.owner.team.reports.changed_members, item)
+						this.owner.team.reports.changed_fighters = append(this.owner.team.reports.changed_fighters, item)
 					}
 					item.Damage += dmg
 					// ------------------------------------------------------------
@@ -1252,7 +1245,6 @@ func (this *BuffList) on_round_end() {
 				b := msg_battle_buff_item_pool.Get()
 				b.BuffId = buff_id
 				b.Pos = this.owner.pos
-				b.MemId = this.owner.id
 				b.Side = this.owner.team.side
 				this.owner.team.reports.remove_buffs = append(this.owner.team.reports.remove_buffs, b)
 				// ------------------------------------------------------------

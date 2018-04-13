@@ -200,25 +200,36 @@ func S2CEnterGameHandler(hall_conn *HallConnection, m proto.Message) {
 func output_report(rr *msg_client_message.BattleReportItem) {
 	log.Debug("		 	report: side[%v]", rr.Side)
 	log.Debug("					 skill_id: %v", rr.SkillId)
-	log.Debug("					 user: Side[%v], Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.User.Side, rr.User.Id, rr.User.Pos, rr.User.HP, rr.User.MaxHP, rr.User.Energy, rr.User.Damage, rr.User.TableId)
-	if rr.BeHiters != nil {
-		for n := 0; n < len(rr.BeHiters); n++ {
-			log.Debug("					 behiter: Side[%v], Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", rr.BeHiters[n].Side, rr.BeHiters[n].Id, rr.BeHiters[n].Pos, rr.BeHiters[n].HP, rr.BeHiters[n].MaxHP, rr.BeHiters[n].Energy, rr.BeHiters[n].Damage, rr.BeHiters[n].TableId)
+	log.Debug("					 user: Side[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v]", rr.User.Side, rr.User.Pos, rr.User.HP, rr.User.MaxHP, rr.User.Energy, rr.User.Damage)
+	if rr.IsSummon {
+		if rr.SummonNpcs != nil {
+			for n := 0; n < len(rr.SummonNpcs); n++ {
+				rrs := rr.SummonNpcs[n]
+				if rrs != nil {
+					log.Debug("					 summon npc: Side[%v], Pos[%v], Id[%v], TableId[%v], HP[%v], MaxHP[%v], Energy[%v]", rrs.Side, rrs.Pos, rrs.Id, rrs.TableId, rrs.HP, rrs.MaxHP, rrs.Energy)
+				}
+			}
+		}
+	} else {
+		if rr.BeHiters != nil {
+			for n := 0; n < len(rr.BeHiters); n++ {
+				rrb := rr.BeHiters[n]
+				log.Debug("					 behiter: Side[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], IsCritical[%v], IsBlock[%v]",
+					rrb.Side, rrb.Pos, rrb.HP, rrb.MaxHP, rrb.Energy, rrb.Damage, rrb.IsCritical, rrb.IsBlock)
+			}
 		}
 	}
 	if rr.AddBuffs != nil {
 		for n := 0; n < len(rr.AddBuffs); n++ {
-			log.Debug("					 add buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.AddBuffs[n].Side, rr.AddBuffs[n].Pos, rr.AddBuffs[n].BuffId, rr.AddBuffs[n].MemId)
+			log.Debug("					 add buff: Side[%v], Pos[%v], BuffId[%v]", rr.AddBuffs[n].Side, rr.AddBuffs[n].Pos, rr.AddBuffs[n].BuffId)
 		}
 	}
 	if rr.RemoveBuffs != nil {
 		for n := 0; n < len(rr.RemoveBuffs); n++ {
-			log.Debug("					 remove buff: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", rr.RemoveBuffs[n].Side, rr.RemoveBuffs[n].Pos, rr.RemoveBuffs[n].BuffId, rr.RemoveBuffs[n].MemId)
+			log.Debug("					 remove buff: Side[%v], Pos[%v], BuffId[%v]", rr.RemoveBuffs[n].Side, rr.RemoveBuffs[n].Pos, rr.RemoveBuffs[n].BuffId)
 		}
 	}
-	log.Debug("					 is_summon: %v", rr.IsSummon)
-	log.Debug("					 is_critical: %v", rr.IsCritical)
-	log.Debug("					 is_block: %v", rr.IsBlock)
+
 	log.Debug("					 has_combo: %v", rr.HasCombo)
 }
 
@@ -237,7 +248,7 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 			if m == nil {
 				continue
 			}
-			log.Debug("		 Side:%v Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
+			log.Debug("		 Side:%v Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v TableId:%v", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.TableId)
 		}
 	}
 	if response.TargetTeam != nil {
@@ -247,7 +258,7 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 			if m == nil {
 				continue
 			}
-			log.Debug("		 Side:%v Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v Damage:%v TableId:%v", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
+			log.Debug("		 Side:%v Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v TableId:%v", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.TableId)
 		}
 	}
 
@@ -273,13 +284,13 @@ func S2CBattleResultHandler(hall_conn *HallConnection, m proto.Message) {
 			if r.RemoveBuffs != nil {
 				for j := 0; j < len(r.RemoveBuffs); j++ {
 					b := r.RemoveBuffs[j]
-					log.Debug("		 	remove buffs: Side[%v], Pos[%v], BuffId[%v], MemId[%v]", b.Side, b.Pos, b.BuffId, b.MemId)
+					log.Debug("		 	remove buffs: Side[%v], Pos[%v], BuffId[%v]", b.Side, b.Pos, b.BuffId)
 				}
 			}
-			if r.ChangedMembers != nil {
-				for j := 0; j < len(r.ChangedMembers); j++ {
-					m := r.ChangedMembers[j]
-					log.Debug("			changed member: Side[%v], Id[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], TableId[%v]", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage, m.TableId)
+			if r.ChangedFighters != nil {
+				for j := 0; j < len(r.ChangedFighters); j++ {
+					m := r.ChangedFighters[j]
+					log.Debug("			changed member: Side[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v]", m.Side, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage)
 				}
 			}
 		}
