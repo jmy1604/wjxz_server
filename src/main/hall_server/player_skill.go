@@ -664,7 +664,7 @@ func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
 }
 
 // 技能效果
-func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) {
+func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam, target_pos []int32, skill_data *table_config.XmlSkillItem) (used bool) {
 	effects := skill_data.Effects
 	self := self_team.members[self_pos]
 	if self == nil {
@@ -804,6 +804,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 				}
 
+				used = true
+
 				log.Debug("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
 			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
 				if target == nil {
@@ -821,6 +823,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						passive_skill_effect_with_self_pos(EVENT_ON_CURE, target_team, target_pos[j], self_team, []int32{self_pos})
 					}
 				}
+
+				used = true
 				log.Debug("self_team[%v] member[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, cure)
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_BUFF {
 				if target == nil {
@@ -832,6 +836,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
 				// ----------------------------------------------
 				if buff_id > 0 {
+					used = true
 					log.Debug("self_team[%v] member[%v] use skill[%v] to target team[%v] member[%v] 触发 buff[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos, buff_id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_SUMMON {
@@ -842,6 +847,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					// --------------------- 战报 ----------------------
 					build_battle_report_item_add_summon_npc(report, target_team, target_pos[j])
 					// -------------------------------------------------
+					used = true
 					log.Debug("self_team[%v] member[%v] use skill[%v] to summon npc[%v]", self_team.side, self.pos, skill_data.Id, mem.card.Id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_ATTR {
@@ -853,10 +859,12 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// -------------------- 战报 --------------------
 				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
 				// ----------------------------------------------
+				used = true
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
 				// 改变普通攻击技能ID
 				if effects[i][1] > 0 {
 					self.temp_normal_skill = effects[i][1]
+					used = true
 					log.Debug("self_team[%v] pos[%v] role[%v] changed normal skill to %v", self_team.side, self_pos, self.id, self.temp_normal_skill)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE_SKILL {
@@ -884,6 +892,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
 						report.User.Energy = self.energy
 						// ------------------------------------------------
+						used = true
 					}
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM {
@@ -892,6 +901,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				// 增加行动次数
 				target.act_num += effects[i][1]
+				used = true
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_SHIELD {
 				if target == nil {
 					continue
@@ -903,6 +913,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					// ----------------------- 战报 -------------------------
 					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
 					// ------------------------------------------------------
+					used = true
 				}
 			}
 
@@ -946,25 +957,33 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 	}
 
 	reports := self.team.reports.reports
+	var r *msg_client_message.BattleReportItem
 	if reports != nil && len(reports) > 0 {
-		r := reports[len(reports)-1]
-		if r != nil {
-			r.HasCombo = true
-		}
+		r = reports[len(reports)-1]
 	}
+
+	used := false
 	if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
-		self.team.UseOnceSkill(self.pos, target_team, skill.Id)
+		if self.team.UseOnceSkill(self.pos, target_team, skill.Id) != nil {
+			used = true
+		}
 		if target_team != nil {
 			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side)
 		} else {
 			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
 		}
 	} else {
-		skill_effect(self.team, self.pos, target_team, trigger_pos, skill)
+		used = skill_effect(self.team, self.pos, target_team, trigger_pos, skill)
 		if target_team != nil && trigger_pos != nil {
 			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v] target_team[%v] trigger_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos, target_team.side, trigger_pos)
 		} else {
 			log.Debug("Passive skill[%v] event: %v, self_team[%v] self_pos[%v]", skill.Id, trigger_event, self.team.side, self.pos)
+		}
+	}
+
+	if used {
+		if r != nil && r.Side == self.team.side {
+			r.HasCombo = true
 		}
 	}
 
