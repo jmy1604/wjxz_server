@@ -127,6 +127,8 @@ func (this *MsgHandlerMgr) CloseFunc(info *SignalRegRecod) {
 		this.msg_http_listener.Close()
 	}
 
+	this.login_http_server.Close()
+
 	info.close_flag = true
 	return
 }

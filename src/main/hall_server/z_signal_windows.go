@@ -53,6 +53,9 @@ func (this *SignalMgr) DoAllCloseFunc() {
 		{
 			this.b_closing = true
 			hall_server.Shutdown()
+			for _, info := range this.close_map {
+				info.close_func(info)
+			}
 			break
 		}
 	}
