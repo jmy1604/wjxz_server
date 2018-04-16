@@ -691,15 +691,15 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 		if skill_data.Type != SKILL_TYPE_NORMAL {
 			// 被动技，普通攻击前
-			passive_skill_effect_with_self_pos(EVENT_BEFORE_NORMAL_ATTACK, self_team, self_pos, nil, nil)
+			passive_skill_effect_with_self_pos(EVENT_BEFORE_NORMAL_ATTACK, self_team, self_pos, nil, nil, true)
 		} else if skill_data.Type != SKILL_TYPE_SUPER {
 			// 被动技，怒气攻击前
-			passive_skill_effect_with_self_pos(EVENT_BEFORE_RAGE_ATTACK, self_team, self_pos, nil, nil)
+			passive_skill_effect_with_self_pos(EVENT_BEFORE_RAGE_ATTACK, self_team, self_pos, nil, nil, true)
 		}
 
 		// 被动技，攻击计算伤害前触发
 		if skill_data.Type != SKILL_TYPE_PASSIVE && effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
-			passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos)
+			passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos, true)
 		}
 
 		// 对方是否有成员死亡
@@ -718,7 +718,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				// 被动技，被击计算伤害前触发
 				if skill_data.Type != SKILL_TYPE_PASSIVE {
-					passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos})
+					passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 				}
 
 				if self.is_dead() {
@@ -737,7 +737,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					// 被动技，自己死亡前触发
 					if !self.is_dead() && self.hp <= self_dmg {
 						if skill_data.Type != SKILL_TYPE_PASSIVE {
-							passive_skill_effect_with_self_pos(EVENT_BEFORE_SELF_DEAD, self_team, self_pos, nil, nil)
+							passive_skill_effect_with_self_pos(EVENT_BEFORE_SELF_DEAD, self_team, self_pos, nil, nil, true)
 						}
 					}
 					self.add_hp(-self_dmg)
@@ -750,11 +750,11 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				// 被动技，血量变化
 				if target_dmg != 0 && skill_data.Type != SKILL_TYPE_PASSIVE {
-					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, target_team, target_pos[j], nil, nil)
+					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, target_team, target_pos[j], nil, nil, true)
 				}
 				// 被动技，血量变化
 				if self_dmg != 0 && skill_data.Type != SKILL_TYPE_PASSIVE {
-					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, self_team, self_pos, nil, nil)
+					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, self_team, self_pos, nil, nil, true)
 				}
 
 				// 对方有死亡
@@ -766,12 +766,12 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if skill_data.Type != SKILL_TYPE_PASSIVE {
 					// 被击计算伤害后触发
 					if !self.is_dead() {
-						passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos})
+						passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 					}
 
 					// 自身死亡时触发
 					if self.is_dead() {
-						passive_skill_effect_with_self_pos(EVENT_AFTER_SELF_DEAD, self_team, self_pos, target_team, nil)
+						passive_skill_effect_with_self_pos(EVENT_AFTER_SELF_DEAD, self_team, self_pos, target_team, nil, true)
 						// 队友死亡触发
 						for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
 							team_mem := self_team.members[pos]
@@ -779,7 +779,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 								continue
 							}
 							if pos != self_pos {
-								passive_skill_effect_with_self_pos(EVENT_AFTER_TEAMMATE_DEAD, self_team, pos, self_team, []int32{self_pos})
+								passive_skill_effect_with_self_pos(EVENT_AFTER_TEAMMATE_DEAD, self_team, pos, self_team, []int32{self_pos}, true)
 							}
 						}
 						// 相对于敌方死亡时触发
@@ -788,19 +788,19 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							if team_mem == nil || team_mem.is_dead() {
 								continue
 							}
-							passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, target_team, pos, self_team, []int32{self_pos})
+							passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, target_team, pos, self_team, []int32{self_pos}, true)
 						}
 					}
 
 					// 格挡触发
 					if is_block {
-						passive_skill_effect_with_self_pos(EVENT_BE_BLOCK, self_team, self_pos, target_team, []int32{target_pos[j]})
-						passive_skill_effect_with_self_pos(EVENT_BLOCK, target_team, target_pos[j], self_team, []int32{self_pos})
+						passive_skill_effect_with_self_pos(EVENT_BE_BLOCK, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
+						passive_skill_effect_with_self_pos(EVENT_BLOCK, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 					}
 					// 暴击触发
 					if is_critical {
-						passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, self_team, self_pos, target_team, []int32{target_pos[j]})
-						passive_skill_effect_with_self_pos(EVENT_CRITICAL, target_team, target_pos[j], self_team, []int32{self_pos})
+						passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
+						passive_skill_effect_with_self_pos(EVENT_CRITICAL, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 					}
 				}
 
@@ -820,7 +820,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					target.add_hp(cure)
 					// 被动技，治疗时触发
 					if skill_data.Type != SKILL_TYPE_PASSIVE {
-						passive_skill_effect_with_self_pos(EVENT_ON_CURE, target_team, target_pos[j], self_team, []int32{self_pos})
+						passive_skill_effect_with_self_pos(EVENT_ON_CURE, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 					}
 				}
 
@@ -923,27 +923,27 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 		// 被动技，对方有死亡触发
 		if /*skill_data.Type != SKILL_TYPE_PASSIVE &&*/ has_target_dead {
-			passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, self_team, self_pos, target_team, target_pos)
+			passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, self_team, self_pos, target_team, target_pos, true)
 		}
 	}
 
 	// 被动技，普攻或大招后
 	if skill_data.Type == SKILL_TYPE_NORMAL {
-		passive_skill_effect_with_self_pos(EVENT_AFTER_USE_NORMAL_SKILL, self_team, self_pos, target_team, target_pos)
+		passive_skill_effect_with_self_pos(EVENT_AFTER_USE_NORMAL_SKILL, self_team, self_pos, target_team, target_pos, true)
 	} else if skill_data.Type == SKILL_TYPE_SUPER {
-		passive_skill_effect_with_self_pos(EVENT_AFTER_USE_SUPER_SKILL, self_team, self_pos, target_team, target_pos)
+		passive_skill_effect_with_self_pos(EVENT_AFTER_USE_SUPER_SKILL, self_team, self_pos, target_team, target_pos, true)
 	}
 
 	// 被动技，攻击计算伤害后触发
 	if skill_data.Type != SKILL_TYPE_PASSIVE {
-		passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos)
+		passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos, true)
 	}
 
 	return
 }
 
 // 单个被动技
-func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillItem, self *TeamMember, target_team *BattleTeam, trigger_pos []int32) (triggered bool) {
+func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillItem, self *TeamMember, target_team *BattleTeam, trigger_pos []int32, is_combo bool) (triggered bool) {
 	if skill.SkillTriggerType != trigger_event {
 		return
 	}
@@ -982,7 +982,7 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 	}
 
 	if used {
-		if r != nil && r.Side == self.team.side {
+		if r != nil && is_combo {
 			r.HasCombo = true
 		}
 	}
@@ -993,7 +993,7 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 }
 
 // 被动技效果
-func passive_skill_effect(trigger_event int32, self *TeamMember, target_team *BattleTeam, trigger_pos []int32) {
+func passive_skill_effect(trigger_event int32, self *TeamMember, target_team *BattleTeam, trigger_pos []int32, is_combo bool) {
 	for i := 0; i < len(self.card.PassiveSkillIds); i++ {
 		skill := skill_table_mgr.Get(self.card.PassiveSkillIds[i])
 		if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
@@ -1007,17 +1007,17 @@ func passive_skill_effect(trigger_event int32, self *TeamMember, target_team *Ba
 			continue
 		}
 
-		one_passive_skill_effect(trigger_event, skill, self, target_team, trigger_pos)
+		one_passive_skill_effect(trigger_event, skill, self, target_team, trigger_pos, is_combo)
 	}
 }
 
 // 被动技效果
-func passive_skill_effect_with_self_pos(trigger_event int32, self_team *BattleTeam, self_pos int32, target_team *BattleTeam, trigger_pos []int32) {
+func passive_skill_effect_with_self_pos(trigger_event int32, self_team *BattleTeam, self_pos int32, target_team *BattleTeam, trigger_pos []int32, is_combo bool) {
 	self := self_team.members[self_pos]
 	if self == nil {
 		return
 	}
-	passive_skill_effect(trigger_event, self, target_team, trigger_pos)
+	passive_skill_effect(trigger_event, self, target_team, trigger_pos, is_combo)
 }
 
 type Buff struct {

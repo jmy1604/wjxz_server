@@ -552,7 +552,7 @@ func (this *TeamMember) delay_skills_effect(target_team *BattleTeam) {
 			log.Debug("########################################### team[%v] member[%v] 后面有延迟被动技 %v", this.team.side, this.pos, ds.skill.Id)
 		}
 
-		one_passive_skill_effect(ds.trigger_event, ds.skill, this, target_team, ds.trigger_pos)
+		one_passive_skill_effect(ds.trigger_event, ds.skill, this, target_team, ds.trigger_pos, true)
 	}
 }
 
@@ -914,8 +914,8 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 	// 被动技，回合行动前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, this, i, target_team, nil)
-		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, target_team, i, this, nil)
+		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, this, i, target_team, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, target_team, i, this, nil, false)
 	}
 
 	var self_index, target_index int32
@@ -1024,8 +1024,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, this, i, target_team, nil)
-		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, target_team, i, this, nil)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, this, i, target_team, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, target_team, i, this, nil, false)
 	}
 
 	if this.reports.reports != nil {
