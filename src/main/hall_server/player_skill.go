@@ -859,6 +859,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					// ----------------------------------------------
 					used = true
 					log.Debug("self_team[%v] member[%v] use skill[%v] to target team[%v] member[%v] 触发 buff[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos, buff_id)
+				} else {
+					log.Warn("@@@@@@@@@@@@@@@@@@@@ self_teamp[%v] member[%v] use skill[%v] add buff failed", self_team.side, self.pos, skill_data.Id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_SUMMON {
 				// 召唤
