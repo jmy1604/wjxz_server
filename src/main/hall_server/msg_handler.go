@@ -102,6 +102,8 @@ func (this *MsgHandlerMgr) StartHttp() bool {
 func (this *MsgHandlerMgr) StartHttps(crt_file, key_file string) bool {
 	this.reg_http_mux()
 
+	signal_mgr.RegCloseFunc("msg_handler_mgr", this.CloseFunc)
+
 	this.login_http_server = http.Server{
 		Addr:        config.ListenClientInIP,
 		Handler:     &MsgHttpHandle{},
