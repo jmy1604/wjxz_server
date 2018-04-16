@@ -1,10 +1,20 @@
 package table_config
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"io/ioutil"
 	"libs/log"
 )
+
+type JsonMonster struct {
+	Wave      int32
+	Slot      int32
+	MonsterID int32
+	Rank      int32
+	Level     int32
+	EquipID   int32
+}
 
 type XmlPassItem struct {
 	Id               int32  `xml:"Id,attr"`
@@ -14,6 +24,7 @@ type XmlPassItem struct {
 	PlayerCardMax    int32  `xml:"PlayerCardMax,attr"`
 	FriendSupportMax int32  `xml:"FriendSupportMax,attr"`
 	NpcSupportList   string `xml:"NpcSupportList,attr"`
+	Monsters         []*JsonMonster
 }
 
 type XmlPassConfig struct {
@@ -34,7 +45,7 @@ func (this *PassTableMgr) Init() bool {
 }
 
 func (this *PassTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/pass.xml")
+	data, err := ioutil.ReadFile("../game_data/Stage.xml")
 	if nil != err {
 		log.Error("PassTableMgr read file err[%s] !", err.Error())
 		return false
@@ -59,7 +70,10 @@ func (this *PassTableMgr) Load() bool {
 	var tmp_item *XmlPassItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
-
+		if err = json.Unmarshal([]byte(tmp_item.MonsterList), &tmp_item.Monsters); err != nil {
+			log.Error("Parse MonsterList[%v] error[%v]", tmp_item.MonsterList, err.Error())
+			return false
+		}
 		this.Map[tmp_item.Id] = tmp_item
 		this.Array = append(this.Array, tmp_item)
 	}

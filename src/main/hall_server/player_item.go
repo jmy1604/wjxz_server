@@ -34,6 +34,17 @@ const (
 	ITEM_RESOURCE_ID_STAR         = 12 // 星数
 )
 
+// 装备类型
+const (
+	EQUIP_TYPE_WEAPON   = 1 // 武器
+	EQUIP_TYPE_BODY     = 2 // 衣服
+	EQUIP_TYPE_LEG      = 3 // 腿
+	EQUIP_TYPE_ACCESORY = 4 // 饰品
+	EQUIP_TYPE_GEM      = 5 // 宝石 不能卸
+	EQUIP_TYPE_RELIC    = 6 // 神器 不能强化
+	EQUIP_TYPE_MAX      = 7 //
+)
+
 func (this *Player) add_item(id int32, count int32) bool {
 	item := item_table_mgr.Get(id)
 	if item == nil {

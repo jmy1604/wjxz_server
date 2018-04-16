@@ -215,6 +215,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("buff_table_mgr init succeed")
 	}
 
+	if !stage_table_mgr.Init() {
+		log.Error("stage_table_mgr init failed")
+		return errors.New("stage_table_mgr init failed")
+	} else {
+		log.Info("stage_table_mgr init succeed")
+	}
+
 	return
 }
 
@@ -364,6 +371,7 @@ var position_table table_config.PositionTable
 var card_table_mgr table_config.CardTableMgr
 var skill_table_mgr table_config.SkillTableMgr
 var buff_table_mgr table_config.StatusTableMgr
+var stage_table_mgr table_config.PassTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

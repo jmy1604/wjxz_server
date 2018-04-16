@@ -7,9 +7,14 @@ import (
 )
 
 type XmlItemItem struct {
-	Id       int32  `xml:"Id,attr"`
-	Type     int32  `xml:"Type,attr"`
-	MaxCount string `xml:"MaxCount,attr"`
+	Id            int32  `xml:"Id,attr"`
+	Type          int32  `xml:"Type,attr"`
+	MaxCount      string `xml:"MaxCount,attr"`
+	EquipType     int32  `xml:"EquipType,attr"`
+	EquipAttrStr  string `xml:"EquipAttr,attr"`
+	EquipSkillStr string `xml:"EquipSkill,attr"`
+	EquipAttr     []int32
+	EquipSkill    []int32
 }
 
 type XmlItemConfig struct {
@@ -55,6 +60,24 @@ func (this *ItemTableMgr) Load() bool {
 	var tmp_item *XmlItemItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
+
+		if tmp_item.EquipAttrStr != "" {
+			a := parse_xml_str_arr(tmp_item.EquipAttrStr, ",")
+			if a == nil || len(a) == 0 {
+				tmp_item.EquipAttr = make([]int32, 0)
+			} else {
+				tmp_item.EquipAttr = a
+			}
+		}
+
+		if tmp_item.EquipSkillStr != "" {
+			a := parse_xml_str_arr(tmp_item.EquipSkillStr, ",")
+			if a == nil || len(a) == 0 {
+				tmp_item.EquipSkill = make([]int32, 0)
+			} else {
+				tmp_item.EquipSkill = a
+			}
+		}
 
 		this.Map[tmp_item.Id] = tmp_item
 		this.Array = append(this.Array, tmp_item)

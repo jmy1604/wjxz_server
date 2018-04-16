@@ -98,11 +98,20 @@ func _check_team_row(row_index int32, target_team *BattleTeam) (is_empty bool, p
 }
 
 // 列是否为空
-func _check_team_column(column_index int32, target_team *BattleTeam) (is_empty bool, pos []int32) {
+func _check_team_column(self_pos, column_index int32, target_team *BattleTeam) (is_empty bool, pos []int32) {
+	first_pos := self_pos%BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + column_index*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM
+	m := target_team.members[first_pos]
+	if m != nil {
+		pos = []int32{first_pos}
+	}
+
 	is_empty = true
 	for i := 0; i < BATTLE_FORMATION_LINE_NUM; i++ {
 		p := int(column_index)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + i
-		m := target_team.members[p]
+		if p == int(first_pos) {
+			continue
+		}
+		m = target_team.members[p]
 		if m != nil && !m.is_dead() {
 			pos = append(pos, int32(p))
 			if is_empty {
@@ -186,7 +195,7 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
 		for c := 0; c < BATTLE_FORMATION_LINE_NUM; c++ {
 			is_empty := false
-			is_empty, pos = _check_team_column(int32(c), target_team)
+			is_empty, pos = _check_team_column(self_pos, int32(c), target_team)
 			if !is_empty {
 				break
 			}
@@ -221,8 +230,15 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 			}
 		}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_ALL { // 全体
+		m := target_team.members[self_pos]
+		if m != nil && !m.is_dead() {
+			pos = []int32{self_pos}
+		}
 		for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-			m := target_team.members[i]
+			if self_pos == int32(i) {
+				continue
+			}
+			m = target_team.members[i]
 			if m != nil && !m.is_dead() {
 				pos = append(pos, int32(i))
 			}
@@ -236,20 +252,25 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 // 后排目标选择
 func skill_get_back_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
 	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE { // 单体
+		found := false
 		for i := BATTLE_FORMATION_LINE_NUM - 1; i >= 0; i-- {
 			for j := 0; j < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; j++ {
 				p := int32(i)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + int32(j)
 				m := target_team.members[p]
 				if m != nil && !m.is_dead() {
 					pos = append(pos, p)
+					found = true
 					break
 				}
+			}
+			if found {
+				break
 			}
 		}
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
 		is_empty := false
 		for i := BATTLE_FORMATION_LINE_NUM - 1; i >= 0; i-- {
-			is_empty, pos = _check_team_column(int32(i), target_team)
+			is_empty, pos = _check_team_column(self_pos, int32(i), target_team)
 			if !is_empty {
 				break
 			}
@@ -832,10 +853,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				// 施加BUFF
 				buff_id := skill_effect_add_buff(self, target, effects[i])
-				// -------------------- 战报 --------------------
-				build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
-				// ----------------------------------------------
 				if buff_id > 0 {
+					// -------------------- 战报 --------------------
+					build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
+					// ----------------------------------------------
 					used = true
 					log.Debug("self_team[%v] member[%v] use skill[%v] to target team[%v] member[%v] 触发 buff[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos, buff_id)
 				}
@@ -1058,6 +1079,7 @@ func (this *BuffList) clear() {
 	for b != nil {
 		next := b.next
 		buff_pool.Put(b)
+		delete(this.buffs, b)
 		b = next
 	}
 	this.head = nil
