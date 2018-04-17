@@ -62,7 +62,7 @@ func (this *ItemTableMgr) Load() bool {
 		tmp_item = &tmp_cfg.Items[idx]
 
 		if tmp_item.EquipAttrStr != "" {
-			a := parse_xml_str_arr(tmp_item.EquipAttrStr, ",")
+			a := parse_xml_str_arr2(tmp_item.EquipAttrStr, ",")
 			if a == nil || len(a) == 0 {
 				tmp_item.EquipAttr = make([]int32, 0)
 			} else {
@@ -71,7 +71,7 @@ func (this *ItemTableMgr) Load() bool {
 		}
 
 		if tmp_item.EquipSkillStr != "" {
-			a := parse_xml_str_arr(tmp_item.EquipSkillStr, ",")
+			a := parse_xml_str_arr2(tmp_item.EquipSkillStr, ",")
 			if a == nil || len(a) == 0 {
 				tmp_item.EquipSkill = make([]int32, 0)
 			} else {

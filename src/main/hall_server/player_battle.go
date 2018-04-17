@@ -310,6 +310,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	this.attack = (role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
 	this.defense = (role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
 	this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
+	this.act_num = 0
 
 	this.attrs[ATTR_HP_MAX] = this.hp
 	this.attrs[ATTR_HP] = this.hp
@@ -328,6 +329,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	}
 
 	this.init_passive_data(role_card.PassiveSkillIds)
+	this.init_equips()
 }
 
 func (this *TeamMember) add_attr(attr int32, value int32) {
@@ -390,10 +392,13 @@ func (this *TeamMember) round_end() {
 }
 
 func (this *TeamMember) get_use_skill() (skill_id int32) {
+	if this.act_num <= 0 {
+		return
+	}
 	// 能量满用绝杀
 	if this.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
 		skill_id = this.card.SuperSkillID
-	} else if this.act_num > 0 {
+	} else {
 		skill_id = this.card.NormalSkillID
 	}
 	return
@@ -910,7 +915,7 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 
 func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int32 {
 	mem := this.members[self_index]
-	if mem == nil {
+	if mem == nil || mem.is_dead() {
 		return -1
 	}
 	for mem.get_use_skill() > 0 {
