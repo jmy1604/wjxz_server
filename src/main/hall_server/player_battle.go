@@ -704,6 +704,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}
+	this.player = p
 
 	log.Debug("!@!@!@!@!@!@ members: %v", members)
 
@@ -754,7 +755,6 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		// 装备BUFF增加属性
 		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
 	}
-	this.player = p
 	this.curr_attack = 0
 	this.side = side
 	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, side)
