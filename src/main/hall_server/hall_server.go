@@ -222,6 +222,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("stage_table_mgr init succeed")
 	}
 
+	if !item_table_mgr.Init() {
+		log.Error("item_table_mgr init failed")
+		return errors.New("item_table_mgr init failed")
+	} else {
+		log.Info("item_table_mgr init succeed")
+	}
+
 	return
 }
 

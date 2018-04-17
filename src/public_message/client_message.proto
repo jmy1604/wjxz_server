@@ -20,6 +20,18 @@ enum E_ERR {
 	PLAYER_SET_DEFENSE_MEMBERS_FAILED		= -1001; // 设置防守阵营失败
 	PLAYER_IS_DEFENSING						= -1002; // 对方正在战斗
 	
+	// 物品装备
+	PLAYER_ITEM_NOT_FOUND					= -1100; // 物品找不到
+	PLAYER_ITEM_TABLE_ID_NOT_FOUND			= -1101; // 物品配置找不到
+	PLAYER_ITEM_NUM_NOT_ENOUGH				= -1102; // 物品数量不足
+	PLAYER_ITEM_TYPE_NOT_MATCH				= -1103; // 物品类型不匹配
+	PLAYER_EQUIP_SLOT_EMPTY					= -1104; // 装备位置为空
+	PLAYER_EQUIP_TYPE_INVALID				= -1105; // 装备类型错误
+	
+	// 角色
+	PLAYER_ROLE_NOT_FOUND					= -1200; // 角色不存在
+	PLAYER_ROLE_TABLE_ID_NOT_FOUND			= -1201; // 角色配置找不到
+		
 	// 玩家
 	PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
 	PLAYER_RENAME_NEW_CANT_SAME_TO_OLD 		= -100001; // 昵称不能与原来相同
@@ -301,6 +313,9 @@ message S2CBattleResultResponse {
 	repeated BattleReportItem EnterReports 	= 4; // 进场时战报，一般是被动技效果
 	repeated BattleRoundReports Rounds 		= 5; // 回合
 }
+
+// ----------------------------------- 物品 ------------------------------------
+// 
 
 //////////////////////////////////////////////////////////////////////////////
 

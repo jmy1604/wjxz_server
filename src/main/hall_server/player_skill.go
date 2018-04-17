@@ -155,20 +155,23 @@ func _get_team_big_cross_targets() [][]int32 {
 // 单个默认目标
 func _get_single_default_target(self_pos int32, target_team *BattleTeam) (pos int32) {
 	pos = int32(-1)
-	m := target_team.members[self_pos]
-	if m != nil && !m.is_dead() {
-		pos = self_pos
-	} else {
-		rows_order := _get_rows_order(self_pos)
-		for l := 0; l < len(rows_order); l++ {
-			for i := 0; i < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; i++ {
-				p := int(rows_order[l])*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + i
-				m := target_team.members[p]
-				if m != nil && !m.is_dead() {
-					pos = int32(p)
-					break
-				}
+	rows := _get_rows_order(self_pos)
+	if rows == nil {
+		return
+	}
+	found := false
+	for l := 0; l < len(rows); l++ {
+		for i := int32(0); i < BATTLE_FORMATION_ONE_LINE_MEMBER_NUM; i++ {
+			p := rows[l] + i*BATTLE_FORMATION_LINE_NUM
+			m := target_team.members[p]
+			if m != nil && !m.is_dead() {
+				pos = int32(p)
+				found = true
+				break
 			}
+		}
+		if found {
+			break
 		}
 	}
 	return
@@ -568,7 +571,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	}
 
 	// 实际暴击率
-	critical := self.attrs[ATTR_CRITICAL] - self.attrs[ATTR_ANTI_CRITICAL]
+	critical := self.attrs[ATTR_CRITICAL] - self.attrs[ATTR_ANTI_CRITICAL] + 1000
 	if critical < 0 {
 		critical = 0
 	} else {
@@ -581,7 +584,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	}
 	if !is_critical {
 		// 实际格挡率
-		block := target.attrs[ATTR_BLOCK_RATE] - self.attrs[ATTR_BREAK_BLOCK_RATE]
+		block := target.attrs[ATTR_BLOCK_RATE] - self.attrs[ATTR_BREAK_BLOCK_RATE] + 600
 		if block > rand.Int31n(10000) {
 			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64((5000-self.attrs[ATTR_BLOCK_DEFENSE_RATE]))/10000))))
 			is_block = true

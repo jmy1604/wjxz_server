@@ -50,6 +50,7 @@ message PlayerRole{
 	optional int32 Rank=3;
 	optional int32 Level=4;
 	repeated int32 Attr=5;
+	repeated int32 Equip=6;
 }
 
 message PlayerRoleList{

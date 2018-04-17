@@ -137,7 +137,7 @@
 						{"Type":"int32","Index":3,"Name":"Rank"},
 						{"Type":"int32","Index":4,"Name":"Level"},
 						{"Type":"int32","Index":5,"Name":"Attr","Repeated":true},
-						{"Type":"int32","Index":6,"Name":"Equips","Repeated":true}
+						{"Type":"int32","Index":6,"Name":"Equip","Repeated":true}
 						
 					]
 				},

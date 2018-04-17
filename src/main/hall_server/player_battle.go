@@ -115,29 +115,33 @@ type TeamMember struct {
 	delay_skills        []*DelaySkill                         // 延迟的技能效果
 }
 
+func (this *TeamMember) add_attrs(attrs []int32) {
+	for i := 0; i < len(attrs)/2; i++ {
+		attr := attrs[2*i]
+		if attr == ATTR_HP {
+			this.add_hp(attrs[2*i+1])
+		} else if attr == ATTR_HP_MAX {
+			this.add_max_hp(attrs[2*i+1])
+		} else {
+			this.attrs[attrs[2*i]] += attrs[2*i+1]
+		}
+	}
+}
+
 func (this *TeamMember) add_skill_attr(skill_id int32) {
 	skill := skill_table_mgr.Get(skill_id)
 	if skill == nil {
 		return
 	}
-	for i := 0; i < len(skill.SkillAttr)/2; i++ {
-		attr := skill.SkillAttr[2*i]
-		if attr == ATTR_HP {
-			this.add_hp(skill.SkillAttr[2*i+1])
-		} else if attr == ATTR_HP_MAX {
-			this.add_max_hp(skill.SkillAttr[2*i+1])
-		} else {
-			this.attrs[skill.SkillAttr[2*i]] = skill.SkillAttr[2*i+1]
-		}
-	}
+	this.add_attrs(skill.SkillAttr)
 }
 
-func (this *TeamMember) init_passive_data(role_card *table_config.XmlCardItem) {
-	if role_card.PassiveSkillIds == nil {
+func (this *TeamMember) init_passive_data(skills []int32) {
+	if skills == nil {
 		return
 	}
-	for i := 0; i < len(role_card.PassiveSkillIds); i++ {
-		this.add_passive_trigger(role_card.PassiveSkillIds[i])
+	for i := 0; i < len(skills); i++ {
+		this.add_passive_trigger(skills[i])
 	}
 }
 
@@ -260,6 +264,27 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 	}
 }
 
+func (this *TeamMember) init_equips() {
+	equips, o := this.team.player.db.Roles.GetEquip(this.id)
+	if !o {
+		return
+	}
+
+	if equips == nil || len(equips) == 0 {
+		return
+	}
+
+	for i := 0; i < len(equips); i++ {
+		d := item_table_mgr.Get(equips[i])
+		if d == nil {
+			continue
+		}
+
+		this.init_passive_data(d.EquipSkill)
+		this.add_attrs(d.EquipAttr)
+	}
+}
+
 func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
 	if this.attrs == nil {
 		this.attrs = make([]int32, ATTR_COUNT_MAX)
@@ -302,7 +327,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 		this.add_skill_attr(role_card.PassiveSkillIds[i])
 	}
 
-	this.init_passive_data(role_card)
+	this.init_passive_data(role_card.PassiveSkillIds)
 }
 
 func (this *TeamMember) add_attr(attr int32, value int32) {
@@ -651,6 +676,7 @@ func (this *BattleReports) Recycle() {
 }
 
 type BattleTeam struct {
+	player       *Player
 	curr_attack  int32          // 当前进攻的索引
 	side         int32          // 0 左边 1 右边
 	temp_curr_id int32          // 临时ID，用于标识召唤的角色
@@ -723,6 +749,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		// 装备BUFF增加属性
 		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
 	}
+	this.player = p
 	this.curr_attack = 0
 	this.side = side
 	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, side)
@@ -898,6 +925,10 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
+
+		if mem.get_use_skill() > 0 {
+			log.Debug("!!!!!!!!!!!!!!!!!!!!!!!!!! Team[%v] member[%v] continue to use skill", this.side, self_index)
+		}
 	}
 	// 延迟的被动技
 	if mem.has_delay_skills() {

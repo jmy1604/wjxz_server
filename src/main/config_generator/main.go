@@ -15,9 +15,15 @@ func main() {
 		fmt.Printf("读取配置文件失败 %v", err)
 		return
 	}
-	var all_config = make(map[string]interface{})
+	var all_config = make(map[string]string)
 
-	decoder := json.NewDecoder(bytes.NewReader(data))
+	d := strings.Replace(string(data), "\r", "", -1)
+	d = strings.Replace(d, "\n", "", -1)
+	d = strings.Replace(d, "\t", "", -1)
+	d = strings.Replace(d, "\"", "", -1)
+	d = strings.Replace(d, "\\", "", -1)
+	r := bytes.NewReader([]byte(d))
+	decoder := json.NewDecoder(r)
 	decoder.UseNumber()
 	err = decoder.Decode(&all_config)
 	if err != nil {

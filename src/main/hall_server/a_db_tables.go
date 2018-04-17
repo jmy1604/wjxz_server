@@ -417,10 +417,12 @@ type dbPlayerRoleData struct{
 	Rank int32
 	Level int32
 	Attr []int32
+	Equip []int32
 }
 func (this* dbPlayerRoleData)from_pb(pb *db.PlayerRole){
 	if pb == nil {
 		this.Attr = make([]int32,0)
+		this.Equip = make([]int32,0)
 		return
 	}
 	this.Id = pb.GetId()
@@ -430,6 +432,10 @@ func (this* dbPlayerRoleData)from_pb(pb *db.PlayerRole){
 	this.Attr = make([]int32,len(pb.GetAttr()))
 	for i, v := range pb.GetAttr() {
 		this.Attr[i] = v
+	}
+	this.Equip = make([]int32,len(pb.GetEquip()))
+	for i, v := range pb.GetEquip() {
+		this.Equip[i] = v
 	}
 	return
 }
@@ -443,6 +449,10 @@ func (this* dbPlayerRoleData)to_pb()(pb *db.PlayerRole){
 	for i, v := range this.Attr {
 		pb.Attr[i]=v
 	}
+	pb.Equip = make([]int32, len(this.Equip))
+	for i, v := range this.Equip {
+		pb.Equip[i]=v
+	}
 	return
 }
 func (this* dbPlayerRoleData)clone_to(d *dbPlayerRoleData){
@@ -453,6 +463,10 @@ func (this* dbPlayerRoleData)clone_to(d *dbPlayerRoleData){
 	d.Attr = make([]int32, len(this.Attr))
 	for _ii, _vv := range this.Attr {
 		d.Attr[_ii]=_vv
+	}
+	d.Equip = make([]int32, len(this.Equip))
+	for _ii, _vv := range this.Equip {
+		d.Equip[_ii]=_vv
 	}
 	return
 }
@@ -2194,6 +2208,34 @@ func (this *dbPlayerRoleColumn)SetAttr(id int32,v []int32)(has bool){
 	d.Attr = make([]int32, len(v))
 	for _ii, _vv := range v {
 		d.Attr[_ii]=_vv
+	}
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerRoleColumn)GetEquip(id int32)(v []int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.GetEquip")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = make([]int32, len(d.Equip))
+	for _ii, _vv := range d.Equip {
+		v[_ii]=_vv
+	}
+	return v,true
+}
+func (this *dbPlayerRoleColumn)SetEquip(id int32,v []int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleColumn.SetEquip")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Equip = make([]int32, len(v))
+	for _ii, _vv := range v {
+		d.Equip[_ii]=_vv
 	}
 	this.m_changed = true
 	return true

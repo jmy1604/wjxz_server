@@ -3,7 +3,7 @@ package main
 import (
 	"libs/log"
 	_ "main/table_config"
-	_ "public_message/gen_go/client_message"
+	"public_message/gen_go/client_message"
 	_ "sync"
 	_ "time"
 
@@ -79,6 +79,70 @@ func (this *Player) del_item(id int32, count int32) bool {
 		this.db.Items.IncbyCount(id, -count)
 	}
 	return true
+}
+
+func (this *Player) Equip(role_id, equip_id int32) int32 {
+	var n int32
+	var o bool
+	if n, o = this.db.Items.GetCount(equip_id); !o {
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NOT_FOUND)
+	}
+
+	if n <= 0 {
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
+	}
+
+	item_tdata := item_table_mgr.Get(equip_id)
+	if item_tdata == nil {
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
+	}
+
+	if item_tdata.EquipType < EQUIP_TYPE_WEAPON || item_tdata.EquipType >= EQUIP_TYPE_MAX {
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_TYPE_NOT_MATCH)
+	}
+
+	var equips []int32
+	equips, o = this.db.Roles.GetEquip(role_id)
+	if !o {
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	if equips == nil || len(equips) == 0 {
+		equips = make([]int32, EQUIP_TYPE_MAX)
+		this.db.Roles.SetEquip(role_id, equips)
+	}
+
+	if equips[item_tdata.EquipType] > 0 {
+		this.add_item(equips[item_tdata.EquipType], 1)
+	}
+	equips[item_tdata.EquipType] = equip_id
+	this.del_item(equip_id, 1)
+
+	return 1
+}
+
+func (this *Player) Unequip(role_id, equip_type int32) int32 {
+	equips, o := this.db.Roles.GetEquip(role_id)
+	if !o {
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+	if equips == nil || len(equips) == 0 {
+		return int32(msg_client_message.E_ERR_PLAYER_EQUIP_SLOT_EMPTY)
+	}
+
+	if equip_type < EQUIP_TYPE_WEAPON || equip_type >= EQUIP_TYPE_MAX {
+		return int32(msg_client_message.E_ERR_PLAYER_EQUIP_TYPE_INVALID)
+	}
+
+	if equips[equip_type] <= 0 {
+		return int32(msg_client_message.E_ERR_PLAYER_EQUIP_SLOT_EMPTY)
+	}
+
+	this.add_item(equips[equip_type], 1)
+	equips[equip_type] = 0
+	this.db.Roles.SetEquip(role_id, equips)
+
+	return 1
 }
 
 /*
