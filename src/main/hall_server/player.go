@@ -99,7 +99,9 @@ type Player struct {
 	attack_team     *BattleTeam           // 进攻阵营
 	defense_team    *BattleTeam           // 防守阵营
 	use_defense     int32                 // 是否防守阵容
-	team_changed    map[int32]bool
+	stage_team      *BattleTeam           // 关卡阵营
+	stage_id        int32
+	stage_wave      int32
 
 	roles_id_change_info IdChangeInfo // 角色增删更新
 	items_id_change_info IdChangeInfo // 物品增删更新
@@ -885,7 +887,6 @@ func (this *Player) SetAttackTeam(team []int32) int32 {
 		}
 	}
 	this.db.BattleTeam.SetAttackMembers(team)
-	this.team_changed[BATTLE_ATTACK_TEAM] = true
 	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 		log.Warn("Player[%v] init attack team failed", this.Id)
 	}
@@ -915,7 +916,6 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 		}
 	}
 	this.db.BattleTeam.SetDefenseMembers(team)
-	this.team_changed[BATTLE_ATTACK_TEAM] = false
 	if !this.defense_team.Init(this, BATTLE_DEFENSE_TEAM, 1) {
 		log.Warn("Player[%v] init defense team failed", this.Id)
 	}
@@ -980,5 +980,66 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
+	return 1
+}
+
+func (this *Player) FightInStage(stage_id int32) int32 {
+	stage := stage_table_mgr.Get(stage_id)
+	if stage == nil {
+		return -1
+	}
+
+	if this.stage_id > 0 && stage_id != this.stage_id {
+		log.Error("Player[%v] fight stage[%v] in wave[%v] not finished, cant begin new stage[%v]", this.Id, this.stage_id, this.stage_wave, stage_id)
+		return -1
+	}
+
+	if this.attack_team == nil {
+		this.attack_team = &BattleTeam{}
+	}
+	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+		log.Error("Player[%v] init attack team failed", this.Id)
+		return -1
+	}
+
+	if this.stage_team == nil {
+		this.stage_team = &BattleTeam{}
+	}
+	if !this.stage_team.InitWithStage(1, stage_id, this.stage_wave) {
+		log.Error("Player[%v] init stage[%v] wave[%v] team failed", this.Id, stage_id, this.stage_wave)
+		return -1
+	}
+
+	my_team := this.attack_team._format_members_for_msg()
+	target_team := this.stage_team._format_members_for_msg()
+	is_win, enter_reports, rounds := this.attack_team.Fight(this.stage_team, BATTLE_END_BY_ROUND_OVER, stage.MaxRound)
+
+	has_wave := true
+	this.stage_wave += 1
+	if this.stage_wave >= stage.MaxWaves {
+		this.stage_id = 0
+		this.stage_wave = 0
+		has_wave = false
+		// 生成奖励
+		if is_win {
+
+		}
+	}
+
+	if enter_reports == nil {
+		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
+	}
+	if rounds == nil {
+		rounds = make([]*msg_client_message.BattleRoundReports, 0)
+	}
+	response := &msg_client_message.S2CBattleResultResponse{
+		IsWin:        is_win,
+		EnterReports: enter_reports,
+		Rounds:       rounds,
+		MyTeam:       my_team,
+		TargetTeam:   target_team,
+		HasStageWave: has_wave,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 	return 1
 }

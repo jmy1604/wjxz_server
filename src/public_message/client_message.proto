@@ -305,6 +305,7 @@ message BattleRoundReports {
 message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
+	int32 StageId							= 3; // 关卡ID
 }
 message S2CBattleResultResponse {
 	bool IsWin								= 1; // true 赢  false 输
@@ -312,6 +313,11 @@ message S2CBattleResultResponse {
 	repeated BattleMemberItem TargetTeam	= 3; // 战斗前敌方阵容
 	repeated BattleReportItem EnterReports 	= 4; // 进场时战报，一般是被动技效果
 	repeated BattleRoundReports Rounds 		= 5; // 回合
+	bool HasStageWave						= 6;
+}
+
+// 关卡战斗结果奖励
+message C2SBattleInStageRewardNotify {
 }
 
 // ----------------------------------- 物品 ------------------------------------

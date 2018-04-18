@@ -80,6 +80,7 @@ const (
 const (
 	BATTLE_ATTACK_TEAM  = 1
 	BATTLE_DEFENSE_TEAM = 2
+	BATTLE_STAGE_TEAM   = 99
 )
 
 type MemberPassiveTriggerData struct {
@@ -264,24 +265,25 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 	}
 }
 
+func (this *TeamMember) init_equip(equip_id int32) {
+	d := item_table_mgr.Get(equip_id)
+	if d == nil {
+		return
+	}
+	this.init_passive_data(d.EquipSkill)
+	this.add_attrs(d.EquipAttr)
+}
+
 func (this *TeamMember) init_equips() {
 	equips, o := this.team.player.db.Roles.GetEquip(this.id)
 	if !o {
 		return
 	}
-
 	if equips == nil || len(equips) == 0 {
 		return
 	}
-
 	for i := 0; i < len(equips); i++ {
-		d := item_table_mgr.Get(equips[i])
-		if d == nil {
-			continue
-		}
-
-		this.init_passive_data(d.EquipSkill)
-		this.add_attrs(d.EquipAttr)
+		this.init_equip(equips[i])
 	}
 }
 
@@ -329,7 +331,12 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	}
 
 	this.init_passive_data(role_card.PassiveSkillIds)
-	this.init_equips()
+	if this.team.team_type == BATTLE_STAGE_TEAM {
+		// id表示怪物装备
+		this.init_equip(id)
+	} else {
+		this.init_equips()
+	}
 }
 
 func (this *TeamMember) add_attr(attr int32, value int32) {
@@ -693,6 +700,7 @@ func (this *BattleReports) Recycle() {
 
 type BattleTeam struct {
 	player       *Player
+	team_type    int32
 	curr_attack  int32          // 当前进攻的索引
 	side         int32          // 0 左边 1 右边
 	temp_curr_id int32          // 临时ID，用于标识召唤的角色
@@ -716,18 +724,13 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}
 	this.player = p
-
-	log.Debug("!@!@!@!@!@!@ members: %v", members)
+	this.team_type = team_id
 
 	for i := 0; i < len(this.members); i++ {
 		if (i < len(members) && members[i] <= 0) || i >= len(members) {
 			this.members[i] = nil
 			continue
 		}
-
-		//if this.members[i] != nil && members[i] == this.members[i].id {
-		//	continue
-		//}
 
 		var table_id, rank, level int32
 		var o bool
@@ -768,10 +771,57 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	}
 	this.curr_attack = 0
 	this.side = side
-	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, side)
 	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
 
-	//p.team_changed[team_id] = false
+	return true
+}
+
+// init with stage
+func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave int32) bool {
+	stage := stage_table_mgr.Get(stage_id)
+	if stage == nil {
+		log.Warn("Cant found stage %v", stage_id)
+		return false
+	}
+	if stage.Monsters == nil || len(stage.Monsters) == 0 {
+		return false
+	}
+
+	if this.members == nil {
+		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
+	}
+
+	for i := 0; i < len(this.members); i++ {
+		if this.members[i] != nil {
+			team_member_pool.Put(this.members[i])
+			this.members[i] = nil
+		}
+	}
+
+	for i := 0; i < len(stage.Monsters); i++ {
+		monster := stage.Monsters[i]
+		if monster.Wave-1 == monster_wave {
+			pos := monster.Slot - 1
+			if pos < 0 || pos >= BATTLE_ROUND_MAX_NUM {
+				log.Error("Stage[%v] monster wave[%v] slot[%v] invalid", stage_id, monster_wave, monster.Slot)
+				return false
+			}
+
+			role_card := card_table_mgr.GetRankCard(monster.MonsterID, monster.Rank)
+			if role_card == nil {
+				log.Error("Cant get card by role_id[%v] and rank[%v]", monster.MonsterID, monster.Rank)
+				return false
+			}
+
+			m := team_member_pool.Get()
+			m.init(this, monster.EquipID, monster.Level, role_card, pos)
+			this.members[pos] = m
+		}
+	}
+
+	this.side = side
+	this.curr_attack = 0
+	this.team_type = BATTLE_STAGE_TEAM
 
 	return true
 }
@@ -1065,8 +1115,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	// 存放战报
 	if this.reports == nil {
 		this.reports = &BattleReports{}
-		target_team.reports = this.reports
 	}
+	target_team.reports = this.reports
 	this.reports.Reset()
 
 	// 被动技，进场前触发
@@ -1164,9 +1214,15 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg prot
 		}
 	}
 
-	p.Fight2Player(req.FightPlayerId)
-
-	return 1
+	var res int32
+	if req.FightPlayerId > 0 {
+		res = p.Fight2Player(req.FightPlayerId)
+	} else if req.StageId > 0 {
+		res = p.FightInStage(req.StageId)
+	} else {
+		res = -1
+	}
+	return res
 }
 
 func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {

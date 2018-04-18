@@ -99,13 +99,13 @@ func _check_team_row(row_index int32, target_team *BattleTeam) (is_empty bool, p
 
 // 列是否为空
 func _check_team_column(self_pos, column_index int32, target_team *BattleTeam) (is_empty bool, pos []int32) {
+	is_empty = true
 	first_pos := self_pos%BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + column_index*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM
 	m := target_team.members[first_pos]
 	if m != nil {
 		pos = []int32{first_pos}
+		is_empty = false
 	}
-
-	is_empty = true
 	for i := 0; i < BATTLE_FORMATION_LINE_NUM; i++ {
 		p := int(column_index)*BATTLE_FORMATION_ONE_LINE_MEMBER_NUM + i
 		if p == int(first_pos) {
@@ -653,7 +653,7 @@ func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect 
 func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_pos int32, effect []int32) (mem *TeamMember) {
 	new_card := card_table_mgr.GetRankCard(effect[1], self_mem.card.Rank)
 	if new_card == nil {
-		log.Error("summon skill %v not found", effect[1])
+		log.Error("summon skill role[%v] not found", effect[1])
 		return
 	}
 
