@@ -756,15 +756,24 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				if target_dmg != 0 {
 					target.add_hp(-target_dmg)
-				}
-				if self_dmg != 0 {
 					// 被动技，自己死亡前触发
-					if !self.is_dead() && self.hp <= self_dmg {
+					if target.is_will_dead() {
 						if skill_data.Type != SKILL_TYPE_PASSIVE {
-							passive_skill_effect_with_self_pos(EVENT_BEFORE_SELF_DEAD, self_team, self_pos, nil, nil, true)
+							passive_skill_effect_with_self_pos(EVENT_BEFORE_TARGET_DEAD, target_team, target_pos[j], nil, nil, true)
 						}
 					}
+					// 是否真死
+					if target.is_will_dead() {
+						target.set_dead()
+					}
+				}
+
+				if self_dmg != 0 {
 					self.add_hp(-self_dmg)
+					// 是否真死
+					if self.is_will_dead() {
+						self.set_dead()
+					}
 				}
 
 				//----------- 战报 -------------
@@ -793,26 +802,26 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 					}
 
-					// 自身死亡时触发
-					if self.is_dead() {
-						passive_skill_effect_with_self_pos(EVENT_AFTER_SELF_DEAD, self_team, self_pos, target_team, nil, true)
+					// 目标死亡时触发
+					if target.is_dead() {
+						passive_skill_effect_with_self_pos(EVENT_AFTER_TARGET_DEAD, target_team, target_pos[j], self_team, nil, true)
 						// 队友死亡触发
-						for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
-							team_mem := self_team.members[pos]
-							if team_mem == nil || team_mem.is_dead() {
-								continue
-							}
-							if pos != self_pos {
-								passive_skill_effect_with_self_pos(EVENT_AFTER_TEAMMATE_DEAD, self_team, pos, self_team, []int32{self_pos}, true)
-							}
-						}
-						// 相对于敌方死亡时触发
 						for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
 							team_mem := target_team.members[pos]
 							if team_mem == nil || team_mem.is_dead() {
 								continue
 							}
-							passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, target_team, pos, self_team, []int32{self_pos}, true)
+							if pos != target_pos[j] {
+								passive_skill_effect_with_self_pos(EVENT_AFTER_TEAMMATE_DEAD, target_team, pos, target_team, []int32{target_pos[j]}, true)
+							}
+						}
+						// 相对于敌方死亡时触发
+						for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
+							team_mem := self_team.members[pos]
+							if team_mem == nil || team_mem.is_dead() {
+								continue
+							}
+							passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, self_team, pos, target_team, []int32{target_pos[j]}, true)
 						}
 					}
 
@@ -1261,6 +1270,10 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 }
 
 func (this *BuffList) on_round_end() {
+	if this.owner.is_will_dead() || this.owner.is_dead() {
+		return
+	}
+
 	var item *msg_client_message.BattleFighter
 	bf := this.head
 	for bf != nil {
@@ -1270,6 +1283,9 @@ func (this *BuffList) on_round_end() {
 				dmg := buff_effect_damage(bf.attack, bf.dmg_add, bf.param, bf.buff.Effect[1], this.owner)
 				if dmg != 0 {
 					this.owner.add_hp(-dmg)
+					if this.owner.is_will_dead() {
+						this.owner.set_dead()
+					}
 					// --------------------------- 战报 ---------------------------
 					// 血量变化的成员
 					if item == nil {

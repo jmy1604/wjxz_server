@@ -540,10 +540,21 @@ func (this *TeamMember) is_disable_attack() bool {
 }
 
 func (this *TeamMember) is_dead() bool {
-	if this.hp > 0 {
-		return false
+	if this.hp < 0 {
+		return true
 	}
-	return true
+	return false
+}
+
+func (this *TeamMember) is_will_dead() bool {
+	if this.hp == 0 {
+		return true
+	}
+	return false
+}
+
+func (this *TeamMember) set_dead() {
+	this.hp = -1
 }
 
 func (this *TeamMember) has_delay_skills() bool {
@@ -778,7 +789,7 @@ func (this *BattleTeam) RoundStart() {
 // round end
 func (this *BattleTeam) RoundEnd() {
 	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		if this.members[i] != nil {
+		if this.members[i] != nil && !this.members[i].is_dead() {
 			this.members[i].round_end()
 		}
 	}
