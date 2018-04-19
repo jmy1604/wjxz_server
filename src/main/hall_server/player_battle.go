@@ -146,6 +146,20 @@ func (this *TeamMember) init_passive_data(skills []int32) {
 	}
 }
 
+func (this *TeamMember) init_passive_round_num() bool {
+	if this.passive_triggers == nil {
+		return false
+	}
+	for _, d := range this.passive_triggers {
+		for i := 0; i < len(d); i++ {
+			if d[i] != nil && d[i].skill.TriggerRoundMax > 0 {
+				d[i].round_num = d[i].skill.TriggerRoundMax
+			}
+		}
+	}
+	return true
+}
+
 func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 	skill := skill_table_mgr.Get(skill_id)
 	if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
@@ -160,10 +174,10 @@ func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 	d.skill = skill
 	d.battle_num = skill.TriggerBattleMax
 	d.round_num = skill.TriggerRoundMax
-	if skill.TriggerBattleMax <= 0 {
+	if d.battle_num == 0 {
 		d.battle_num = -1
 	}
-	if skill.TriggerRoundMax <= 0 {
+	if d.round_num == 0 {
 		d.round_num = -1
 	}
 	datas := this.passive_triggers[skill.SkillTriggerType]
@@ -198,6 +212,7 @@ func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
 			continue
 		}
 		if triggers[i].skill.Id == skill_id {
+			passive_trigger_data_pool.Put(triggers[i])
 			triggers[i] = nil
 			break
 		}
@@ -246,22 +261,20 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 	}
 
 	for i := 0; i < len(d); i++ {
-		if d[i] == nil {
-			continue
+		if d[i] != nil && d[i].skill.Id == skill_id {
+			if d[i].battle_num > 0 {
+				d[i].battle_num -= 1
+				log.Debug("Team[%v] member[%v] 减少一次技能[%v]战斗触发事件[%v]次数", this.team.side, this.pos, skill_id, trigger_event)
+			}
+			if d[i].round_num > 0 {
+				d[i].round_num -= 1
+				log.Debug("Team[%v] member[%v] 减少一次技能[%v]回合触发事件[%v]次数", this.team.side, this.pos, skill_id, trigger_event)
+			}
+			if d[i].battle_num == 0 || d[i].round_num == 0 {
+				//passive_trigger_data_pool.Put(d[i])
+			}
+			break
 		}
-		if d[i].skill.Id != skill_id {
-			continue
-		}
-		if d[i].battle_num > 0 {
-			d[i].battle_num -= 1
-		}
-		if d[i].round_num > 0 {
-			d[i].round_num -= 1
-		}
-		if d[i].battle_num == 0 || d[i].round_num == 0 {
-			passive_trigger_data_pool.Put(d[i])
-		}
-		break
 	}
 }
 
@@ -377,7 +390,7 @@ func (this *TeamMember) add_max_hp(add int32) {
 
 func (this *TeamMember) round_start() {
 	this.act_num += 1
-	this.energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
+	this.init_passive_round_num()
 }
 
 func (this *TeamMember) round_end() {
@@ -396,6 +409,8 @@ func (this *TeamMember) round_end() {
 			}
 		}
 	}
+
+	this.energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
 }
 
 func (this *TeamMember) get_use_skill() (skill_id int32) {
@@ -612,6 +627,23 @@ func (this *TeamMember) clear_delay_skills() {
 		delay_skill_pool.Put(this.delay_skills[i])
 	}
 	this.delay_skills = nil
+}
+
+func (this *TeamMember) on_finish() {
+	if this.passive_triggers == nil {
+		return
+	}
+
+	for _, d := range this.passive_triggers {
+		if d == nil {
+			continue
+		}
+		for i := 0; i < len(d); i++ {
+			if d[i] != nil {
+				passive_trigger_data_pool.Put(d[i])
+			}
+		}
+	}
 }
 
 type BattleReports struct {
@@ -1035,6 +1067,18 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	target_team.RoundEnd()
 }
 
+// 结束
+func (this *BattleTeam) OnFinish() {
+	if this.members == nil {
+		return
+	}
+	for i := 0; i < len(this.members); i++ {
+		if this.members[i] != nil && !this.members[i].is_dead() {
+			this.members[i].on_finish()
+		}
+	}
+}
+
 // 回收战报
 func (this *BattleTeam) RecycleReports() {
 
@@ -1155,6 +1199,9 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.reports.Reset()
 	}
 
+	this.OnFinish()
+	target_team.OnFinish()
+
 	return
 }
 
@@ -1165,7 +1212,6 @@ func (this *BattleTeam) _format_members_for_msg() (members []*msg_client_message
 		}
 		mem := this.members[i].build_battle_member()
 		mem.Side = this.side
-		log.Debug("!!!!!!!!!!@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, this.side)
 		members = append(members, mem)
 	}
 	return

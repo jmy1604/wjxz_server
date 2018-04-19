@@ -16,43 +16,38 @@ type XmlSkillItem struct {
 	TriggerCondition1    []int32
 	TriggerCondition2Str string `xml:"TriggerCondition2,attr"`
 	TriggerCondition2    []int32
-	TriggerRoundMax      int32
-	TriggerBattleMax     int32
-	SkillMelee           int32 `xml:"SkillMelee,attr"`
-	SkillEnemy           int32 `xml:"SkillEnemy,attr"`
-	RangeType            int32 `xml:"RangeType,attr"`
-	SkillTarget          int32 `xml:"SkillTarget,attr"`
-	MaxTarget            int32 `xml:"MaxTarget,attr"`
-	MustHit              int32 `xml:"CertainHit,attr"`
-	SkillCastCount       int32 `xml:"SkillCastCount,attr"`
-
-	Effect1Cond1Str string `xml:"Effect1Cond1,attr"`
-	Effect1Cond2Str string `xml:"Effect1Cond2,attr"`
-	Effect1Str      string `xml:"Effect1,attr"`
-	Effect1         []int32
-	Effect1Cond1    []int32
-	Effect1Cond2    []int32
-
-	Effect2Cond1Str string `xml:"Effect2Cond1,attr"`
-	Effect2Cond2Str string `xml:"Effect2Cond2,attr"`
-	Effect2Str      string `xml:"Effect2,attr"`
-	Effect2         []int32
-	Effect2Cond1    []int32
-	Effect2Cond2    []int32
-
-	Effect3Cond1Str string `xml:"Effect3Cond1,attr"`
-	Effect3Cond2Str string `xml:"Effect3Cond2,attr"`
-	Effect3Str      string `xml:"Effect3,attr"`
-	Effect3         []int32
-	Effect3Cond1    []int32
-	Effect3Cond2    []int32
-
-	Effects       [][]int32
-	EffectsCond1s [][]int32
-	EffectsCond2s [][]int32
-
-	ComboSkill       int32 `xml:"ComboSKill,attr"`
-	IsDelayLastSkill int32 `xml:"IsDelayLastSkill,attr"`
+	TriggerRoundMax      int32  `xml:"TriggerRoundMax,attr"`
+	TriggerBattleMax     int32  `xml:"TriggerBattleMax,attr"`
+	SkillMelee           int32  `xml:"SkillMelee,attr"`
+	SkillEnemy           int32  `xml:"SkillEnemy,attr"`
+	RangeType            int32  `xml:"RangeType,attr"`
+	SkillTarget          int32  `xml:"SkillTarget,attr"`
+	MaxTarget            int32  `xml:"MaxTarget,attr"`
+	MustHit              int32  `xml:"CertainHit,attr"`
+	SkillCastCount       int32  `xml:"SkillCastCount,attr"`
+	Effect1Cond1Str      string `xml:"Effect1Cond1,attr"`
+	Effect1Cond2Str      string `xml:"Effect1Cond2,attr"`
+	Effect1Str           string `xml:"Effect1,attr"`
+	Effect1              []int32
+	Effect1Cond1         []int32
+	Effect1Cond2         []int32
+	Effect2Cond1Str      string `xml:"Effect2Cond1,attr"`
+	Effect2Cond2Str      string `xml:"Effect2Cond2,attr"`
+	Effect2Str           string `xml:"Effect2,attr"`
+	Effect2              []int32
+	Effect2Cond1         []int32
+	Effect2Cond2         []int32
+	Effect3Cond1Str      string `xml:"Effect3Cond1,attr"`
+	Effect3Cond2Str      string `xml:"Effect3Cond2,attr"`
+	Effect3Str           string `xml:"Effect3,attr"`
+	Effect3              []int32
+	Effect3Cond1         []int32
+	Effect3Cond2         []int32
+	Effects              [][]int32
+	EffectsCond1s        [][]int32
+	EffectsCond2s        [][]int32
+	ComboSkill           int32 `xml:"ComboSKill,attr"`
+	IsDelayLastSkill     int32 `xml:"IsDelayLastSkill,attr"`
 }
 
 type XmlSkillConfig struct {
