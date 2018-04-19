@@ -272,6 +272,7 @@ message BattleFighter {
 	int32 Side								= 6; // 0 左  1 右
 	bool IsCritical							= 7; // 是否暴击
 	bool IsBlock							= 8; // 是否格挡
+	int32 AntiType							= 9; // 克制类型  1 克制 0 无克制 -1 被克制
 }
 
 message BattleMemberBuff {

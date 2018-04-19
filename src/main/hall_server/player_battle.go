@@ -830,6 +830,10 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 		}
 	}
 
+	this.side = side
+	this.curr_attack = 0
+	this.team_type = BATTLE_STAGE_TEAM
+
 	for i := 0; i < len(stage.Monsters); i++ {
 		monster := stage.Monsters[i]
 		if monster.Wave-1 == monster_wave {
@@ -850,10 +854,6 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 			this.members[pos] = m
 		}
 	}
-
-	this.side = side
-	this.curr_attack = 0
-	this.team_type = BATTLE_STAGE_TEAM
 
 	return true
 }

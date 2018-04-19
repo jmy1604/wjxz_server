@@ -986,13 +986,14 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 func (this *Player) FightInStage(stage_id int32) int32 {
 	stage := stage_table_mgr.Get(stage_id)
 	if stage == nil {
+		log.Error("Cant found stage[%v] for player[%v]", stage_id, this.Id)
 		return -1
 	}
 
-	if this.stage_id > 0 && stage_id != this.stage_id {
+	/*if this.stage_id > 0 && stage_id != this.stage_id {
 		log.Error("Player[%v] fight stage[%v] in wave[%v] not finished, cant begin new stage[%v]", this.Id, this.stage_id, this.stage_wave, stage_id)
 		return -1
-	}
+	}*/
 
 	if this.attack_team == nil {
 		this.attack_team = &BattleTeam{}
@@ -1025,6 +1026,7 @@ func (this *Player) FightInStage(stage_id int32) int32 {
 
 		}
 	}
+	this.stage_id = stage_id
 
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)

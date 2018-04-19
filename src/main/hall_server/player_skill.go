@@ -487,7 +487,7 @@ const (
 )
 
 // 技能直接伤害
-func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type, skill_fight_type int32, effect []int32) (target_damage, self_damage int32, is_block, is_critical bool) {
+func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type, skill_fight_type int32, effect []int32) (target_damage, self_damage int32, is_block, is_critical bool, anti_type int32) {
 	if len(effect) < 4 {
 		log.Error("skill effect length %v not enough", len(effect))
 		return
@@ -521,32 +521,38 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		return
 	}
 
-	is_reflect_damage := false
 	// 角色类型克制
 	if self.card.Type == table_config.CARD_ROLE_TYPE_ATTACK && target.card.Type == table_config.CARD_ROLE_TYPE_SKILL {
 		damage_add += 1500
-		is_reflect_damage = true
+		anti_type = 1
 	} else if self.card.Type == table_config.CARD_ROLE_TYPE_SKILL && target.card.Type == table_config.CARD_ROLE_TYPE_DEFENSE {
 		damage_add += 1500
-		is_reflect_damage = true
+		anti_type = 1
 	} else if self.card.Type == table_config.CARD_ROLE_TYPE_DEFENSE && target.card.Type == table_config.CARD_ROLE_TYPE_ATTACK {
 		damage_add += 1500
-		is_reflect_damage = true
+		anti_type = 1
+	} else if self.card.Type == table_config.CARD_ROLE_TYPE_ATTACK && target.card.Type == table_config.CARD_ROLE_TYPE_DEFENSE {
+		damage_sub += 1500
+		anti_type = -1
+	} else if self.card.Type == table_config.CARD_ROLE_TYPE_SKILL && target.card.Type == table_config.CARD_ROLE_TYPE_ATTACK {
+		damage_sub += 1500
+		anti_type = -1
+	} else if self.card.Type == table_config.CARD_ROLE_TYPE_DEFENSE && target.card.Type == table_config.CARD_ROLE_TYPE_SKILL {
+		damage_sub += 1500
+		anti_type = -1
 	}
 
 	// 反伤
-	if is_reflect_damage {
-		var reflect_damage int32
-		if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
-			reflect_damage = target.attrs[ATTR_ATTACK] * target.attrs[ATTR_CLOSE_REFLECT] / 10000
-		} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
-			reflect_damage = target.attrs[ATTR_ATTACK] * target.attrs[ATTR_REMOTE_REFLECT] / 10000
-		}
-		if self.attrs[ATTR_HP] < reflect_damage {
-			self.attrs[ATTR_HP] = 0
-		} else {
-			self.attrs[ATTR_HP] -= reflect_damage
-		}
+	var reflect_damage int32
+	if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
+		reflect_damage = target.attrs[ATTR_ATTACK] * target.attrs[ATTR_CLOSE_REFLECT] / 10000
+	} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
+		reflect_damage = target.attrs[ATTR_ATTACK] * target.attrs[ATTR_REMOTE_REFLECT] / 10000
+	}
+	if self.attrs[ATTR_HP] < reflect_damage {
+		self.attrs[ATTR_HP] = 0
+	} else {
+		self.attrs[ATTR_HP] -= reflect_damage
 	}
 
 	// 防御力
@@ -565,7 +571,13 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 
 	// 基础技能伤害
 	base_skill_damage := attack * effect[1] / 10000
-	target_damage = int32(float64(base_skill_damage) * math.Max(0.1, float64((10000+damage_add-damage_sub)/10000)) * float64(10000+self.attrs[ATTR_DAMAGE_PERCENT_BONUS]) / 10000)
+	var delta_damage float64
+	if damage_add-damage_sub < -5000 {
+		delta_damage = 10000 / float64(10000+(damage_sub-damage_add)*2)
+	} else {
+		delta_damage = float64(10000+damage_add-damage_sub) / 10000
+	}
+	target_damage = int32(float64(base_skill_damage) * math.Max(0.1, delta_damage) * float64(10000+self.attrs[ATTR_DAMAGE_PERCENT_BONUS]) / 10000)
 	if target_damage < 1 {
 		target_damage = 1
 	}
@@ -663,7 +675,7 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_po
 	mem.hp = mem.hp * effect[2] / 10000
 	mem.attrs[ATTR_HP] = mem.hp
 	mem.attrs[ATTR_HP_MAX] = mem.hp
-	mem.attack = mem.attack * effect[3] / 10000
+	mem.attack = mem.attack
 	mem.attrs[ATTR_ATTACK] = mem.attack
 	target_team.members[empty_pos] = mem
 	return
@@ -752,26 +764,26 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				is_target_dead := target.is_dead()
 
 				// 直接伤害
-				target_dmg, self_dmg, is_block, is_critical := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effects[i])
+				target_dmg, self_dmg, is_block, is_critical, anti_type := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effects[i])
 
 				target.add_hp(-target_dmg)
 
 				//----------- 战报 -------------
 				report.User.Damage += self_dmg
-				tm := build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg, is_critical, is_block)
+				tm := build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg, is_critical, is_block, anti_type)
 				//------------------------------
 
 				used = true
 
 				log.Debug("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
 
-				// 被动技，自己死亡前触发
+				// 被动技，目标死亡前触发
 				if target.is_will_dead() {
-					if skill_data.Type != SKILL_TYPE_PASSIVE {
-						if passive_skill_effect_with_self_pos(EVENT_BEFORE_TARGET_DEAD, target_team, target_pos[j], nil, nil, true) {
-							log.Debug("self_team[%v] member[%v] 触发了死亡复活技能")
-						}
+					//if skill_data.Type != SKILL_TYPE_PASSIVE {
+					if passive_skill_effect_with_self_pos(EVENT_BEFORE_TARGET_DEAD, target_team, target_pos[j], nil, nil, true) {
+						log.Debug("self_team[%v] member[%v] 触发了死亡复活技能", self_team.side, self.pos)
 					}
+					//}
 				}
 				// 再次判断是否真死
 				if target.is_will_dead() {
@@ -854,7 +866,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if cure != 0 {
 					target.add_hp(cure)
 					// ------------------ 战报 -------------------
-					build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure, false, false)
+					build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure, false, false, 0)
 					// -------------------------------------------
 					// 被动技，治疗时触发
 					if skill_data.Type != SKILL_TYPE_PASSIVE {
@@ -897,7 +909,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 改变下次计算时的角色参数
 				skill_effect_temp_attrs(self, effects[i])
 				// -------------------- 战报 --------------------
-				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
+				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, 0)
 				// ----------------------------------------------
 				used = true
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
@@ -930,7 +942,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							self.energy = 0
 						}
 						// -------------------- 战报 ----------------------
-						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
+						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, 0)
 						report.User.Energy = self.energy
 						// ------------------------------------------------
 						used = true
@@ -952,7 +964,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if shield != 0 {
 					target.add_attr(ATTR_SHIELD, shield)
 					// ----------------------- 战报 -------------------------
-					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false)
+					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, 0)
 					// ------------------------------------------------------
 					used = true
 				}
