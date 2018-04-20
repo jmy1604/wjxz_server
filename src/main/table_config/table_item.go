@@ -7,7 +7,7 @@ import (
 )
 
 type XmlItemItem struct {
-	Id            int32  `xml:"Id,attr"`
+	Id            int32  `xml:"ID,attr"`
 	Type          int32  `xml:"Type,attr"`
 	MaxCount      string `xml:"MaxCount,attr"`
 	EquipType     int32  `xml:"EquipType,attr"`

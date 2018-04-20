@@ -556,7 +556,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	}
 
 	// 防御力
-	defense := target.attrs[ATTR_DEFENSE] * (10000 - self.attrs[ATTR_BREAK_ARMOR] + self.attrs[ATTR_ARMOR_ADD]) / 10000
+	defense := target.attrs[ATTR_DEFENSE] * (10000 - self.attrs[ATTR_BREAK_ARMOR] + target.attrs[ATTR_ARMOR_ADD]) / 10000
 	if defense < 0 {
 		defense = 0
 	}
@@ -583,7 +583,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	}
 
 	// 实际暴击率
-	critical := self.attrs[ATTR_CRITICAL] - self.attrs[ATTR_ANTI_CRITICAL] + 1000
+	critical := self.attrs[ATTR_CRITICAL] - target.attrs[ATTR_ANTI_CRITICAL] + 1000
 	if critical < 0 {
 		critical = 0
 	} else {
@@ -598,7 +598,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		// 实际格挡率
 		block := target.attrs[ATTR_BLOCK_RATE] - self.attrs[ATTR_BREAK_BLOCK_RATE] + 600
 		if block > rand.Int31n(10000) {
-			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64((5000-self.attrs[ATTR_BLOCK_DEFENSE_RATE]))/10000))))
+			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64((5000-target.attrs[ATTR_BLOCK_DEFENSE_RATE]))/10000))))
 			is_block = true
 			log.Debug("@@@@@@@ target_damage[%v]", target_damage)
 		}
@@ -1047,9 +1047,12 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 
 // 被动技效果
 func passive_skill_effect(trigger_event int32, self *TeamMember, target_team *BattleTeam, trigger_pos []int32, is_combo bool) bool {
+	if self.passive_skills == nil {
+		return false
+	}
 	effected := false
-	for i := 0; i < len(self.card.PassiveSkillIds); i++ {
-		skill := skill_table_mgr.Get(self.card.PassiveSkillIds[i])
+	for _, skill_id := range self.passive_skills {
+		skill := skill_table_mgr.Get(skill_id)
 		if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
 			continue
 		}
@@ -1253,10 +1256,6 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 
 	// BUFF触发的技能
 	if b.Effect != nil && len(b.Effect) >= 2 && b.Effect[0] == BUFF_EFFECT_TYPE_TRIGGER_SKILL {
-		if this.owner.buff_trigger_skills == nil {
-			this.owner.buff_trigger_skills = make(map[int32]int32)
-		}
-		this.owner.buff_trigger_skills[b.Effect[1]] = b.Effect[1]
 		this.owner.add_passive_trigger(b.Effect[1])
 		log.Debug("Team[%v] member[%v] 添加BUFF[%v] 增加了被动技[%v]", this.owner.team.side, this.owner.pos, b.Id, b.Effect[1])
 	}

@@ -1006,6 +1006,11 @@ func (this *Player) FightInStage(stage_id int32) int32 {
 	if this.stage_team == nil {
 		this.stage_team = &BattleTeam{}
 	}
+
+	if stage_id != this.stage_id {
+		this.stage_wave = 0
+	}
+
 	if !this.stage_team.InitWithStage(1, stage_id, this.stage_wave) {
 		log.Error("Player[%v] init stage[%v] wave[%v] team failed", this.Id, stage_id, this.stage_wave)
 		return -1
@@ -1015,18 +1020,19 @@ func (this *Player) FightInStage(stage_id int32) int32 {
 	target_team := this.stage_team._format_members_for_msg()
 	is_win, enter_reports, rounds := this.attack_team.Fight(this.stage_team, BATTLE_END_BY_ROUND_OVER, stage.MaxRound)
 
-	has_wave := true
+	has_wave := false
+	this.stage_id = stage_id
 	this.stage_wave += 1
 	if this.stage_wave >= stage.MaxWaves {
-		this.stage_id = 0
 		this.stage_wave = 0
-		has_wave = false
-		// 生成奖励
-		if is_win {
-
-		}
+	} else {
+		has_wave = true
 	}
-	this.stage_id = stage_id
+
+	// 奖励
+	if is_win && !has_wave {
+
+	}
 
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)

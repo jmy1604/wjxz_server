@@ -96,24 +96,24 @@ type DelaySkill struct {
 }
 
 type TeamMember struct {
-	team                *BattleTeam
-	pos                 int32
-	id                  int32
-	level               int32
-	card                *table_config.XmlCardItem
-	hp                  int32
-	energy              int32
-	attack              int32
-	defense             int32
-	act_num             int32                                 // 行动次数
-	attrs               []int32                               // 属性
-	bufflist_arr        []*BuffList                           // BUFF
-	passive_triggers    map[int32][]*MemberPassiveTriggerData // 被动技触发事件
-	temp_normal_skill   int32                                 // 临时普通攻击
-	temp_super_skill    int32                                 // 临时怒气攻击
-	temp_changed_attrs  []int32                               // 临时改变的属性
-	buff_trigger_skills map[int32]int32                       // BUFF触发的技能
-	delay_skills        []*DelaySkill                         // 延迟的技能效果
+	team               *BattleTeam
+	pos                int32
+	id                 int32
+	level              int32
+	card               *table_config.XmlCardItem
+	hp                 int32
+	energy             int32
+	attack             int32
+	defense            int32
+	act_num            int32                                 // 行动次数
+	attrs              []int32                               // 属性
+	bufflist_arr       []*BuffList                           // BUFF
+	passive_triggers   map[int32][]*MemberPassiveTriggerData // 被动技触发事件
+	temp_normal_skill  int32                                 // 临时普通攻击
+	temp_super_skill   int32                                 // 临时怒气攻击
+	temp_changed_attrs []int32                               // 临时改变的属性
+	delay_skills       []*DelaySkill                         // 延迟的技能效果
+	passive_skills     map[int32]int32                       // 被动技
 }
 
 func (this *TeamMember) add_attrs(attrs []int32) {
@@ -166,6 +166,13 @@ func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 		return false
 	}
 
+	if this.passive_skills == nil {
+		this.passive_skills = make(map[int32]int32)
+	}
+	if _, o := this.passive_skills[skill_id]; o {
+		return false
+	}
+
 	if this.passive_triggers == nil {
 		this.passive_triggers = make(map[int32][]*MemberPassiveTriggerData)
 	}
@@ -187,12 +194,21 @@ func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 		this.passive_triggers[skill.SkillTriggerType] = append(datas, d)
 	}
 
+	this.passive_skills[skill_id] = skill_id
+
 	return true
 }
 
 func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
 	skill := skill_table_mgr.Get(skill_id)
 	if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
+		return false
+	}
+
+	if this.passive_skills == nil {
+		this.passive_skills = make(map[int32]int32)
+	}
+	if _, o := this.passive_skills[skill_id]; !o {
 		return false
 	}
 
@@ -228,6 +244,8 @@ func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
 			delete(this.passive_triggers, skill.SkillTriggerType)
 		}
 	}
+
+	delete(this.passive_skills, skill_id)
 
 	return true
 }
@@ -315,6 +333,8 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 			this.bufflist_arr[i].owner = this
 		}
 	}
+
+	this.passive_skills = make(map[int32]int32)
 
 	this.team = team
 	this.id = id
@@ -497,10 +517,7 @@ func (this *TeamMember) remove_buff_effect(buff *Buff) {
 				this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
 			}
 		} else if effect_type == BUFF_EFFECT_TYPE_TRIGGER_SKILL {
-			if _, o := this.buff_trigger_skills[buff.buff.Effect[1]]; o {
-				delete(this.buff_trigger_skills, buff.buff.Effect[1])
-				this.delete_passive_trigger(buff.buff.Effect[1])
-			}
+			this.delete_passive_trigger(buff.buff.Effect[1])
 		}
 	}
 }
@@ -643,6 +660,9 @@ func (this *TeamMember) on_finish() {
 				passive_trigger_data_pool.Put(d[i])
 			}
 		}
+	}
+	if this.passive_skills != nil {
+		this.passive_skills = nil
 	}
 }
 
