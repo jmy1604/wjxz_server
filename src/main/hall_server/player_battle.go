@@ -96,24 +96,25 @@ type DelaySkill struct {
 }
 
 type TeamMember struct {
-	team               *BattleTeam
-	pos                int32
-	id                 int32
-	level              int32
-	card               *table_config.XmlCardItem
-	hp                 int32
-	energy             int32
-	attack             int32
-	defense            int32
-	act_num            int32                                 // 行动次数
-	attrs              []int32                               // 属性
-	bufflist_arr       []*BuffList                           // BUFF
-	passive_triggers   map[int32][]*MemberPassiveTriggerData // 被动技触发事件
-	temp_normal_skill  int32                                 // 临时普通攻击
-	temp_super_skill   int32                                 // 临时怒气攻击
-	temp_changed_attrs []int32                               // 临时改变的属性
-	delay_skills       []*DelaySkill                         // 延迟的技能效果
-	passive_skills     map[int32]int32                       // 被动技
+	team                    *BattleTeam
+	pos                     int32
+	id                      int32
+	level                   int32
+	card                    *table_config.XmlCardItem
+	hp                      int32
+	energy                  int32
+	attack                  int32
+	defense                 int32
+	act_num                 int32                                 // 行动次数
+	attrs                   []int32                               // 属性
+	bufflist_arr            []*BuffList                           // BUFF
+	passive_triggers        map[int32][]*MemberPassiveTriggerData // 被动技触发事件
+	temp_normal_skill       int32                                 // 临时普通攻击
+	temp_super_skill        int32                                 // 临时怒气攻击
+	temp_changed_attrs      []int32                               // 临时改变的属性
+	temp_changed_attrs_used int32                                 // 临时改变属性计算状态 0 忽略 1 已初始化 2 已计算
+	delay_skills            []*DelaySkill                         // 延迟的技能效果
+	passive_skills          map[int32]int32                       // 被动技
 }
 
 func (this *TeamMember) add_attrs(attrs []int32) {
@@ -303,6 +304,7 @@ func (this *TeamMember) init_equip(equip_id int32) {
 	}
 	this.init_passive_data(d.EquipSkill)
 	this.add_attrs(d.EquipAttr)
+	log.Debug("@@@@@@@@@@@@@@############## team[%v] member[%v] init equip [%v] skill[%v]", this.team.side, this.pos, equip_id, d.EquipSkill)
 }
 
 func (this *TeamMember) init_equips() {
@@ -397,6 +399,9 @@ func (this *TeamMember) add_hp(hp int32) {
 		}
 	}
 	this.hp = this.attrs[ATTR_HP]
+	if hp != 0 && this.hp == 0 {
+		log.Debug("+++++++++++++++++++++++++++ team[%v] mem[%v] 将死", this.team.side, this.pos)
+	}
 }
 
 func (this *TeamMember) add_max_hp(add int32) {
@@ -481,7 +486,8 @@ func (this *TeamMember) add_buff(attacker *TeamMember, skill_effect []int32) (bu
 		return
 	}
 
-	return this.bufflist_arr[b.Effect[0]].add_buff(attacker, b, skill_effect)
+	buff_id = this.bufflist_arr[b.Effect[0]].add_buff(attacker, b, skill_effect)
+	return buff_id
 }
 
 func (this *TeamMember) has_buff(buff_id int32) bool {
@@ -507,15 +513,7 @@ func (this *TeamMember) remove_buff_effect(buff *Buff) {
 	if len(buff.buff.Effect) >= 2 {
 		effect_type := buff.buff.Effect[0]
 		if effect_type == BUFF_EFFECT_TYPE_MODIFY_ATTR {
-			if this.attrs[buff.buff.Effect[1]] < buff.param {
-				this.attrs[buff.buff.Effect[1]] = 0
-			} else {
-				this.attrs[buff.buff.Effect[1]] -= buff.param
-			}
-
-			if buff.buff.Effect[1] == ATTR_HP_MAX && this.attrs[ATTR_HP] > this.attrs[ATTR_HP_MAX] {
-				this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
-			}
+			this.add_attr(buff.buff.Effect[1], -buff.param)
 		} else if effect_type == BUFF_EFFECT_TYPE_TRIGGER_SKILL {
 			this.delete_passive_trigger(buff.buff.Effect[1])
 		}
@@ -594,6 +592,7 @@ func (this *TeamMember) is_will_dead() bool {
 
 func (this *TeamMember) set_dead() {
 	this.hp = -1
+	log.Debug("+++++++++++++++++++++++++ team[%v] mem[%v] 死了", this.team.side, this.pos)
 }
 
 func (this *TeamMember) has_delay_skills() bool {
@@ -978,6 +977,15 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 	} else {
 		log.Error("Invalid skill target type: %v", skill.SkillTarget)
 		return
+	}
+
+	if pos != nil {
+		for i := 0; i < len(pos); i++ {
+			t := target_team.members[pos[i]]
+			if t != nil {
+				log.Debug("------------------------ team[%v] mem[%v] skill[%v] find target hp[%v]", m.team.side, m.pos, skill_id, t.hp)
+			}
+		}
 	}
 
 	return
