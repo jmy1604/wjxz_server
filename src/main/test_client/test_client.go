@@ -355,9 +355,12 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 						req.Args = make([]string, 0)
 					}
 					if config.AccountNum > 1 {
-						n := (config.AccountNum + 100 - 1) / 100
-						for i := int32(0); i < n; i++ {
-							go func() {
+						log.Debug("############## hall conns length %v, config.AccountNum %v", len(hall_conn_mgr.acc_arr), config.AccountNum)
+						//n := (config.AccountNum + 100 - 1) / 100
+						for i := int32(0); i < config.AccountNum; /*n*/ i++ {
+							log.Debug("@@@@@@@@@@@@@ index i=%v", i)
+							c := hall_conn_mgr.acc_arr[ /*j*/ i]
+							go func(conn *HallConnection) {
 								defer func() {
 									if err := recover(); err != nil {
 										log.Stack(err)
@@ -365,14 +368,14 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 
 									this.shutdown_completed = true
 								}()
-								for j := i * 100; j < i*(100+1); j++ {
-									if int(j) >= len(hall_conn_mgr.acc_arr) {
-										break
-									}
-									conn := hall_conn_mgr.acc_arr[j]
-									conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)
-								}
-							}()
+								//for j := i * 100; j < i*(100+1); j++ {
+								//	if int(j) >= len(hall_conn_mgr.acc_arr) {
+								//		break
+								//	}
+
+								conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)
+								//}
+							}(c)
 						}
 					} else {
 						cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)

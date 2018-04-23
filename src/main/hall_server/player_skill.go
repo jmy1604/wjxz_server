@@ -464,6 +464,7 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 						if m != nil && !m.is_dead() {
 							if m.card.Id == effect_cond[1] {
 								b = false
+								break
 							}
 						}
 					}

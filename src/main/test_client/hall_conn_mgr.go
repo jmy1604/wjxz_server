@@ -30,6 +30,7 @@ func (this *HallConnMgr) AddHallConn(conn *HallConnection) {
 
 	this.acc2hconn[conn.acc] = conn
 	this.acc_arr = append(this.acc_arr, conn)
+	log.Debug("add new hall connection %v", conn.acc)
 }
 
 func (this *HallConnMgr) RemoveHallConnByAcc(acc string) {
