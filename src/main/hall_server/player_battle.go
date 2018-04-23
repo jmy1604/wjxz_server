@@ -983,7 +983,7 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 		for i := 0; i < len(pos); i++ {
 			t := target_team.members[pos[i]]
 			if t != nil {
-				log.Debug("------------------------ team[%v] mem[%v] skill[%v] find target hp[%v]", m.team.side, m.pos, skill_id, t.hp)
+				//log.Debug("------------------------ team[%v] mem[%v] skill[%v] find target hp[%v]", m.team.side, m.pos, skill_id, t.hp)
 			}
 		}
 	}
