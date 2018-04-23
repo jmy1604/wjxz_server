@@ -390,6 +390,14 @@ const (
 	SKILL_COND_TYPE_TEAM_HAS_ROLE  = 9
 	SKILL_COND_TYPE_IS_TYPE        = 10
 	SKILL_COND_TYPE_IS_CAMP        = 11
+	SKILL_COND_TYPE_NO_LABEL       = 12
+	SKILL_COND_TYPE_NO_BUFF        = 13
+	SKILL_COND_TYPE_NO_NPC_ID      = 14
+	SKILL_COND_TYPE_IS_NO_TYPE     = 15
+	SKILL_COND_TYPE_IS_NO_CAMP     = 16
+	SKILL_COND_TYPE_IN_COLUMN      = 17
+	SKILL_COND_TYPE_HAS_SHIELD     = 18
+	SKILL_COND_TYPE_NO_SHIELD      = 19
 )
 
 func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
@@ -440,6 +448,45 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 				}
 			} else if effect_cond[0] == SKILL_COND_TYPE_IS_CAMP {
 				if mem.card.Camp == effect_cond[1] {
+					return true
+				}
+			} else if effect_cond[0] == SKILL_COND_TYPE_NO_LABEL {
+
+			} else if effect_cond[0] == SKILL_COND_TYPE_NO_BUFF {
+				if !mem.has_buff(effect_cond[1]) {
+					return true
+				}
+			} else if effect_cond[0] == SKILL_COND_TYPE_NO_NPC_ID {
+				b := true
+				if mem.team != nil {
+					for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+						m := mem.team.members[i]
+						if m != nil && !m.is_dead() {
+							if m.card.Id == effect_cond[1] {
+								b = false
+							}
+						}
+					}
+				}
+				return b
+			} else if effect_cond[0] == SKILL_COND_TYPE_IS_NO_TYPE {
+				if mem.card.Type != effect_cond[1] {
+					return true
+				}
+			} else if effect_cond[0] == SKILL_COND_TYPE_IS_NO_CAMP {
+				if mem.card.Camp != effect_cond[1] {
+					return true
+				}
+			} else if effect_cond[0] == SKILL_COND_TYPE_IN_COLUMN {
+				if mem.pos%BATTLE_FORMATION_ONE_LINE_MEMBER_NUM == effect_cond[1] {
+					return true
+				}
+			} else if effect_cond[0] == SKILL_COND_TYPE_HAS_SHIELD {
+				if mem.attrs[ATTR_SHIELD] > 0 {
+					return true
+				}
+			} else if effect_cond[0] == SKILL_COND_TYPE_NO_SHIELD {
+				if mem.attrs[ATTR_SHIELD] <= 0 {
 					return true
 				}
 			} else {

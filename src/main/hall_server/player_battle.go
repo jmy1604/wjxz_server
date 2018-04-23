@@ -120,13 +120,7 @@ type TeamMember struct {
 func (this *TeamMember) add_attrs(attrs []int32) {
 	for i := 0; i < len(attrs)/2; i++ {
 		attr := attrs[2*i]
-		if attr == ATTR_HP {
-			this.add_hp(attrs[2*i+1])
-		} else if attr == ATTR_HP_MAX {
-			this.add_max_hp(attrs[2*i+1])
-		} else {
-			this.attrs[attrs[2*i]] += attrs[2*i+1]
-		}
+		this.add_attr(attr, attrs[2*i+1])
 	}
 }
 
@@ -381,6 +375,15 @@ func (this *TeamMember) add_attr(attr int32, value int32) {
 		this.add_max_hp(value)
 	} else {
 		this.attrs[attr] += value
+	}
+
+	if attr == ATTR_HP_PERCENT_BONUS {
+		d := this.hp * value / 10000
+		this.add_max_hp(d)
+		dd := this.attrs[ATTR_HP_MAX] - this.hp
+		if dd > 0 {
+			this.add_hp(dd)
+		}
 	}
 }
 
