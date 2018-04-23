@@ -1071,6 +1071,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_ATTACK, self_team, self_pos, target_team, target_pos, true)
 	}
 
+	report.User.HP = self.hp
+
 	return
 }
 
