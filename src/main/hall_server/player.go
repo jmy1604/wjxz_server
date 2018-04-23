@@ -938,7 +938,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 
 	// 是否正在防守
 	if !p.CanUseDefense() {
-		log.Warn("Player[%v] is defensing")
+		log.Warn("Player[%v] is defensing, player[%v] fight failed", player_id, this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_IS_DEFENSING)
 	}
 
