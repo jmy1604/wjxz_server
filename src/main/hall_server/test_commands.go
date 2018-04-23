@@ -1132,6 +1132,26 @@ func pvp_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func fight_stage_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var stage_id int
+	stage_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换关卡ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	res := p.FightInStage(int32(stage_id))
+
+	log.Debug("玩家[%v]挑战了关卡[%v]", p.Id, stage_id)
+	return res
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1194,6 +1214,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"set_defense_team": set_defense_team_cmd,
 	"list_teams":       list_teams_cmd,
 	"pvp":              pvp_cmd,
+	"fight_stage":      fight_stage_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {

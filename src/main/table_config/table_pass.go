@@ -17,7 +17,8 @@ type JsonMonster struct {
 }
 
 type XmlPassItem struct {
-	Id               int32  `xml:"Id,attr"`
+	Id               int32  `xml:"StageID,attr"`
+	MaxWaves         int32  `xml:"MaxWaves,attr"`
 	MonsterList      string `xml:"MonsterList,attr"`
 	MaxRound         int32  `xml:"MaxRound,attr"`
 	TimeUpWin        int32  `xml:"TimeUpWin,attr"`

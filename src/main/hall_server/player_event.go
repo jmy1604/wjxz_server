@@ -14,13 +14,13 @@ const (
 	EVENT_CRITICAL                   = 10   // 暴击
 	EVENT_BLOCK                      = 11   // 格挡
 	EVENT_BEFORE_ROUND               = 12   // 回合结束前
-	EVENT_AFTER_SELF_DEAD            = 13   // 自己死亡后
+	EVENT_AFTER_TARGET_DEAD          = 13   // 目标死亡后
 	EVENT_AFTER_TEAMMATE_DEAD        = 14   // 同伴死亡后
 	EVENT_AFTER_ENEMY_DEAD           = 15   // 敌人死亡后
 	EVENT_ON_CURE                    = 16   // 治疗时
 	EVENT_BEFORE_NORMAL_ATTACK       = 17   // 普攻前
 	EVENT_BEFORE_RAGE_ATTACK         = 18   // 怒攻前
 	EVENT_KILL_ENEMY                 = 19   // 杀死敌人
-	EVENT_BEFORE_SELF_DEAD           = 20   // 自己死亡前
+	EVENT_BEFORE_TARGET_DEAD         = 20   // 目标死亡前
 	EVENT_HP_CHANGED                 = 21   // 血量变化
 )

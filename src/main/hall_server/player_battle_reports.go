@@ -44,23 +44,25 @@ func build_battle_report_item(self_team *BattleTeam, self_pos int32, self_damage
 	return item
 }
 
-func build_battle_report_item_add_target_item(item *msg_client_message.BattleReportItem, target_team *BattleTeam, target_pos int32, target_damage int32, is_critical, is_block bool) {
+func build_battle_report_item_add_target_item(item *msg_client_message.BattleReportItem, target_team *BattleTeam, target_pos int32, target_damage int32, is_critical, is_block bool, anti_type int32) *msg_client_message.BattleFighter {
 	if item == nil {
-		return
+		return nil
 	}
 	target := target_team.members[target_pos]
 	if target == nil {
-		return
+		return nil
 	}
 	mem_item := target.build_battle_fighter(target_damage)
 	mem_item.IsCritical = is_critical
 	mem_item.IsBlock = is_block
+	mem_item.AntiType = anti_type
 
 	if item.BeHiters == nil {
 		item.BeHiters = []*msg_client_message.BattleFighter{mem_item}
 	} else {
 		item.BeHiters = append(item.BeHiters, mem_item)
 	}
+	return mem_item
 }
 
 func build_battle_report_item_add_summon_npc(item *msg_client_message.BattleReportItem, target_team *BattleTeam, target_pos int32) {

@@ -80,6 +80,7 @@ const (
 const (
 	BATTLE_ATTACK_TEAM  = 1
 	BATTLE_DEFENSE_TEAM = 2
+	BATTLE_STAGE_TEAM   = 99
 )
 
 type MemberPassiveTriggerData struct {
@@ -95,36 +96,31 @@ type DelaySkill struct {
 }
 
 type TeamMember struct {
-	team                *BattleTeam
-	pos                 int32
-	id                  int32
-	level               int32
-	card                *table_config.XmlCardItem
-	hp                  int32
-	energy              int32
-	attack              int32
-	defense             int32
-	act_num             int32                                 // 行动次数
-	attrs               []int32                               // 属性
-	bufflist_arr        []*BuffList                           // BUFF
-	passive_triggers    map[int32][]*MemberPassiveTriggerData // 被动技触发事件
-	temp_normal_skill   int32                                 // 临时普通攻击
-	temp_super_skill    int32                                 // 临时怒气攻击
-	temp_changed_attrs  []int32                               // 临时改变的属性
-	buff_trigger_skills map[int32]int32                       // BUFF触发的技能
-	delay_skills        []*DelaySkill                         // 延迟的技能效果
+	team                    *BattleTeam
+	pos                     int32
+	id                      int32
+	level                   int32
+	card                    *table_config.XmlCardItem
+	hp                      int32
+	energy                  int32
+	attack                  int32
+	defense                 int32
+	act_num                 int32                                 // 行动次数
+	attrs                   []int32                               // 属性
+	bufflist_arr            []*BuffList                           // BUFF
+	passive_triggers        map[int32][]*MemberPassiveTriggerData // 被动技触发事件
+	temp_normal_skill       int32                                 // 临时普通攻击
+	temp_super_skill        int32                                 // 临时怒气攻击
+	temp_changed_attrs      []int32                               // 临时改变的属性
+	temp_changed_attrs_used int32                                 // 临时改变属性计算状态 0 忽略 1 已初始化 2 已计算
+	delay_skills            []*DelaySkill                         // 延迟的技能效果
+	passive_skills          map[int32]int32                       // 被动技
 }
 
 func (this *TeamMember) add_attrs(attrs []int32) {
 	for i := 0; i < len(attrs)/2; i++ {
 		attr := attrs[2*i]
-		if attr == ATTR_HP {
-			this.add_hp(attrs[2*i+1])
-		} else if attr == ATTR_HP_MAX {
-			this.add_max_hp(attrs[2*i+1])
-		} else {
-			this.attrs[attrs[2*i]] += attrs[2*i+1]
-		}
+		this.add_attr(attr, attrs[2*i+1])
 	}
 }
 
@@ -145,9 +141,30 @@ func (this *TeamMember) init_passive_data(skills []int32) {
 	}
 }
 
+func (this *TeamMember) init_passive_round_num() bool {
+	if this.passive_triggers == nil {
+		return false
+	}
+	for _, d := range this.passive_triggers {
+		for i := 0; i < len(d); i++ {
+			if d[i] != nil && d[i].skill.TriggerRoundMax > 0 {
+				d[i].round_num = d[i].skill.TriggerRoundMax
+			}
+		}
+	}
+	return true
+}
+
 func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 	skill := skill_table_mgr.Get(skill_id)
 	if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
+		return false
+	}
+
+	if this.passive_skills == nil {
+		this.passive_skills = make(map[int32]int32)
+	}
+	if _, o := this.passive_skills[skill_id]; o {
 		return false
 	}
 
@@ -159,10 +176,10 @@ func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 	d.skill = skill
 	d.battle_num = skill.TriggerBattleMax
 	d.round_num = skill.TriggerRoundMax
-	if skill.TriggerBattleMax <= 0 {
+	if d.battle_num == 0 {
 		d.battle_num = -1
 	}
-	if skill.TriggerRoundMax <= 0 {
+	if d.round_num == 0 {
 		d.round_num = -1
 	}
 	datas := this.passive_triggers[skill.SkillTriggerType]
@@ -172,12 +189,21 @@ func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 		this.passive_triggers[skill.SkillTriggerType] = append(datas, d)
 	}
 
+	this.passive_skills[skill_id] = skill_id
+
 	return true
 }
 
 func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
 	skill := skill_table_mgr.Get(skill_id)
 	if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
+		return false
+	}
+
+	if this.passive_skills == nil {
+		this.passive_skills = make(map[int32]int32)
+	}
+	if _, o := this.passive_skills[skill_id]; !o {
 		return false
 	}
 
@@ -197,6 +223,7 @@ func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
 			continue
 		}
 		if triggers[i].skill.Id == skill_id {
+			passive_trigger_data_pool.Put(triggers[i])
 			triggers[i] = nil
 			break
 		}
@@ -212,6 +239,8 @@ func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
 			delete(this.passive_triggers, skill.SkillTriggerType)
 		}
 	}
+
+	delete(this.passive_skills, skill_id)
 
 	return true
 }
@@ -245,23 +274,31 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 	}
 
 	for i := 0; i < len(d); i++ {
-		if d[i] == nil {
-			continue
+		if d[i] != nil && d[i].skill.Id == skill_id {
+			if d[i].battle_num > 0 {
+				d[i].battle_num -= 1
+				log.Debug("Team[%v] member[%v] 减少一次技能[%v]战斗触发事件[%v]次数", this.team.side, this.pos, skill_id, trigger_event)
+			}
+			if d[i].round_num > 0 {
+				d[i].round_num -= 1
+				log.Debug("Team[%v] member[%v] 减少一次技能[%v]回合触发事件[%v]次数", this.team.side, this.pos, skill_id, trigger_event)
+			}
+			if d[i].battle_num == 0 || d[i].round_num == 0 {
+				//passive_trigger_data_pool.Put(d[i])
+			}
+			break
 		}
-		if d[i].skill.Id != skill_id {
-			continue
-		}
-		if d[i].battle_num > 0 {
-			d[i].battle_num -= 1
-		}
-		if d[i].round_num > 0 {
-			d[i].round_num -= 1
-		}
-		if d[i].battle_num == 0 || d[i].round_num == 0 {
-			passive_trigger_data_pool.Put(d[i])
-		}
-		break
 	}
+}
+
+func (this *TeamMember) init_equip(equip_id int32) {
+	d := item_table_mgr.Get(equip_id)
+	if d == nil {
+		return
+	}
+	this.init_passive_data(d.EquipSkill)
+	this.add_attrs(d.EquipAttr)
+	log.Debug("@@@@@@@@@@@@@@############## team[%v] member[%v] init equip [%v] skill[%v]", this.team.side, this.pos, equip_id, d.EquipSkill)
 }
 
 func (this *TeamMember) init_equips() {
@@ -269,19 +306,11 @@ func (this *TeamMember) init_equips() {
 	if !o {
 		return
 	}
-
 	if equips == nil || len(equips) == 0 {
 		return
 	}
-
 	for i := 0; i < len(equips); i++ {
-		d := item_table_mgr.Get(equips[i])
-		if d == nil {
-			continue
-		}
-
-		this.init_passive_data(d.EquipSkill)
-		this.add_attrs(d.EquipAttr)
+		this.init_equip(equips[i])
 	}
 }
 
@@ -300,6 +329,8 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 			this.bufflist_arr[i].owner = this
 		}
 	}
+
+	this.passive_skills = make(map[int32]int32)
 
 	this.team = team
 	this.id = id
@@ -329,7 +360,12 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	}
 
 	this.init_passive_data(role_card.PassiveSkillIds)
-	this.init_equips()
+	if this.team.team_type == BATTLE_STAGE_TEAM {
+		// id表示怪物装备
+		this.init_equip(id)
+	} else {
+		this.init_equips()
+	}
 }
 
 func (this *TeamMember) add_attr(attr int32, value int32) {
@@ -339,6 +375,15 @@ func (this *TeamMember) add_attr(attr int32, value int32) {
 		this.add_max_hp(value)
 	} else {
 		this.attrs[attr] += value
+	}
+
+	if attr == ATTR_HP_PERCENT_BONUS {
+		d := this.hp * value / 10000
+		this.add_max_hp(d)
+		dd := this.attrs[ATTR_HP_MAX] - this.hp
+		if dd > 0 {
+			this.add_hp(dd)
+		}
 	}
 }
 
@@ -357,6 +402,9 @@ func (this *TeamMember) add_hp(hp int32) {
 		}
 	}
 	this.hp = this.attrs[ATTR_HP]
+	if hp != 0 && this.hp == 0 {
+		log.Debug("+++++++++++++++++++++++++++ team[%v] mem[%v] 将死", this.team.side, this.pos)
+	}
 }
 
 func (this *TeamMember) add_max_hp(add int32) {
@@ -370,7 +418,7 @@ func (this *TeamMember) add_max_hp(add int32) {
 
 func (this *TeamMember) round_start() {
 	this.act_num += 1
-	this.energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
+	this.init_passive_round_num()
 }
 
 func (this *TeamMember) round_end() {
@@ -389,6 +437,8 @@ func (this *TeamMember) round_end() {
 			}
 		}
 	}
+
+	this.energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
 }
 
 func (this *TeamMember) get_use_skill() (skill_id int32) {
@@ -439,7 +489,8 @@ func (this *TeamMember) add_buff(attacker *TeamMember, skill_effect []int32) (bu
 		return
 	}
 
-	return this.bufflist_arr[b.Effect[0]].add_buff(attacker, b, skill_effect)
+	buff_id = this.bufflist_arr[b.Effect[0]].add_buff(attacker, b, skill_effect)
+	return buff_id
 }
 
 func (this *TeamMember) has_buff(buff_id int32) bool {
@@ -465,20 +516,9 @@ func (this *TeamMember) remove_buff_effect(buff *Buff) {
 	if len(buff.buff.Effect) >= 2 {
 		effect_type := buff.buff.Effect[0]
 		if effect_type == BUFF_EFFECT_TYPE_MODIFY_ATTR {
-			if this.attrs[buff.buff.Effect[1]] < buff.param {
-				this.attrs[buff.buff.Effect[1]] = 0
-			} else {
-				this.attrs[buff.buff.Effect[1]] -= buff.param
-			}
-
-			if buff.buff.Effect[1] == ATTR_HP_MAX && this.attrs[ATTR_HP] > this.attrs[ATTR_HP_MAX] {
-				this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
-			}
+			this.add_attr(buff.buff.Effect[1], -buff.param)
 		} else if effect_type == BUFF_EFFECT_TYPE_TRIGGER_SKILL {
-			if _, o := this.buff_trigger_skills[buff.buff.Effect[1]]; o {
-				delete(this.buff_trigger_skills, buff.buff.Effect[1])
-				this.delete_passive_trigger(buff.buff.Effect[1])
-			}
+			this.delete_passive_trigger(buff.buff.Effect[1])
 		}
 	}
 }
@@ -540,10 +580,22 @@ func (this *TeamMember) is_disable_attack() bool {
 }
 
 func (this *TeamMember) is_dead() bool {
-	if this.hp > 0 {
-		return false
+	if this.hp < 0 {
+		return true
 	}
-	return true
+	return false
+}
+
+func (this *TeamMember) is_will_dead() bool {
+	if this.hp == 0 {
+		return true
+	}
+	return false
+}
+
+func (this *TeamMember) set_dead() {
+	this.hp = -1
+	log.Debug("+++++++++++++++++++++++++ team[%v] mem[%v] 死了", this.team.side, this.pos)
 }
 
 func (this *TeamMember) has_delay_skills() bool {
@@ -594,6 +646,26 @@ func (this *TeamMember) clear_delay_skills() {
 		delay_skill_pool.Put(this.delay_skills[i])
 	}
 	this.delay_skills = nil
+}
+
+func (this *TeamMember) on_finish() {
+	if this.passive_triggers == nil {
+		return
+	}
+
+	for _, d := range this.passive_triggers {
+		if d == nil {
+			continue
+		}
+		for i := 0; i < len(d); i++ {
+			if d[i] != nil {
+				passive_trigger_data_pool.Put(d[i])
+			}
+		}
+	}
+	if this.passive_skills != nil {
+		this.passive_skills = nil
+	}
 }
 
 type BattleReports struct {
@@ -682,6 +754,7 @@ func (this *BattleReports) Recycle() {
 
 type BattleTeam struct {
 	player       *Player
+	team_type    int32
 	curr_attack  int32          // 当前进攻的索引
 	side         int32          // 0 左边 1 右边
 	temp_curr_id int32          // 临时ID，用于标识召唤的角色
@@ -705,18 +778,13 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}
 	this.player = p
-
-	log.Debug("!@!@!@!@!@!@ members: %v", members)
+	this.team_type = team_id
 
 	for i := 0; i < len(this.members); i++ {
 		if (i < len(members) && members[i] <= 0) || i >= len(members) {
 			this.members[i] = nil
 			continue
 		}
-
-		//if this.members[i] != nil && members[i] == this.members[i].id {
-		//	continue
-		//}
 
 		var table_id, rank, level int32
 		var o bool
@@ -757,10 +825,57 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	}
 	this.curr_attack = 0
 	this.side = side
-	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, side)
 	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
 
-	//p.team_changed[team_id] = false
+	return true
+}
+
+// init with stage
+func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave int32) bool {
+	stage := stage_table_mgr.Get(stage_id)
+	if stage == nil {
+		log.Warn("Cant found stage %v", stage_id)
+		return false
+	}
+	if stage.Monsters == nil || len(stage.Monsters) == 0 {
+		return false
+	}
+
+	if this.members == nil {
+		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
+	}
+
+	for i := 0; i < len(this.members); i++ {
+		if this.members[i] != nil {
+			team_member_pool.Put(this.members[i])
+			this.members[i] = nil
+		}
+	}
+
+	this.side = side
+	this.curr_attack = 0
+	this.team_type = BATTLE_STAGE_TEAM
+
+	for i := 0; i < len(stage.Monsters); i++ {
+		monster := stage.Monsters[i]
+		if monster.Wave-1 == monster_wave {
+			pos := monster.Slot - 1
+			if pos < 0 || pos >= BATTLE_ROUND_MAX_NUM {
+				log.Error("Stage[%v] monster wave[%v] slot[%v] invalid", stage_id, monster_wave, monster.Slot)
+				return false
+			}
+
+			role_card := card_table_mgr.GetRankCard(monster.MonsterID, monster.Rank)
+			if role_card == nil {
+				log.Error("Cant get card by role_id[%v] and rank[%v]", monster.MonsterID, monster.Rank)
+				return false
+			}
+
+			m := team_member_pool.Get()
+			m.init(this, monster.EquipID, monster.Level, role_card, pos)
+			this.members[pos] = m
+		}
+	}
 
 	return true
 }
@@ -778,7 +893,7 @@ func (this *BattleTeam) RoundStart() {
 // round end
 func (this *BattleTeam) RoundEnd() {
 	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		if this.members[i] != nil {
+		if this.members[i] != nil && !this.members[i].is_dead() {
 			this.members[i].round_end()
 		}
 	}
@@ -865,6 +980,15 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 	} else {
 		log.Error("Invalid skill target type: %v", skill.SkillTarget)
 		return
+	}
+
+	if pos != nil {
+		for i := 0; i < len(pos); i++ {
+			t := target_team.members[pos[i]]
+			if t != nil {
+				//log.Debug("------------------------ team[%v] mem[%v] skill[%v] find target hp[%v]", m.team.side, m.pos, skill_id, t.hp)
+			}
+		}
 	}
 
 	return
@@ -974,6 +1098,18 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 	target_team.RoundEnd()
 }
 
+// 结束
+func (this *BattleTeam) OnFinish() {
+	if this.members == nil {
+		return
+	}
+	for i := 0; i < len(this.members); i++ {
+		if this.members[i] != nil && !this.members[i].is_dead() {
+			this.members[i].on_finish()
+		}
+	}
+}
+
 // 回收战报
 func (this *BattleTeam) RecycleReports() {
 
@@ -1054,8 +1190,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	// 存放战报
 	if this.reports == nil {
 		this.reports = &BattleReports{}
-		target_team.reports = this.reports
 	}
+	target_team.reports = this.reports
 	this.reports.Reset()
 
 	// 被动技，进场前触发
@@ -1094,6 +1230,9 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.reports.Reset()
 	}
 
+	this.OnFinish()
+	target_team.OnFinish()
+
 	return
 }
 
@@ -1104,7 +1243,6 @@ func (this *BattleTeam) _format_members_for_msg() (members []*msg_client_message
 		}
 		mem := this.members[i].build_battle_member()
 		mem.Side = this.side
-		log.Debug("!!!!!!!!!!@@@@@@@@@@@@@@@@ team[%p] side[%v]", this, this.side)
 		members = append(members, mem)
 	}
 	return
@@ -1153,9 +1291,15 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg prot
 		}
 	}
 
-	p.Fight2Player(req.FightPlayerId)
-
-	return 1
+	var res int32
+	if req.FightPlayerId > 0 {
+		res = p.Fight2Player(req.FightPlayerId)
+	} else if req.StageId > 0 {
+		res = p.FightInStage(req.StageId)
+	} else {
+		res = -1
+	}
+	return res
 }
 
 func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {

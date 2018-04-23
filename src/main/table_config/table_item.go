@@ -7,7 +7,7 @@ import (
 )
 
 type XmlItemItem struct {
-	Id            int32  `xml:"Id,attr"`
+	Id            int32  `xml:"ID,attr"`
 	Type          int32  `xml:"Type,attr"`
 	MaxCount      string `xml:"MaxCount,attr"`
 	EquipType     int32  `xml:"EquipType,attr"`
@@ -35,7 +35,7 @@ func (this *ItemTableMgr) Init() bool {
 }
 
 func (this *ItemTableMgr) Load() bool {
-	data, err := ioutil.ReadFile("../game_data/item.xml")
+	data, err := ioutil.ReadFile("../game_data/Item.xml")
 	if nil != err {
 		log.Error("ItemTableMgr read file err[%s] !", err.Error())
 		return false
