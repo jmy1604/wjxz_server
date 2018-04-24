@@ -994,6 +994,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 改变普通攻击技能ID
 				if effects[i][1] > 0 {
 					self.temp_normal_skill = effects[i][1]
+					// -------------------- 战报 --------------------
+					build_battle_report_item_add_target_item(report, self_team, self_pos, 0, false, false, 0)
+					// ----------------------------------------------
 					used = true
 					log.Debug("self_team[%v] pos[%v] role[%v] changed normal skill to %v", self_team.side, self_pos, self.id, self.temp_normal_skill)
 				}
@@ -1001,6 +1004,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 改变必杀技ID
 				if effects[i][1] > 0 {
 					self.temp_super_skill = effects[i][1]
+					// -------------------- 战报 --------------------
+					build_battle_report_item_add_target_item(report, self_team, self_pos, 0, false, false, 0)
+					// ----------------------------------------------
 					used = true
 					log.Debug("self_team[%v] pos[%v] role[%v] changed super skill to %v", self_team.side, self_pos, self.id, self.temp_super_skill)
 				}
@@ -1032,6 +1038,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				// 增加行动次数
 				target.act_num += effects[i][1]
+				// -------------------- 战报 --------------------
+				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, 0)
+				// ----------------------------------------------
 				used = true
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_SHIELD {
 				if target == nil {
