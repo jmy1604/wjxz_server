@@ -68,8 +68,8 @@ const (
 )
 
 const (
-	BATTLE_TEAM_MEMBER_INIT_ENERGY       = 1 // 初始能量
-	BATTLE_TEAM_MEMBER_MAX_ENERGY        = 4 // 最大能量
+	BATTLE_TEAM_MEMBER_INIT_ENERGY       = 3 // 初始能量
+	BATTLE_TEAM_MEMBER_MAX_ENERGY        = 6 // 最大能量
 	BATTLE_TEAM_MEMBER_ADD_ENERGY        = 2 // 能量增加量
 	BATTLE_TEAM_MEMBER_MAX_NUM           = 9 // 最大人数
 	BATTLE_FORMATION_LINE_NUM            = 3 // 阵型列数

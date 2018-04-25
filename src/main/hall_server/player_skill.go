@@ -1235,6 +1235,12 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 		this.tail = buff.prev
 	}
 
+	if this.owner != nil {
+		if len(buff.buff.Effect) >= 2 && buff.buff.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
+			this.owner.add_attr(buff.buff.Effect[1], -buff.param)
+		}
+	}
+
 	buff_pool.Put(buff)
 
 	delete(this.buffs, buff)
