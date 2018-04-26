@@ -81,6 +81,24 @@ func _get_rows_order(self_pos int32) (rows_order []int32) {
 	return
 }
 
+// 获取行
+func _get_row_indexes() [][]int32 {
+	return [][]int32{
+		[]int32{0, 3, 6},
+		[]int32{1, 4, 7},
+		[]int32{2, 5, 8},
+	}
+}
+
+// 获取列
+func _get_column_indexes() [][]int32 {
+	return [][]int32{
+		[]int32{0, 1, 2},
+		[]int32{3, 4, 5},
+		[]int32{6, 7, 8},
+	}
+}
+
 // 行是否为空
 func _check_team_row(row_index int32, target_team *BattleTeam) (is_empty bool, pos []int32) {
 	is_empty = true
@@ -194,7 +212,6 @@ func skill_get_default_targets(self_pos int32, target_team *BattleTeam, skill_da
 				break
 			}
 		}
-		log.Debug("!!!!!!!!!!!!!!!!!! pos[%v]", pos)
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN { // 竖排
 		for c := 0; c < BATTLE_FORMATION_LINE_NUM; c++ {
 			is_empty := false
@@ -357,6 +374,35 @@ func skill_get_random_targets(self_pos int32, target_team *BattleTeam, skill_dat
 		}
 	} else {
 		log.Warn("Range type %v cant get random targets", skill_data.RangeType)
+	}
+	return
+}
+
+// 强制自身目标选择
+func skill_get_force_self_targets(self_pos int32, target_team *BattleTeam, skill_data *table_config.XmlSkillItem) (pos []int32) {
+	var indexes []int32
+	if skill_data.RangeType == SKILL_RANGE_TYPE_SINGLE {
+		pos = []int32{self_pos}
+		return
+	} else if skill_data.RangeType == SKILL_RANGE_TYPE_ROW {
+		y := self_pos % BATTLE_FORMATION_LINE_NUM
+		indexes = _get_row_indexes()[y]
+	} else if skill_data.RangeType == SKILL_RANGE_TYPE_COLUMN {
+		l := self_pos / BATTLE_FORMATION_LINE_NUM
+		indexes = _get_column_indexes()[l]
+	} else if skill_data.RangeType == SKILL_RANGE_TYPE_CROSS {
+		indexes = _get_team_cross_targets()[self_pos]
+	} else if skill_data.RangeType == SKILL_RANGE_TYPE_BIG_CROSS {
+		indexes = _get_team_big_cross_targets()[self_pos]
+	}
+
+	if indexes != nil {
+		for i := 0; i < len(indexes); i++ {
+			m := target_team.members[indexes[i]]
+			if m != nil && !m.is_dead() {
+				pos = append(pos, indexes[i])
+			}
+		}
 	}
 	return
 }
@@ -796,10 +842,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 		effect_type := effects[i][0]
 
-		if skill_data.Type != SKILL_TYPE_NORMAL {
+		if self.temp_normal_skill == 0 && skill_data.Type != SKILL_TYPE_NORMAL {
 			// 被动技，普通攻击前
 			passive_skill_effect_with_self_pos(EVENT_BEFORE_NORMAL_ATTACK, self_team, self_pos, nil, nil, true)
-		} else if skill_data.Type != SKILL_TYPE_SUPER {
+		} else if self.temp_super_skill == 0 && skill_data.Type != SKILL_TYPE_SUPER {
 			// 被动技，怒气攻击前
 			passive_skill_effect_with_self_pos(EVENT_BEFORE_RAGE_ATTACK, self_team, self_pos, nil, nil, true)
 		}
@@ -1087,6 +1133,21 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 // 单个被动技
 func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillItem, self *TeamMember, target_team *BattleTeam, trigger_pos []int32, is_combo bool) (triggered bool) {
+	// ---------------------------------- 防止递归调用 ----------------------------------
+	if trigger_event == EVENT_BEFORE_NORMAL_ATTACK && self.temp_normal_skill < 0 {
+		return
+	}
+	if trigger_event == EVENT_BEFORE_RAGE_ATTACK && self.temp_normal_skill < 0 {
+		return
+	}
+	if trigger_event == EVENT_BEFORE_NORMAL_ATTACK {
+		self.temp_normal_skill = -1
+	}
+	if trigger_event == EVENT_BEFORE_RAGE_ATTACK {
+		self.temp_super_skill = -1
+	}
+	// ----------------------------------------------------------------------------------
+
 	if skill.SkillTriggerType != trigger_event {
 		return
 	}

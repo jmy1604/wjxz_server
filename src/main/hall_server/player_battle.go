@@ -137,7 +137,11 @@ func (this *TeamMember) init_passive_data(skills []int32) {
 		return
 	}
 	for i := 0; i < len(skills); i++ {
-		this.add_passive_trigger(skills[i])
+		if !this.add_passive_trigger(skills[i]) {
+			log.Warn("Team[%v] member[%v] add passive skill[%v] failed", this.team.side, this.pos, skills[i])
+		} else {
+			log.Debug("Team[%v] member[%v] add passive skill[%v]", this.team.side, this.pos, skills[i])
+		}
 	}
 }
 
@@ -297,6 +301,11 @@ func (this *TeamMember) init_equip(equip_id int32) {
 		return
 	}
 	this.init_passive_data(d.EquipSkill)
+	if d.EquipSkill != nil {
+		for i := 0; i < len(d.EquipSkill); i++ {
+			this.add_skill_attr(d.EquipSkill[i])
+		}
+	}
 	this.add_attrs(d.EquipAttr)
 	log.Debug("@@@@@@@@@@@@@@############## team[%v] member[%v] init equip [%v] skill[%v]", this.team.side, this.pos, equip_id, d.EquipSkill)
 }
@@ -337,16 +346,8 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	this.pos = pos
 	this.level = level
 	this.card = role_card
-	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
-	this.attack = (role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
-	this.defense = (role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
 	this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
 	this.act_num = 0
-
-	this.attrs[ATTR_HP_MAX] = this.hp
-	this.attrs[ATTR_HP] = this.hp
-	this.attrs[ATTR_ATTACK] = this.attack
-	this.attrs[ATTR_DEFENSE] = this.defense
 
 	// 技能增加属性
 	if role_card.NormalSkillID > 0 {
@@ -366,6 +367,14 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	} else {
 		this.init_equips()
 	}
+
+	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
+	this.attack = (role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
+	this.defense = (role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
+	this.attrs[ATTR_HP_MAX] = this.hp
+	this.attrs[ATTR_HP] = this.hp
+	this.attrs[ATTR_ATTACK] = this.attack
+	this.attrs[ATTR_DEFENSE] = this.defense
 }
 
 func (this *TeamMember) add_attr(attr int32, value int32) {
@@ -375,15 +384,6 @@ func (this *TeamMember) add_attr(attr int32, value int32) {
 		this.add_max_hp(value)
 	} else {
 		this.attrs[attr] += value
-	}
-
-	if attr == ATTR_HP_PERCENT_BONUS {
-		d := this.hp * value / 10000
-		this.add_max_hp(d)
-		dd := this.attrs[ATTR_HP_MAX] - this.hp
-		if dd > 0 {
-			this.add_hp(dd)
-		}
 	}
 }
 
@@ -970,7 +970,7 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_RANDOM {
 		pos = skill_get_random_targets(self_index, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_SELF {
-		pos = []int32{self_index}
+		pos = skill_get_force_self_targets(self_index, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_TRIGGER_OBJECT {
 
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_CROPSE {
@@ -1006,7 +1006,7 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 		return nil
 	}
 
-	log.Debug("team[%v] member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_pos, skill.Id)
+	//log.Debug("team[%v] member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_pos, skill.Id)
 
 	if !is_enemy {
 		target_team = this
