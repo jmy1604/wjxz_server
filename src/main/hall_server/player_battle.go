@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -92,6 +93,8 @@ type MemberPassiveTriggerData struct {
 type DelaySkill struct {
 	trigger_event int32
 	skill         *table_config.XmlSkillItem
+	user          *TeamMember
+	target_team   *BattleTeam
 	trigger_pos   []int32
 }
 
@@ -378,6 +381,23 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	this.attrs[ATTR_DEFENSE] = this.defense
 }
 
+func (this *TeamMember) init_with_summon(user *TeamMember, team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
+	this.init(team, id, level, role_card, pos)
+	for i := 0; i < len(user.attrs); i++ {
+		this.attrs[i] = user.attrs[i]
+	}
+	// 技能增加属性
+	if role_card.NormalSkillID > 0 {
+		this.add_skill_attr(role_card.NormalSkillID)
+	}
+	if role_card.SuperSkillID > 0 {
+		this.add_skill_attr(role_card.SuperSkillID)
+	}
+	for i := 0; i < len(role_card.PassiveSkillIds); i++ {
+		this.add_skill_attr(role_card.PassiveSkillIds[i])
+	}
+}
+
 func (this *TeamMember) add_attr(attr int32, value int32) {
 	if attr == ATTR_HP {
 		this.add_hp(value)
@@ -607,10 +627,12 @@ func (this *TeamMember) has_delay_skills() bool {
 	return true
 }
 
-func (this *TeamMember) push_delay_skill(trigger_event int32, skill *table_config.XmlSkillItem, trigger_pos []int32) {
+func (this *TeamMember) push_delay_skill(trigger_event int32, skill *table_config.XmlSkillItem, user *TeamMember, target_team *BattleTeam, trigger_pos []int32) {
 	ds := delay_skill_pool.Get()
 	ds.trigger_event = trigger_event
 	ds.skill = skill
+	ds.user = user
+	ds.target_team = target_team
 	ds.trigger_pos = trigger_pos
 	this.delay_skills = append(this.delay_skills, ds)
 }
@@ -636,7 +658,7 @@ func (this *TeamMember) delay_skills_effect(target_team *BattleTeam) {
 			log.Debug("########################################### team[%v] member[%v] 后面有延迟被动技 %v", this.team.side, this.pos, ds.skill.Id)
 		}
 
-		one_passive_skill_effect(ds.trigger_event, ds.skill, this, target_team, ds.trigger_pos, true)
+		one_passive_skill_effect(ds.trigger_event, ds.skill, ds.user, ds.target_team, ds.trigger_pos, true)
 	}
 }
 
@@ -1054,12 +1076,12 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 		if mem.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
 			// 被动技，怒气攻击前
 			if mem.temp_super_skill == 0 {
-				passive_skill_effect_with_self_pos(EVENT_BEFORE_RAGE_ATTACK, this, self_index, nil, nil, true)
+				passive_skill_effect_with_self_pos(EVENT_BEFORE_RAGE_ATTACK, nil, this, self_index, nil, nil, true)
 			}
 		} else {
 			// 被动技，普通攻击前
 			if mem.temp_normal_skill == 0 {
-				passive_skill_effect_with_self_pos(EVENT_BEFORE_NORMAL_ATTACK, this, self_index, nil, nil, true)
+				passive_skill_effect_with_self_pos(EVENT_BEFORE_NORMAL_ATTACK, nil, this, self_index, nil, nil, true)
 			}
 		}
 
@@ -1087,8 +1109,8 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 	// 被动技，回合行动前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, this, i, target_team, nil, false)
-		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, target_team, i, this, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, nil, this, i, target_team, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, nil, target_team, i, this, nil, false)
 	}
 
 	var self_index, target_index int32
@@ -1209,8 +1231,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, this, i, target_team, nil, false)
-		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, target_team, i, this, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, this, i, target_team, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, target_team, i, this, nil, false)
 	}
 
 	if this.reports.reports != nil {
@@ -1218,6 +1240,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.reports.reports = make([]*msg_client_message.BattleReportItem, 0)
 	}
 
+	rand.Seed(time.Now().Unix())
 	for c := int32(0); c < round_max; c++ {
 		log.Debug("----------------------------------------------- Round[%v] --------------------------------------------", c+1)
 
