@@ -111,6 +111,7 @@ type TeamMember struct {
 	passive_triggers        map[int32][]*MemberPassiveTriggerData // 被动技触发事件
 	temp_normal_skill       int32                                 // 临时普通攻击
 	temp_super_skill        int32                                 // 临时怒气攻击
+	use_temp_skill          bool                                  // 是否使用临时技能
 	temp_changed_attrs      []int32                               // 临时改变的属性
 	temp_changed_attrs_used int32                                 // 临时改变属性计算状态 0 忽略 1 已初始化 2 已计算
 	delay_skills            []*DelaySkill                         // 延迟的技能效果
@@ -445,6 +446,7 @@ func (this *TeamMember) get_use_skill() (skill_id int32) {
 	if this.act_num <= 0 {
 		return
 	}
+
 	// 能量满用绝杀
 	if this.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
 		skill_id = this.card.SuperSkillID
@@ -900,36 +902,36 @@ func (this *BattleTeam) RoundEnd() {
 }
 
 // find targets
-func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, trigger_skill int32) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
+func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, trigger_skill int32) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
 	skill_id := int32(0)
-	m := this.members[self_index]
-
 	if trigger_skill == 0 {
 		// 能量满用绝杀
-		if m.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
-			if m.is_disable_super_attack() {
+		if self.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
+			if self.is_disable_super_attack() {
 				return
 			}
-			if m.temp_normal_skill > 0 {
-				skill_id = m.temp_normal_skill
+			if self.temp_super_skill > 0 {
+				skill_id = self.temp_super_skill
+				self.use_temp_skill = true
 			} else {
-				skill_id = m.card.SuperSkillID
+				skill_id = self.card.SuperSkillID
 			}
-		} else if m.act_num > 0 {
-			if m.is_disable_normal_attack() {
+		} else {
+			if self.is_disable_normal_attack() {
 				return
 			}
-			if m.temp_super_skill > 0 {
-				skill_id = m.temp_super_skill
+			if self.temp_normal_skill > 0 {
+				skill_id = self.temp_normal_skill
+				self.use_temp_skill = true
 			} else {
-				skill_id = m.card.NormalSkillID
+				skill_id = self.card.NormalSkillID
 			}
 		}
 	} else {
 		skill_id = trigger_skill
 	}
 
-	if m.is_disable_attack() {
+	if self.is_disable_attack() {
 		return
 	}
 
@@ -962,15 +964,15 @@ func (this *BattleTeam) FindTargets(self_index int32, target_team *BattleTeam, t
 	}
 
 	if skill.SkillTarget == SKILL_TARGET_TYPE_DEFAULT {
-		pos = skill_get_default_targets(self_index, target_team, skill)
+		pos = skill_get_default_targets(self.pos, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_BACK {
-		pos = skill_get_back_targets(self_index, target_team, skill)
+		pos = skill_get_back_targets(self.pos, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_HP_MIN {
-		pos = skill_get_hp_min_targets(self_index, target_team, skill)
+		pos = skill_get_hp_min_targets(self.pos, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_RANDOM {
-		pos = skill_get_random_targets(self_index, target_team, skill)
+		pos = skill_get_random_targets(self.pos, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_SELF {
-		pos = skill_get_force_self_targets(self_index, target_team, skill)
+		pos = skill_get_force_self_targets(self.pos, target_team, skill)
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_TRIGGER_OBJECT {
 
 	} else if skill.SkillTarget == SKILL_TARGET_TYPE_CROPSE {
@@ -1000,13 +1002,13 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 		return nil
 	}
 
-	is_enemy, target_pos, skill := this.FindTargets(self_index, target_team, trigger_skill)
+	is_enemy, target_pos, skill := this.FindTargets(self, target_team, trigger_skill)
 	if target_pos == nil {
 		log.Warn("team[%v] member[%v] Cant find targets to attack with skill[%v]", this.side, self_index, skill.Id)
 		return nil
 	}
 
-	//log.Debug("team[%v] member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_pos, skill.Id)
+	log.Debug("team[%v] member[%v] find is_enemy[%v] targets[%v] to use skill[%v]", this.side, self_index, is_enemy, target_pos, skill.Id)
 
 	if !is_enemy {
 		target_team = this
@@ -1015,13 +1017,15 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 	skill_effect(this, self_index, target_team, target_pos, skill)
 
 	// 清除临时技能
-	m := this.members[self_index]
-	if m != nil {
-		if m.temp_normal_skill > 0 {
-			m.temp_normal_skill = 0
-		} else if m.temp_super_skill > 0 {
-			m.temp_super_skill = 0
+	if self.use_temp_skill {
+		if self.temp_normal_skill > 0 {
+			log.Debug("!!!!!!!!!!!!!!!!!!! Team[%v] mem[%v] clear temp normal skill[%v]", this.side, self_index, self.temp_normal_skill)
+			self.temp_normal_skill = 0
+		} else if self.temp_super_skill > 0 {
+			log.Debug("!!!!!!!!!!!!!!!!!!! Team[%v] mem[%v] clear temp super skill[%v]", this.side, self_index, self.temp_normal_skill)
+			self.temp_super_skill = 0
 		}
+		self.use_temp_skill = false
 	}
 
 	// 是否有combo技能
@@ -1046,6 +1050,19 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 		if target_team.IsAllDead() {
 			return 0
 		}
+
+		if mem.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
+			// 被动技，怒气攻击前
+			if mem.temp_super_skill == 0 {
+				passive_skill_effect_with_self_pos(EVENT_BEFORE_RAGE_ATTACK, this, self_index, nil, nil, true)
+			}
+		} else {
+			// 被动技，普通攻击前
+			if mem.temp_normal_skill == 0 {
+				passive_skill_effect_with_self_pos(EVENT_BEFORE_NORMAL_ATTACK, this, self_index, nil, nil, true)
+			}
+		}
+
 		skill := this.UseOnceSkill(self_index, target_team, 0)
 		if skill == nil {
 			break
@@ -1054,10 +1071,6 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
-
-		if mem.get_use_skill() > 0 {
-			log.Debug("!!!!!!!!!!!!!!!!!!!!!!!!!! Team[%v] member[%v] continue to use skill", this.side, self_index)
-		}
 	}
 	// 延迟的被动技
 	if mem.has_delay_skills() {
