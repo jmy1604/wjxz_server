@@ -1090,6 +1090,7 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			break
 		}
 		if skill.ComboSkill > 0 {
+			log.Debug("@@@@@@!!!!!! Team[%v] member[%v] will use combo skill[%v]", this.side, self_index, skill.ComboSkill)
 			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
@@ -1231,8 +1232,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, this, i, target_team, nil, false)
-		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, target_team, i, this, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, this, i, target_team, []int32{0, 1, 2, 3, 4, 5, 6, 7, 8}, false)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, target_team, i, this, []int32{0, 1, 2, 3, 4, 5, 6, 7, 8}, false)
 	}
 
 	if this.reports.reports != nil {

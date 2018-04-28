@@ -393,6 +393,8 @@ func skill_get_force_self_targets(self_pos int32, target_team *BattleTeam, skill
 		indexes = _get_team_cross_targets()[self_pos]
 	} else if skill_data.RangeType == SKILL_RANGE_TYPE_BIG_CROSS {
 		indexes = _get_team_big_cross_targets()[self_pos]
+	} else if skill_data.RangeType == SKILL_RANGE_TYPE_ALL {
+		indexes = []int32{0, 1, 2, 3, 4, 5, 6, 7, 8}
 	}
 
 	if indexes != nil {
@@ -451,7 +453,7 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 			return true
 		}
 		if len(effect_cond) >= 1 {
-			if len(effect_cond) > 2 {
+			if len(effect_cond) >= 2 {
 				if effect_cond[0] == SKILL_COND_TYPE_HAS_LABEL {
 					if mem.card.Label != effect_cond[1] {
 						return true
@@ -566,11 +568,28 @@ func skill_check_cond(self *TeamMember, target_pos []int32, target_team *BattleT
 			target := target_team.members[target_pos[i]]
 			if target != nil && _skill_check_cond(target, effect_cond2) {
 				b = true
+				break
 			}
 			if !b {
 				return false
 			}
 		}
+	}
+
+	return true
+}
+
+func skill_effect_cond_check(self *TeamMember, target *TeamMember, effect_cond1 []int32, effect_cond2 []int32) bool {
+	if len(effect_cond1) == 0 && len(effect_cond2) == 0 {
+		return true
+	}
+
+	if self != nil && !_skill_check_cond(self, effect_cond1) {
+		return false
+	}
+
+	if target != nil && !_skill_check_cond(target, effect_cond2) {
+		return false
 	}
 
 	return true
@@ -834,20 +853,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		return
 	}
 
-	// 战报
-	report := build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-	self_team.reports.reports = append(self_team.reports.reports, report)
-
+	var report *msg_client_message.BattleReportItem
 	for i := 0; i < len(effects); i++ {
 		if effects[i] == nil || len(effects[i]) < 1 {
 			continue
-		}
-
-		if skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
-			if !skill_check_cond(self, target_pos, target_team, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
-				log.Debug("self[%v] cant use skill[%v] to target[%v]", self_pos, skill_data.Id, target_pos)
-				continue
-			}
 		}
 
 		effect_type := effects[i][0]
@@ -864,6 +873,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			target := target_team.members[target_pos[j]]
 			if target == nil && skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
 				continue
+			}
+
+			if skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
+				if !skill_effect_cond_check(self, target, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
+					log.Warn("self[%v] cant use skill[%v] to target[%v]", self_pos, skill_data.Id, target_pos[j])
+					continue
+				}
 			}
 
 			if effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
@@ -888,8 +904,15 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				target.add_hp(-target_dmg)
 
 				//----------- 战报 -------------
-				report.User.Damage += self_dmg
-				tm := build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg, is_critical, is_block, is_absorb, anti_type)
+				var tm *msg_client_message.BattleFighter
+				if skill_data.IsCancelReport == 0 {
+					if report == nil {
+						report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+						self_team.reports.reports = append(self_team.reports.reports, report)
+					}
+					report.User.Damage += self_dmg
+					tm = build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg, is_critical, is_block, is_absorb, anti_type)
+				}
 				//------------------------------
 
 				used = true
@@ -922,9 +945,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					// 是否真死
 					if self.is_will_dead() {
 						self.set_dead()
-						if report != nil {
-							report.User.HP = self.hp
-						}
 					}
 				}
 
@@ -992,7 +1012,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if cure != 0 {
 					target.add_hp(cure)
 					// ------------------ 战报 -------------------
-					build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure, false, false, false, 0)
+					if skill_data.IsCancelReport == 0 {
+						if report == nil {
+							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+							self_team.reports.reports = append(self_team.reports.reports, report)
+						}
+						build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure, false, false, false, 0)
+					}
 					// -------------------------------------------
 					// 被动技，治疗时触发
 					if skill_data.Type != SKILL_TYPE_PASSIVE {
@@ -1010,7 +1036,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				buff_id := skill_effect_add_buff(self, target, effects[i])
 				if buff_id > 0 {
 					// -------------------- 战报 --------------------
-					build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
+					if skill_data.IsCancelReport == 0 {
+						if report == nil {
+							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+							self_team.reports.reports = append(self_team.reports.reports, report)
+						}
+						build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
+					}
 					// ----------------------------------------------
 					used = true
 					log.Debug("self_team[%v] member[%v] use skill[%v] to target team[%v] member[%v] 触发 buff[%v]", self_team.side, self.pos, skill_data.Id, target_team.side, target.pos, buff_id)
@@ -1021,9 +1053,15 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 召唤
 				mem := skill_effect_summon(self, target_team, target_pos[j], effects[i])
 				if mem != nil {
-					report.IsSummon = true
 					// --------------------- 战报 ----------------------
-					build_battle_report_item_add_summon_npc(report, target_team, target_pos[j])
+					if skill_data.IsCancelReport == 0 {
+						if report == nil {
+							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+							self_team.reports.reports = append(self_team.reports.reports, report)
+						}
+						report.IsSummon = true
+						build_battle_report_item_add_summon_npc(report, target_team, target_pos[j])
+					}
 					// -------------------------------------------------
 					used = true
 					log.Debug("self_team[%v] member[%v] use skill[%v] to summon npc[%v]", self_team.side, self.pos, skill_data.Id, mem.card.Id)
@@ -1035,7 +1073,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 改变下次计算时的角色参数
 				skill_effect_temp_attrs(self, effects[i])
 				// -------------------- 战报 --------------------
-				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
+				if skill_data.IsCancelReport == 0 {
+					if report == nil {
+						report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+						self_team.reports.reports = append(self_team.reports.reports, report)
+					}
+					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
+				}
 				// ----------------------------------------------
 				used = true
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_NORMAL_SKILL {
@@ -1043,7 +1087,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if effects[i][1] > 0 {
 					self.temp_normal_skill = effects[i][1]
 					// -------------------- 战报 --------------------
-					build_battle_report_item_add_target_item(report, self_team, self_pos, 0, false, false, false, 0)
+					if skill_data.IsCancelReport == 0 {
+						if report == nil {
+							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+							self_team.reports.reports = append(self_team.reports.reports, report)
+						}
+						build_battle_report_item_add_target_item(report, self_team, self_pos, 0, false, false, false, 0)
+					}
 					// ----------------------------------------------
 					used = true
 					log.Debug("self_team[%v] pos[%v] role[%v] changed normal skill to %v", self_team.side, self_pos, self.id, self.temp_normal_skill)
@@ -1053,29 +1103,40 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if effects[i][1] > 0 {
 					self.temp_super_skill = effects[i][1]
 					// -------------------- 战报 --------------------
-					build_battle_report_item_add_target_item(report, self_team, self_pos, 0, false, false, false, 0)
+					if skill_data.IsCancelReport == 0 {
+						if report == nil {
+							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+							self_team.reports.reports = append(self_team.reports.reports, report)
+						}
+						build_battle_report_item_add_target_item(report, self_team, self_pos, 0, false, false, false, 0)
+					}
 					// ----------------------------------------------
 					used = true
 					log.Debug("self_team[%v] pos[%v] role[%v] changed super skill to %v", self_team.side, self_pos, self.id, self.temp_super_skill)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_RAGE {
-				if target == nil {
-					continue
-				}
 				// 改变怒气
 				if effects[i][3] > 0 {
-					if rand.Int31n(10000) > effects[i][3] {
-						target.energy += effects[i][1]
-						if target.energy < 0 {
-							target.energy = 0
+					if rand.Int31n(10000) < effects[i][3] {
+						if target != nil {
+							target.energy += effects[i][1]
+							if target.energy < 0 {
+								target.energy = 0
+							}
 						}
 						self.energy += effects[i][2]
 						if self.energy < 0 {
 							self.energy = 0
 						}
 						// -------------------- 战报 ----------------------
-						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
-						report.User.Energy = self.energy
+						if skill_data.IsCancelReport == 0 {
+							if report == nil {
+								report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+								self_team.reports.reports = append(self_team.reports.reports, report)
+							}
+							build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
+							report.User.Energy = self.energy
+						}
 						// ------------------------------------------------
 						used = true
 					}
@@ -1087,7 +1148,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 增加行动次数
 				target.act_num += effects[i][1]
 				// -------------------- 战报 --------------------
-				build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
+				if skill_data.IsCancelReport == 0 {
+					if report == nil {
+						report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+						self_team.reports.reports = append(self_team.reports.reports, report)
+					}
+					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
+				}
 				// ----------------------------------------------
 				used = true
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_SHIELD {
@@ -1099,7 +1166,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if shield != 0 {
 					target.add_attr(ATTR_SHIELD, shield)
 					// ----------------------- 战报 -------------------------
-					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
+					if skill_data.IsCancelReport == 0 {
+						if report == nil {
+							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
+							self_team.reports.reports = append(self_team.reports.reports, report)
+						}
+						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
+					}
 					// ------------------------------------------------------
 					used = true
 				}
@@ -1128,7 +1201,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_ATTACK, self, self_team, self_pos, target_team, target_pos, true)
 	}
 
-	report.User.HP = self.hp
+	if report != nil {
+		report.User.HP = self.hp
+	}
 
 	return
 }
@@ -1293,7 +1368,7 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 
 	delete(this.buffs, buff)
 
-	log.Debug("@@@@@@@@@ Team[%v] member[%v] pointer[%p] remove buff[%v][%p][%v] head[%p,%v] tail[%p,%v]", this.owner.team.side, this.owner.pos, this.owner, buff.buff.Id, buff, buff, this.head, this.head, this.tail, this.tail)
+	//log.Debug("@@@@@@@@@ Team[%v] member[%v] pointer[%p] remove buff[%v][%p][%v] head[%p,%v] tail[%p,%v]", this.owner.team.side, this.owner.pos, this.owner, buff.buff.Id, buff, buff, this.head, this.head, this.tail, this.tail)
 
 	// 测试
 	b := this.head
@@ -1427,7 +1502,7 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 
 	buff_id = b.Id
 
-	log.Debug("######### Team[%v] member[%v] pointer[%p] add buff id[%v] pointer[%p] body[%v], head[%p,%v] tail[%p,%v]", this.owner.team.side, this.owner.pos, this.owner, b.Id, buff, buff, this.head, this.head, this.tail, this.tail)
+	//log.Debug("######### Team[%v] member[%v] pointer[%p] add buff id[%v] pointer[%p] body[%v], head[%p,%v] tail[%p,%v]", this.owner.team.side, this.owner.pos, this.owner, b.Id, buff, buff, this.head, this.head, this.tail, this.tail)
 
 	// 测试
 	bb := this.head

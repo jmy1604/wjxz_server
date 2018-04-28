@@ -48,6 +48,7 @@ type XmlSkillItem struct {
 	EffectsCond2s        [][]int32
 	ComboSkill           int32 `xml:"ComboSKill,attr"`
 	IsDelayLastSkill     int32 `xml:"IsDelayLastSkill,attr"`
+	IsCancelReport       int32 `xml:"IsCancelReport,attr"`
 }
 
 type XmlSkillConfig struct {
