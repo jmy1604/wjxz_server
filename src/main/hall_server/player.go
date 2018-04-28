@@ -341,8 +341,9 @@ func (this *Player) Send(msg_id uint16, msg proto.Message) {
 
 func (this *Player) add_init_roles() {
 	var teams []int32
-	for _, id := range global_config_mgr.GetGlobalConfig().InitRoles {
-		iid := this.new_role(int32(id), 1, 1)
+	init_roles := global_config_mgr.GetGlobalConfig().InitRoles
+	for i := 0; i < len(init_roles)/3; i++ {
+		iid := this.new_role(init_roles[3*i], init_roles[3*i+1], init_roles[3*i+2])
 		if teams == nil {
 			teams = []int32{iid}
 		} else if len(teams) < BATTLE_TEAM_MEMBER_MAX_NUM {
