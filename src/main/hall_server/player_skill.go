@@ -627,6 +627,8 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	} else if skill_type == SKILL_TYPE_SUPER {
 		damage_add += self.attrs[ATTR_RAGE_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_RAGE_DAMAGE_SUB]
+	} else if skill_type == SKILL_TYPE_PASSIVE {
+
 	} else {
 		log.Error("Invalid skill type: %v", skill_type)
 		return
@@ -639,6 +641,8 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
 		damage_add += self.attrs[ATTR_REMOTE_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_REMOTE_DAMAGE_SUB]
+	} else if skill_fight_type == SKILL_FIGHT_TYPE_NONE {
+
 	} else {
 		log.Error("Invalid skill melee type: %v", skill_fight_type)
 		return
@@ -925,15 +929,24 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 				// 被动技，目标死亡前触发
 				if target.is_will_dead() {
-					//if skill_data.Type != SKILL_TYPE_PASSIVE {
 					if passive_skill_effect_with_self_pos(EVENT_BEFORE_TARGET_DEAD, self, target_team, target_pos[j], nil, nil, true) {
-						log.Debug("self_team[%v] member[%v] 触发了死亡复活技能", self_team.side, self.pos)
+						log.Debug("self_team[%v] member[%v] 触发了死亡前被动技能", self_team.side, self.pos)
 					}
-					//}
 				}
 				// 再次判断是否真死
 				if target.is_will_dead() {
-					target.set_dead()
+					// 有死亡后触发的被动技
+					if target.has_trigger_event([]int32{EVENT_AFTER_TARGET_DEAD}) {
+						log.Debug("+++++++++++++ Team[%v] member[%v] 有死亡后触发器", target.team.side, target.pos)
+						passive_skill_effect_with_self_pos(EVENT_AFTER_TARGET_DEAD, self, target_team, target_pos[j], self_team, nil, true)
+					}
+					// 延迟被动技有没有死亡后触发
+					if !self.has_delay_trigger_event_skill(EVENT_AFTER_TARGET_DEAD) {
+						target.set_dead()
+					} else {
+						log.Debug("-+-+-+-+-+-+- Team[%v] member[%v] 有延迟死亡后触发器", self.team.side, self.pos)
+					}
+
 					// 修改战报目标血量表示真死
 					if tm != nil {
 						tm.HP = target.hp
@@ -971,7 +984,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 					// 目标死亡时触发
 					if target.is_dead() {
-						passive_skill_effect_with_self_pos(EVENT_AFTER_TARGET_DEAD, self, target_team, target_pos[j], self_team, nil, true)
+
 						// 队友死亡触发
 						for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
 							team_mem := target_team.members[pos]
@@ -1201,6 +1214,14 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_ATTACK, self, self_team, self_pos, target_team, target_pos, true)
 	}
 
+	// 是否延迟被动技
+	if skill_data.IsDelayLastSkill > 0 {
+		if self.is_will_dead() {
+			self.set_dead()
+			log.Debug("******************** Team[%v] member[%v] 释放了延迟死亡后被动技，正式死亡", self.team.side, self.pos)
+		}
+	}
+
 	if report != nil {
 		report.User.HP = self.hp
 	}
@@ -1255,16 +1276,17 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 
 	self.used_passive_trigger_count(trigger_event, skill.Id)
 	triggered = true
+
 	return
 }
 
 // 被动技效果
-func passive_skill_effect(trigger_event int32, trigger_member *TeamMember, self *TeamMember, target_team *BattleTeam, trigger_pos []int32, is_combo bool) bool {
-	if self.passive_skills == nil {
+func passive_skill_effect(trigger_event int32, trigger_member *TeamMember, user *TeamMember, target_team *BattleTeam, trigger_pos []int32, is_combo bool) bool {
+	if user.passive_skills == nil {
 		return false
 	}
 	effected := false
-	for _, skill_id := range self.passive_skills {
+	for _, skill_id := range user.passive_skills {
 		skill := skill_table_mgr.Get(skill_id)
 		if skill == nil || skill.Type != SKILL_TYPE_PASSIVE {
 			continue
@@ -1272,13 +1294,12 @@ func passive_skill_effect(trigger_event int32, trigger_member *TeamMember, self 
 
 		// 延迟触发
 		if skill.IsDelayLastSkill > 0 && trigger_event == skill.SkillTriggerType {
-			trigger_member.push_delay_skill(trigger_event, skill, self, target_team, trigger_pos)
-			//self.delete_passive_trigger(skill_id)
-			log.Debug("Team[%v] member[%v] 触发了延迟被动技[%v]事件[%v]", self.team.side, self.pos, skill.Id, trigger_event)
+			trigger_member.push_delay_skill(trigger_event, skill, user, target_team, trigger_pos)
+			log.Debug("Team[%v] member[%v] 触发了延迟被动技[%v]事件[%v]", user.team.side, user.pos, skill.Id, trigger_event)
 			continue
 		}
 
-		if one_passive_skill_effect(trigger_event, skill, self, target_team, trigger_pos, is_combo) {
+		if one_passive_skill_effect(trigger_event, skill, user, target_team, trigger_pos, is_combo) {
 			effected = true
 		}
 	}

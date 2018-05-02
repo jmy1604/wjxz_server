@@ -980,7 +980,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		TargetTeam:   target_team,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
-
+	Output_S2CBattleResult(this, response)
 	return 1
 }
 
@@ -1050,5 +1050,106 @@ func (this *Player) FightInStage(stage_id int32) int32 {
 		HasStageWave: has_wave,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
+	Output_S2CBattleResult(this, response)
 	return 1
+}
+
+func output_report(rr *msg_client_message.BattleReportItem) {
+	log.Debug("		 	report: side[%v]", rr.Side)
+	log.Debug("					 skill_id: %v", rr.SkillId)
+	log.Debug("					 user: Side[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v]", rr.User.Side, rr.User.Pos, rr.User.HP, rr.User.MaxHP, rr.User.Energy, rr.User.Damage)
+	if rr.IsSummon {
+		if rr.SummonNpcs != nil {
+			for n := 0; n < len(rr.SummonNpcs); n++ {
+				rrs := rr.SummonNpcs[n]
+				if rrs != nil {
+					log.Debug("					 summon npc: Side[%v], Pos[%v], Id[%v], TableId[%v], HP[%v], MaxHP[%v], Energy[%v]", rrs.Side, rrs.Pos, rrs.Id, rrs.TableId, rrs.HP, rrs.MaxHP, rrs.Energy)
+				}
+			}
+		}
+	} else {
+		if rr.BeHiters != nil {
+			for n := 0; n < len(rr.BeHiters); n++ {
+				rrb := rr.BeHiters[n]
+				log.Debug("					 behiter: Side[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v], IsCritical[%v], IsBlock[%v]",
+					rrb.Side, rrb.Pos, rrb.HP, rrb.MaxHP, rrb.Energy, rrb.Damage, rrb.IsCritical, rrb.IsBlock)
+			}
+		}
+	}
+	if rr.AddBuffs != nil {
+		for n := 0; n < len(rr.AddBuffs); n++ {
+			log.Debug("					 add buff: Side[%v], Pos[%v], BuffId[%v]", rr.AddBuffs[n].Side, rr.AddBuffs[n].Pos, rr.AddBuffs[n].BuffId)
+		}
+	}
+	if rr.RemoveBuffs != nil {
+		for n := 0; n < len(rr.RemoveBuffs); n++ {
+			log.Debug("					 remove buff: Side[%v], Pos[%v], BuffId[%v]", rr.RemoveBuffs[n].Side, rr.RemoveBuffs[n].Pos, rr.RemoveBuffs[n].BuffId)
+		}
+	}
+
+	log.Debug("					 has_combo: %v", rr.HasCombo)
+}
+
+func Output_S2CBattleResult(player *Player, m proto.Message) {
+	response := m.(*msg_client_message.S2CBattleResultResponse)
+	if response.IsWin {
+		log.Debug("Player[%v] wins", player.Id)
+	} else {
+		log.Debug("Player[%v] lost", player.Id)
+	}
+
+	if response.MyTeam != nil {
+		log.Debug("My team:")
+		for i := 0; i < len(response.MyTeam); i++ {
+			m := response.MyTeam[i]
+			if m == nil {
+				continue
+			}
+			log.Debug("		 Side:%v Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v TableId:%v", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.TableId)
+		}
+	}
+	if response.TargetTeam != nil {
+		log.Debug("Target team:")
+		for i := 0; i < len(response.TargetTeam); i++ {
+			m := response.TargetTeam[i]
+			if m == nil {
+				continue
+			}
+			log.Debug("		 Side:%v Id:%v Pos:%v HP:%v MaxHP:%v Energy:%v TableId:%v", m.Side, m.Id, m.Pos, m.HP, m.MaxHP, m.Energy, m.TableId)
+		}
+	}
+
+	if response.EnterReports != nil {
+		log.Debug("   before enter:")
+		for i := 0; i < len(response.EnterReports); i++ {
+			r := response.EnterReports[i]
+			output_report(r)
+		}
+	}
+
+	if response.Rounds != nil {
+		log.Debug("Round num: %v", len(response.Rounds))
+		for i := 0; i < len(response.Rounds); i++ {
+			r := response.Rounds[i]
+			log.Debug("	  round[%v]", r.RoundNum)
+			if r.Reports != nil {
+				for j := 0; j < len(r.Reports); j++ {
+					rr := r.Reports[j]
+					output_report(rr)
+				}
+			}
+			if r.RemoveBuffs != nil {
+				for j := 0; j < len(r.RemoveBuffs); j++ {
+					b := r.RemoveBuffs[j]
+					log.Debug("		 	remove buffs: Side[%v], Pos[%v], BuffId[%v]", b.Side, b.Pos, b.BuffId)
+				}
+			}
+			if r.ChangedFighters != nil {
+				for j := 0; j < len(r.ChangedFighters); j++ {
+					m := r.ChangedFighters[j]
+					log.Debug("			changed member: Side[%v], Pos[%v], HP[%v], MaxHP[%v], Energy[%v], Damage[%v]", m.Side, m.Pos, m.HP, m.MaxHP, m.Energy, m.Damage)
+				}
+			}
+		}
+	}
 }

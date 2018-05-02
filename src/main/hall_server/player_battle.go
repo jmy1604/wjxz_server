@@ -299,6 +299,30 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 	}
 }
 
+func (this *TeamMember) has_trigger_event(trigger_events []int32) bool {
+	n := 0
+	for i := 0; i < len(trigger_events); i++ {
+		d, o := this.passive_triggers[trigger_events[i]]
+		if !o || d == nil {
+			break
+		}
+
+		for j := 0; j < len(d); j++ {
+			if d[i] == nil {
+				continue
+			}
+			if d[i].battle_num != 0 && d[i].round_num != 0 {
+				n += 1
+			}
+			break
+		}
+	}
+	if n != len(trigger_events) {
+		return false
+	}
+	return true
+}
+
 func (this *TeamMember) init_equip(equip_id int32) {
 	d := item_table_mgr.Get(equip_id)
 	if d == nil {
@@ -672,21 +696,37 @@ func (this *TeamMember) clear_delay_skills() {
 	this.delay_skills = nil
 }
 
-func (this *TeamMember) on_finish() {
-	if this.passive_triggers == nil {
-		return
+func (this *TeamMember) has_delay_trigger_event_skill(trigger_event int32) bool {
+	if this.delay_skills == nil {
+		return false
 	}
 
-	for _, d := range this.passive_triggers {
-		if d == nil {
+	for i := 0; i < len(this.delay_skills); i++ {
+		if this.delay_skills[i] == nil {
 			continue
 		}
-		for i := 0; i < len(d); i++ {
-			if d[i] != nil {
-				passive_trigger_data_pool.Put(d[i])
-			}
+		if this.delay_skills[i].trigger_event == trigger_event {
+			return true
 		}
 	}
+	return false
+}
+
+func (this *TeamMember) on_finish() {
+	if this.passive_triggers != nil {
+		for _, d := range this.passive_triggers {
+			if d == nil {
+				continue
+			}
+			for i := 0; i < len(d); i++ {
+				if d[i] != nil {
+					passive_trigger_data_pool.Put(d[i])
+				}
+			}
+		}
+		this.passive_triggers = nil
+	}
+
 	if this.passive_skills != nil {
 		this.passive_skills = nil
 	}
@@ -1140,7 +1180,7 @@ func (this *BattleTeam) OnFinish() {
 		return
 	}
 	for i := 0; i < len(this.members); i++ {
-		if this.members[i] != nil && !this.members[i].is_dead() {
+		if this.members[i] != nil {
 			this.members[i].on_finish()
 		}
 	}
