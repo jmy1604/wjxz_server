@@ -672,16 +672,6 @@ func (this *TeamMember) delay_skills_effect(target_team *BattleTeam) {
 			continue
 		}
 
-		// 延迟的被动技也要处理为连续技
-		reports := this.team.reports.reports
-		if reports != nil {
-			l := len(reports)
-			if l > 0 {
-				reports[l-1].HasCombo = true
-			}
-			log.Debug("########################################### team[%v] member[%v] 后面有延迟被动技 %v", this.team.side, this.pos, ds.skill.Id)
-		}
-
 		one_passive_skill_effect(ds.trigger_event, ds.skill, ds.user, ds.target_team, ds.trigger_pos, true)
 	}
 }
@@ -1186,9 +1176,16 @@ func (this *BattleTeam) OnFinish() {
 	}
 }
 
-// 回收战报
-func (this *BattleTeam) RecycleReports() {
+func (this *BattleTeam) GetLastReport() (last_report *msg_client_message.BattleReportItem) {
+	if this.reports == nil {
+		return
+	}
 
+	l := len(this.reports.reports)
+	if l > 0 {
+		last_report = this.reports.reports[l-1]
+	}
+	return
 }
 
 func _recycle_battle_reports(reports []*msg_client_message.BattleReportItem) {

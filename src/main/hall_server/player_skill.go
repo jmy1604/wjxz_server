@@ -857,7 +857,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		return
 	}
 
-	var report *msg_client_message.BattleReportItem
+	var report, last_report *msg_client_message.BattleReportItem
 	for i := 0; i < len(effects); i++ {
 		if effects[i] == nil || len(effects[i]) < 1 {
 			continue
@@ -1220,6 +1220,11 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			self.set_dead()
 			log.Debug("******************** Team[%v] member[%v] 释放了延迟死亡后被动技，正式死亡", self.team.side, self.pos)
 		}
+
+		last_report = self.team.GetLastReport()
+		if last_report != nil {
+			last_report.HasCombo = true
+		}
 	}
 
 	if report != nil {
@@ -1243,12 +1248,6 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 		return
 	}
 
-	reports := self.team.reports.reports
-	var r *msg_client_message.BattleReportItem
-	if reports != nil && len(reports) > 0 {
-		r = reports[len(reports)-1]
-	}
-
 	used := false
 	if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
 		if self.team.UseOnceSkill(self.pos, target_team, skill.Id) != nil {
@@ -1269,6 +1268,7 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 	}
 
 	if used {
+		r := self.team.GetLastReport()
 		if r != nil && is_combo {
 			r.HasCombo = true
 		}
