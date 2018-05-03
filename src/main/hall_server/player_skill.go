@@ -942,7 +942,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if skill_data.IsCancelReport == 0 {
 					if report == nil {
 						report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-						self_team.reports.reports = append(self_team.reports.reports, report)
+						self_team.common_data.reports = append(self_team.common_data.reports, report)
 					}
 					report.User.Damage += self_dmg
 					tm = build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg, is_critical, is_block, is_absorb, anti_type)
@@ -1058,7 +1058,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					if skill_data.IsCancelReport == 0 {
 						if report == nil {
 							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-							self_team.reports.reports = append(self_team.reports.reports, report)
+							self_team.common_data.reports = append(self_team.common_data.reports, report)
 						}
 						build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure, false, false, false, 0)
 					}
@@ -1082,7 +1082,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					if skill_data.IsCancelReport == 0 {
 						if report == nil {
 							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-							self_team.reports.reports = append(self_team.reports.reports, report)
+							self_team.common_data.reports = append(self_team.common_data.reports, report)
 						}
 						build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
 					}
@@ -1100,7 +1100,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					if skill_data.IsCancelReport == 0 {
 						if report == nil {
 							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-							self_team.reports.reports = append(self_team.reports.reports, report)
+							self_team.common_data.reports = append(self_team.common_data.reports, report)
 						}
 						report.IsSummon = true
 						build_battle_report_item_add_summon_npc(report, target_team, target_pos[j])
@@ -1119,7 +1119,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if skill_data.IsCancelReport == 0 {
 					if report == nil {
 						report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-						self_team.reports.reports = append(self_team.reports.reports, report)
+						self_team.common_data.reports = append(self_team.common_data.reports, report)
 					}
 					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
 				}
@@ -1133,7 +1133,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					if skill_data.IsCancelReport == 0 {
 						if report == nil {
 							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-							self_team.reports.reports = append(self_team.reports.reports, report)
+							self_team.common_data.reports = append(self_team.common_data.reports, report)
 						}
 						build_battle_report_item_add_target_item(report, self_team, self_pos, 0, false, false, false, 0)
 					}
@@ -1149,7 +1149,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					if skill_data.IsCancelReport == 0 {
 						if report == nil {
 							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-							self_team.reports.reports = append(self_team.reports.reports, report)
+							self_team.common_data.reports = append(self_team.common_data.reports, report)
 						}
 						build_battle_report_item_add_target_item(report, self_team, self_pos, 0, false, false, false, 0)
 					}
@@ -1175,7 +1175,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						if skill_data.IsCancelReport == 0 {
 							if report == nil {
 								report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-								self_team.reports.reports = append(self_team.reports.reports, report)
+								self_team.common_data.reports = append(self_team.common_data.reports, report)
 							}
 							build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
 							report.User.Energy = self.energy
@@ -1194,7 +1194,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if skill_data.IsCancelReport == 0 {
 					if report == nil {
 						report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-						self_team.reports.reports = append(self_team.reports.reports, report)
+						self_team.common_data.reports = append(self_team.common_data.reports, report)
 					}
 					build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
 				}
@@ -1212,7 +1212,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					if skill_data.IsCancelReport == 0 {
 						if report == nil {
 							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
-							self_team.reports.reports = append(self_team.reports.reports, report)
+							self_team.common_data.reports = append(self_team.common_data.reports, report)
 						}
 						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
 					}
@@ -1443,11 +1443,11 @@ func (this *BuffList) add_remove_buff_report(buff_id int32) {
 	buff.Pos = this.owner.pos
 	buff.BuffId = buff_id
 	buff.Side = this.owner.team.side
-	if this.owner.team.reports.reports == nil {
+	if this.owner.team.common_data.reports == nil {
 		report := msg_battle_reports_item_pool.Get()
-		this.owner.team.reports.reports = []*msg_client_message.BattleReportItem{report}
+		this.owner.team.common_data.reports = []*msg_client_message.BattleReportItem{report}
 	}
-	r := this.owner.team.reports.reports[len(this.owner.team.reports.reports)-1]
+	r := this.owner.team.common_data.reports[len(this.owner.team.common_data.reports)-1]
 	r.RemoveBuffs = append(r.RemoveBuffs, buff)
 }
 
@@ -1606,7 +1606,7 @@ func (this *BuffList) on_round_end() {
 					if item == nil {
 						item = this.owner.build_battle_fighter(0)
 						item.Side = this.owner.team.side
-						this.owner.team.reports.changed_fighters = append(this.owner.team.reports.changed_fighters, item)
+						this.owner.team.common_data.changed_fighters = append(this.owner.team.common_data.changed_fighters, item)
 					}
 					item.Damage += dmg
 					// ------------------------------------------------------------
@@ -1623,7 +1623,7 @@ func (this *BuffList) on_round_end() {
 				b.BuffId = buff_id
 				b.Pos = this.owner.pos
 				b.Side = this.owner.team.side
-				this.owner.team.reports.remove_buffs = append(this.owner.team.reports.remove_buffs, b)
+				this.owner.team.common_data.remove_buffs = append(this.owner.team.common_data.remove_buffs, b)
 				// ------------------------------------------------------------
 				log.Debug("Team[%v] member[%v] buff[%v] round over", this.owner.team.side, this.owner.pos, buff_id)
 			}

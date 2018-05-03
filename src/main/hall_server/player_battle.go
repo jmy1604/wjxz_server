@@ -12,20 +12,20 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-type BattleReports struct {
+type BattleCommonData struct {
 	reports          []*msg_client_message.BattleReportItem
 	remove_buffs     []*msg_client_message.BattleMemberBuff
 	changed_fighters []*msg_client_message.BattleFighter
 	round_num        int32
 }
 
-func (this *BattleReports) Reset() {
+func (this *BattleCommonData) Reset() {
 	this.reports = make([]*msg_client_message.BattleReportItem, 0)
 	this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
 	this.changed_fighters = make([]*msg_client_message.BattleFighter, 0)
 }
 
-func (this *BattleReports) Recycle() {
+func (this *BattleCommonData) Recycle() {
 	if this.reports != nil {
 		for i := 0; i < len(this.reports); i++ {
 			r := this.reports[i]
@@ -100,11 +100,11 @@ func (this *BattleReports) Recycle() {
 type BattleTeam struct {
 	player       *Player
 	team_type    int32
-	curr_attack  int32          // 当前进攻的索引
-	side         int32          // 0 左边 1 右边
-	temp_curr_id int32          // 临时ID，用于标识召唤的角色
-	members      []*TeamMember  // 成员
-	reports      *BattleReports // 每回合战报
+	curr_attack  int32             // 当前进攻的索引
+	side         int32             // 0 左边 1 右边
+	temp_curr_id int32             // 临时ID，用于标识召唤的角色
+	members      []*TeamMember     // 成员
+	common_data  *BattleCommonData // 每回合战报
 }
 
 // 利用玩家初始化
@@ -373,7 +373,7 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 
 	// 是否有combo技能
 	if skill.ComboSkill > 0 {
-		reports := this.reports.reports
+		reports := this.common_data.reports
 		if reports != nil && len(reports) > 0 {
 			r := reports[len(reports)-1]
 			r.HasCombo = true
@@ -468,13 +468,13 @@ func (this *BattleTeam) OnFinish() {
 }
 
 func (this *BattleTeam) GetLastReport() (last_report *msg_client_message.BattleReportItem) {
-	if this.reports == nil {
+	if this.common_data == nil {
 		return
 	}
 
-	l := len(this.reports.reports)
+	l := len(this.common_data.reports)
 	if l > 0 {
-		last_report = this.reports.reports[l-1]
+		last_report = this.common_data.reports[l-1]
 	}
 	return
 }
@@ -565,11 +565,11 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	}
 
 	// 存放战报
-	if this.reports == nil {
-		this.reports = &BattleReports{}
+	if this.common_data == nil {
+		this.common_data = &BattleCommonData{}
 	}
-	target_team.reports = this.reports
-	this.reports.Reset()
+	target_team.common_data = this.common_data
+	this.common_data.Reset()
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
@@ -577,9 +577,9 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, target_team, i, this, nil, false)
 	}
 
-	if this.reports.reports != nil {
-		enter_reports = this.reports.reports
-		this.reports.reports = make([]*msg_client_message.BattleReportItem, 0)
+	if this.common_data.reports != nil {
+		enter_reports = this.common_data.reports
+		this.common_data.reports = make([]*msg_client_message.BattleReportItem, 0)
 	}
 
 	rand.Seed(time.Now().Unix())
@@ -589,9 +589,9 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.DoRound(target_team)
 
 		round := msg_battle_round_reports_pool.Get()
-		round.Reports = this.reports.reports
-		round.RemoveBuffs = this.reports.remove_buffs
-		round.ChangedFighters = this.reports.changed_fighters
+		round.Reports = this.common_data.reports
+		round.RemoveBuffs = this.common_data.remove_buffs
+		round.ChangedFighters = this.common_data.changed_fighters
 		round.RoundNum = c + 1
 		rounds = append(rounds, round)
 
@@ -605,7 +605,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 			break
 		}
 
-		this.reports.Reset()
+		this.common_data.Reset()
 	}
 
 	this.OnFinish()
