@@ -550,6 +550,7 @@ func (this *TeamMember) has_buff(buff_id int32) bool {
 				if buff.buff.Id == buff_id {
 					return true
 				}
+				buff = buff.next
 			}
 		}
 	}

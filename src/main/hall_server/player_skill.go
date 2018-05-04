@@ -888,6 +888,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	}
 
 	var report, last_report *msg_client_message.BattleReportItem
+	last_report = self.team.GetLastReport()
 	for i := 0; i < len(effects); i++ {
 		if effects[i] == nil || len(effects[i]) < 1 {
 			continue
@@ -974,8 +975,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					// 暴击触发
 					if is_critical {
-						passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, self, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
-						passive_skill_effect_with_self_pos(EVENT_CRITICAL, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
+						passive_skill_effect_with_self_pos(EVENT_CRITICAL, self, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
+						passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 					}
 					// 被击计算伤害后触发
 					if !self.is_dead() {
@@ -1252,7 +1253,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 		}
 
 		if used {
-			last_report = self.team.GetLastReport()
 			if last_report != nil {
 				last_report.HasCombo = true
 			}
@@ -1281,6 +1281,7 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 	}
 
 	used := false
+	r := self.team.GetLastReport()
 	if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
 		if self.team.UseOnceSkill(self.pos, target_team, skill.Id) != nil {
 			used = true
@@ -1300,7 +1301,6 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 	}
 
 	if used {
-		r := self.team.GetLastReport()
 		if r != nil && is_combo {
 			r.HasCombo = true
 		}

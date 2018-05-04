@@ -347,7 +347,7 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 
 	is_enemy, target_pos, skill := this.FindTargets(self, target_team, trigger_skill)
 	if target_pos == nil {
-		log.Warn("team[%v] member[%v] Cant find targets to attack with skill[%v]", this.side, self_index, skill.Id)
+		log.Warn("team[%v] member[%v] Cant find targets to attack", this.side, self_index)
 		return nil
 	}
 
@@ -373,9 +373,8 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 
 	// 是否有combo技能
 	if skill.ComboSkill > 0 {
-		reports := this.common_data.reports
-		if reports != nil && len(reports) > 0 {
-			r := reports[len(reports)-1]
+		r := this.GetLastReport()
+		if r != nil {
 			r.HasCombo = true
 			log.Debug("########################################### Team[%v] member[%v] 后面有组合技 %v", this.side, self_index, skill.ComboSkill)
 		}
