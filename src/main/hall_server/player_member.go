@@ -119,6 +119,8 @@ type TeamMember struct {
 	temp_changed_attrs_used int32                                 // 临时改变属性计算状态 0 忽略 1 已初始化 2 已计算
 	delay_skills            []*DelaySkill                         // 延迟的技能效果
 	passive_skills          map[int32]int32                       // 被动技
+	attacker                *TeamMember                           // 攻击者
+	attacker_skill_data     *table_config.XmlSkillItem            // 攻击者使用的技能
 }
 
 func (this *TeamMember) add_attrs(attrs []int32) {
@@ -642,8 +644,9 @@ func (this *TeamMember) is_will_dead() bool {
 	return false
 }
 
-func (this *TeamMember) set_dead() {
+func (this *TeamMember) set_dead(attacker *TeamMember, skill_data *table_config.XmlSkillItem) {
 	this.hp = -1
+	this.on_dead(attacker, skill_data)
 	log.Debug("+++++++++++++++++++++++++ team[%v] mem[%v] 死了", this.team.side, this.pos)
 }
 
@@ -724,7 +727,12 @@ func (this *TeamMember) on_after_will_dead(attacker *TeamMember) {
 	log.Debug("+++++++++++++ Team[%v] member[%v] 触发死亡后触发器", this.team.side, this.pos)
 }
 
-func (this *TeamMember) on_dead(attacker *TeamMember) {
+func (this *TeamMember) on_dead(attacker *TeamMember, skill_data *table_config.XmlSkillItem) {
+	// 被动技，被主动技杀死时触发
+	if skill_data != nil && (skill_data.Type == SKILL_TYPE_NORMAL || skill_data.Type == SKILL_TYPE_SUPER) {
+		passive_skill_effect_with_self_pos(EVENT_KILL_ENEMY, attacker, attacker.team, attacker.pos, this.team, []int32{this.pos}, true)
+	}
+
 	// 队友死亡触发
 	for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
 		team_mem := this.team.members[pos]

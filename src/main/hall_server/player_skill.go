@@ -889,32 +889,38 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 	var report, last_report *msg_client_message.BattleReportItem
 	last_report = self.team.GetLastReport()
-	for i := 0; i < len(effects); i++ {
-		if effects[i] == nil || len(effects[i]) < 1 {
+
+	// 对方是否有成员死亡
+	has_target_dead := false
+
+	for j := 0; j < len(target_pos); j++ {
+		target := target_team.members[target_pos[j]]
+		if target == nil && skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
 			continue
 		}
 
-		effect_type := effects[i][0]
-
-		// 被动技，攻击计算伤害前触发
-		if skill_data.Type != SKILL_TYPE_PASSIVE && effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
-			passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_ATTACK, self, self_team, self_pos, target_team, target_pos, true)
+		if target != nil {
+			target.attacker = self
+			target.attacker_skill_data = skill_data
 		}
 
-		// 对方是否有成员死亡
-		has_target_dead := false
-
-		for j := 0; j < len(target_pos); j++ {
-			target := target_team.members[target_pos[j]]
-			if target == nil && skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
+		for i := 0; i < len(effects); i++ {
+			if effects[i] == nil || len(effects[i]) < 1 {
 				continue
 			}
+
+			effect_type := effects[i][0]
 
 			if skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
 				if !skill_effect_cond_check(self, target, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
 					log.Warn("self[%v] cant use skill[%v] to target[%v]", self_pos, skill_data.Id, target_pos[j])
 					continue
 				}
+			}
+
+			// 被动技，攻击计算伤害前触发
+			if skill_data.Type != SKILL_TYPE_PASSIVE && effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
+				passive_skill_effect_with_self_pos(EVENT_BEFORE_DAMAGE_ON_ATTACK, self, self_team, self_pos, target_team, target_pos, true)
 			}
 
 			if effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
@@ -988,7 +994,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					self.add_hp(-self_dmg)
 					// 是否真死
 					if self.is_will_dead() {
-						self.set_dead()
+						self.set_dead(self, skill_data)
 					}
 				}
 
@@ -1009,7 +1015,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					// 延迟被动技有没有死亡后触发
 					if !self.has_delay_trigger_event_skill(EVENT_AFTER_TARGET_DEAD) {
-						target.set_dead()
+						target.set_dead(self, skill_data)
 					} else {
 						log.Debug("-+-+-+-+-+-+- Team[%v] member[%v] 有延迟死亡后触发器", self.team.side, self.pos)
 					}
@@ -1018,29 +1024,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					if tm != nil {
 						tm.HP = target.hp
 					}
-				}
-
-				// 目标死亡时触发
-				if target.is_dead() {
-					// 队友死亡触发
-					/*for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
-						team_mem := target_team.members[pos]
-						if team_mem == nil || team_mem.is_dead() {
-							continue
-						}
-						if pos != target_pos[j] {
-							passive_skill_effect_with_self_pos(EVENT_AFTER_TEAMMATE_DEAD, self, target_team, pos, target_team, []int32{target_pos[j]}, true)
-						}
-					}
-					// 相对于敌方死亡时触发
-					for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
-						team_mem := self_team.members[pos]
-						if team_mem == nil || team_mem.is_dead() {
-							continue
-						}
-						passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, self, self_team, pos, target_team, []int32{target_pos[j]}, true)
-					}*/
-					target.on_dead(self)
 				}
 
 				// 对方有死亡
@@ -1201,6 +1184,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 				// ----------------------------------------------
 				used = true
+				log.Debug("Team[%v] member[%v] 增加了行动次数 %v", target.team.side, target.pos, effects[i][1])
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_SHIELD {
 				if target == nil {
 					continue
@@ -1248,7 +1232,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	// 是否延迟被动技
 	if skill_data.IsDelayLastSkill > 0 {
 		if self.is_will_dead() {
-			self.set_dead()
+			self.set_dead(self.attacker, self.attacker_skill_data)
 			log.Debug("******************** Team[%v] member[%v] 释放了延迟死亡后被动技，正式死亡", self.team.side, self.pos)
 		}
 
@@ -1595,11 +1579,8 @@ func (this *BuffList) on_round_end() {
 						}
 						// 延迟被动技有没有死亡后触发
 						if !bf.attacker.has_delay_trigger_event_skill(EVENT_AFTER_TARGET_DEAD) {
-							this.owner.set_dead()
+							this.owner.set_dead(bf.attacker, nil)
 						}
-					}
-					if this.owner.is_dead() {
-						this.owner.on_dead(bf.attacker)
 					}
 					// --------------------------- 战报 ---------------------------
 					// 血量变化的成员
