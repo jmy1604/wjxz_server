@@ -917,7 +917,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			}
 
 			if effect_type == SKILL_EFFECT_TYPE_DIRECT_INJURY {
-				if target == nil || target.is_dead() {
+				if target == nil || target.is_dead() || target.is_will_dead() {
 					continue
 				}
 

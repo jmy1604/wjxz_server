@@ -416,11 +416,7 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 		}
 		mem.used_skill()
 	}
-	// 延迟的被动技
-	if mem.has_delay_skills() {
-		mem.delay_skills_effect(target_team)
-		mem.clear_delay_skills()
-	}
+	mem.handle_delay_skills()
 	return 1
 }
 

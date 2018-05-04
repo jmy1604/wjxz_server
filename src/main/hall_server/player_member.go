@@ -462,6 +462,8 @@ func (this *TeamMember) add_max_hp(add int32) {
 }
 
 func (this *TeamMember) round_start() {
+	// 处理上一回合的延迟被动技
+	this.handle_delay_skills()
 	this.act_num += 1
 	this.init_passive_round_num()
 }
@@ -661,7 +663,7 @@ func (this *TeamMember) push_delay_skill(trigger_event int32, skill *table_confi
 	this.delay_skills = append(this.delay_skills, ds)
 }
 
-func (this *TeamMember) delay_skills_effect(target_team *BattleTeam) {
+func (this *TeamMember) delay_skills_effect() {
 	if this.delay_skills == nil {
 		return
 	}
@@ -700,6 +702,14 @@ func (this *TeamMember) has_delay_trigger_event_skill(trigger_event int32) bool 
 		}
 	}
 	return false
+}
+
+func (this *TeamMember) handle_delay_skills() {
+	// 延迟的被动技
+	if this.has_delay_skills() {
+		this.delay_skills_effect()
+		this.clear_delay_skills()
+	}
 }
 
 func (this *TeamMember) on_will_dead(attacker *TeamMember) {
