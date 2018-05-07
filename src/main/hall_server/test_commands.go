@@ -11,7 +11,7 @@ import (
 
 	_ "3p/code.google.com.protobuf/proto"
 	"github.com/golang/protobuf/proto"
-	"github.com/yuin/gopher-lua"
+	_ "github.com/yuin/gopher-lua"
 )
 
 /*func player_info_cmd(p *Player, args []string) int32 {
@@ -979,7 +979,7 @@ func reset_day_sign_reward(p *Player, args []string) int32 {
 */
 
 func test_lua_cmd(p *Player, args []string) int32 {
-	L := lua.NewState(lua.Options{SkipOpenLibs: true})
+	/*L := lua.NewState(lua.Options{SkipOpenLibs: true})
 	defer L.Close()
 	for _, pair := range []struct {
 		n string
@@ -999,7 +999,7 @@ func test_lua_cmd(p *Player, args []string) int32 {
 	}
 	if err := L.DoFile("main.lua"); err != nil {
 		panic(err)
-	}
+	}*/
 	return 1
 }
 
