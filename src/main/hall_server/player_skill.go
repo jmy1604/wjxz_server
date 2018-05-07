@@ -1014,7 +1014,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						target.on_after_will_dead(self)
 					}
 					// 延迟被动技有没有死亡后触发
-					if !self.has_delay_trigger_event_skill(EVENT_AFTER_TARGET_DEAD) {
+					if !self.has_delay_trigger_event_skill(EVENT_AFTER_TARGET_DEAD, target) {
 						target.set_dead(self, skill_data)
 					} else {
 						log.Debug("-+-+-+-+-+-+- Team[%v] member[%v] 有延迟死亡后触发器", self.team.side, self.pos)
@@ -1571,7 +1571,7 @@ func (this *BuffList) on_round_end() {
 							this.owner.on_after_will_dead(bf.attacker)
 						}
 						// 延迟被动技有没有死亡后触发
-						if !bf.attacker.has_delay_trigger_event_skill(EVENT_AFTER_TARGET_DEAD) {
+						if !bf.attacker.has_delay_trigger_event_skill(EVENT_AFTER_TARGET_DEAD, this.owner) {
 							this.owner.set_dead(bf.attacker, nil)
 						}
 					}

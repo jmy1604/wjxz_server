@@ -708,16 +708,17 @@ func (this *TeamMember) clear_delay_skills() {
 	this.delay_skills = nil
 }
 
-func (this *TeamMember) has_delay_trigger_event_skill(trigger_event int32) bool {
+func (this *TeamMember) has_delay_trigger_event_skill(trigger_event int32, behiter *TeamMember) bool {
 	if this.delay_skills == nil {
 		return false
 	}
 
 	for i := 0; i < len(this.delay_skills); i++ {
-		if this.delay_skills[i] == nil {
+		d := this.delay_skills[i]
+		if d == nil {
 			continue
 		}
-		if this.delay_skills[i].trigger_event == trigger_event {
+		if d.trigger_event == trigger_event && d.user == behiter {
 			return true
 		}
 	}
