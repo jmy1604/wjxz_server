@@ -69,12 +69,12 @@ const (
 )
 
 const (
-	BATTLE_TEAM_MEMBER_INIT_ENERGY       = 3 // 初始能量
-	BATTLE_TEAM_MEMBER_MAX_ENERGY        = 6 // 最大能量
-	BATTLE_TEAM_MEMBER_ADD_ENERGY        = 2 // 能量增加量
-	BATTLE_TEAM_MEMBER_MAX_NUM           = 9 // 最大人数
-	BATTLE_FORMATION_LINE_NUM            = 3 // 阵型列数
-	BATTLE_FORMATION_ONE_LINE_MEMBER_NUM = 3 // 每列人数
+	BATTLE_TEAM_MEMBER_INIT_ENERGY       = 30 // 初始能量
+	BATTLE_TEAM_MEMBER_MAX_ENERGY        = 60 // 最大能量
+	BATTLE_TEAM_MEMBER_ADD_ENERGY        = 20 // 能量增加量
+	BATTLE_TEAM_MEMBER_MAX_NUM           = 9  // 最大人数
+	BATTLE_FORMATION_LINE_NUM            = 3  // 阵型列数
+	BATTLE_FORMATION_ONE_LINE_MEMBER_NUM = 3  // 每列人数
 )
 
 // 阵容类型
@@ -376,7 +376,10 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	this.pos = pos
 	this.level = level
 	this.card = role_card
-	this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
+	this.energy = global_config_mgr.GetGlobalConfig().InitEnergy
+	if this.energy == 0 {
+		this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
+	}
 	this.act_num = 0
 
 	// 技能增加属性
@@ -487,7 +490,11 @@ func (this *TeamMember) round_end() {
 		}
 	}
 
-	this.energy += BATTLE_TEAM_MEMBER_ADD_ENERGY
+	add_energy := global_config_mgr.GetGlobalConfig().EnergyAdd
+	if add_energy == 0 {
+		add_energy = BATTLE_TEAM_MEMBER_ADD_ENERGY
+	}
+	this.energy += add_energy
 }
 
 func (this *TeamMember) get_use_skill() (skill_id int32) {
@@ -495,8 +502,13 @@ func (this *TeamMember) get_use_skill() (skill_id int32) {
 		return
 	}
 
+	max_energy := global_config_mgr.GetGlobalConfig().MaxEnergy
+	if max_energy == 0 {
+		max_energy = BATTLE_TEAM_MEMBER_MAX_ENERGY
+	}
+
 	// 能量满用绝杀
-	if this.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
+	if this.energy >= max_energy {
 		skill_id = this.card.SuperSkillID
 	} else {
 		skill_id = this.card.NormalSkillID
@@ -505,8 +517,12 @@ func (this *TeamMember) get_use_skill() (skill_id int32) {
 }
 
 func (this *TeamMember) used_skill() {
-	if this.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
-		this.energy -= BATTLE_TEAM_MEMBER_MAX_ENERGY
+	max_energy := global_config_mgr.GetGlobalConfig().MaxEnergy
+	if max_energy == 0 {
+		max_energy = BATTLE_TEAM_MEMBER_MAX_ENERGY
+	}
+	if this.energy >= max_energy {
+		this.energy -= max_energy
 	}
 	if this.act_num > 0 {
 		this.act_num -= 1

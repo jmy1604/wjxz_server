@@ -1403,10 +1403,7 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 	}
 
 	buff_pool.Put(buff)
-
 	delete(this.buffs, buff)
-
-	//log.Debug("@@@@@@@@@ Team[%v] member[%v] pointer[%p] remove buff[%v][%p][%v] head[%p,%v] tail[%p,%v]", this.owner.team.side, this.owner.pos, this.owner, buff.buff.Id, buff, buff, this.head, this.head, this.tail, this.tail)
 
 	// 测试
 	b := this.head
@@ -1536,12 +1533,8 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 	buff.next = nil
 	buff.team_side = this.owner.team.side
 	buff.owner_pos = this.owner.pos
-
 	this.buffs[buff] = buff
-
 	buff_id = b.Id
-
-	//log.Debug("######### Team[%v] member[%v] pointer[%p] add buff id[%v] pointer[%p] body[%v], head[%p,%v] tail[%p,%v]", this.owner.team.side, this.owner.pos, this.owner, b.Id, buff, buff, this.head, this.head, this.tail, this.tail)
 
 	// 测试
 	bb := this.head

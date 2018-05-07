@@ -37,6 +37,10 @@ type GlobalConfig struct {
 	InitDiamond  int32
 	InitCoin     int32
 
+	InitEnergy int32
+	MaxEnergy  int32
+	EnergyAdd  int32
+
 	MaxFriendNum int32
 
 	GooglePayUrl       string

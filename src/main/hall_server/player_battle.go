@@ -414,8 +414,9 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
+		mem.handle_delay_skills()
 	}
-	mem.handle_delay_skills()
+
 	return 1
 }
 

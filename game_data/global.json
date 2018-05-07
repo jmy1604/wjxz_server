@@ -3,6 +3,11 @@
 	"InitItems":[],
 	"InitDiamond":100000,
 	"InitCoin":100000000,
+	
+	"InitEnergy":30,
+	"MaxEnergy":60,
+	"EnergyAdd":20,
+	
 	"MaxFriendNum":200,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
