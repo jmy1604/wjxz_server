@@ -556,15 +556,16 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 							return true
 						}
 					}
+				} else if effect_cond[0] == SKILL_COND_TYPE_IN_COLUMN {
+					if mem.pos/BATTLE_FORMATION_ONE_LINE_MEMBER_NUM == effect_cond[1]-1 {
+						return true
+					}
 				} else {
 					log.Warn("skill effect cond %v value %v unknown", effect_cond[0], effect_cond[1])
 				}
 			} else {
-				if effect_cond[0] == SKILL_COND_TYPE_IN_COLUMN {
-					if mem.pos%BATTLE_FORMATION_ONE_LINE_MEMBER_NUM == effect_cond[1] {
-						return true
-					}
-				} else if effect_cond[0] == SKILL_COND_TYPE_HAS_SHIELD {
+
+				if effect_cond[0] == SKILL_COND_TYPE_HAS_SHIELD {
 					if mem.attrs[ATTR_SHIELD] > 0 {
 						return true
 					}
@@ -977,7 +978,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				log.Debug("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
 
 				// 被动技，血量变化
-				if target_dmg != 0 && skill_data.Type != SKILL_TYPE_PASSIVE {
+				if !target.is_dead() && !target.is_will_dead() && target_dmg != 0 && skill_data.Type != SKILL_TYPE_PASSIVE {
 					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, self, target_team, target_pos[j], nil, nil, true)
 				}
 				// 被动技，血量变化
@@ -1022,7 +1023,6 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						target.on_after_will_dead(self)
 					}
 					// 延迟被动技有没有死亡后触发
-					//if !self.has_delay_trigger_event_skill(EVENT_AFTER_TARGET_DEAD, target) {
 					if !self_team.HasDelayTriggerEventSkill(EVENT_AFTER_TARGET_DEAD, target) {
 						target.set_dead(self, skill_data)
 					} else {
@@ -1057,9 +1057,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					// -------------------------------------------
 					// 被动技，治疗时触发
-					if skill_data.Type != SKILL_TYPE_PASSIVE {
-						passive_skill_effect_with_self_pos(EVENT_ON_CURE, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
-					}
+					//if skill_data.Type != SKILL_TYPE_PASSIVE {
+					passive_skill_effect_with_self_pos(EVENT_ON_CURE, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
+					//}
 				}
 
 				used = true
