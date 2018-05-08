@@ -12,17 +12,31 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+type DelaySkillList struct {
+	head *DelaySkill
+	tail *DelaySkill
+}
+
 type BattleCommonData struct {
 	reports          []*msg_client_message.BattleReportItem
 	remove_buffs     []*msg_client_message.BattleMemberBuff
 	changed_fighters []*msg_client_message.BattleFighter
 	round_num        int32
+	delay_skill_list *DelaySkillList
 }
 
 func (this *BattleCommonData) Reset() {
 	this.reports = make([]*msg_client_message.BattleReportItem, 0)
 	this.remove_buffs = make([]*msg_client_message.BattleMemberBuff, 0)
 	this.changed_fighters = make([]*msg_client_message.BattleFighter, 0)
+	if this.delay_skill_list != nil {
+		d := this.delay_skill_list.head
+		for d != nil {
+			n := d.next
+			delay_skill_pool.Put(d)
+			d = n
+		}
+	}
 }
 
 func (this *BattleCommonData) Recycle() {
@@ -385,7 +399,7 @@ func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, 
 
 func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int32 {
 	mem := this.members[self_index]
-	if mem == nil || mem.is_dead() {
+	if mem == nil || mem.is_dead() || mem.is_will_dead() {
 		return -1
 	}
 	for mem.get_use_skill() > 0 {
@@ -414,7 +428,8 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
-		mem.handle_delay_skills()
+		//mem.handle_delay_skills()
+		this.DelaySkillEffect()
 	}
 
 	return 1
@@ -566,6 +581,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	}
 	target_team.common_data = this.common_data
 	this.common_data.Reset()
+	this.common_data.round_num = 0
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
@@ -582,6 +598,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	for c := int32(0); c < round_max; c++ {
 		log.Debug("----------------------------------------------- Round[%v] --------------------------------------------", c+1)
 
+		this.common_data.round_num += 1
 		this.DoRound(target_team)
 
 		round := msg_battle_round_reports_pool.Get()
@@ -646,6 +663,83 @@ func (this *BattleTeam) HasRole(role_id int32) bool {
 		if this.members[i].card.Id == role_id {
 			return true
 		}
+	}
+	return false
+}
+
+// 延迟被动技
+func (this *BattleTeam) PushDelaySkill(trigger_event int32, skill *table_config.XmlSkillItem, user *TeamMember, target_team *BattleTeam, trigger_pos []int32) {
+	if this.common_data == nil {
+		return
+	}
+
+	ds := delay_skill_pool.Get()
+	ds.trigger_event = trigger_event
+	ds.skill = skill
+	ds.user = user
+	ds.target_team = target_team
+	ds.trigger_pos = trigger_pos
+	ds.next = nil
+
+	dl := this.common_data.delay_skill_list
+	if dl == nil {
+		dl = &DelaySkillList{}
+		this.common_data.delay_skill_list = dl
+	}
+	if dl.head == nil {
+		dl.head = ds
+		dl.tail = ds
+	} else {
+		dl.tail.next = ds
+		dl.tail = ds
+	}
+
+	log.Debug("############ Team[%v] member[%v] 推入了延迟被动技[%v]", user.team.side, user.pos, skill.Id)
+}
+
+// 处理延迟被动技
+func (this *BattleTeam) DelaySkillEffect() {
+	if this.common_data == nil {
+		return
+	}
+	dl := this.common_data.delay_skill_list
+	if dl == nil {
+		return
+	}
+
+	c := 0
+	d := dl.head
+	for d != nil {
+		log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] To Delay Skill[%v] Effect trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
+			c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
+		one_passive_skill_effect(d.trigger_event, d.skill, d.user, d.target_team, d.trigger_pos, true)
+		log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] Delay Skill[%v] Effected trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
+			c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
+
+		n := d.next
+		delay_skill_pool.Put(d)
+		d = n
+		c += 1
+	}
+	dl.head = nil
+	dl.tail = nil
+}
+
+// 是否有延迟技
+func (this *BattleTeam) HasDelayTriggerEventSkill(trigger_event int32, behiter *TeamMember) bool {
+	if this.common_data == nil {
+		return false
+	}
+	dl := this.common_data.delay_skill_list
+	if dl == nil {
+		return false
+	}
+	d := dl.head
+	for d != nil {
+		if d.trigger_event == trigger_event && d.user == behiter {
+			return true
+		}
+		d = d.next
 	}
 	return false
 }

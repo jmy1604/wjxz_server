@@ -96,6 +96,7 @@ type DelaySkill struct {
 	user          *TeamMember
 	target_team   *BattleTeam
 	trigger_pos   []int32
+	next          *DelaySkill
 }
 
 type TeamMember struct {
@@ -468,7 +469,7 @@ func (this *TeamMember) add_max_hp(add int32) {
 
 func (this *TeamMember) round_start() {
 	// 处理上一回合的延迟被动技
-	this.handle_delay_skills()
+	//this.handle_delay_skills()
 	this.act_num += 1
 	this.init_passive_round_num()
 }
