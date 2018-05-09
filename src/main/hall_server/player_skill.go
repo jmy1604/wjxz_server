@@ -998,7 +998,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 						passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 					}
 					// 被击计算伤害后触发
-					passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
+					if !target.is_will_dead() {
+						passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
+					}
 				}
 
 				if self_dmg != 0 {
