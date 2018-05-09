@@ -1010,9 +1010,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 
 				// 是否真死
-				if self.is_will_dead() {
+				/*if self.is_will_dead() {
 					self.set_dead(self, skill_data)
-				}
+				}*/
 
 				// 被动技，目标死亡前触发
 				if target.is_will_dead() {
@@ -1224,11 +1224,11 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 			skill_effect_clear_temp_attrs(self)
 			skill_effect_clear_temp_attrs(target)
 		}
+	}
 
-		// 被动技，对方有死亡触发
-		if /*skill_data.Type != SKILL_TYPE_PASSIVE &&*/ has_target_dead {
-			passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, self, self_team, self_pos, target_team, target_pos, true)
-		}
+	// 被动技，对方有死亡触发
+	if /*skill_data.Type != SKILL_TYPE_PASSIVE &&*/ has_target_dead {
+		passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, self, self_team, self_pos, target_team, target_pos, true)
 	}
 
 	if !self.is_will_dead() {
