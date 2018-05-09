@@ -923,11 +923,11 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 	return 1
 }
 
-func (this *Player) CanUseDefense() bool {
+func (this *Player) IsDefensing() bool {
 	return atomic.CompareAndSwapInt32(&this.use_defense, 0, 1)
 }
 
-func (this *Player) CancelUseDefense() bool {
+func (this *Player) CancelDefensing() bool {
 	return atomic.CompareAndSwapInt32(&this.use_defense, 1, 0)
 }
 
@@ -938,7 +938,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	}
 
 	// 是否正在防守
-	if !p.CanUseDefense() {
+	if !p.IsDefensing() {
 		log.Warn("Player[%v] is defensing, player[%v] fight failed", player_id, this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_IS_DEFENSING)
 	}
@@ -964,7 +964,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	is_win, enter_reports, rounds := this.attack_team.Fight(p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
 
 	// 对方防守结束
-	p.CancelUseDefense()
+	p.CancelDefensing()
 
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)

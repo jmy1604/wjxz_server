@@ -955,7 +955,13 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 直接伤害
 				target_dmg, self_dmg, is_block, is_critical, is_absorb, anti_type := skill_effect_direct_injury(self, target, skill_data.Type, skill_data.SkillMelee, effects[i])
 
-				target.add_hp(-target_dmg)
+				if target_dmg != 0 {
+					target.add_hp(-target_dmg)
+				}
+
+				if self_dmg != 0 {
+					self.add_hp(-self_dmg)
+				}
 
 				//----------- 战报 -------------
 				var tm *msg_client_message.BattleFighter
@@ -1003,12 +1009,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 				}
 
-				if self_dmg != 0 {
-					self.add_hp(-self_dmg)
-					// 是否真死
-					if self.is_will_dead() {
-						self.set_dead(self, skill_data)
-					}
+				// 是否真死
+				if self.is_will_dead() {
+					self.set_dead(self, skill_data)
 				}
 
 				// 被动技，目标死亡前触发
