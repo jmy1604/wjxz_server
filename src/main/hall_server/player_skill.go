@@ -1446,12 +1446,10 @@ func (this *BuffList) add_remove_buff_report(buff_id int32) {
 	buff.Pos = this.owner.pos
 	buff.BuffId = buff_id
 	buff.Side = this.owner.team.side
-	if this.owner.team.common_data.reports == nil {
-		report := msg_battle_reports_item_pool.Get()
-		this.owner.team.common_data.reports = []*msg_client_message.BattleReportItem{report}
+	report := this.owner.team.GetLastReport()
+	if report != nil {
+		report.RemoveBuffs = append(report.RemoveBuffs, buff)
 	}
-	r := this.owner.team.common_data.reports[len(this.owner.team.common_data.reports)-1]
-	r.RemoveBuffs = append(r.RemoveBuffs, buff)
 }
 
 // 免疫次数
@@ -1492,16 +1490,16 @@ func (this *BuffList) check_buff_mutex(b *table_config.XmlStatusItem) bool {
 		}
 
 		// 驱散类型
-		for j := 0; j < len(hh.buff.CancelMutexTypes); j++ {
-			if b.MutexType > 0 && b.MutexType == hh.buff.CancelMutexTypes[j] {
+		for j := 0; j < len(b.CancelMutexTypes); j++ {
+			if hh.buff.MutexType > 0 && hh.buff.MutexType == b.CancelMutexTypes[j] {
 				this.remove_buff(hh)
 				this.add_remove_buff_report(hh.buff.Id)
-				log.Debug("Team[%v] member[%v] BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", this.owner.team.side, this.owner.pos, b.Id, b.MutexType, hh.buff.Id, hh.buff.MutexType)
+				log.Debug("Team[%v] member[%v] BUFF[%v]类型[%v]驱散了BUFF[%v]类型[%v]", this.owner.team.side, this.owner.pos, b.Id, b.CancelMutexTypes[j], hh.buff.Id, hh.buff.MutexType)
 			}
 		}
 		// 驱散BUFF ID
-		for j := 0; j < len(hh.buff.CancelMutexIDs); j++ {
-			if b.MutexType > 0 && b.Id == hh.buff.CancelMutexIDs[j] {
+		for j := 0; j < len(b.CancelMutexIDs); j++ {
+			if hh.buff.MutexType > 0 && hh.buff.Id == b.CancelMutexIDs[j] {
 				this.remove_buff(hh)
 				this.add_remove_buff_report(hh.buff.Id)
 				log.Debug("Team[%v] member[%v] BUFF[%v]驱散了BUFF[%v]", this.owner.team.side, this.owner.pos, b.Id, hh.buff.Id)

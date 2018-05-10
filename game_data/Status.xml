@@ -3,10 +3,10 @@
      <item BuffID="1" Effect="1|33" Type="2" ResistCountMax="0" MutexType="1" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="2" Effect="1|34" Type="2" ResistCountMax="0" MutexType="1" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="3" Effect="1|35" Type="2" ResistCountMax="0" MutexType="1" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
-     <item BuffID="4" Effect="2" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="4" CancelMutexID="" />
-     <item BuffID="5" Effect="3" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="5" CancelMutexID="" />
-     <item BuffID="6" Effect="4" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="6" CancelMutexID="" />
-     <item BuffID="7" Effect="4" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="7" CancelMutexID="" />
+     <item BuffID="4" Effect="2" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
+     <item BuffID="5" Effect="3" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
+     <item BuffID="6" Effect="4" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
+     <item BuffID="7" Effect="4" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="101" Effect="5|9" Type="1" ResistCountMax="0" MutexType="13" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="102" Effect="5|10" Type="1" ResistCountMax="0" MutexType="13" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="103" Effect="5|11" Type="1" ResistCountMax="0" MutexType="13" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
@@ -75,5 +75,4 @@
      <item BuffID="1005" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="5,1005" CancelMutexID="" />
      <item BuffID="1006" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="6,1006" CancelMutexID="" />
      <item BuffID="1007" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="7,1007" CancelMutexID="" />
-     <item BuffID="5001" Effect="7|20002" Type="1" ResistCountMax="0" MutexType="14" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
 </Config>
