@@ -1289,7 +1289,7 @@ func one_passive_skill_effect(trigger_event int32, skill *table_config.XmlSkillI
 	used := false
 	r := self.team.GetLastReport()
 	if skill.SkillTarget != SKILL_TARGET_TYPE_TRIGGER_OBJECT {
-		if self.team.UseOnceSkill(self.pos, target_team, skill.Id) != nil {
+		if self.team.UseSkillOnce(self.pos, target_team, skill.Id) != nil {
 			used = true
 		}
 		if target_team != nil {

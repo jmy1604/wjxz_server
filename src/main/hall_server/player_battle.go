@@ -262,39 +262,46 @@ func (this *BattleTeam) RoundEnd() {
 func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, trigger_skill int32) (is_enemy bool, pos []int32, skill *table_config.XmlSkillItem) {
 	skill_id := int32(0)
 	if trigger_skill == 0 {
+		use_normal := true
 		// 能量满用绝杀
 		if self.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
-			if self.is_disable_super_attack() {
-				return
-			}
-			if self.temp_super_skill > 0 {
-				skill_id = self.temp_super_skill
-				self.use_temp_skill = true
-			} else {
-				skill_id = self.card.SuperSkillID
+			if !self.is_disable_super_attack() {
+				use_normal = false
 			}
 		} else {
 			if self.is_disable_normal_attack() {
+				log.Debug("@@@############## Team[%v] member[%v] disable all attack", this.side, self.pos)
 				return
 			}
+		}
+
+		if use_normal {
 			if self.temp_normal_skill > 0 {
 				skill_id = self.temp_normal_skill
 				self.use_temp_skill = true
 			} else {
 				skill_id = self.card.NormalSkillID
 			}
+		} else {
+			if self.temp_super_skill > 0 {
+				skill_id = self.temp_super_skill
+				self.use_temp_skill = true
+			} else {
+				skill_id = self.card.SuperSkillID
+			}
 		}
 	} else {
 		skill_id = trigger_skill
 	}
 
-	if self.is_disable_attack() {
-		return
-	}
-
 	skill = skill_table_mgr.Get(skill_id)
 	if skill == nil {
 		log.Error("Cant get skill by id[%v]", skill_id)
+		return
+	}
+
+	if trigger_skill > 0 && self.is_disable_attack() && skill.Type != SKILL_TYPE_PASSIVE {
+		log.Debug("############# Team[%v] member[%v] disable combo skill[%v]", this.side, self.pos, trigger_skill)
 		return
 	}
 
@@ -341,19 +348,10 @@ func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, t
 		return
 	}
 
-	if pos != nil {
-		for i := 0; i < len(pos); i++ {
-			t := target_team.members[pos[i]]
-			if t != nil {
-				//log.Debug("------------------------ team[%v] mem[%v] skill[%v] find target hp[%v]", m.team.side, m.pos, skill_id, t.hp)
-			}
-		}
-	}
-
 	return
 }
 
-func (this *BattleTeam) UseOnceSkill(self_index int32, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
+func (this *BattleTeam) UseSkillOnce(self_index int32, target_team *BattleTeam, trigger_skill int32) (skill *table_config.XmlSkillItem) {
 	self := this.members[self_index]
 	if self == nil || self.is_dead() {
 		return nil
@@ -407,6 +405,10 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			return 0
 		}
 
+		if mem.is_disable_attack() {
+			return 0
+		}
+
 		if mem.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
 			// 被动技，怒气攻击前
 			if mem.temp_super_skill == 0 {
@@ -419,16 +421,15 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			}
 		}
 
-		skill := this.UseOnceSkill(self_index, target_team, 0)
+		skill := this.UseSkillOnce(self_index, target_team, 0)
 		if skill == nil {
 			break
 		}
 		if skill.ComboSkill > 0 {
 			log.Debug("@@@@@@!!!!!! Team[%v] member[%v] will use combo skill[%v]", this.side, self_index, skill.ComboSkill)
-			this.UseOnceSkill(self_index, target_team, skill.ComboSkill)
+			this.UseSkillOnce(self_index, target_team, skill.ComboSkill)
 		}
 		mem.used_skill()
-		//mem.handle_delay_skills()
 		this.DelaySkillEffect()
 	}
 

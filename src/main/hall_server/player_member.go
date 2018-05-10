@@ -599,11 +599,6 @@ func (this *TeamMember) is_disable_normal_attack() bool {
 	bufflist := this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK]
 	if bufflist.head != nil {
 		disable = true
-	} else {
-		bufflist = this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
-		if bufflist.head != nil {
-			disable = true
-		}
 	}
 	return disable
 }
@@ -616,11 +611,6 @@ func (this *TeamMember) is_disable_super_attack() bool {
 	bufflist := this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK]
 	if bufflist.head != nil {
 		disable = true
-	} else {
-		bufflist = this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
-		if bufflist.head != nil {
-			disable = true
-		}
 	}
 	return disable
 }
@@ -633,16 +623,6 @@ func (this *TeamMember) is_disable_attack() bool {
 	bufflist := this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_ACTION]
 	if bufflist.head != nil {
 		disable = true
-	} else {
-		bufflist = this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_NORMAL_ATTACK]
-		if bufflist.head != nil {
-			disable = true
-		} else {
-			bufflist = this.bufflist_arr[BUFF_EFFECT_TYPE_DISABLE_SUPER_ATTACK]
-			if bufflist.head != nil {
-				disable = true
-			}
-		}
 	}
 	return disable
 }
