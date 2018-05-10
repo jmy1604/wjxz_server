@@ -267,6 +267,8 @@ func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, t
 		if self.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
 			if !self.is_disable_super_attack() {
 				use_normal = false
+			} else {
+				log.Debug("@@@@@@@@@@@!!!!!!!!!!!!!!! Team[%v] member[%v] disable super attack", this.side, self.pos)
 			}
 		} else {
 			if self.is_disable_normal_attack() {
