@@ -984,35 +984,39 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				log.Debug("self_team[%v] member[%v] use skill[%v] to enemy target[%v] with dmg[%v], target hp[%v], reflect self dmg[%v], self hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, target_dmg, target.hp, self_dmg, self.hp)
 
 				// 被动技，血量变化
-				if !target.is_dead() && !target.is_will_dead() && target_dmg != 0 && skill_data.Type != SKILL_TYPE_PASSIVE {
+				if !target.is_dead() && !target.is_will_dead() && target_dmg != 0 {
 					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, self, target_team, target_pos[j], nil, nil, true)
 				}
 				// 被动技，血量变化
-				if !self.is_will_dead() && self_dmg != 0 && skill_data.Type != SKILL_TYPE_PASSIVE {
+				if !self.is_will_dead() && self_dmg != 0 {
 					passive_skill_effect_with_self_pos(EVENT_HP_CHANGED, self, self_team, self_pos, nil, nil, true)
 				}
 
-				if skill_data.Type != SKILL_TYPE_PASSIVE && !self.is_will_dead() {
+				if skill_data.Type != SKILL_TYPE_PASSIVE {
 					// 格挡触发
 					if is_block {
-						passive_skill_effect_with_self_pos(EVENT_BE_BLOCK, self, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
-						passive_skill_effect_with_self_pos(EVENT_BLOCK, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
+						if !self.is_will_dead() {
+							passive_skill_effect_with_self_pos(EVENT_BE_BLOCK, self, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
+						}
+						if !target.is_will_dead() {
+							passive_skill_effect_with_self_pos(EVENT_BLOCK, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
+						}
 					}
 					// 暴击触发
 					if is_critical {
-						passive_skill_effect_with_self_pos(EVENT_CRITICAL, self, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
-						passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
+						if !self.is_will_dead() {
+							passive_skill_effect_with_self_pos(EVENT_CRITICAL, self, self_team, self_pos, target_team, []int32{target_pos[j]}, true)
+						}
+						if !target.is_will_dead() {
+							passive_skill_effect_with_self_pos(EVENT_BE_CRITICAL, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
+						}
 					}
+
 					// 被击计算伤害后触发
 					if !target.is_will_dead() {
 						passive_skill_effect_with_self_pos(EVENT_AFTER_DAMAGE_ON_BE_ATTACK, self, target_team, target_pos[j], self_team, []int32{self_pos}, true)
 					}
 				}
-
-				// 是否真死
-				/*if self.is_will_dead() {
-					self.set_dead(self, skill_data)
-				}*/
 
 				// 被动技，目标死亡前触发
 				if target.is_will_dead() {
