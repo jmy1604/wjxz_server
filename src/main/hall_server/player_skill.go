@@ -1442,12 +1442,12 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 
 // 战报删除BUFF
 func (this *BuffList) add_remove_buff_report(buff_id int32) {
-	buff := msg_battle_buff_item_pool.Get()
-	buff.Pos = this.owner.pos
-	buff.BuffId = buff_id
-	buff.Side = this.owner.team.side
 	report := this.owner.team.GetLastReport()
 	if report != nil {
+		buff := msg_battle_buff_item_pool.Get()
+		buff.Pos = this.owner.pos
+		buff.BuffId = buff_id
+		buff.Side = this.owner.team.side
 		report.RemoveBuffs = append(report.RemoveBuffs, buff)
 	}
 }
