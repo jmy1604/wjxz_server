@@ -104,7 +104,7 @@ func (this *PassiveTriggerDataList) clear() {
 	t := this.head
 	for t != nil {
 		n := t.next
-		//passive_trigger_data_pool.Put(t)
+		passive_trigger_data_pool.Put(t)
 		t = n
 	}
 	this.head = nil
@@ -112,15 +112,6 @@ func (this *PassiveTriggerDataList) clear() {
 }
 
 func (this *PassiveTriggerDataList) push_back(node *PassiveTriggerData) {
-	t := this.head
-	for t != nil {
-		if t == node {
-			log.Error("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 有相同的触发器技能")
-			return
-		}
-		t = t.next
-	}
-
 	if this.head == nil {
 		this.head = node
 		this.tail = node
@@ -145,7 +136,6 @@ func (this *PassiveTriggerDataList) remove(pnode, node *PassiveTriggerData) bool
 	if node == this.tail {
 		this.tail = pnode
 	}
-	log.Debug("删除被动触发技节点[%p,%v]成功，前一个节点[%p:%v]", node, node, pnode, pnode)
 	return true
 }
 
@@ -161,7 +151,6 @@ func (this *PassiveTriggerDataList) remove_by_skill(skill_id int32) bool {
 		}
 		p = d
 		d = d.next
-		log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 	}
 	return false
 }
@@ -191,7 +180,7 @@ func (this *PassiveTriggerDataList) can_trigger(skill_id int32) bool {
 }
 
 func (this *PassiveTriggerDataList) used(skill_id int32) (can_delete bool) {
-	var p *PassiveTriggerData
+	//var p *PassiveTriggerData
 	t := this.head
 	for t != nil {
 		if t.skill.Id == skill_id {
@@ -202,16 +191,16 @@ func (this *PassiveTriggerDataList) used(skill_id int32) (can_delete bool) {
 				t.round_num -= 1
 			}
 			if t.battle_num == 0 || t.round_num == 0 {
-				if this.remove(p, t) {
+				// 不用删除，留着下一回合初始化时用
+				/*if this.remove(p, t) {
 					passive_trigger_data_pool.Put(t)
 					can_delete = true
-				}
+				}*/
 			}
 			break
 		}
-		p = t
+		//p = t
 		t = t.next
-		log.Debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
 	}
 	return
 }
@@ -279,13 +268,28 @@ func (this *TeamMember) init_passive_data(skills []int32) {
 }
 
 func (this *TeamMember) init_passive_round_num() bool {
-	if this.passive_triggers == nil {
-		return false
-	}
-	for _, d := range this.passive_triggers {
-		for i := 0; i < len(d); i++ {
-			if d[i] != nil && d[i].skill.TriggerRoundMax > 0 {
-				d[i].round_num = d[i].skill.TriggerRoundMax
+	if USE_PASSIVE_LIST {
+		if this.passive_triggers == nil {
+			return false
+		}
+		for _, d := range this.passive_triggers {
+			for i := 0; i < len(d); i++ {
+				if d[i] != nil && d[i].skill.TriggerRoundMax > 0 {
+					d[i].round_num = d[i].skill.TriggerRoundMax
+				}
+			}
+		}
+	} else {
+		if this.passive_trigger_lists == nil {
+			return false
+		}
+		for _, d := range this.passive_trigger_lists {
+			t := d.head
+			for t != nil {
+				if t.skill.TriggerRoundMax > 0 {
+					t.round_num = t.skill.TriggerRoundMax
+				}
+				t = t.next
 			}
 		}
 	}
@@ -316,6 +320,7 @@ func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 	if d.round_num == 0 {
 		d.round_num = -1
 	}
+	d.next = nil
 
 	// ***********************************************
 	if USE_PASSIVE_LIST {
@@ -468,15 +473,18 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 				break
 			}
 		}
+		delete(this.passive_skills, skill_id)
 	} else {
 		trigger_list := this.passive_trigger_lists[trigger_event]
 		if trigger_list == nil {
 			return
 		}
 		if trigger_list.used(skill_id) {
-			delete(this.passive_skills, skill_id)
+
 		}
+		delete(this.passive_skills, skill_id)
 	}
+
 	// ************************************************************************
 }
 
