@@ -576,6 +576,17 @@ func (this *TeamMember) has_buff(buff_id int32) bool {
 	return false
 }
 
+func (this *TeamMember) add_buff_effect(buff *Buff, skill_effects []int32) {
+	if buff.buff.Effect != nil && len(buff.buff.Effect) >= 2 {
+		if buff.buff.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
+			this.add_attr(buff.buff.Effect[1], skill_effects[3])
+		} else if buff.buff.Effect[0] == BUFF_EFFECT_TYPE_TRIGGER_SKILL {
+			this.add_passive_trigger(buff.buff.Effect[1])
+			log.Debug("Team[%v] member[%v] 添加BUFF[%v] 增加了被动技[%v]", this.team.side, this.pos, buff.buff.Id, buff.buff.Effect[1])
+		}
+	}
+}
+
 func (this *TeamMember) remove_buff_effect(buff *Buff) {
 	if buff.buff == nil || buff.buff.Effect == nil {
 		return

@@ -1419,9 +1419,10 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 	}
 
 	if this.owner != nil {
-		if len(buff.buff.Effect) >= 2 && buff.buff.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
+		/*if len(buff.buff.Effect) >= 2 && buff.buff.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
 			this.owner.add_attr(buff.buff.Effect[1], -buff.param)
-		}
+		}*/
+		this.owner.remove_buff_effect(buff)
 	}
 
 	buff_pool.Put(buff)
@@ -1530,18 +1531,6 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 	buff.round_num = skill_effect[4]
 	buff.resist_num = b.ResistCountMax
 
-	if this.owner != nil {
-		if len(b.Effect) >= 2 && b.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
-			this.owner.add_attr(b.Effect[1], skill_effect[3])
-		}
-	}
-
-	// BUFF触发的技能
-	if b.Effect != nil && len(b.Effect) >= 2 && b.Effect[0] == BUFF_EFFECT_TYPE_TRIGGER_SKILL {
-		this.owner.add_passive_trigger(b.Effect[1])
-		log.Debug("Team[%v] member[%v] 添加BUFF[%v] 增加了被动技[%v]", this.owner.team.side, this.owner.pos, b.Id, b.Effect[1])
-	}
-
 	if this.head == nil {
 		buff.prev = nil
 		this.head = buff
@@ -1555,6 +1544,10 @@ func (this *BuffList) add_buff(attacker *TeamMember, b *table_config.XmlStatusIt
 	buff.owner_pos = this.owner.pos
 	this.buffs[buff] = buff
 	buff_id = b.Id
+
+	if this.owner != nil {
+		this.owner.add_buff_effect(buff, skill_effect)
+	}
 
 	// 测试
 	bb := this.head

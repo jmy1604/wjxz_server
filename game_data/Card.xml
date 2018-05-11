@@ -145,4 +145,5 @@
      <item ClientID="1002301" ID="10023" Rank="1" MaxLevel="30" MaxRank="4" Rarity="4" Type="1" Camp="2" Label="" BaseHP="225" BaseAttack="96" BaseDefence="33" GrowthHP="2250" GrowthAttack="687" GrowthDefence="225" NormalSkillID="1000001" SuperSkillID="1010008" PassiveSkillID="1020031" />
      <item ClientID="1002401" ID="10024" Rank="1" MaxLevel="30" MaxRank="4" Rarity="4" Type="1" Camp="2" Label="" BaseHP="225" BaseAttack="96" BaseDefence="33" GrowthHP="2250" GrowthAttack="687" GrowthDefence="225" NormalSkillID="1000001" SuperSkillID="1010008" PassiveSkillID="1020032" />
      <item ClientID="1002501" ID="10025" Rank="1" MaxLevel="30" MaxRank="4" Rarity="4" Type="1" Camp="2" Label="" BaseHP="225" BaseAttack="96" BaseDefence="33" GrowthHP="2250" GrowthAttack="687" GrowthDefence="225" NormalSkillID="1000001" SuperSkillID="1010008" PassiveSkillID="1020033" />
+     <item ClientID="1002601" ID="10026" Rank="1" MaxLevel="30" MaxRank="4" Rarity="4" Type="1" Camp="2" Label="" BaseHP="225" BaseAttack="96" BaseDefence="33" GrowthHP="2250" GrowthAttack="687" GrowthDefence="225" NormalSkillID="1000001" SuperSkillID="1010008" PassiveSkillID="1020034" />
 </Config>
