@@ -80,16 +80,16 @@ type MemberPassiveTriggerDataPool struct {
 func (this *MemberPassiveTriggerDataPool) Init() {
 	this.pool = &sync.Pool{
 		New: func() interface{} {
-			return &MemberPassiveTriggerData{}
+			return &PassiveTriggerData{}
 		},
 	}
 }
 
-func (this *MemberPassiveTriggerDataPool) Get() *MemberPassiveTriggerData {
-	return this.pool.Get().(*MemberPassiveTriggerData)
+func (this *MemberPassiveTriggerDataPool) Get() *PassiveTriggerData {
+	return this.pool.Get().(*PassiveTriggerData)
 }
 
-func (this *MemberPassiveTriggerDataPool) Put(d *MemberPassiveTriggerData) {
+func (this *MemberPassiveTriggerDataPool) Put(d *PassiveTriggerData) {
 	this.pool.Put(d)
 }
 

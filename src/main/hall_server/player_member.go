@@ -84,10 +84,136 @@ const (
 	BATTLE_STAGE_TEAM   = 99
 )
 
-type MemberPassiveTriggerData struct {
+const (
+	USE_PASSIVE_LIST = false
+)
+
+type PassiveTriggerData struct {
 	skill      *table_config.XmlSkillItem
 	battle_num int32
 	round_num  int32
+	next       *PassiveTriggerData
+}
+
+type PassiveTriggerDataList struct {
+	head *PassiveTriggerData
+	tail *PassiveTriggerData
+}
+
+func (this *PassiveTriggerDataList) clear() {
+	t := this.head
+	for t != nil {
+		n := t.next
+		//passive_trigger_data_pool.Put(t)
+		t = n
+	}
+	this.head = nil
+	this.tail = nil
+}
+
+func (this *PassiveTriggerDataList) push_back(node *PassiveTriggerData) {
+	t := this.head
+	for t != nil {
+		if t == node {
+			log.Error("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 有相同的触发器技能")
+			return
+		}
+		t = t.next
+	}
+
+	if this.head == nil {
+		this.head = node
+		this.tail = node
+	} else {
+		this.tail.next = node
+		this.tail = node
+	}
+}
+
+func (this *PassiveTriggerDataList) remove(pnode, node *PassiveTriggerData) bool {
+	if pnode != nil && pnode.next != node {
+		log.Warn("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX pnode's next node is not node")
+		return false
+	}
+
+	if node == this.head {
+		this.head = node.next
+	}
+	if pnode != nil {
+		pnode.next = node.next
+	}
+	if node == this.tail {
+		this.tail = pnode
+	}
+	log.Debug("删除被动触发技节点[%p,%v]成功，前一个节点[%p:%v]", node, node, pnode, pnode)
+	return true
+}
+
+func (this *PassiveTriggerDataList) remove_by_skill(skill_id int32) bool {
+	var p *PassiveTriggerData
+	d := this.head
+	for d != nil {
+		if d.skill.Id == skill_id {
+			if this.remove(p, d) {
+				passive_trigger_data_pool.Put(d)
+				return true
+			}
+		}
+		p = d
+		d = d.next
+		log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+	}
+	return false
+}
+
+func (this *PassiveTriggerDataList) event_num() int32 {
+	n := int32(0)
+	t := this.head
+	for t != nil {
+		if t.battle_num != 0 && t.round_num != 0 {
+			n += 1
+			break
+		}
+		t = t.next
+	}
+	return n
+}
+
+func (this *PassiveTriggerDataList) can_trigger(skill_id int32) bool {
+	t := this.head
+	for t != nil {
+		if t.skill.Id == skill_id && t.battle_num != 0 && t.round_num != 0 {
+			return true
+		}
+		t = t.next
+	}
+	return false
+}
+
+func (this *PassiveTriggerDataList) used(skill_id int32) (can_delete bool) {
+	var p *PassiveTriggerData
+	t := this.head
+	for t != nil {
+		if t.skill.Id == skill_id {
+			if t.battle_num > 0 {
+				t.battle_num -= 1
+			}
+			if t.round_num > 0 {
+				t.round_num -= 1
+			}
+			if t.battle_num == 0 || t.round_num == 0 {
+				if this.remove(p, t) {
+					passive_trigger_data_pool.Put(t)
+					can_delete = true
+				}
+			}
+			break
+		}
+		p = t
+		t = t.next
+		log.Debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+	}
+	return
 }
 
 type DelaySkill struct {
@@ -109,19 +235,19 @@ type TeamMember struct {
 	energy                  int32
 	attack                  int32
 	defense                 int32
-	act_num                 int32                                 // 行动次数
-	attrs                   []int32                               // 属性
-	bufflist_arr            []*BuffList                           // BUFF
-	passive_triggers        map[int32][]*MemberPassiveTriggerData // 被动技触发事件
-	temp_normal_skill       int32                                 // 临时普通攻击
-	temp_super_skill        int32                                 // 临时怒气攻击
-	use_temp_skill          bool                                  // 是否使用临时技能
-	temp_changed_attrs      []int32                               // 临时改变的属性
-	temp_changed_attrs_used int32                                 // 临时改变属性计算状态 0 忽略 1 已初始化 2 已计算
-	delay_skills            []*DelaySkill                         // 延迟的技能效果
-	passive_skills          map[int32]int32                       // 被动技
-	attacker                *TeamMember                           // 攻击者
-	attacker_skill_data     *table_config.XmlSkillItem            // 攻击者使用的技能
+	act_num                 int32                             // 行动次数
+	attrs                   []int32                           // 属性
+	bufflist_arr            []*BuffList                       // BUFF
+	passive_triggers        map[int32][]*PassiveTriggerData   // 被动技触发事件
+	passive_trigger_lists   map[int32]*PassiveTriggerDataList // 被动技触发事件
+	temp_normal_skill       int32                             // 临时普通攻击
+	temp_super_skill        int32                             // 临时怒气攻击
+	use_temp_skill          bool                              // 是否使用临时技能
+	temp_changed_attrs      []int32                           // 临时改变的属性
+	temp_changed_attrs_used int32                             // 临时改变属性计算状态 0 忽略 1 已初始化 2 已计算
+	passive_skills          map[int32]int32                   // 被动技
+	attacker                *TeamMember                       // 攻击者
+	attacker_skill_data     *table_config.XmlSkillItem        // 攻击者使用的技能
 }
 
 func (this *TeamMember) add_attrs(attrs []int32) {
@@ -176,11 +302,8 @@ func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 		this.passive_skills = make(map[int32]int32)
 	}
 	if _, o := this.passive_skills[skill_id]; o {
+		log.Warn("########### Team[%v] member[%v] already has passive skill %v", this.team.side, this.pos, skill_id)
 		return false
-	}
-
-	if this.passive_triggers == nil {
-		this.passive_triggers = make(map[int32][]*MemberPassiveTriggerData)
 	}
 
 	d := passive_trigger_data_pool.Get()
@@ -193,13 +316,32 @@ func (this *TeamMember) add_passive_trigger(skill_id int32) bool {
 	if d.round_num == 0 {
 		d.round_num = -1
 	}
-	datas := this.passive_triggers[skill.SkillTriggerType]
-	if datas == nil {
-		this.passive_triggers[skill.SkillTriggerType] = []*MemberPassiveTriggerData{d}
-	} else {
-		this.passive_triggers[skill.SkillTriggerType] = append(datas, d)
-	}
 
+	// ***********************************************
+	if USE_PASSIVE_LIST {
+		if this.passive_triggers == nil {
+			this.passive_triggers = make(map[int32][]*PassiveTriggerData)
+		}
+
+		datas := this.passive_triggers[skill.SkillTriggerType]
+		if datas == nil {
+			this.passive_triggers[skill.SkillTriggerType] = []*PassiveTriggerData{d}
+		} else {
+			this.passive_triggers[skill.SkillTriggerType] = append(datas, d)
+		}
+	} else {
+		// ************************************************
+		if this.passive_trigger_lists == nil {
+			this.passive_trigger_lists = make(map[int32]*PassiveTriggerDataList)
+		}
+		trigger_list := this.passive_trigger_lists[skill.SkillTriggerType]
+		if trigger_list == nil {
+			trigger_list = &PassiveTriggerDataList{}
+			this.passive_trigger_lists[skill.SkillTriggerType] = trigger_list
+		}
+		trigger_list.push_back(d)
+	}
+	// ************************************************
 	this.passive_skills[skill_id] = skill_id
 
 	return true
@@ -218,109 +360,154 @@ func (this *TeamMember) delete_passive_trigger(skill_id int32) bool {
 		return false
 	}
 
-	if this.passive_triggers == nil {
-		return false
-	}
-
-	triggers := this.passive_triggers[skill.SkillTriggerType]
-	if triggers == nil {
-		return false
-	}
-
-	l := len(triggers)
-	i := l - 1
-	for ; i >= 0; i-- {
-		if triggers[i] == nil {
-			continue
+	// ***********************************************************
+	var d *PassiveTriggerData
+	if USE_PASSIVE_LIST {
+		if this.passive_triggers == nil {
+			return false
 		}
-		if triggers[i].skill.Id == skill_id {
-			passive_trigger_data_pool.Put(triggers[i])
-			triggers[i] = nil
-			break
+		triggers := this.passive_triggers[skill.SkillTriggerType]
+		if triggers == nil {
+			return false
+		}
+		l := len(triggers)
+		i := l - 1
+		for ; i >= 0; i-- {
+			if triggers[i] == nil {
+				continue
+			}
+			if triggers[i].skill.Id == skill_id {
+				d = triggers[i]
+				triggers[i] = nil
+				break
+			}
+		}
+		passive_trigger_data_pool.Put(d)
+		if i >= 0 {
+			for n := i; n < l-1; n++ {
+				triggers[n] = triggers[n+1]
+			}
+			if l > 1 {
+				this.passive_triggers[skill.SkillTriggerType] = triggers[:l-1]
+			} else {
+				delete(this.passive_triggers, skill.SkillTriggerType)
+			}
+		}
+		delete(this.passive_skills, skill_id)
+	} else {
+		if this.passive_trigger_lists == nil {
+			return false
+		}
+		trigger_list := this.passive_trigger_lists[skill.SkillTriggerType]
+		if trigger_list == nil {
+			return false
+		}
+
+		if trigger_list.remove_by_skill(skill.Id) {
+			delete(this.passive_skills, skill_id)
 		}
 	}
-
-	if i >= 0 {
-		for n := i; n < l-1; n++ {
-			triggers[n] = triggers[n+1]
-		}
-		if l > 1 {
-			this.passive_triggers[skill.SkillTriggerType] = triggers[:l-1]
-		} else {
-			delete(this.passive_triggers, skill.SkillTriggerType)
-		}
-	}
-
-	delete(this.passive_skills, skill_id)
+	// ***********************************************************
 
 	return true
 }
 
 func (this *TeamMember) can_passive_trigger(trigger_event int32, skill_id int32) (trigger bool) {
-	d, o := this.passive_triggers[trigger_event]
-	if !o || d == nil {
-		return
-	}
+	// *************************************************
+	if USE_PASSIVE_LIST {
+		d, o := this.passive_triggers[trigger_event]
+		if !o || d == nil {
+			return
+		}
 
-	for i := 0; i < len(d); i++ {
-		if d[i] == nil {
-			continue
+		for i := 0; i < len(d); i++ {
+			if d[i] == nil {
+				continue
+			}
+			if d[i].skill.Id != skill_id {
+				continue
+			}
+			if d[i].battle_num != 0 && d[i].round_num != 0 {
+				trigger = true
+			}
+			break
 		}
-		if d[i].skill.Id != skill_id {
-			continue
+	} else {
+		trigger_list := this.passive_trigger_lists[trigger_event]
+		if trigger_list == nil {
+			return
 		}
-		if d[i].battle_num != 0 && d[i].round_num != 0 {
-			trigger = true
-		}
-		break
+		trigger = trigger_list.can_trigger(skill_id)
 	}
+	// *************************************************
 
 	return
 }
 
 func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id int32) {
-	d, o := this.passive_triggers[trigger_event]
-	if !o || d == nil {
-		return
-	}
+	// ************************************************************************
+	if USE_PASSIVE_LIST {
+		d, o := this.passive_triggers[trigger_event]
+		if !o || d == nil {
+			return
+		}
 
-	for i := 0; i < len(d); i++ {
-		if d[i] != nil && d[i].skill.Id == skill_id {
-			if d[i].battle_num > 0 {
-				d[i].battle_num -= 1
-				log.Debug("Team[%v] member[%v] 减少一次技能[%v]战斗触发事件[%v]次数", this.team.side, this.pos, skill_id, trigger_event)
+		for i := 0; i < len(d); i++ {
+			if d[i] != nil && d[i].skill.Id == skill_id {
+				if d[i].battle_num > 0 {
+					d[i].battle_num -= 1
+					log.Debug("Team[%v] member[%v] 减少一次技能[%v]战斗触发事件[%v]次数", this.team.side, this.pos, skill_id, trigger_event)
+				}
+				if d[i].round_num > 0 {
+					d[i].round_num -= 1
+					log.Debug("Team[%v] member[%v] 减少一次技能[%v]回合触发事件[%v]次数", this.team.side, this.pos, skill_id, trigger_event)
+				}
+				if d[i].battle_num == 0 || d[i].round_num == 0 {
+					//passive_trigger_data_pool.Put(d[i])
+				}
+				break
 			}
-			if d[i].round_num > 0 {
-				d[i].round_num -= 1
-				log.Debug("Team[%v] member[%v] 减少一次技能[%v]回合触发事件[%v]次数", this.team.side, this.pos, skill_id, trigger_event)
-			}
-			if d[i].battle_num == 0 || d[i].round_num == 0 {
-				//passive_trigger_data_pool.Put(d[i])
-			}
-			break
+		}
+	} else {
+		trigger_list := this.passive_trigger_lists[trigger_event]
+		if trigger_list == nil {
+			return
+		}
+		if trigger_list.used(skill_id) {
+			delete(this.passive_skills, skill_id)
 		}
 	}
+	// ************************************************************************
 }
 
 func (this *TeamMember) has_trigger_event(trigger_events []int32) bool {
-	n := 0
+	n := int32(0)
 	for i := 0; i < len(trigger_events); i++ {
-		d, o := this.passive_triggers[trigger_events[i]]
-		if !o || d == nil {
-			break
-		}
-
-		for j := 0; j < len(d); j++ {
-			if d[i] == nil {
-				continue
+		// *************************************************
+		if USE_PASSIVE_LIST {
+			d, o := this.passive_triggers[trigger_events[i]]
+			if !o || d == nil {
+				break
 			}
-			if d[i].battle_num != 0 && d[i].round_num != 0 {
-				n += 1
+			for j := 0; j < len(d); j++ {
+				if d[i] == nil {
+					continue
+				}
+				if d[i].battle_num != 0 && d[i].round_num != 0 {
+					n += 1
+				}
+				break
 			}
-			break
+		} else {
+			trigger_list := this.passive_trigger_lists[trigger_events[i]]
+			if trigger_list == nil {
+				break
+			}
+			n += trigger_list.event_num()
 		}
+		// *************************************************
 	}
-	if n != len(trigger_events) {
+	if int(n) != len(trigger_events) {
 		return false
 	}
 	return true
@@ -469,7 +656,6 @@ func (this *TeamMember) add_max_hp(add int32) {
 
 func (this *TeamMember) round_start() {
 	// 处理上一回合的延迟被动技
-	//this.handle_delay_skills()
 	this.act_num += 1
 	this.init_passive_round_num()
 }
@@ -658,73 +844,6 @@ func (this *TeamMember) set_dead(attacker *TeamMember, skill_data *table_config.
 	log.Debug("+++++++++++++++++++++++++ team[%v] mem[%v] 死了", this.team.side, this.pos)
 }
 
-func (this *TeamMember) has_delay_skills() bool {
-	if this.delay_skills == nil {
-		return false
-	}
-	return true
-}
-
-func (this *TeamMember) push_delay_skill(trigger_event int32, skill *table_config.XmlSkillItem, user *TeamMember, target_team *BattleTeam, trigger_pos []int32) {
-	ds := delay_skill_pool.Get()
-	ds.trigger_event = trigger_event
-	ds.skill = skill
-	ds.user = user
-	ds.target_team = target_team
-	ds.trigger_pos = trigger_pos
-	this.delay_skills = append(this.delay_skills, ds)
-}
-
-func (this *TeamMember) delay_skills_effect() {
-	if this.delay_skills == nil {
-		return
-	}
-
-	for i := 0; i < len(this.delay_skills); i++ {
-		ds := this.delay_skills[i]
-		if ds == nil {
-			continue
-		}
-
-		one_passive_skill_effect(ds.trigger_event, ds.skill, ds.user, ds.target_team, ds.trigger_pos, true)
-	}
-}
-
-func (this *TeamMember) clear_delay_skills() {
-	if this.delay_skills == nil {
-		return
-	}
-	for i := 0; i < len(this.delay_skills); i++ {
-		delay_skill_pool.Put(this.delay_skills[i])
-	}
-	this.delay_skills = nil
-}
-
-func (this *TeamMember) has_delay_trigger_event_skill(trigger_event int32, behiter *TeamMember) bool {
-	if this.delay_skills == nil {
-		return false
-	}
-
-	for i := 0; i < len(this.delay_skills); i++ {
-		d := this.delay_skills[i]
-		if d == nil {
-			continue
-		}
-		if d.trigger_event == trigger_event && d.user == behiter {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *TeamMember) handle_delay_skills() {
-	// 延迟的被动技
-	if this.has_delay_skills() {
-		this.delay_skills_effect()
-		this.clear_delay_skills()
-	}
-}
-
 func (this *TeamMember) on_will_dead(attacker *TeamMember) {
 	if passive_skill_effect_with_self_pos(EVENT_BEFORE_TARGET_DEAD, attacker, this.team, this.pos, nil, nil, true) {
 		log.Debug("Team[%v] member[%v] 触发了死亡前被动技能", attacker.team.side, attacker.pos)
@@ -763,20 +882,27 @@ func (this *TeamMember) on_dead(attacker *TeamMember, skill_data *table_config.X
 }
 
 func (this *TeamMember) on_battle_finish() {
-	if this.passive_triggers != nil {
-		for _, d := range this.passive_triggers {
-			if d == nil {
-				continue
-			}
-			for i := 0; i < len(d); i++ {
-				if d[i] != nil {
-					passive_trigger_data_pool.Put(d[i])
+	if USE_PASSIVE_LIST {
+		if this.passive_triggers != nil {
+			for _, d := range this.passive_triggers {
+				if d == nil {
+					continue
+				}
+				for i := 0; i < len(d); i++ {
+					if d[i] != nil {
+						passive_trigger_data_pool.Put(d[i])
+					}
 				}
 			}
+			this.passive_triggers = nil
 		}
-		this.passive_triggers = nil
+	} else {
+		if this.passive_trigger_lists != nil {
+			for _, d := range this.passive_trigger_lists {
+				d.clear()
+			}
+		}
 	}
-
 	if this.passive_skills != nil {
 		this.passive_skills = nil
 	}
