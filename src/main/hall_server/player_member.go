@@ -186,9 +186,11 @@ func (this *PassiveTriggerDataList) used(skill_id int32) (can_delete bool) {
 		if t.skill.Id == skill_id {
 			if t.battle_num > 0 {
 				t.battle_num -= 1
+				log.Debug("减少一次技能[%v]战斗触发事件次数", skill_id)
 			}
 			if t.round_num > 0 {
 				t.round_num -= 1
+				log.Debug("减少一次技能[%v]回合触发事件次数", skill_id)
 			}
 			if t.battle_num == 0 || t.round_num == 0 {
 				// 不用删除，留着下一回合初始化时用
