@@ -475,7 +475,6 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 				break
 			}
 		}
-		delete(this.passive_skills, skill_id)
 	} else {
 		trigger_list := this.passive_trigger_lists[trigger_event]
 		if trigger_list == nil {
@@ -484,7 +483,6 @@ func (this *TeamMember) used_passive_trigger_count(trigger_event int32, skill_id
 		if trigger_list.used(skill_id) {
 
 		}
-		delete(this.passive_skills, skill_id)
 	}
 
 	// ************************************************************************
