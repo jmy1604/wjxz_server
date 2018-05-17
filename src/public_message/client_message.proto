@@ -14,6 +14,7 @@ enum E_ERR {
 	PLAYER_TOKEN_ERROR						= -6; // 令牌错误
 	PLAYER_SELECT_SERVER_NOT_FOUND			= -7; // 选择服务器不存在
 	PLAYER_ALREADY_SELECTED_SERVER			= -8; // 玩家已经选择过服务器
+	PLAYER_IS_OFFLINE						= -9; // 玩家已离线
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
@@ -31,6 +32,11 @@ enum E_ERR {
 	// 角色
 	PLAYER_ROLE_NOT_FOUND					= -12000; // 角色不存在
 	PLAYER_ROLE_TABLE_ID_NOT_FOUND			= -12001; // 角色配置找不到
+	
+	// 关卡
+	PLAYER_ALREADY_FIGHT_CAMPAIGN			= -13001; // 已打过该战役
+	PLAYER_CAMPAIGN_MUST_PlAY_NEXT			= -13002; // 只能打下一战役
+	PLAYER_NOT_FOUND_CAMPAIGN_TABLE_DATA	= -13003; // 没有战役数据
 		
 	// 玩家
 	PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
@@ -79,6 +85,10 @@ enum E_ERR {
 	WORLDCHAT_CANT_SEND_WITH_NO_FREE		= -102302; // 世界聊天内部错误没有空闲的节点
 	WORLDCHAT_PULL_COOLING_DOWN       		= -102303; // 世界聊天拉取消息还在冷却中
 	WORLDCHAT_SEND_MSG_BE_FORBIDEN   		= -102304; // 你被禁言了
+}
+
+// 心跳
+message C2SHeartbeat {
 }
 
 ////////////////////////////////////end////////////////////////////////////////
@@ -135,7 +145,6 @@ message S2CStagePass {
 	int32 Result 						= 12; // 通关结果  0 失败  1 过关
 	repeated ItemInfo GetitemsFirst 	= 13; // 获得的首通奖励
 	repeated ItemInfo Getitems3Star 	= 14; // 获得的首次3星奖励
-	int32 CatExtraAddCoin				= 15; // 消除能力额外获得的金币
 }
 
 // 登陆
@@ -204,6 +213,13 @@ message S2CEnterGameResponse {
 message S2CEnterGameCompleteNotify {
 }
 
+// 离开游戏服务器
+message C2SLeaveGameRequest {
+}
+// 返回
+message S2CLeaveGameResponse {
+}
+
 // 请求角色
 message C2SRolesRequest {
 }
@@ -230,7 +246,7 @@ message S2CRolesChangeNotify {
 	repeated Role Updates			= 3; // 更新
 }
 
-//------------------------------ 战斗 ----------------------------------------
+//----------------------------------- 战斗 -----------------------------------
 // 设置阵容
 message C2SSetTeamRequest {
 	int32 TeamType							= 1; // 0 进攻阵容  1 防守阵容
@@ -307,7 +323,7 @@ message BattleRoundReports {
 message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
-	int32 StageId							= 3; // 关卡ID
+	int32 CampaignId						= 3; // 战役ID
 }
 message S2CBattleResultResponse {
 	bool IsWin								= 1; // true 赢  false 输
@@ -315,15 +331,41 @@ message S2CBattleResultResponse {
 	repeated BattleMemberItem TargetTeam	= 3; // 战斗前敌方阵容
 	repeated BattleReportItem EnterReports 	= 4; // 进场时战报，一般是被动技效果
 	repeated BattleRoundReports Rounds 		= 5; // 回合
-	bool HasStageWave						= 6; // 关卡是否有下一波战斗
+	bool HasNextWave						= 6; // 关卡是否有下一波战斗
 }
 
 // 关卡战斗结果奖励
-message C2SBattleInStageRewardNotify {
+message S2CBattleInCampaignRewardNotify {
+	repeated ItemInfo Rewards				= 1; // 奖励
+	int32 NextCampaignId					= 2; // 下一个战役ID
+}
+
+// 关卡挂机掉落，用于客户端显示
+message S2CBattleCampaignHangupDropItems {
+	repeated ItemInfo Items					= 1; // 掉落的物品
+}
+
+// 设置挂机战役关卡
+message C2SBattleSetHangupCampaignRequest {
+	int32 CampaignId 						= 1; // 战役ID
+}
+
+// 设置挂机战役关卡返回
+message S2CBattleSetHangupCampaignResponse {
+	int32 CampaignId						= 1; // 战役ID
+	int32 Result							= 2; // 0 失败  1 成功
 }
 
 // ----------------------------------- 物品 ------------------------------------
-// 
+// 进入游戏同步物品数据
+message S2CItemsSync {
+	repeated ItemInfo Items  			 	= 1; // 同步的物品
+}
+
+// 物品数据更新
+message S2CItemsUpdate {
+	repeated ItemInfo ItemsAdd				= 1; // 增加的物品
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

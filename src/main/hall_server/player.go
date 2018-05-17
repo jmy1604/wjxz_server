@@ -103,8 +103,8 @@ type Player struct {
 	stage_id        int32
 	stage_wave      int32
 
-	roles_id_change_info IdChangeInfo // 角色增删更新
-	items_id_change_info IdChangeInfo // 物品增删更新
+	roles_id_change_info IdChangeInfo    // 角色增删更新
+	items_changed_info   map[int32]int32 // 物品增删更新
 
 	msg_acts_lock    *sync.Mutex
 	cur_msg_acts_len int32
@@ -248,8 +248,16 @@ func (this *Player) check_and_send_roles_change() {
 }
 
 func (this *Player) check_and_send_items_change() {
-	if this.items_id_change_info.is_changed() {
-		this.items_id_change_info.reset()
+	if this.items_changed_info != nil {
+		var msg msg_client_message.S2CItemsUpdate
+		for k, v := range this.items_changed_info {
+			msg.ItemsAdd = append(msg.ItemsAdd, &msg_client_message.ItemInfo{
+				ItemCfgId: k,
+				ItemNum:   v,
+			})
+		}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEMS_UPDATE), &msg)
+		this.items_changed_info = nil
 	}
 }
 
@@ -374,15 +382,27 @@ func (this *Player) OnCreate() {
 }
 
 func (this *Player) OnLogin() {
+	conn_timer_mgr.Insert(this.Id)
+
 	gm_command_mgr.OnPlayerLogin(this)
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	this.team_member_mgr = make(map[int32]*TeamMember)
-	//this.team_changed = make(map[int32]bool)
+	// 战役挂机结算
+	this.hangup_income_get()
 }
 
 func (this *Player) OnLogout() {
+	conn_timer_mgr.Remove(this.Id)
+
+	// 离线收益时间开始
+	this.db.Info.SetLastLogout(int32(time.Now().Unix()))
 	log.Info("玩家[%d] 登出 ！！", this.Id)
+}
+
+func (this *Player) IsOffline() bool {
+	diff := this.db.Info.GetLastLogout() - this.db.Info.GetLastLogin()
+	return diff >= 0
 }
 
 func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
@@ -459,10 +479,6 @@ func (this *Player) notify_enter_complete() {
 // ----------------------------------------------------------------------------
 
 // ======================================================================
-
-func reg_player_base_info_msg() {
-}
-
 /*
 func C2SShopItemsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SShopItems)
@@ -978,76 +994,6 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		Rounds:       rounds,
 		MyTeam:       my_team,
 		TargetTeam:   target_team,
-	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
-	Output_S2CBattleResult(this, response)
-	return 1
-}
-
-func (this *Player) FightInStage(stage_id int32) int32 {
-	stage := stage_table_mgr.Get(stage_id)
-	if stage == nil {
-		log.Error("Cant found stage[%v] for player[%v]", stage_id, this.Id)
-		return -1
-	}
-
-	/*if this.stage_id > 0 && stage_id != this.stage_id {
-		log.Error("Player[%v] fight stage[%v] in wave[%v] not finished, cant begin new stage[%v]", this.Id, this.stage_id, this.stage_wave, stage_id)
-		return -1
-	}*/
-
-	if this.attack_team == nil {
-		this.attack_team = &BattleTeam{}
-	}
-	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
-		log.Error("Player[%v] init attack team failed", this.Id)
-		return -1
-	}
-
-	if this.stage_team == nil {
-		this.stage_team = &BattleTeam{}
-	}
-
-	if stage_id != this.stage_id {
-		this.stage_wave = 0
-	}
-
-	if !this.stage_team.InitWithStage(1, stage_id, this.stage_wave) {
-		log.Error("Player[%v] init stage[%v] wave[%v] team failed", this.Id, stage_id, this.stage_wave)
-		return -1
-	}
-
-	my_team := this.attack_team._format_members_for_msg()
-	target_team := this.stage_team._format_members_for_msg()
-	is_win, enter_reports, rounds := this.attack_team.Fight(this.stage_team, BATTLE_END_BY_ROUND_OVER, stage.MaxRound)
-
-	has_wave := false
-	this.stage_id = stage_id
-	this.stage_wave += 1
-	if this.stage_wave >= stage.MaxWaves {
-		this.stage_wave = 0
-	} else {
-		has_wave = true
-	}
-
-	// 奖励
-	if is_win && !has_wave {
-
-	}
-
-	if enter_reports == nil {
-		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
-	}
-	if rounds == nil {
-		rounds = make([]*msg_client_message.BattleRoundReports, 0)
-	}
-	response := &msg_client_message.S2CBattleResultResponse{
-		IsWin:        is_win,
-		EnterReports: enter_reports,
-		Rounds:       rounds,
-		MyTeam:       my_team,
-		TargetTeam:   target_team,
-		HasStageWave: has_wave,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 	Output_S2CBattleResult(this, response)

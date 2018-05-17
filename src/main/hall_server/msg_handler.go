@@ -280,11 +280,3 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
-func client_msgid2msg(msg_id uint16) proto.Message {
-	msg := base_msgid2msg(msg_id)
-	if msg == nil {
-
-	}
-	return msg
-}

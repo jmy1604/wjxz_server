@@ -41,6 +41,8 @@ type GlobalConfig struct {
 	MaxEnergy  int32
 	EnergyAdd  int32
 
+	HeartbeatInterval int32 // 心跳间隔
+
 	MaxFriendNum int32
 
 	GooglePayUrl       string

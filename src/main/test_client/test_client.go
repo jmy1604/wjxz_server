@@ -36,6 +36,7 @@ type TestClient struct {
 	shutdown_completed bool
 	ticker             *timer.TickTimer
 	initialized        bool
+	last_heartbeat     int32
 }
 
 var test_client TestClient
@@ -70,6 +71,8 @@ func (this *TestClient) Run() {
 	this.ticker = timer.NewTickTimer(1000)
 	this.ticker.Start()
 	defer this.ticker.Stop()
+
+	go this.Heartbeat()
 
 	for {
 		select {
@@ -356,10 +359,9 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 					}
 					if config.AccountNum > 1 {
 						log.Debug("############## hall conns length %v, config.AccountNum %v", len(hall_conn_mgr.acc_arr), config.AccountNum)
-						//n := (config.AccountNum + 100 - 1) / 100
-						for i := int32(0); i < config.AccountNum; /*n*/ i++ {
+						for i := int32(0); i < config.AccountNum; i++ {
 							log.Debug("@@@@@@@@@@@@@ index i=%v", i)
-							c := hall_conn_mgr.acc_arr[ /*j*/ i]
+							c := hall_conn_mgr.acc_arr[i]
 							go func(conn *HallConnection) {
 								defer func() {
 									if err := recover(); err != nil {
@@ -368,13 +370,7 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 
 									this.shutdown_completed = true
 								}()
-								//for j := i * 100; j < i*(100+1); j++ {
-								//	if int(j) >= len(hall_conn_mgr.acc_arr) {
-								//		break
-								//	}
-
 								conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)
-								//}
 							}(c)
 						}
 					} else {
@@ -383,6 +379,38 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 				}
 			}
 		}
+	}
+}
+
+// 心跳
+func (this *TestClient) Heartbeat() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+	for {
+		now_time := int32(time.Now().Unix())
+		if this.last_heartbeat == 0 {
+			this.last_heartbeat = now_time
+		}
+		if now_time-this.last_heartbeat >= 50 {
+			var heartbeat msg_client_message.C2SHeartbeat
+			if config.AccountNum > 1 {
+				for i := int32(0); i < config.AccountNum; i++ {
+					c := hall_conn_mgr.acc_arr[i]
+					if c != nil {
+						c.Send(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), &heartbeat)
+					}
+				}
+			} else {
+				if cur_hall_conn != nil {
+					cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), &heartbeat)
+				}
+			}
+			this.last_heartbeat = now_time
+		}
+		time.Sleep(time.Second * 1)
 	}
 }
 

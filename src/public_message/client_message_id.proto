@@ -3,29 +3,37 @@ syntax = "proto3";
 package msg.client_message_id;
 
 enum MSGID {
-	NONE							= 0;
-	C2S_TEST_COMMAND 				= 1; // 测试 C2S_TEST_COMMAND
-	C2S_HEARTBEAT 					= 2;
-	S2C_ITEMS_INFO_UPDATE 			= 3;
+	NONE									= 0;
+	C2S_TEST_COMMAND 						= 1; // 测试 C2S_TEST_COMMAND
+	C2S_HEARTBEAT 							= 2;
+	S2C_ITEMS_INFO_UPDATE 					= 3;
 	
-	C2S_LOGIN_REQUEST 				= 10000; // 登陆请求
-	S2C_LOGIN_RESPONSE 				= 10001; // 登陆请求返回  S2CLoginResponse
-	S2C_OTHER_PLACE_LOGIN 			= 10002; // 其他地方登陆
-	C2S_SELECT_SERVER_REQUEST 		= 10003; // 选择服务器
-	S2C_SELECT_SERVER_RESPONSE  	= 10004; // 选择服务器返回 S2CSelectServerResponse
+	C2S_LOGIN_REQUEST 						= 10000; // 登陆请求
+	S2C_LOGIN_RESPONSE 						= 10001; // 登陆请求返回  S2CLoginResponse
+	S2C_OTHER_PLACE_LOGIN 					= 10002; // 其他地方登陆
+	C2S_SELECT_SERVER_REQUEST 				= 10003; // 选择服务器
+	S2C_SELECT_SERVER_RESPONSE  			= 10004; // 选择服务器返回 S2CSelectServerResponse
 	
-	C2S_ENTER_GAME_REQUEST			= 11000; // 进入游戏 C2SEnterGameRequest
-	S2C_ENTER_GAME_RESPONSE			= 11001; // 进入游戏返回 S2CEnterGameResponse
-	S2C_ENTER_GAME_COMPLETE_NOTIFY 	= 11002; // 进入游戏完成 S2CEnterGameCompleteNotify
+	C2S_ENTER_GAME_REQUEST					= 11000; // 进入游戏 C2SEnterGameRequest
+	S2C_ENTER_GAME_RESPONSE					= 11001; // 进入游戏返回 S2CEnterGameResponse
+	S2C_ENTER_GAME_COMPLETE_NOTIFY 			= 11002; // 进入游戏完成 S2CEnterGameCompleteNotify
+	C2S_LEAVE_GAME_REQUEST					= 11003; // 离开游戏 C2SLeaveGameRequest
+	S2C_LEAVE_GAME_RESPONSE					= 11004; // 离开游戏返回 S2CLeaveGameResponse
 	
-	S2C_ROLES_RESPONSE				= 11010; // 角色请求 S2CRolesRequest
-	S2C_ROLES_CHANGE_NOTIFY			= 11011; // 角色更新 S2CRolesChangeNotify
+	S2C_ROLES_RESPONSE						= 11010; // 角色请求 S2CRolesRequest
+	S2C_ROLES_CHANGE_NOTIFY					= 11011; // 角色更新 S2CRolesChangeNotify
 	
-	C2S_BATTLE_RESULT_REQUEST		= 10100; // 战斗结果请求 C2SBattleResultRequest
-	S2C_BATTLE_RESULT_RESPONSE		= 10101; // 战斗结果请求返回 S2CBattleResultResponse
-	S2C_BATTLE_IN_STAGE_REWARD		= 10102; // 关卡奖励通知 C2SBattleInStageRewardNotify
+	C2S_BATTLE_RESULT_REQUEST				= 10100; // 战斗结果请求 C2SBattleResultRequest
+	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse
+	S2C_BATTLE_IN_CAMPAIGN_REWARD			= 10102; // 关卡奖励通知 S2CBattleInCampaignRewardNotify
+	S2C_BATTLE_CAMPAIGN_HANGUP_DROP_ITEMS 	= 10103; // 关卡挂机掉落 S2CBattleCampaignHangupDropItems
+	C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST  = 10104; // 设置挂机战役ID C2SBattleSetHangupCampaignRequest
+	S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE = 10105; // 设置挂机战役ID返回 S2CBattleSetHangupCampaignResponse
 	
-	C2S_SET_TEAM_REQUEST			= 10200; // 设置阵营 C2SSetTeamRequest
-	S2C_SET_TEAM_RESPONSE			= 10201; // 设置阵营返回 S2CSetTeamResponse
-	S2C_TEAMS_RESPONSE				= 10202; // 所有阵容列表返回 S2CTeamsResponse
+	C2S_SET_TEAM_REQUEST					= 10200; // 设置阵营 C2SSetTeamRequest
+	S2C_SET_TEAM_RESPONSE					= 10201; // 设置阵营返回 S2CSetTeamResponse
+	S2C_TEAMS_RESPONSE						= 10202; // 所有阵容列表返回 S2CTeamsResponse
+	
+	S2C_ITEMS_SYNC							= 10300; // 进入游戏物品同步 S2CItemsSync
+	S2C_ITEMS_UPDATE						= 10301; // 物品更新 S2CItemsUpdate
 }

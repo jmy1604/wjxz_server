@@ -747,6 +747,20 @@ func (this *BattleTeam) HasDelayTriggerEventSkill(trigger_event int32, behiter *
 	return false
 }
 
+func battle_msgid2proto(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST) {
+		return &msg_client_message.C2SBattleResultRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_SET_TEAM_REQUEST) {
+		return &msg_client_message.C2SSetTeamRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST) {
+		return &msg_client_message.C2SBattleSetHangupCampaignRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST) {
+		return &msg_client_message.C2SBattleResultRequest{}
+	} else {
+		return nil
+	}
+}
+
 func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SBattleResultRequest)
 	if req == nil || p == nil {
@@ -765,8 +779,8 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg prot
 	var res int32
 	if req.FightPlayerId > 0 {
 		res = p.Fight2Player(req.FightPlayerId)
-	} else if req.StageId > 0 {
-		res = p.FightInStage(req.StageId)
+	} else if req.CampaignId > 0 {
+		res = p.FightInCampaign(req.CampaignId)
 	} else {
 		res = -1
 	}
@@ -793,6 +807,32 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg pr
 	response.TeamType = tt
 	response.TeamMembers = req.TeamMembers
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_SET_TEAM_RESPONSE), response)
+
+	return 1
+}
+
+func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SBattleSetHangupCampaignRequest)
+	if req == nil || p == nil {
+		log.Error("C2SSetHangupCampaignHandler player[%v] proto is invalid", p.Id)
+		return -1
+	}
+
+	result := int32(0)
+	if p.set_hangup_campaign_id(req.GetCampaignId()) {
+		result = 1
+	}
+
+	response := &msg_client_message.S2CBattleSetHangupCampaignResponse{}
+	response.CampaignId = req.GetCampaignId()
+	response.Result = result
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE), response)
+
+	if result == 0 {
+		log.Debug("Player[%v] set hangup campaign %v failed", p.Id, req.GetCampaignId())
+	} else {
+		log.Debug("Player[%v] set hangup campaign %v success", p.Id, req.GetCampaignId())
+	}
 
 	return 1
 }

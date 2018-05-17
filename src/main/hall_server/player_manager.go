@@ -227,20 +227,31 @@ func (this *PlayerManager) SendMsgToAllPlayers(msg proto.Message) {
 //==============================================================================
 func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), C2SEnterGameRequestHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_LEAVE_GAME_REQUEST), C2SLeaveGameRequestHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), C2STestCommandHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), C2SHeartbeatHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST), C2SFightHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_SET_TEAM_REQUEST), C2SSetTeamHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST), C2SSetHangupCampaignHandler)
+}
+
+func client_msgid2msg(msg_id uint16) proto.Message {
+	msg := base_msgid2msg(msg_id)
+	if msg == nil {
+		msg = battle_msgid2proto(msg_id)
+	}
+	return msg
 }
 
 func base_msgid2msg(msg_id uint16) proto.Message {
-	if msg_id == uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST) {
-		return &msg_client_message.C2SEnterGameRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND) {
+	if msg_id == uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND) {
 		return &msg_client_message.C2S_TEST_COMMAND{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST) {
-		return &msg_client_message.C2SBattleResultRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_SET_TEAM_REQUEST) {
-		return &msg_client_message.C2SSetTeamRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT) {
+		return &msg_client_message.C2SHeartbeat{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST) {
+		return &msg_client_message.C2SEnterGameRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_LEAVE_GAME_REQUEST) {
+		return &msg_client_message.C2SLeaveGameRequest{}
 	} else {
 		log.Warn("Cant get base proto message by msg_id[%v]", msg_id)
 	}
@@ -309,6 +320,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 	p.send_enter_game(acc, p.Id)
 	p.OnLogin()
 	if !is_new {
+		p.send_items()
 		p.send_roles()
 	}
 	p.send_teams()
@@ -317,4 +329,32 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 	log.Info("PlayerEnterGameHandler account[%s] token[%s]", req.GetAcc(), req.GetToken())
 
 	return 1, p
+}
+
+func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SLeaveGameRequest)
+	if req == nil {
+		log.Error("C2SLeaveGameRequest proto is invalid")
+		return -1
+	}
+	p.OnLogout()
+	return 1
+}
+
+func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SHeartbeat)
+	if req == nil {
+		log.Error("C2SHeartbeat proto is invalid")
+		return -1
+	}
+
+	if p.IsOffline() {
+		log.Error("Player[%v] is offline", p.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_IS_OFFLINE)
+	}
+	// 结算一次关卡挂机收益
+	p.hangup_income_get()
+	conn_timer_mgr.Insert(p.Id)
+	log.Debug("Player[%v] heartbeat", p.Id)
+	return 1
 }

@@ -18,14 +18,15 @@ message PlayerInfo{
 	optional int32 Lvl=1;
 	optional int32 Exp=2;
 	optional int32 CreateUnix=3;
-	optional int32 ChangeNameCount=5;
+	optional int32 Gold=4;
+	optional int32 Diamond=5;
 	optional int32 LastDialyTaskUpUinx=6;
 	optional string Icon=7;
 	optional string CustomIcon=8;
+	optional int32 LastLogout=9;
 	optional int32 LastLogin=10;
 	optional int32 Spirit=12;
 	optional int32 FriendPoints=13;
-	optional int32 SaveLastSpiritPointTime=14;
 	optional int32 LastRefreshShopTime=15;
 	optional int32 VipLvl=16;
 	optional int32 FriendMessageUnreadCurrId=17;
@@ -62,18 +63,24 @@ message PlayerBattleTeam{
 	repeated int32 DefenseMembers=2;
 }
 
-message PlayerStage{
-	optional int32 StageId=1;
+message PlayerCampaignCommon{
+	optional int32 CurrentCampaignId=1;
+	optional int32 HangupLastDropStaticIncomeTime=2;
+	optional int32 HangupLastDropRandomIncomeTime=3;
+	optional int32 HangupCampaignId=4;
+}
+
+message PlayerCampaign{
+	optional int32 CampaignId=1;
 	optional int32 Stars=2;
-	optional int32 LastFinishedUnix=3;
+	optional int32 LastFinishedTime=3;
 	optional int32 TopScore=4;
-	optional int32 CatId=5;
 	optional int32 PlayedCount=6;
 	optional int32 PassCount=7;
 }
 
-message PlayerStageList{
-	repeated PlayerStage List=1;
+message PlayerCampaignList{
+	repeated PlayerCampaign List=1;
 }
 
 message PlayerChapterUnLock{

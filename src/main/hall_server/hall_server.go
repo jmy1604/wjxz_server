@@ -78,7 +78,6 @@ func (this *HallServer) OnInit() (err error) {
 	msg_battle_round_reports_pool.Init()
 	delay_skill_pool.Init()
 
-	reg_player_base_info_msg()
 	reg_player_guide_msg()
 	reg_player_friend_msg()
 	reg_player_draw_msg()
@@ -110,13 +109,6 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("task_mgr init succeed !")
 	}
 
-	if !cfg_drop_card_mgr.Init() {
-		log.Error("cfg_drop_card_mgr init failed !")
-		return errors.New("cfg_drop_card_mgr init failed !")
-	} else {
-		log.Info("cfg_drop_card_mgr init succeed !")
-	}
-
 	if !extract_table_mgr.Init() {
 		return errors.New("extract_table_mgr init failed")
 	} else {
@@ -130,14 +122,7 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("gm_command_mgr init succeed !")
 	}
 
-	/*if !cfg_player_level_mgr.Init() {
-		log.Error("cfg_player_level_mgr init failed")
-		return errors.New("cfg_player_level_mgr init failed!")
-	} else {
-		log.Info("cfg_player_level_mgr init succeed!")
-	}
-
-	if !shop_table_mgr.Init() {
+	/*if !shop_table_mgr.Init() {
 		log.Error("shop_mgr init failed")
 		return errors.New("shop_mgr init failed")
 	} else {
@@ -149,13 +134,6 @@ func (this *HallServer) OnInit() (err error) {
 		return errors.New("box_mgr init failed")
 	} else {
 		log.Info("box_mgr init succeed!")
-	}
-
-	if !cfg_chapter_mgr.Init() {
-		log.Error("chapter_mgr init failed")
-		return errors.New("chapter_mgr init failed")
-	} else {
-		log.Info("chapter_mgr init succeed!")
 	}
 
 	if !level_table_mgr.Init() {
@@ -229,6 +207,22 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("item_table_mgr init succeed")
 	}
 
+	if !campaign_table_mgr.Init() {
+		log.Error("campaign_table_mgr init failed")
+		return errors.New("campaign_table_mgr init failed")
+	} else {
+		log.Info("campaign_table_gmr init succeed")
+	}
+
+	if !drop_table_mgr.Init() {
+		log.Error("drop_table_mgr init failed")
+		return errors.New("drop_table_mgr init failed")
+	} else {
+		log.Info("drop_table_mgr init succeed")
+	}
+
+	conn_timer_mgr.Init()
+
 	return
 }
 
@@ -261,6 +255,7 @@ func (this *HallServer) Run() {
 	defer this.ticker.Stop()
 
 	go this.redis_conn.Run(100)
+	go conn_timer_mgr.Run()
 
 	for {
 		select {
@@ -368,7 +363,7 @@ func (this *HallServer) OnUpdate(c *socket.TcpConn, t timer.TickTime) {
 var global_config_mgr table_config.GlobalConfigManager
 var task_table_mgr table_config.TaskTableMgr
 var item_table_mgr table_config.ItemTableMgr
-var drop_card_table_mgr table_config.DropCardManager
+var drop_table_mgr table_config.DropManager
 var shop_table_mgr table_config.ShopTableManager
 var handbook_table_mgr table_config.HandbookTableMgr
 var suit_table_mgr table_config.SuitTableMgr
@@ -379,6 +374,7 @@ var card_table_mgr table_config.CardTableMgr
 var skill_table_mgr table_config.SkillTableMgr
 var buff_table_mgr table_config.StatusTableMgr
 var stage_table_mgr table_config.PassTableMgr
+var campaign_table_mgr table_config.CampaignTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

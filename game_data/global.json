@@ -8,6 +8,8 @@
 	"MaxEnergy":60,
 	"EnergyAdd":20,
 	
+	"HeartbeatInterval":60,
+	
 	"MaxFriendNum":200,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

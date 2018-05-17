@@ -26,6 +26,8 @@ type XmlPassItem struct {
 	FriendSupportMax int32  `xml:"FriendSupportMax,attr"`
 	NpcSupportList   string `xml:"NpcSupportList,attr"`
 	Monsters         []*JsonMonster
+	RewardListStr    string `xml:"RewardList,attr"`
+	RewardList       []int32
 }
 
 type XmlPassConfig struct {

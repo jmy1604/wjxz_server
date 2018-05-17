@@ -1132,24 +1132,51 @@ func pvp_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
-func fight_stage_cmd(p *Player, args []string) int32 {
+func fight_campaign_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
 		return -1
 	}
 
 	var err error
-	var stage_id int
-	stage_id, err = strconv.Atoi(args[0])
+	var campaign_id int
+	campaign_id, err = strconv.Atoi(args[0])
 	if err != nil {
 		log.Error("转换关卡ID[%v]失败[%v]", args[0], err.Error())
 		return -1
 	}
 
-	res := p.FightInStage(int32(stage_id))
+	res := p.FightInCampaign(int32(campaign_id))
 
-	log.Debug("玩家[%v]挑战了关卡[%v]", p.Id, stage_id)
+	log.Debug("玩家[%v]挑战了关卡[%v]", p.Id, campaign_id)
 	return res
+}
+
+func start_hangup_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var campaign_id int
+	campaign_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换战役ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	if !p.set_hangup_campaign_id(int32(campaign_id)) {
+		return -1
+	}
+
+	log.Debug("玩家[%v]设置了挂机战役关卡[%v]", p.Id, campaign_id)
+	return 1
+}
+
+func leave_game_cmd(p *Player, args []string) int32 {
+	p.OnLogout()
+	return 1
 }
 
 type test_cmd_func func(*Player, []string) int32
@@ -1214,7 +1241,9 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"set_defense_team": set_defense_team_cmd,
 	"list_teams":       list_teams_cmd,
 	"pvp":              pvp_cmd,
-	"fight_stage":      fight_stage_cmd,
+	"fight_campaign":   fight_campaign_cmd,
+	"start_hangup":     start_hangup_cmd,
+	"leave_game":       leave_game_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {

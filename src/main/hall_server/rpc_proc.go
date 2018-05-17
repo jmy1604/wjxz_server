@@ -130,7 +130,7 @@ func (this *R2H_FriendProc) RemoveFriend(args *rpc_common.R2H_RemoveFriend, repl
 
 	p := player_mgr.GetPlayerById(args.RemovePlayerId)
 	if p == nil {
-		err_str := fmt.Sprintf("RPC R2H_FriendProc @@@ Not found player[%v], player[%v] remove friend failed", args.PlayerId)
+		err_str := fmt.Sprintf("RPC R2H_FriendProc @@@ Not found player[%v], player[%v] remove friend failed", args.RemovePlayerId, args.PlayerId)
 		return errors.New(err_str)
 	}
 
@@ -342,7 +342,6 @@ func (this *R2H_PlayerStageInfoProc) Do(args *rpc_common.R2H_PlayerStageInfoReq,
 	result.Head = p.db.Info.GetIcon()
 	result.Level = p.db.Info.GetLvl()
 	result.Nick = p.db.GetName()
-	result.TopScore, _ = p.db.Stages.GetTopScore(args.StageId)
 	log.Info("获取玩家[%v]的关卡[%v]信息[%v]", args.PlayerId, args.StageId, *result)
 	return nil
 }

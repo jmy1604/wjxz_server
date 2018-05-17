@@ -4,6 +4,7 @@ import (
 	"libs/log"
 	_ "main/table_config"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 	_ "sync"
 	_ "time"
 
@@ -45,6 +46,21 @@ const (
 	EQUIP_TYPE_MAX      = 7 //
 )
 
+func (this *dbPlayerItemColumn) BuildMsg() (items []*msg_client_message.ItemInfo) {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerItemColumn.BuildMsg")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	for _, v := range this.m_data {
+		item := &msg_client_message.ItemInfo{
+			ItemCfgId: v.Id,
+			ItemNum:   v.Count,
+		}
+		items = append(items, item)
+	}
+
+	return
+}
+
 func (this *Player) add_item(id int32, count int32) bool {
 	item := item_table_mgr.Get(id)
 	if item == nil {
@@ -60,6 +76,16 @@ func (this *Player) add_item(id int32, count int32) bool {
 	} else {
 		this.db.Items.IncbyCount(id, count)
 	}
+
+	if this.items_changed_info == nil {
+		this.items_changed_info = make(map[int32]int32)
+	}
+	if d, o := this.items_changed_info[id]; !o {
+		this.items_changed_info[id] = count
+	} else {
+		this.items_changed_info[id] = d + count
+	}
+
 	return true
 }
 
@@ -78,7 +104,18 @@ func (this *Player) del_item(id int32, count int32) bool {
 	} else {
 		this.db.Items.IncbyCount(id, -count)
 	}
+	if d, o := this.items_changed_info[id]; !o {
+		this.items_changed_info[id] = -count
+	} else {
+		this.items_changed_info[id] = d - count
+	}
 	return true
+}
+
+func (this *Player) send_items() {
+	msg := &msg_client_message.S2CItemsSync{}
+	msg.Items = this.db.Items.BuildMsg()
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEMS_SYNC), msg)
 }
 
 func (this *Player) Equip(role_id, equip_id int32) int32 {
