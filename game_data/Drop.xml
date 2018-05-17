@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item DropGroupID="10001" DropItemID="10001" Weight="200" Min="1" Max="1" />
+     <item DropGroupID="10001" DropItemID="4" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10001" DropItemID="5" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10001" DropItemID="6" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10002" DropItemID="11001" Weight="200" Min="1" Max="1" />
+     <item DropGroupID="10002" DropItemID="4" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10002" DropItemID="5" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10002" DropItemID="6" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10003" DropItemID="12001" Weight="200" Min="1" Max="1" />
+     <item DropGroupID="10003" DropItemID="4" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10003" DropItemID="5" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10003" DropItemID="6" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10004" DropItemID="13001" Weight="200" Min="1" Max="1" />
+     <item DropGroupID="10004" DropItemID="4" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10004" DropItemID="5" Weight="100" Min="1" Max="1" />
+     <item DropGroupID="10004" DropItemID="6" Weight="100" Min="1" Max="1" />
+</Config>
