@@ -37,6 +37,7 @@ enum E_ERR {
 	PLAYER_ALREADY_FIGHT_CAMPAIGN			= -13001; // 已打过该战役
 	PLAYER_CAMPAIGN_MUST_PlAY_NEXT			= -13002; // 只能打下一战役
 	PLAYER_NOT_FOUND_CAMPAIGN_TABLE_DATA	= -13003; // 没有战役数据
+	PLAYER_CANT_FIGHT_THE_CAMPAIGN			= -13004; // 不能打该战役
 		
 	// 玩家
 	PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
@@ -332,12 +333,30 @@ message S2CBattleResultResponse {
 	repeated BattleReportItem EnterReports 	= 4; // 进场时战报，一般是被动技效果
 	repeated BattleRoundReports Rounds 		= 5; // 回合
 	bool HasNextWave						= 6; // 关卡是否有下一波战斗
+	int32 NextCampaignId					= 7; // 下一个战役ID
+}
+
+// ---------------------------------- 关卡 ------------------------------------
+// 请求战役关卡数据
+message C2SCampaignDataRequest {
+}
+
+message S2CCampaignDataResponse {
+	repeated int32 PassedCampaignIds		= 1; // 已打过的战役
+	int32 UnlockCampaignId					= 2; // 已战役关卡ID
+	int32 HangupCampaignId					= 3; // 挂机战役关卡
+}
+
+// 请求战役挂机收益
+message C2SCampaignHangupIncomeRequest {
+	int32 IncomeType						= 1; // 0 固定收益  1 随机收益
 }
 
 // 关卡战斗结果奖励
-message S2CBattleInCampaignRewardNotify {
-	repeated ItemInfo Rewards				= 1; // 奖励
-	int32 NextCampaignId					= 2; // 下一个战役ID
+message S2CCampaignHangupIncomeResponse {
+	int32 IncomeType						= 1; // 收益类型
+	repeated ItemInfo Rewards				= 2; // 奖励
+	
 }
 
 // 关卡挂机掉落，用于客户端显示
@@ -353,7 +372,6 @@ message C2SBattleSetHangupCampaignRequest {
 // 设置挂机战役关卡返回
 message S2CBattleSetHangupCampaignResponse {
 	int32 CampaignId						= 1; // 战役ID
-	int32 Result							= 2; // 0 失败  1 成功
 }
 
 // ----------------------------------- 物品 ------------------------------------

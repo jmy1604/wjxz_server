@@ -25,10 +25,6 @@ enum MSGID {
 	
 	C2S_BATTLE_RESULT_REQUEST				= 10100; // 战斗结果请求 C2SBattleResultRequest
 	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse
-	S2C_BATTLE_IN_CAMPAIGN_REWARD			= 10102; // 关卡奖励通知 S2CBattleInCampaignRewardNotify
-	S2C_BATTLE_CAMPAIGN_HANGUP_DROP_ITEMS 	= 10103; // 关卡挂机掉落 S2CBattleCampaignHangupDropItems
-	C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST  = 10104; // 设置挂机战役ID C2SBattleSetHangupCampaignRequest
-	S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE = 10105; // 设置挂机战役ID返回 S2CBattleSetHangupCampaignResponse
 	
 	C2S_SET_TEAM_REQUEST					= 10200; // 设置阵营 C2SSetTeamRequest
 	S2C_SET_TEAM_RESPONSE					= 10201; // 设置阵营返回 S2CSetTeamResponse
@@ -36,4 +32,11 @@ enum MSGID {
 	
 	S2C_ITEMS_SYNC							= 10300; // 进入游戏物品同步 S2CItemsSync
 	S2C_ITEMS_UPDATE						= 10301; // 物品更新 S2CItemsUpdate
+	
+	C2S_CAMPAIGN_DATA_REQUEST				= 10400; // 请求战役数据 C2SCampaignDataRequest
+	S2C_CAMPAIGN_DATA_RESPONSE				= 10401; // 战役数据返回 S2CCampaignDataResponse
+	C2S_CAMPAIGN_HANGUP_INCOME_REQUEST		= 10402; // 战役挂机收益请求 C2SCampaignHangupIncomeRequest
+	S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE		= 10403; // 战役挂机收益返回 S2CCampaignHangupIncomeResponse
+	C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST  = 10404; // 设置挂机战役ID C2SBattleSetHangupCampaignRequest
+	S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE = 10405; // 设置挂机战役ID返回 S2CBattleSetHangupCampaignResponse
 }

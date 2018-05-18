@@ -756,6 +756,10 @@ func battle_msgid2proto(msg_id uint16) proto.Message {
 		return &msg_client_message.C2SBattleSetHangupCampaignRequest{}
 	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST) {
 		return &msg_client_message.C2SBattleResultRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_HANGUP_INCOME_REQUEST) {
+		return &msg_client_message.C2SCampaignHangupIncomeRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_DATA_REQUEST) {
+		return &msg_client_message.C2SCampaignDataRequest{}
 	} else {
 		return nil
 	}
@@ -814,25 +818,48 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg pr
 func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SBattleSetHangupCampaignRequest)
 	if req == nil || p == nil {
-		log.Error("C2SSetHangupCampaignHandler player[%v] proto is invalid", p.Id)
+		log.Error("C2SSetHangupCampaignHandler proto is invalid")
 		return -1
 	}
 
-	result := int32(0)
-	if p.set_hangup_campaign_id(req.GetCampaignId()) {
-		result = 1
+	res := p.set_hangup_campaign_id(req.GetCampaignId())
+	if res < 0 {
+		log.Debug("Player[%v] set hangup campaign %v failed[%v]", p.Id, req.GetCampaignId(), res)
+		return res
 	}
 
 	response := &msg_client_message.S2CBattleSetHangupCampaignResponse{}
 	response.CampaignId = req.GetCampaignId()
-	response.Result = result
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE), response)
 
-	if result == 0 {
-		log.Debug("Player[%v] set hangup campaign %v failed", p.Id, req.GetCampaignId())
-	} else {
-		log.Debug("Player[%v] set hangup campaign %v success", p.Id, req.GetCampaignId())
+	log.Debug("Player[%v] set hangup campaign %v success", p.Id, req.GetCampaignId())
+
+	return 1
+}
+
+func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SCampaignHangupIncomeRequest)
+	if req == nil || p == nil {
+		log.Error("C2SCompaignHangupIncomeRequest proto is invalid")
+		return -1
 	}
 
+	t := req.GetIncomeType()
+	p.hangup_income_get(t, false)
+	return 1
+}
+
+func C2SCampaignDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SCampaignDataRequest)
+	if req == nil || p == nil {
+		log.Error("C2SCampaignDataRequest proto is invalid")
+		return -1
+	}
+	passed_ids := p.db.Campaigns.GetPassedCampaignIds()
+	response := &msg_client_message.S2CCampaignDataResponse{}
+	response.PassedCampaignIds = passed_ids
+	response.UnlockCampaignId = p.db.CampaignCommon.GetCurrentCampaignId()
+	response.HangupCampaignId = p.db.CampaignCommon.GetHangupCampaignId()
+	p.Send(uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_DATA_REQUEST), response)
 	return 1
 }

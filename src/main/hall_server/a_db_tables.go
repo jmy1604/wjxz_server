@@ -587,6 +587,52 @@ func (this* dbPlayerCampaignData)clone_to(d *dbPlayerCampaignData){
 	d.PassCount = this.PassCount
 	return
 }
+type dbPlayerCampaignStaticIncomeData struct{
+	ItemId int32
+	ItemNum int32
+}
+func (this* dbPlayerCampaignStaticIncomeData)from_pb(pb *db.PlayerCampaignStaticIncome){
+	if pb == nil {
+		return
+	}
+	this.ItemId = pb.GetItemId()
+	this.ItemNum = pb.GetItemNum()
+	return
+}
+func (this* dbPlayerCampaignStaticIncomeData)to_pb()(pb *db.PlayerCampaignStaticIncome){
+	pb = &db.PlayerCampaignStaticIncome{}
+	pb.ItemId = proto.Int32(this.ItemId)
+	pb.ItemNum = proto.Int32(this.ItemNum)
+	return
+}
+func (this* dbPlayerCampaignStaticIncomeData)clone_to(d *dbPlayerCampaignStaticIncomeData){
+	d.ItemId = this.ItemId
+	d.ItemNum = this.ItemNum
+	return
+}
+type dbPlayerCampaignRandomIncomeData struct{
+	ItemId int32
+	ItemNum int32
+}
+func (this* dbPlayerCampaignRandomIncomeData)from_pb(pb *db.PlayerCampaignRandomIncome){
+	if pb == nil {
+		return
+	}
+	this.ItemId = pb.GetItemId()
+	this.ItemNum = pb.GetItemNum()
+	return
+}
+func (this* dbPlayerCampaignRandomIncomeData)to_pb()(pb *db.PlayerCampaignRandomIncome){
+	pb = &db.PlayerCampaignRandomIncome{}
+	pb.ItemId = proto.Int32(this.ItemId)
+	pb.ItemNum = proto.Int32(this.ItemNum)
+	return
+}
+func (this* dbPlayerCampaignRandomIncomeData)clone_to(d *dbPlayerCampaignRandomIncomeData){
+	d.ItemId = this.ItemId
+	d.ItemNum = this.ItemNum
+	return
+}
 type dbPlayerChapterUnLockData struct{
 	ChapterId int32
 	PlayerIds []int32
@@ -2721,6 +2767,328 @@ func (this *dbPlayerCampaignColumn)IncbyPassCount(id int32,v int32)(r int32){
 	d.PassCount +=  v
 	this.m_changed = true
 	return d.PassCount
+}
+type dbPlayerCampaignStaticIncomeColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerCampaignStaticIncomeData
+	m_changed bool
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerCampaignStaticIncomeList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerCampaignStaticIncomeData{}
+		d.from_pb(v)
+		this.m_data[int32(d.ItemId)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)save( )(data []byte,err error){
+	pb := &db.PlayerCampaignStaticIncomeList{}
+	pb.List=make([]*db.PlayerCampaignStaticIncome,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignStaticIncomeColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignStaticIncomeColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)GetAll()(list []dbPlayerCampaignStaticIncomeData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignStaticIncomeColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerCampaignStaticIncomeData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)Get(id int32)(v *dbPlayerCampaignStaticIncomeData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignStaticIncomeColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerCampaignStaticIncomeData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)Set(v dbPlayerCampaignStaticIncomeData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignStaticIncomeColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.ItemId)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.ItemId)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)Add(v *dbPlayerCampaignStaticIncomeData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignStaticIncomeColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.ItemId)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.ItemId)
+		return false
+	}
+	d:=&dbPlayerCampaignStaticIncomeData{}
+	v.clone_to(d)
+	this.m_data[int32(v.ItemId)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignStaticIncomeColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignStaticIncomeColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerCampaignStaticIncomeData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignStaticIncomeColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)GetItemNum(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignStaticIncomeColumn.GetItemNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.ItemNum
+	return v,true
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)SetItemNum(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignStaticIncomeColumn.SetItemNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.ItemNum = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerCampaignStaticIncomeColumn)IncbyItemNum(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignStaticIncomeColumn.IncbyItemNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerCampaignStaticIncomeData{}
+		this.m_data[id] = d
+	}
+	d.ItemNum +=  v
+	this.m_changed = true
+	return d.ItemNum
+}
+type dbPlayerCampaignRandomIncomeColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerCampaignRandomIncomeData
+	m_changed bool
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerCampaignRandomIncomeList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerCampaignRandomIncomeData{}
+		d.from_pb(v)
+		this.m_data[int32(d.ItemId)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)save( )(data []byte,err error){
+	pb := &db.PlayerCampaignRandomIncomeList{}
+	pb.List=make([]*db.PlayerCampaignRandomIncome,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignRandomIncomeColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignRandomIncomeColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)GetAll()(list []dbPlayerCampaignRandomIncomeData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignRandomIncomeColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerCampaignRandomIncomeData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)Get(id int32)(v *dbPlayerCampaignRandomIncomeData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignRandomIncomeColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerCampaignRandomIncomeData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)Set(v dbPlayerCampaignRandomIncomeData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignRandomIncomeColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.ItemId)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.ItemId)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)Add(v *dbPlayerCampaignRandomIncomeData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignRandomIncomeColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.ItemId)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.ItemId)
+		return false
+	}
+	d:=&dbPlayerCampaignRandomIncomeData{}
+	v.clone_to(d)
+	this.m_data[int32(v.ItemId)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignRandomIncomeColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignRandomIncomeColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerCampaignRandomIncomeData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignRandomIncomeColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)GetItemNum(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignRandomIncomeColumn.GetItemNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.ItemNum
+	return v,true
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)SetItemNum(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignRandomIncomeColumn.SetItemNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.ItemNum = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerCampaignRandomIncomeColumn)IncbyItemNum(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignRandomIncomeColumn.IncbyItemNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerCampaignRandomIncomeData{}
+		this.m_data[id] = d
+	}
+	d.ItemNum +=  v
+	this.m_changed = true
+	return d.ItemNum
 }
 type dbPlayerChapterUnLockColumn struct{
 	m_row *dbPlayerRow
@@ -6542,6 +6910,8 @@ type dbPlayerRow struct {
 	BattleTeam dbPlayerBattleTeamColumn
 	CampaignCommon dbPlayerCampaignCommonColumn
 	Campaigns dbPlayerCampaignColumn
+	CampaignStaticIncomes dbPlayerCampaignStaticIncomeColumn
+	CampaignRandomIncomes dbPlayerCampaignRandomIncomeColumn
 	ChapterUnLock dbPlayerChapterUnLockColumn
 	ShopItems dbPlayerShopItemColumn
 	ShopLimitedInfos dbPlayerShopLimitedInfoColumn
@@ -6588,6 +6958,10 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.CampaignCommon.m_data=&dbPlayerCampaignCommonData{}
 	this.Campaigns.m_row=this
 	this.Campaigns.m_data=make(map[int32]*dbPlayerCampaignData)
+	this.CampaignStaticIncomes.m_row=this
+	this.CampaignStaticIncomes.m_data=make(map[int32]*dbPlayerCampaignStaticIncomeData)
+	this.CampaignRandomIncomes.m_row=this
+	this.CampaignRandomIncomes.m_data=make(map[int32]*dbPlayerCampaignRandomIncomeData)
 	this.ChapterUnLock.m_row=this
 	this.ChapterUnLock.m_data=&dbPlayerChapterUnLockData{}
 	this.ShopItems.m_row=this
@@ -6645,7 +7019,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(34)
+		db_args:=new_db_args(36)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
@@ -6691,6 +7065,18 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dCampaigns)
+		dCampaignStaticIncomes,db_err:=this.CampaignStaticIncomes.save()
+		if db_err!=nil{
+			log.Error("insert save CampaignStaticIncome failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dCampaignStaticIncomes)
+		dCampaignRandomIncomes,db_err:=this.CampaignRandomIncomes.save()
+		if db_err!=nil{
+			log.Error("insert save CampaignRandomIncome failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dCampaignRandomIncomes)
 		dChapterUnLock,db_err:=this.ChapterUnLock.save()
 		if db_err!=nil{
 			log.Error("insert save ChapterUnLock failed")
@@ -6838,9 +7224,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.ChapterUnLock.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.Chests.m_changed||this.Mails.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.ChapterUnLock.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.Chests.m_changed||this.Mails.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(34)
+			db_args:=new_db_args(36)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -6911,6 +7297,24 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 					return err,false,0,"",nil
 				}
 				db_args.Push(dCampaigns)
+			}
+			if this.CampaignStaticIncomes.m_changed{
+				update_string+="CampaignStaticIncomes=?,"
+				dCampaignStaticIncomes,err:=this.CampaignStaticIncomes.save()
+				if err!=nil{
+					log.Error("insert save CampaignStaticIncome failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dCampaignStaticIncomes)
+			}
+			if this.CampaignRandomIncomes.m_changed{
+				update_string+="CampaignRandomIncomes=?,"
+				dCampaignRandomIncomes,err:=this.CampaignRandomIncomes.save()
+				if err!=nil{
+					log.Error("insert save CampaignRandomIncome failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dCampaignRandomIncomes)
 			}
 			if this.ChapterUnLock.m_changed{
 				update_string+="ChapterUnLock=?,"
@@ -7145,6 +7549,8 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.BattleTeam.m_changed = false
 	this.CampaignCommon.m_changed = false
 	this.Campaigns.m_changed = false
+	this.CampaignStaticIncomes.m_changed = false
+	this.CampaignRandomIncomes.m_changed = false
 	this.ChapterUnLock.m_changed = false
 	this.ShopItems.m_changed = false
 	this.ShopLimitedInfos.m_changed = false
@@ -7337,6 +7743,22 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Campaigns LONGBLOB")
 		if err != nil {
 			log.Error("ADD COLUMN Campaigns failed")
+			return
+		}
+	}
+	_, hasCampaignStaticIncome := columns["CampaignStaticIncomes"]
+	if !hasCampaignStaticIncome {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN CampaignStaticIncomes LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN CampaignStaticIncomes failed")
+			return
+		}
+	}
+	_, hasCampaignRandomIncome := columns["CampaignRandomIncomes"]
+	if !hasCampaignRandomIncome {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN CampaignRandomIncomes LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN CampaignRandomIncomes failed")
 			return
 		}
 	}
@@ -7535,7 +7957,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,ChapterUnLock,ShopItems,ShopLimitedInfos,Chests,Mails,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,ChapterUnLock,ShopItems,ShopLimitedInfos,Chests,Mails,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -7543,7 +7965,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,ChapterUnLock,ShopItems,ShopLimitedInfos,Chests,Mails,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,ChapterUnLock,ShopItems,ShopLimitedInfos,Chests,Mails,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -7597,6 +8019,8 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dBattleTeam []byte
 	var dCampaignCommon []byte
 	var dCampaigns []byte
+	var dCampaignStaticIncomes []byte
+	var dCampaignRandomIncomes []byte
 	var dChapterUnLock []byte
 	var dShopItems []byte
 	var dShopLimitedInfos []byte
@@ -7623,7 +8047,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dFirstDrawCards []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dGlobal,&dItems,&dRoles,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dChapterUnLock,&dShopItems,&dShopLimitedInfos,&dChests,&dMails,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dGlobal,&dItems,&dRoles,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dChapterUnLock,&dShopItems,&dShopLimitedInfos,&dChests,&dMails,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
 		if err != nil {
 			log.Error("Scan")
 			return
@@ -7667,6 +8091,16 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.Campaigns.load(dCampaigns)
 		if err != nil {
 			log.Error("Campaigns %v", PlayerId)
+			return
+		}
+		err = row.CampaignStaticIncomes.load(dCampaignStaticIncomes)
+		if err != nil {
+			log.Error("CampaignStaticIncomes %v", PlayerId)
+			return
+		}
+		err = row.CampaignRandomIncomes.load(dCampaignRandomIncomes)
+		if err != nil {
+			log.Error("CampaignRandomIncomes %v", PlayerId)
 			return
 		}
 		err = row.ChapterUnLock.load(dChapterUnLock)

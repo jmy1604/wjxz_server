@@ -105,6 +105,7 @@ type Player struct {
 
 	roles_id_change_info IdChangeInfo    // 角色增删更新
 	items_changed_info   map[int32]int32 // 物品增删更新
+	tmp_cache_items      map[int32]int32
 
 	msg_acts_lock    *sync.Mutex
 	cur_msg_acts_len int32
@@ -388,8 +389,6 @@ func (this *Player) OnLogin() {
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	this.team_member_mgr = make(map[int32]*TeamMember)
-	// 战役挂机结算
-	this.hangup_income_get()
 }
 
 func (this *Player) OnLogout() {

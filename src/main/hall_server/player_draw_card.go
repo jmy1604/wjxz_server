@@ -12,20 +12,16 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func reg_player_draw_msg() {
-	//msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SDraw, C2SDrawHandler)
-}
-
-func (this *Player) drop_item_by_id(id int32, check_same bool, out_items map[int32]int32) (bool, *msg_client_message.ItemInfo) {
+func (this *Player) drop_item_by_id(id int32, check_same bool, add bool /*, out_items map[int32]int32*/) (bool, *msg_client_message.ItemInfo) {
 	drop_lib := drop_table_mgr.Map[id]
 	if nil == drop_lib {
 		return false, nil
 	}
-	item := this.drop_item(drop_lib, check_same, true, out_items)
+	item := this.drop_item(drop_lib, check_same, add /*, out_items*/)
 	return true, item
 }
 
-func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, badd bool, out_items map[int32]int32) (item *msg_client_message.ItemInfo) {
+func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, badd bool /*, out_items map[int32]int32*/) (item *msg_client_message.ItemInfo) {
 	log.Info("当前抽取库 总数目%d 总权重%d 详细%v", drop_lib.TotalCount, drop_lib.TotalWeight, drop_lib)
 
 	if check_same {
@@ -65,9 +61,9 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 				item = &msg_client_message.ItemInfo{}
 				item.ItemCfgId = tmp_item.DropItemID
 				item.ItemNum = num
-				if out_items != nil {
-					n := out_items[item.ItemCfgId]
-					out_items[item.ItemCfgId] = n + item.ItemNum
+				if this.tmp_cache_items != nil {
+					n := this.tmp_cache_items[item.ItemCfgId]
+					this.tmp_cache_items[item.ItemCfgId] = n + item.ItemNum
 				}
 			} else {
 				if badd {
@@ -78,9 +74,9 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 					}*/
 				} else {
 					item = &msg_client_message.ItemInfo{ItemCfgId: tmp_item.DropItemID, ItemNum: num, RemainSeconds: 0}
-					if out_items != nil {
-						n := out_items[item.ItemCfgId]
-						out_items[item.ItemCfgId] = n + item.ItemNum
+					if this.tmp_cache_items != nil {
+						n := this.tmp_cache_items[item.ItemCfgId]
+						this.tmp_cache_items[item.ItemCfgId] = n + item.ItemNum
 					}
 				}
 			}
@@ -117,7 +113,7 @@ func (this *Player) DropItems(items_info []*table_config.ItemInfo, draw_count in
 					return false, nil
 				}
 
-				tmp_item := this.drop_item(draw_lib, true, badd, nil)
+				tmp_item := this.drop_item(draw_lib, true, badd)
 				if tmp_item != nil {
 					items = append(items, tmp_item)
 				}
@@ -144,7 +140,7 @@ func (this *Player) DropItems2(items_info []int32, badd bool) (bool, []*msg_clie
 		}
 
 		for j := 0; j < int(items_info[2*i+1]); j++ {
-			tmp_item := this.drop_item(drop_lib, false, badd, nil)
+			tmp_item := this.drop_item(drop_lib, false, badd)
 			if tmp_item != nil {
 				items = append(items, tmp_item)
 			}

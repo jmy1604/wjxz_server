@@ -83,6 +83,24 @@ message PlayerCampaignList{
 	repeated PlayerCampaign List=1;
 }
 
+message PlayerCampaignStaticIncome{
+	optional int32 ItemId=1;
+	optional int32 ItemNum=2;
+}
+
+message PlayerCampaignStaticIncomeList{
+	repeated PlayerCampaignStaticIncome List=1;
+}
+
+message PlayerCampaignRandomIncome{
+	optional int32 ItemId=1;
+	optional int32 ItemNum=2;
+}
+
+message PlayerCampaignRandomIncomeList{
+	repeated PlayerCampaignRandomIncome List=1;
+}
+
 message PlayerChapterUnLock{
 	optional int32 ChapterId=1;
 	repeated int32 PlayerIds=2;

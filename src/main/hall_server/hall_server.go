@@ -80,7 +80,6 @@ func (this *HallServer) OnInit() (err error) {
 
 	reg_player_guide_msg()
 	reg_player_friend_msg()
-	reg_player_draw_msg()
 
 	player_mgr.RegMsgHandler()
 

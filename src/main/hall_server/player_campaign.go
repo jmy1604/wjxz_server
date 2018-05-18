@@ -35,6 +35,7 @@ func get_campaign_chapter_and_difficulty(campaign_id int32) (int32, int32) {
 func get_stage_by_campaign(campaign_id int32) *table_config.XmlPassItem {
 	campaign := campaign_table_mgr.Get(campaign_id)
 	if campaign == nil {
+		log.Error("战役[%v]找不到", campaign_id)
 		return nil
 	}
 	return stage_table_mgr.Get(campaign.StageId)
@@ -153,15 +154,21 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 			log.Error("Player[%v] fight first campaign[%v] invalid", this.Id, campaign_id)
 			return -1
 		}
-		this.db.CampaignCommon.SetCurrentCampaignId(campaign_id)
+	} else if current_campaign_id != campaign_id {
+		log.Error("Player[%v] fight campaign[%v] cant allow", this.Id, campaign_id)
+		return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
 	}
 
 	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(stage)
 
+	next_campaign_id := int32(0)
 	if is_win && !has_next_wave {
 		this.db.Campaigns.Add(&dbPlayerCampaignData{
 			CampaignId: campaign_id,
 		})
+		next_campaign_id = get_next_campaign_id(campaign_id)
+		this.db.CampaignCommon.SetCurrentCampaignId(next_campaign_id)
+	} else {
 		this.db.CampaignCommon.SetCurrentCampaignId(campaign_id)
 	}
 
@@ -172,20 +179,19 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		rounds = make([]*msg_client_message.BattleRoundReports, 0)
 	}
 	response := &msg_client_message.S2CBattleResultResponse{
-		IsWin:        is_win,
-		EnterReports: enter_reports,
-		Rounds:       rounds,
-		MyTeam:       my_team,
-		TargetTeam:   target_team,
-		HasNextWave:  has_next_wave,
+		IsWin:          is_win,
+		EnterReports:   enter_reports,
+		Rounds:         rounds,
+		MyTeam:         my_team,
+		TargetTeam:     target_team,
+		HasNextWave:    has_next_wave,
+		NextCampaignId: next_campaign_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	if is_win && !has_next_wave {
-		next_campaign_id := get_next_campaign_id(current_campaign_id)
-		rewards_msg := &msg_client_message.S2CBattleInCampaignRewardNotify{
-			NextCampaignId: next_campaign_id,
-		}
+
+		rewards_msg := &msg_client_message.S2CCampaignHangupIncomeResponse{}
 		// 奖励
 		for i := 0; i < len(stage.RewardList)/2; i++ {
 			item_id := stage.RewardList[2*i]
@@ -196,7 +202,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 				ItemNum:   item_num,
 			})
 		}
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_IN_CAMPAIGN_REWARD), rewards_msg)
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), rewards_msg)
 	}
 
 	Output_S2CBattleResult(this, response)
@@ -204,25 +210,26 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 }
 
 // 设置挂机战役关卡
-func (this *Player) set_hangup_campaign_id(campaign_id int32) bool {
+func (this *Player) set_hangup_campaign_id(campaign_id int32) int32 {
 	hangup_id := this.db.CampaignCommon.GetHangupCampaignId()
 	if hangup_id == 0 {
 		if campaign_id != campaign_table_mgr.Array[0].Id {
-			return false
+			return int32(msg_client_message.E_ERR_PLAYER_CANT_FIGHT_THE_CAMPAIGN)
 		}
 	} else if campaign_id != hangup_id {
 		if !this.db.Campaigns.HasIndex(campaign_id) {
 			current_campaign_id := this.db.CampaignCommon.GetCurrentCampaignId()
 			next_campaign_id := get_next_campaign_id(current_campaign_id)
 			if next_campaign_id != campaign_id {
-				return false
+				return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
+			}
+
+			// 关卡完成就结算一次挂机收益
+			if hangup_id != 0 {
+				this.hangup_income_get(0, true)
+				this.hangup_income_get(1, true)
 			}
 		}
-	}
-
-	// 关卡完成就结算一次挂机收益
-	if hangup_id != 0 {
-		this.hangup_income_get()
 	}
 
 	// 设置挂机开始时间
@@ -233,58 +240,126 @@ func (this *Player) set_hangup_campaign_id(campaign_id int32) bool {
 	}
 	this.db.CampaignCommon.SetHangupCampaignId(campaign_id)
 
-	return true
+	return 1
 }
 
-func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaignItem, now_time, static_income_time int32) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
-	st := now_time - static_income_time
+func (this *Player) cache_campaign_static_income(item_id, item_num int32) {
+	if !this.db.CampaignStaticIncomes.HasIndex(item_id) {
+		this.db.CampaignStaticIncomes.Add(&dbPlayerCampaignStaticIncomeData{
+			ItemId:  item_id,
+			ItemNum: item_num,
+		})
+	} else {
+		this.db.CampaignStaticIncomes.IncbyItemNum(item_id, item_num)
+	}
+}
+
+func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaignItem, last_time, now_time int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
+	st := now_time - last_time
 	correct_secs = (st % campaign.StaticRewardSec)
+	var tmp_cache_items map[int32]int32
 
 	// 固定掉落
 	n := st / campaign.StaticRewardSec
 	for i := 0; i < len(campaign.StaticRewardItem)/2; i++ {
 		item_id := campaign.StaticRewardItem[2*i]
 		item_num := n * campaign.StaticRewardItem[2*i+1]
-		if this.add_item(item_id, item_num) {
-			incomes = append(incomes, &msg_client_message.ItemInfo{
-				ItemCfgId: item_id,
-				ItemNum:   item_num,
-			})
+		if is_cache {
+			this.cache_campaign_static_income(item_id, item_num)
+		} else {
+			if tmp_cache_items == nil {
+				tmp_cache_items = make(map[int32]int32)
+			}
+			d := tmp_cache_items[item_id]
+			tmp_cache_items[item_id] = d + item_num
+		}
+	}
+
+	if !is_cache {
+		cache := this.db.CampaignStaticIncomes.GetAllIndex()
+		if cache != nil {
+			for i := 0; i < len(cache); i++ {
+				n, _ := this.db.CampaignStaticIncomes.GetItemNum(cache[i])
+				d := tmp_cache_items[cache[i]]
+				tmp_cache_items[cache[i]] = d + n
+			}
+		}
+		if tmp_cache_items != nil {
+			for k, v := range tmp_cache_items {
+				if this.add_item(k, v) {
+					incomes = append(incomes, &msg_client_message.ItemInfo{
+						ItemCfgId: k,
+						ItemNum:   v,
+					})
+				}
+			}
 		}
 	}
 
 	return
 }
 
-func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaignItem, now_time, random_income_time int32) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
-	rt := now_time - random_income_time
+func (this *Player) cache_campaign_random_income(item_id, item_num int32) {
+	if !this.db.CampaignRandomIncomes.HasIndex(item_id) {
+		this.db.CampaignRandomIncomes.Add(&dbPlayerCampaignRandomIncomeData{
+			ItemId:  item_id,
+			ItemNum: item_num,
+		})
+	} else {
+		this.db.CampaignRandomIncomes.IncbyItemNum(item_id, item_num)
+	}
+}
+
+func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaignItem, last_time, now_time int32, is_cache bool) (incomes []*msg_client_message.ItemInfo, correct_secs int32) {
+	rt := now_time - last_time
 	correct_secs = rt % campaign.RandomDropSec
 	// 随机掉落
 	rand.Seed(time.Now().Unix())
-	out_items := make(map[int32]int32)
+	this.tmp_cache_items = make(map[int32]int32)
 	n := rt / campaign.RandomDropSec
 	for k := 0; k < int(n); k++ {
 		for i := 0; i < len(campaign.RandomDropIDList)/2; i++ {
 			group_id := campaign.RandomDropIDList[2*i]
 			count := campaign.RandomDropIDList[2*i+1]
 			for j := 0; j < int(count); j++ {
-				if o, _ := this.drop_item_by_id(group_id, false, out_items); !o {
+				if o, _ := this.drop_item_by_id(group_id, false, !is_cache); !o {
 					continue
 				}
 			}
 		}
 	}
-	for k, v := range out_items {
-		incomes = append(incomes, &msg_client_message.ItemInfo{
-			ItemCfgId: k,
-			ItemNum:   v,
-		})
+
+	if !is_cache {
+		// 缓存的收益
+		cache := this.db.CampaignRandomIncomes.GetAllIndex()
+		if cache != nil {
+			for i := 0; i < len(cache); i++ {
+				n, _ := this.db.CampaignRandomIncomes.GetItemNum(cache[i])
+
+				d := this.tmp_cache_items[cache[i]]
+				this.tmp_cache_items[cache[i]] = d + n
+			}
+		}
+
+		for k, v := range this.tmp_cache_items {
+			if this.add_item(k, v) {
+				incomes = append(incomes, &msg_client_message.ItemInfo{
+					ItemCfgId: k,
+					ItemNum:   v,
+				})
+			}
+		}
+		this.tmp_cache_items = nil
+	} else {
+		for k, v := range this.tmp_cache_items {
+			this.cache_campaign_random_income(k, v)
+		}
 	}
 	return
 }
 
 // 关卡挂机收益
-func (this *Player) hangup_income_get() {
+func (this *Player) hangup_income_get(income_type int32, is_cache bool) {
 	hangup_id := this.db.CampaignCommon.GetHangupCampaignId()
 	if hangup_id == 0 {
 		return
@@ -297,45 +372,60 @@ func (this *Player) hangup_income_get() {
 
 	now_time := int32(time.Now().Unix())
 	last_logout := this.db.Info.GetLastLogout()
-	static_income_time := this.db.CampaignCommon.GetHangupLastDropStaticIncomeTime()
-	random_income_time := this.db.CampaignCommon.GetHangupLastDropRandomIncomeTime()
-
-	var static_incomes, random_incomes []*msg_client_message.ItemInfo
-	var cs, cr int32
-	if last_logout == 0 {
-		// 还未下线过
-		static_incomes, cs = this.get_campaign_static_income(campaign, now_time, static_income_time)
-		random_incomes, cr = this.get_campaign_random_income(campaign, now_time, random_income_time)
-	} else {
-		if last_logout >= static_income_time {
-			if now_time-last_logout >= 8*3600 {
-				static_incomes, cs = this.get_campaign_static_income(campaign, last_logout+8*3600, static_income_time)
-			} else {
-				static_incomes, cs = this.get_campaign_static_income(campaign, now_time, static_income_time)
-			}
-		} else {
-			static_incomes, cs = this.get_campaign_static_income(campaign, now_time, static_income_time)
-		}
-		if last_logout >= random_income_time {
-			if now_time-last_logout >= 8*3600 {
-				random_incomes, cr = this.get_campaign_random_income(campaign, last_logout+8*3600, random_income_time)
-			} else {
-				random_incomes, cr = this.get_campaign_random_income(campaign, now_time, random_income_time)
-			}
-		} else {
-			random_incomes, cr = this.get_campaign_random_income(campaign, now_time, random_income_time)
-		}
-	}
-
-	this.db.CampaignCommon.SetHangupLastDropStaticIncomeTime(now_time - cs)
-	this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)
-
 	var incomes []*msg_client_message.ItemInfo
-	incomes = append(static_incomes, random_incomes...)
-	if incomes != nil {
-		var msg msg_client_message.S2CBattleCampaignHangupDropItems
-		msg.Items = incomes
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_CAMPAIGN_HANGUP_DROP_ITEMS), &msg)
-		log.Debug("Player[%v] hangup incomes: %v", this.Id, incomes)
+	if income_type == 0 {
+		static_income_time := this.db.CampaignCommon.GetHangupLastDropStaticIncomeTime()
+		var cs int32
+		if last_logout == 0 {
+			// 还未下线过
+			incomes, cs = this.get_campaign_static_income(campaign, static_income_time, now_time, is_cache)
+		} else {
+			if last_logout >= static_income_time {
+				if now_time-last_logout >= 8*3600 {
+					incomes, cs = this.get_campaign_static_income(campaign, static_income_time, last_logout+8*3600, is_cache)
+				} else {
+					incomes, cs = this.get_campaign_static_income(campaign, static_income_time, now_time, is_cache)
+				}
+			} else {
+				incomes, cs = this.get_campaign_static_income(campaign, static_income_time, now_time, is_cache)
+			}
+		}
+		this.db.CampaignCommon.SetHangupLastDropStaticIncomeTime(now_time - cs)
+	} else {
+		random_income_time := this.db.CampaignCommon.GetHangupLastDropRandomIncomeTime()
+		var cr int32
+		if last_logout == 0 {
+			incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+		} else {
+			if last_logout >= random_income_time {
+				if now_time-last_logout >= 8*3600 {
+					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, last_logout+8*3600, is_cache)
+				} else {
+					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+				}
+			} else {
+				incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+			}
+		}
+		this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)
 	}
+
+	if incomes != nil {
+		var msg msg_client_message.S2CCampaignHangupIncomeResponse
+		msg.Rewards = incomes
+		msg.IncomeType = income_type
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), &msg)
+		log.Debug("Player[%v] hangup %v incomes: %v", this.Id, income_type, incomes)
+	}
+}
+
+func (this *dbPlayerCampaignColumn) GetPassedCampaignIds() []int32 {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignColumn.GetPassedCampaignIds")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	var ids []int32
+	for id, _ := range this.m_data {
+		ids = append(ids, id)
+	}
+	return ids
 }
