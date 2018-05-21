@@ -296,7 +296,7 @@ func (this *Player) add_msg_data(msg_code uint16, data []byte) {
 
 func (this *Player) PopCurMsgData() []byte {
 	if this.b_base_prop_chg {
-
+		this.send_info()
 	}
 
 	this.check_and_send_roles_change()
@@ -470,9 +470,55 @@ func (this *Player) send_teams() {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TEAMS_RESPONSE), msg)
 }
 
+func (this *Player) send_info() {
+	response := &msg_client_message.S2CPlayerInfoResponse{
+		Level:    this.db.Info.GetLvl(),
+		Exp:      this.db.Info.GetExp(),
+		Gold:     this.db.Info.GetGold(),
+		Diamond:  this.db.Info.GetDiamond(),
+		Icon:     this.db.Info.GetIcon(),
+		VipLevel: this.db.Info.GetVipLvl(),
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_INFO_RESPONSE), response)
+}
+
 func (this *Player) notify_enter_complete() {
 	msg := &msg_client_message.S2CEnterGameCompleteNotify{}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_COMPLETE_NOTIFY), msg)
+}
+
+func (this *Player) levelup_role(role_id int32) int32 {
+	lvl, o := this.db.Roles.GetLevel(role_id)
+	if !o {
+		log.Error("Player[%v] not have role[%v]", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	levelup_data := levelup_table_mgr.Get(lvl)
+	if levelup_data == nil {
+		log.Error("cant found level[%v] data", lvl)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_DATA_NOT_FOUND)
+	}
+
+	if levelup_data.CardLevelUpRes != nil {
+		for i := 0; i < len(levelup_data.CardLevelUpRes)/2; i++ {
+			resource_id := levelup_data.CardLevelUpRes[2*i]
+			resource_num := levelup_data.CardLevelUpRes[2*i+1]
+			if this.get_resource(resource_id) < resource_num {
+				return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
+			}
+		}
+		for i := 0; i < len(levelup_data.CardLevelUpRes)/2; i++ {
+			resource_id := levelup_data.CardLevelUpRes[2*i]
+			resource_num := levelup_data.CardLevelUpRes[2*i+1]
+			this.add_resource(resource_id, -resource_num)
+		}
+
+		this.db.Roles.SetLevel(role_id, lvl+1)
+		lvl += 1
+	}
+
+	return lvl
 }
 
 // ----------------------------------------------------------------------------
@@ -515,39 +561,6 @@ func C2SBuyShopItemHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 		return 1
 	}
 	return p.buy_item(req.GetItemId(), req.GetItemNum(), true)
-}
-
-func C2SGetInfoHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetInfo)
-	if req == nil || nil == p {
-		log.Error("C2SGetInfo proto is invalid")
-		return -1
-	}
-
-	if req.GetBase() {
-		p.SendBaseInfo()
-	}
-
-	if req.GetItem() {
-		m := &msg_client_message.S2CRetItemInfos{}
-		p.db.Items.FillAllMsg(m)
-		p.Send(m)
-	}
-
-	if req.GetStage() {
-		p.send_stage_info()
-	}
-
-	if req.GetGuide() {
-		p.SyncPlayerGuideData()
-	}
-
-	return 1
-}
-
-func C2SHeartHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) (ret_val int32) {
-
-	return 1
 }
 
 func C2SGetHandbookHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
@@ -666,110 +679,6 @@ func (this *Player) get_stage_total_score_rank_list(rank_start, rank_num int32) 
 	} else {
 		response.SelfValue1 = proto.Int32(result.SelfTotalScore)
 	}
-	this.Send(response)
-
-	return 1
-}
-
-func (this *Player) get_stage_score_rank_list(stage_id, rank_start, rank_num int32) int32 {
-	if rank_num > global_config_mgr.GetGlobalConfig().RankingListOnceGetItemsNum {
-		return int32(msg_client_message.E_ERR_RANK_GET_ITEMS_NUM_OVER_MAX)
-	}
-
-	result := this.rpc_ranklist_stage_score(stage_id, rank_start, rank_num)
-	if result == nil {
-		log.Error("Player[%v] rpc get stage[%v] score rank list range[%v,%v] failed", this.Id, stage_id, rank_start, rank_num)
-		return -1
-	}
-
-	var items []*msg_client_message.RankingListItemInfo
-	if result.RankItems == nil {
-		items = make([]*msg_client_message.RankingListItemInfo, 0)
-	} else {
-		now_time := time.Now()
-		items = make([]*msg_client_message.RankingListItemInfo, len(result.RankItems))
-		for i := int32(0); i < int32(len(result.RankItems)); i++ {
-			r := result.RankItems[i]
-			is_friend := this.db.Friends.HasIndex(r.PlayerId)
-			is_zaned := this.is_today_zan(r.PlayerId, now_time)
-			name, level, head := GetPlayerBaseInfo(r.PlayerId)
-			items[i] = &msg_client_message.RankingListItemInfo{
-				Rank:             proto.Int32(rank_start + i),
-				PlayerId:         proto.Int32(r.PlayerId),
-				PlayerName:       proto.String(name),
-				PlayerLevel:      proto.Int32(level),
-				PlayerHead:       proto.String(head),
-				PlayerStageId:    proto.Int32(r.StageId),
-				PlayerStageScore: proto.Int32(r.StageScore),
-				IsFriend:         proto.Bool(is_friend),
-				IsZaned:          proto.Bool(is_zaned),
-			}
-		}
-	}
-
-	response := &msg_client_message.S2CPullRankingListResult{}
-	response.ItemList = items
-	response.RankType = proto.Int32(2)
-	response.StartRank = proto.Int32(rank_start)
-	response.SelfRank = proto.Int32(result.SelfRank)
-	if result.SelfRank == 0 {
-		score, _ := this.db.Stages.GetTopScore(stage_id)
-		response.SelfValue1 = proto.Int32(score)
-	} else {
-		response.SelfValue1 = proto.Int32(result.SelfScore)
-	}
-
-	this.Send(response)
-
-	return 1
-}
-
-func (this *Player) get_charm_rank_list(rank_start, rank_num int32) int32 {
-	if rank_num > global_config_mgr.GetGlobalConfig().RankingListOnceGetItemsNum {
-		return int32(msg_client_message.E_ERR_RANK_GET_ITEMS_NUM_OVER_MAX)
-	}
-
-	result := this.rpc_ranklist_charm(rank_start, rank_num)
-	if result == nil {
-		log.Error("Player[%v] rpc get charm rank list range[%v,%v] failed", this.Id, rank_start, rank_num)
-		return -1
-	}
-
-	var items []*msg_client_message.RankingListItemInfo
-	if result.RankItems == nil {
-		items = make([]*msg_client_message.RankingListItemInfo, 0)
-	} else {
-		now_time := time.Now()
-		items = make([]*msg_client_message.RankingListItemInfo, len(result.RankItems))
-		for i := int32(0); i < int32(len(result.RankItems)); i++ {
-			r := result.RankItems[i]
-			is_friend := this.db.Friends.HasIndex(r.PlayerId)
-			is_zaned := this.is_today_zan(r.PlayerId, now_time)
-			name, level, head := GetPlayerBaseInfo(r.PlayerId)
-			items[i] = &msg_client_message.RankingListItemInfo{
-				Rank:        proto.Int32(rank_start + i),
-				PlayerId:    proto.Int32(r.PlayerId),
-				PlayerName:  proto.String(name),
-				PlayerLevel: proto.Int32(level),
-				PlayerHead:  proto.String(head),
-				PlayerCharm: proto.Int32(r.Charm),
-				IsFriend:    proto.Bool(is_friend),
-				IsZaned:     proto.Bool(is_zaned),
-			}
-		}
-	}
-
-	response := &msg_client_message.S2CPullRankingListResult{}
-	response.ItemList = items
-	response.RankType = proto.Int32(3)
-	response.StartRank = proto.Int32(rank_start)
-	response.SelfRank = proto.Int32(result.SelfRank)
-	if result.SelfRank == 0 {
-		response.SelfValue1 = proto.Int32(this.db.Info.GetCharmVal())
-	} else {
-		response.SelfValue1 = proto.Int32(result.SelfCharm)
-	}
-
 	this.Send(response)
 
 	return 1

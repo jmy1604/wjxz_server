@@ -220,6 +220,20 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("drop_table_mgr init succeed")
 	}
 
+	if !levelup_table_mgr.Init() {
+		log.Error("levelup_table_mgr init failed")
+		return errors.New("levelup_table_mgr init failed")
+	} else {
+		log.Info("levelup_table_mgr init succeed")
+	}
+
+	if !rankup_table_mgr.Init() {
+		log.Error("rankup_table_mgr init failed")
+		return errors.New("rankup_table_mgr init failed")
+	} else {
+		log.Info("rankup_table_mgr init succeed")
+	}
+
 	conn_timer_mgr.Init()
 
 	return
@@ -374,6 +388,8 @@ var skill_table_mgr table_config.SkillTableMgr
 var buff_table_mgr table_config.StatusTableMgr
 var stage_table_mgr table_config.PassTableMgr
 var campaign_table_mgr table_config.CampaignTableMgr
+var levelup_table_mgr table_config.LevelUpTableMgr
+var rankup_table_mgr table_config.RankUpTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

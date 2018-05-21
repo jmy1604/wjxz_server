@@ -306,14 +306,9 @@ type dbPlayerInfoData struct{
 	Diamond int32
 	LastDialyTaskUpUinx int32
 	Icon string
-	CustomIcon string
 	LastLogout int32
 	LastLogin int32
-	Spirit int32
-	FriendPoints int32
-	LastRefreshShopTime int32
 	VipLvl int32
-	FriendMessageUnreadCurrId int32
 }
 func (this* dbPlayerInfoData)from_pb(pb *db.PlayerInfo){
 	if pb == nil {
@@ -326,14 +321,9 @@ func (this* dbPlayerInfoData)from_pb(pb *db.PlayerInfo){
 	this.Diamond = pb.GetDiamond()
 	this.LastDialyTaskUpUinx = pb.GetLastDialyTaskUpUinx()
 	this.Icon = pb.GetIcon()
-	this.CustomIcon = pb.GetCustomIcon()
 	this.LastLogout = pb.GetLastLogout()
 	this.LastLogin = pb.GetLastLogin()
-	this.Spirit = pb.GetSpirit()
-	this.FriendPoints = pb.GetFriendPoints()
-	this.LastRefreshShopTime = pb.GetLastRefreshShopTime()
 	this.VipLvl = pb.GetVipLvl()
-	this.FriendMessageUnreadCurrId = pb.GetFriendMessageUnreadCurrId()
 	return
 }
 func (this* dbPlayerInfoData)to_pb()(pb *db.PlayerInfo){
@@ -345,14 +335,9 @@ func (this* dbPlayerInfoData)to_pb()(pb *db.PlayerInfo){
 	pb.Diamond = proto.Int32(this.Diamond)
 	pb.LastDialyTaskUpUinx = proto.Int32(this.LastDialyTaskUpUinx)
 	pb.Icon = proto.String(this.Icon)
-	pb.CustomIcon = proto.String(this.CustomIcon)
 	pb.LastLogout = proto.Int32(this.LastLogout)
 	pb.LastLogin = proto.Int32(this.LastLogin)
-	pb.Spirit = proto.Int32(this.Spirit)
-	pb.FriendPoints = proto.Int32(this.FriendPoints)
-	pb.LastRefreshShopTime = proto.Int32(this.LastRefreshShopTime)
 	pb.VipLvl = proto.Int32(this.VipLvl)
-	pb.FriendMessageUnreadCurrId = proto.Int32(this.FriendMessageUnreadCurrId)
 	return
 }
 func (this* dbPlayerInfoData)clone_to(d *dbPlayerInfoData){
@@ -363,14 +348,9 @@ func (this* dbPlayerInfoData)clone_to(d *dbPlayerInfoData){
 	d.Diamond = this.Diamond
 	d.LastDialyTaskUpUinx = this.LastDialyTaskUpUinx
 	d.Icon = this.Icon
-	d.CustomIcon = this.CustomIcon
 	d.LastLogout = this.LastLogout
 	d.LastLogin = this.LastLogin
-	d.Spirit = this.Spirit
-	d.FriendPoints = this.FriendPoints
-	d.LastRefreshShopTime = this.LastRefreshShopTime
 	d.VipLvl = this.VipLvl
-	d.FriendMessageUnreadCurrId = this.FriendMessageUnreadCurrId
 	return
 }
 type dbPlayerGlobalData struct{
@@ -1656,6 +1636,13 @@ func (this *dbPlayerInfoColumn)SetExp(v int32){
 	this.m_changed = true
 	return
 }
+func (this *dbPlayerInfoColumn)IncbyExp(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.IncbyExp")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Exp += v
+	this.m_changed = true
+	return this.m_data.Exp
+}
 func (this *dbPlayerInfoColumn)GetCreateUnix( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetCreateUnix")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -1682,6 +1669,13 @@ func (this *dbPlayerInfoColumn)SetGold(v int32){
 	this.m_changed = true
 	return
 }
+func (this *dbPlayerInfoColumn)IncbyGold(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.IncbyGold")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Gold += v
+	this.m_changed = true
+	return this.m_data.Gold
+}
 func (this *dbPlayerInfoColumn)GetDiamond( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetDiamond")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -1694,6 +1688,13 @@ func (this *dbPlayerInfoColumn)SetDiamond(v int32){
 	this.m_data.Diamond = v
 	this.m_changed = true
 	return
+}
+func (this *dbPlayerInfoColumn)IncbyDiamond(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.IncbyDiamond")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Diamond += v
+	this.m_changed = true
+	return this.m_data.Diamond
 }
 func (this *dbPlayerInfoColumn)GetLastDialyTaskUpUinx( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetLastDialyTaskUpUinx")
@@ -1718,19 +1719,6 @@ func (this *dbPlayerInfoColumn)SetIcon(v string){
 	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetIcon")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.Icon = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)GetCustomIcon( )(v string ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetCustomIcon")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.CustomIcon
-	return
-}
-func (this *dbPlayerInfoColumn)SetCustomIcon(v string){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetCustomIcon")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.CustomIcon = v
 	this.m_changed = true
 	return
 }
@@ -1760,59 +1748,6 @@ func (this *dbPlayerInfoColumn)SetLastLogin(v int32){
 	this.m_changed = true
 	return
 }
-func (this *dbPlayerInfoColumn)GetSpirit( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetSpirit")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.Spirit
-	return
-}
-func (this *dbPlayerInfoColumn)SetSpirit(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetSpirit")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.Spirit = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)IncbySpirit(v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.IncbySpirit")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.Spirit += v
-	this.m_changed = true
-	return this.m_data.Spirit
-}
-func (this *dbPlayerInfoColumn)GetFriendPoints( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetFriendPoints")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.FriendPoints
-	return
-}
-func (this *dbPlayerInfoColumn)SetFriendPoints(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetFriendPoints")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.FriendPoints = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)IncbyFriendPoints(v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.IncbyFriendPoints")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.FriendPoints += v
-	this.m_changed = true
-	return this.m_data.FriendPoints
-}
-func (this *dbPlayerInfoColumn)GetLastRefreshShopTime( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetLastRefreshShopTime")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.LastRefreshShopTime
-	return
-}
-func (this *dbPlayerInfoColumn)SetLastRefreshShopTime(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetLastRefreshShopTime")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.LastRefreshShopTime = v
-	this.m_changed = true
-	return
-}
 func (this *dbPlayerInfoColumn)GetVipLvl( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetVipLvl")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -1825,26 +1760,6 @@ func (this *dbPlayerInfoColumn)SetVipLvl(v int32){
 	this.m_data.VipLvl = v
 	this.m_changed = true
 	return
-}
-func (this *dbPlayerInfoColumn)GetFriendMessageUnreadCurrId( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetFriendMessageUnreadCurrId")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.FriendMessageUnreadCurrId
-	return
-}
-func (this *dbPlayerInfoColumn)SetFriendMessageUnreadCurrId(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetFriendMessageUnreadCurrId")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.FriendMessageUnreadCurrId = v
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerInfoColumn)IncbyFriendMessageUnreadCurrId(v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.IncbyFriendMessageUnreadCurrId")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.FriendMessageUnreadCurrId += v
-	this.m_changed = true
-	return this.m_data.FriendMessageUnreadCurrId
 }
 type dbPlayerGlobalColumn struct{
 	m_row *dbPlayerRow

@@ -3,6 +3,7 @@ package main
 import (
 	"libs/log"
 	_ "main/table_config"
+	"math"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
 	_ "sync"
@@ -24,15 +25,12 @@ const (
 
 // 其他属性
 const (
-	ITEM_RESOURCE_ID_RMB          = 1  // 人民币
-	ITEM_RESOURCE_ID_GOLD         = 2  // 金币
-	ITEM_RESOURCE_ID_DIAMOND      = 3  // 钻石
-	ITEM_RESOURCE_ID_STAMINA      = 5  // 体力
-	ITEM_RESOURCE_ID_FRIEND_POINT = 6  // 友情值
-	ITEM_RESOURCE_ID_CHARM_VALUE  = 7  // 魅力值
-	ITEM_RESOURCE_ID_EXP_VALUE    = 8  // 经验值
-	ITEM_RESOURCE_ID_TIME         = 11 // 时间
-	ITEM_RESOURCE_ID_STAR         = 12 // 星数
+	ITEM_RESOURCE_ID_GOLD        = 1  // 金币
+	ITEM_RESOURCE_ID_DIAMOND     = 3  // 钻石
+	ITEM_RESOURCE_ID_EXP         = 7  // 经验值
+	ITEM_RESOURCE_ID_STAMINA     = 8  // 体力
+	ITEM_RESOURCE_ID_FRIENDPOINT = 9  // 友情点
+	ITEM_RESOURCE_ID_HEROCOIN    = 10 // 英雄币
 )
 
 // 装备类型
@@ -112,10 +110,142 @@ func (this *Player) del_item(id int32, count int32) bool {
 	return true
 }
 
+func (this *Player) get_item(id int32) int32 {
+	c, _ := this.db.Items.GetCount(id)
+	return c
+}
+
 func (this *Player) send_items() {
 	msg := &msg_client_message.S2CItemsSync{}
 	msg.Items = this.db.Items.BuildMsg()
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEMS_SYNC), msg)
+}
+
+func (this *Player) add_gold(add int32) int32 {
+	result := int32(0)
+	gold := add + this.db.Info.GetGold()
+	if gold >= 0 {
+		if gold < add || gold < this.db.Info.GetGold() {
+			this.db.Info.SetGold(math.MaxInt32)
+			result = math.MaxInt32
+		} else {
+			result = this.db.Info.IncbyGold(add)
+		}
+	} else {
+		if gold < 0 {
+			this.db.Info.SetGold(0)
+			result = 0
+		} else {
+			result = this.db.Info.IncbyGold(add)
+		}
+	}
+	if add != 0 {
+		this.b_base_prop_chg = true
+	}
+	return result
+}
+
+func (this *Player) get_gold() int32 {
+	return this.db.Info.GetGold()
+}
+
+func (this *Player) add_diamond(add int32) int32 {
+	result := int32(0)
+	diamond := add + this.db.Info.GetDiamond()
+	if diamond >= 0 {
+		if diamond < add || diamond < this.db.Info.GetDiamond() {
+			result = math.MaxInt32
+			this.db.Info.SetDiamond(result)
+		} else {
+			result = this.db.Info.IncbyDiamond(add)
+		}
+	} else {
+		if diamond < 0 {
+			result = 0
+			this.db.Info.SetDiamond(result)
+		} else {
+			result = this.db.Info.IncbyDiamond(add)
+		}
+	}
+	if add != 0 {
+		this.b_base_prop_chg = true
+	}
+	return result
+}
+
+func (this *Player) get_diamond() int32 {
+	return this.db.Info.GetDiamond()
+}
+
+func (this *Player) add_exp(add int32) (level, exp int32) {
+	if add < 0 {
+		return
+	}
+
+	exp = add + this.db.Info.GetExp()
+	if exp < add || exp < this.db.Info.GetExp() {
+		exp = math.MaxInt32
+	}
+
+	max_level := 200
+	level = this.db.Info.GetLvl()
+	for {
+		lvl_data := levelup_table_mgr.Get(level)
+		if lvl_data == nil {
+			break
+		}
+		if lvl_data.PlayerLevelUpExp > exp {
+			break
+		}
+		exp -= lvl_data.PlayerLevelUpExp
+		level += 1
+		if int(level) > max_level {
+			break
+		}
+	}
+
+	if exp != this.db.Info.GetExp() {
+		this.db.Info.SetExp(exp)
+		this.b_base_prop_chg = true
+	}
+	if level != this.db.Info.GetLvl() {
+		this.db.Info.SetLvl(level)
+		this.b_base_prop_chg = true
+	}
+
+	return
+}
+
+func (this *Player) get_exp() int32 {
+	return this.db.Info.GetExp()
+}
+
+func (this *Player) add_resource(id, count int32) bool {
+	res := true
+	if id == ITEM_RESOURCE_ID_GOLD {
+		this.add_gold(count)
+	} else if id == ITEM_RESOURCE_ID_DIAMOND {
+		this.add_diamond(count)
+	} else if id == ITEM_RESOURCE_ID_EXP {
+		this.add_exp(count)
+	} else {
+		if !this.add_item(id, count) {
+			res = false
+		}
+	}
+	return res
+}
+
+func (this *Player) get_resource(id int32) int32 {
+	if id == ITEM_RESOURCE_ID_GOLD {
+		return this.get_gold()
+	} else if id == ITEM_RESOURCE_ID_DIAMOND {
+		return this.get_diamond()
+	} else if id == ITEM_RESOURCE_ID_EXP {
+		return this.get_exp()
+	} else {
+		return this.get_item(id)
+	}
 }
 
 func (this *Player) Equip(role_id, equip_id int32) int32 {

@@ -12,16 +12,16 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func (this *Player) drop_item_by_id(id int32, check_same bool, add bool /*, out_items map[int32]int32*/) (bool, *msg_client_message.ItemInfo) {
+func (this *Player) drop_item_by_id(id int32, check_same bool, add bool) (bool, *msg_client_message.ItemInfo) {
 	drop_lib := drop_table_mgr.Map[id]
 	if nil == drop_lib {
 		return false, nil
 	}
-	item := this.drop_item(drop_lib, check_same, add /*, out_items*/)
+	item := this.drop_item(drop_lib, check_same, add)
 	return true, item
 }
 
-func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, badd bool /*, out_items map[int32]int32*/) (item *msg_client_message.ItemInfo) {
+func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, badd bool) (item *msg_client_message.ItemInfo) {
 	log.Info("当前抽取库 总数目%d 总权重%d 详细%v", drop_lib.TotalCount, drop_lib.TotalWeight, drop_lib)
 
 	if check_same {
@@ -56,30 +56,26 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 			_, num := rand31n_from_range(tmp_item.Min, tmp_item.Max)
 			if nil != item_table_mgr.Map[tmp_item.DropItemID] {
 				if badd {
-					this.add_item(tmp_item.DropItemID, num)
-				}
-				item = &msg_client_message.ItemInfo{}
-				item.ItemCfgId = tmp_item.DropItemID
-				item.ItemNum = num
-				if this.tmp_cache_items != nil {
-					n := this.tmp_cache_items[item.ItemCfgId]
-					this.tmp_cache_items[item.ItemCfgId] = n + item.ItemNum
+					if !this.add_item(tmp_item.DropItemID, num) {
+						log.Error("Player[%v] rand dropid[%d] not item or cat or building or item resource", this.Id, tmp_item.DropItemID)
+						continue
+					}
 				}
 			} else {
 				if badd {
-					/*if this.AddItemResource(tmp_item.DropItemID, num, "draw", "draw_item_resource") < 0 {
-						log.Error("C2SDrawHandler rand dropid[%d] not item or cat or building or item resource", tmp_item.DropItemID)
-					} else {
-						item = &msg_client_message.ItemInfo{ItemCfgId: proto.Int32(tmp_item.DropItemID), ItemNum: proto.Int32(num), RemainSeconds: proto.Int32(0)}
-					}*/
-				} else {
-					item = &msg_client_message.ItemInfo{ItemCfgId: tmp_item.DropItemID, ItemNum: num, RemainSeconds: 0}
-					if this.tmp_cache_items != nil {
-						n := this.tmp_cache_items[item.ItemCfgId]
-						this.tmp_cache_items[item.ItemCfgId] = n + item.ItemNum
+					if !this.add_resource(tmp_item.DropItemID, num) {
+						log.Error("Player[%v] rand dropid[%d] not item or cat or building or item resource", this.Id, tmp_item.DropItemID)
+						continue
 					}
 				}
 			}
+
+			item = &msg_client_message.ItemInfo{ItemCfgId: tmp_item.DropItemID, ItemNum: num}
+			if !badd && this.tmp_cache_items != nil {
+				n := this.tmp_cache_items[item.ItemCfgId]
+				this.tmp_cache_items[item.ItemCfgId] = n + item.ItemNum
+			}
+
 			if check_same {
 				this.used_drop_ids[tmp_item.DropItemID] = tmp_item.Weight
 			}

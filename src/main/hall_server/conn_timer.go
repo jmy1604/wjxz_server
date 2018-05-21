@@ -172,7 +172,6 @@ func (this *ConnTimerMgr) Run() {
 				i = (i + 1) % lists_len
 			}
 			this.curr_timer_index = idx
-			//log.Debug("!!!!!!!!!!!!!!! curr_timer_index = %v", this.curr_timer_index)
 			this.last_check_time = now_time
 		}
 

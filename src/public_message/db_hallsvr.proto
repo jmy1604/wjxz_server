@@ -22,14 +22,9 @@ message PlayerInfo{
 	optional int32 Diamond=5;
 	optional int32 LastDialyTaskUpUinx=6;
 	optional string Icon=7;
-	optional string CustomIcon=8;
 	optional int32 LastLogout=9;
 	optional int32 LastLogin=10;
-	optional int32 Spirit=12;
-	optional int32 FriendPoints=13;
-	optional int32 LastRefreshShopTime=15;
 	optional int32 VipLvl=16;
-	optional int32 FriendMessageUnreadCurrId=17;
 }
 
 message PlayerGlobal{

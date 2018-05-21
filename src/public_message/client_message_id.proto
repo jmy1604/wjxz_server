@@ -19,6 +19,7 @@ enum MSGID {
 	S2C_ENTER_GAME_COMPLETE_NOTIFY 			= 11002; // 进入游戏完成 S2CEnterGameCompleteNotify
 	C2S_LEAVE_GAME_REQUEST					= 11003; // 离开游戏 C2SLeaveGameRequest
 	S2C_LEAVE_GAME_RESPONSE					= 11004; // 离开游戏返回 S2CLeaveGameResponse
+	S2C_PLAYER_INFO_RESPONSE				= 11005; // 玩家信息 S2CPlayerInfoResponse
 	
 	S2C_ROLES_RESPONSE						= 11010; // 角色请求 S2CRolesRequest
 	S2C_ROLES_CHANGE_NOTIFY					= 11011; // 角色更新 S2CRolesChangeNotify

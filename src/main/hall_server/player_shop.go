@@ -189,12 +189,6 @@ func (this *Player) buy_item(item_id int32, num int32, send_msg bool) int32 {
 		//this.SubCoin(num*item.CostNum, "buy_shop_item", "shop")
 	} else if item.CostResourceId == ITEM_RESOURCE_ID_DIAMOND {
 		//this.SubDiamond(num*item.CostNum, "buy_shop_item", "shop")
-	} else if item.CostResourceId == ITEM_RESOURCE_ID_RMB {
-		// 人民币另外处理
-	} else if item.CostResourceId == ITEM_RESOURCE_ID_CHARM_VALUE {
-		//this.SubCharmVal(num*item.CostNum, "buy_shop_item", "shop")
-	} else if item.CostResourceId == ITEM_RESOURCE_ID_FRIEND_POINT {
-		//this.SubFriendPoints(num*item.CostNum, "buy_shop_item", "shop")
 	}
 
 	if send_msg {

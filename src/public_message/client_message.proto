@@ -32,6 +32,7 @@ enum E_ERR {
 	// 角色
 	PLAYER_ROLE_NOT_FOUND					= -12000; // 角色不存在
 	PLAYER_ROLE_TABLE_ID_NOT_FOUND			= -12001; // 角色配置找不到
+	PLAYER_ROLE_LEVEL_DATA_NOT_FOUND		= -12002; // 角色升级数据不存在
 	
 	// 关卡
 	PLAYER_ALREADY_FIGHT_CAMPAIGN			= -13001; // 已打过该战役
@@ -221,6 +222,16 @@ message C2SLeaveGameRequest {
 message S2CLeaveGameResponse {
 }
 
+// 玩家信息
+message S2CPlayerInfoResponse {
+	int32 Level 					= 1; // 等级
+	int32 Exp						= 2; // 经验
+	int32 Gold						= 3; // 金币
+	int32 Diamond					= 4; // 钻石
+	string Icon						= 5; // 头像
+	int32 VipLevel					= 6; // VIP等级
+}
+
 // 请求角色
 message C2SRolesRequest {
 }
@@ -357,11 +368,6 @@ message S2CCampaignHangupIncomeResponse {
 	int32 IncomeType						= 1; // 收益类型
 	repeated ItemInfo Rewards				= 2; // 奖励
 	
-}
-
-// 关卡挂机掉落，用于客户端显示
-message S2CBattleCampaignHangupDropItems {
-	repeated ItemInfo Items					= 1; // 掉落的物品
 }
 
 // 设置挂机战役关卡

@@ -663,7 +663,6 @@ func (this *TeamMember) add_max_hp(add int32) {
 }
 
 func (this *TeamMember) round_start() {
-	// 处理上一回合的延迟被动技
 	this.act_num += 1
 	this.init_passive_round_num()
 }

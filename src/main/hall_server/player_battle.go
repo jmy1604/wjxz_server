@@ -860,6 +860,6 @@ func C2SCampaignDataHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	response.PassedCampaignIds = passed_ids
 	response.UnlockCampaignId = p.db.CampaignCommon.GetCurrentCampaignId()
 	response.HangupCampaignId = p.db.CampaignCommon.GetHangupCampaignId()
-	p.Send(uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_DATA_REQUEST), response)
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_DATA_RESPONSE), response)
 	return 1
 }
