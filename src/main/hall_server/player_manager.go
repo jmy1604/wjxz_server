@@ -242,6 +242,9 @@ func client_msgid2msg(msg_id uint16) proto.Message {
 	msg := base_msgid2msg(msg_id)
 	if msg == nil {
 		msg = battle_msgid2proto(msg_id)
+		if msg == nil {
+			msg = role_msgid2proto(msg_id)
+		}
 	}
 	return msg
 }

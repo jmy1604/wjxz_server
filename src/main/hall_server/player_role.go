@@ -4,13 +4,13 @@ import (
 	"libs/log"
 	_ "main/table_config"
 	"math/rand"
-	_ "net/http"
+	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
 
 	_ "time"
 
-	_ "github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
@@ -369,4 +369,43 @@ func (this *Player) decompose_role(role_id int32) int32 {
 	log.Debug("Player[%v] decompose role[%v]", this.Id, role_id)
 
 	return 1
+}
+
+func role_msgid2proto(msg_id uint16) proto.Message {
+	if msg_id == uint16(msg_client_message_id.MSGID_C2S_ROLE_LEVELUP_REQUEST) {
+		return &msg_client_message.C2SRoleLevelUpRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_ROLE_RANKUP_REQUEST) {
+		return &msg_client_message.C2SRoleRankUpRequest{}
+	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_ROLE_DECOMPOSE_REQUEST) {
+		return &msg_client_message.C2SRoleDecomposeRequest{}
+	} else {
+		return nil
+	}
+}
+
+func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SRoleLevelUpRequest)
+	if req == nil || p == nil {
+		log.Error("C2SRoleLevelUpRequest proto is invalid")
+		return -1
+	}
+	return p.levelup_role(req.GetRoleId())
+}
+
+func C2SRoleRankUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SRoleRankUpRequest)
+	if req == nil || p == nil {
+		log.Error("C2SRoleRankUpRequest proto is invalid")
+		return -1
+	}
+	return p.rankup_role(req.GetRoleId())
+}
+
+func C2SRoleDecomposeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
+	req := msg.(*msg_client_message.C2SRoleDecomposeRequest)
+	if req == nil || p == nil {
+		log.Error("C2SRoleDecomposeRequest proto is invalid")
+		return -1
+	}
+	return p.decompose_role(req.GetRoleId())
 }
