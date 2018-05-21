@@ -322,7 +322,7 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 			group_id := campaign.RandomDropIDList[2*i]
 			count := campaign.RandomDropIDList[2*i+1]
 			for j := 0; j < int(count); j++ {
-				if o, _ := this.drop_item_by_id(group_id, false, !is_cache); !o {
+				if o, _ := this.drop_item_by_id(group_id, false, false); !o {
 					continue
 				}
 			}
