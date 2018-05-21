@@ -3,7 +3,7 @@ package main
 import (
 	"libs/log"
 	_ "main/table_config"
-	"math/rand"
+	_ "math/rand"
 	_ "net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
@@ -152,102 +152,6 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	return ret_p
 }
 
-func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
-	if this.db.Roles.HasIndex(role_id) {
-		log.Error("Player[%v] already has role[%v]", this.Id, role_id)
-		return 0
-	}
-
-	card := card_table_mgr.GetRankCard(role_id, rank)
-	if card == nil {
-		log.Error("Cant get role card by id[%v] rank[%v]", role_id, rank)
-		return 0
-	}
-	var role dbPlayerRoleData
-	role.TableId = role_id
-	role.Id = this.db.Global.IncbyCurrentRoleId(1)
-	role.Rank = rank
-	role.Level = level
-	this.db.Roles.Add(&role)
-
-	this.roles_id_change_info.id_add(role.Id)
-
-	return role.Id
-}
-
-func (this *Player) has_role(id int32) bool {
-	all := this.db.Roles.GetAllIndex()
-	for i := 0; i < len(all); i++ {
-		table_id, o := this.db.Roles.GetTableId(all[i])
-		if o && table_id == id {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *Player) rand_role() int32 {
-	if card_table_mgr.Array == nil {
-		return 0
-	}
-
-	c := len(card_table_mgr.Array)
-	r := rand.Intn(c)
-	cr := r
-	table_id := int32(0)
-	for {
-		table_id = card_table_mgr.Array[r%c].Id
-		if !this.has_role(table_id) {
-			break
-		}
-		r += 1
-		if r-cr >= c {
-			// 允许重复
-			//table_id = 0
-			break
-		}
-	}
-
-	id := int32(0)
-	if table_id > 0 {
-		id = this.db.Global.IncbyCurrentRoleId(1)
-		this.db.Roles.Add(&dbPlayerRoleData{
-			Id:      id,
-			TableId: table_id,
-			Rank:    1,
-			Level:   1,
-		})
-
-		this.roles_id_change_info.id_add(id)
-		log.Debug("Player[%v] rand role[%v]", this.Id, table_id)
-	}
-
-	return id
-}
-
-func (this *Player) check_and_send_roles_change() {
-	if this.roles_id_change_info.is_changed() {
-		var msg msg_client_message.S2CRolesChangeNotify
-		if this.roles_id_change_info.add != nil {
-			roles := this.db.Roles.BuildSomeMsg(this.roles_id_change_info.add)
-			if roles != nil {
-				msg.Adds = roles
-			}
-		}
-		if this.roles_id_change_info.remove != nil {
-			msg.Removes = this.roles_id_change_info.remove
-		}
-		if this.roles_id_change_info.update != nil {
-			roles := this.db.Roles.BuildSomeMsg(this.roles_id_change_info.update)
-			if roles != nil {
-				msg.Updates = roles
-			}
-		}
-		this.roles_id_change_info.reset()
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLES_CHANGE_NOTIFY), &msg)
-	}
-}
-
 func (this *Player) check_and_send_items_change() {
 	if this.items_changed_info != nil {
 		var msg msg_client_message.S2CItemsUpdate
@@ -348,24 +252,6 @@ func (this *Player) Send(msg_id uint16, msg proto.Message) {
 	this.add_msg_data(msg_id, data)
 }
 
-func (this *Player) add_init_roles() {
-	var teams []int32
-	init_roles := global_config_mgr.GetGlobalConfig().InitRoles
-	for i := 0; i < len(init_roles)/3; i++ {
-		iid := this.new_role(init_roles[3*i], init_roles[3*i+1], init_roles[3*i+2])
-		if teams == nil {
-			teams = []int32{iid}
-		} else if len(teams) < BATTLE_TEAM_MEMBER_MAX_NUM {
-			teams = append(teams, iid)
-		}
-	}
-	this.db.BattleTeam.SetAttackMembers(teams)
-	this.db.BattleTeam.SetDefenseMembers(teams)
-}
-
-func (this *Player) add_all_items() {
-}
-
 func (this *Player) OnCreate() {
 	// 随机初始名称
 	tmp_acc := this.Account
@@ -404,56 +290,11 @@ func (this *Player) IsOffline() bool {
 	return diff >= 0
 }
 
-func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
-	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.BuildMsg")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-
-	for _, v := range this.m_data {
-		role := &msg_client_message.Role{
-			Id:      v.Id,
-			TableId: v.TableId,
-			Rank:    v.Rank,
-			Level:   v.Level,
-			Attrs:   v.Attr,
-		}
-		roles = append(roles, role)
-	}
-	return
-}
-
-func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_message.Role) {
-	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.BuildOneMsg")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-
-	for i := 0; i < len(ids); i++ {
-		v, o := this.m_data[ids[i]]
-		if !o {
-			return
-		}
-
-		role := &msg_client_message.Role{
-			Id:      v.Id,
-			TableId: v.TableId,
-			Rank:    v.Rank,
-			Level:   v.Level,
-			Attrs:   v.Attr,
-		}
-		roles = append(roles, role)
-	}
-	return
-}
-
 func (this *Player) send_enter_game(acc string, id int32) {
 	res := &msg_client_message.S2CEnterGameResponse{}
 	res.Acc = acc
 	res.PlayerId = id
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_RESPONSE), res)
-}
-
-func (this *Player) send_roles() {
-	msg := &msg_client_message.S2CRolesResponse{}
-	msg.Roles = this.db.Roles.BuildMsg()
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLES_RESPONSE), msg)
 }
 
 func (this *Player) send_teams() {
@@ -487,43 +328,6 @@ func (this *Player) notify_enter_complete() {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_COMPLETE_NOTIFY), msg)
 }
 
-func (this *Player) levelup_role(role_id int32) int32 {
-	lvl, o := this.db.Roles.GetLevel(role_id)
-	if !o {
-		log.Error("Player[%v] not have role[%v]", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
-	}
-
-	levelup_data := levelup_table_mgr.Get(lvl)
-	if levelup_data == nil {
-		log.Error("cant found level[%v] data", lvl)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_DATA_NOT_FOUND)
-	}
-
-	if levelup_data.CardLevelUpRes != nil {
-		for i := 0; i < len(levelup_data.CardLevelUpRes)/2; i++ {
-			resource_id := levelup_data.CardLevelUpRes[2*i]
-			resource_num := levelup_data.CardLevelUpRes[2*i+1]
-			if this.get_resource(resource_id) < resource_num {
-				return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
-			}
-		}
-		for i := 0; i < len(levelup_data.CardLevelUpRes)/2; i++ {
-			resource_id := levelup_data.CardLevelUpRes[2*i]
-			resource_num := levelup_data.CardLevelUpRes[2*i+1]
-			this.add_resource(resource_id, -resource_num)
-		}
-
-		this.db.Roles.SetLevel(role_id, lvl+1)
-		lvl += 1
-	}
-
-	return lvl
-}
-
-// ----------------------------------------------------------------------------
-
-// ======================================================================
 /*
 func C2SShopItemsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SShopItems)

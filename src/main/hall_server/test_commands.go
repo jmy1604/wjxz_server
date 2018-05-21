@@ -1227,61 +1227,102 @@ func leave_game_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func add_item_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var item_id, item_num int
+	item_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换物品ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+	item_num, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("转换物品数量[%v]失败[%v]", args[1], err.Error())
+		return -1
+	}
+
+	if !p.add_resource(int32(item_id), int32(item_num)) {
+		return -1
+	}
+
+	log.Debug("玩家[%v]增加了资源[%v,%v]", p.Id, item_id, item_num)
+	return 1
+}
+
+func role_levelup_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var role_id int
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换角色ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	res := p.levelup_role(int32(role_id))
+	if res > 0 {
+		log.Debug("玩家[%v]升级了角色[%v]等级[%v]", p.Id, role_id, res)
+	}
+
+	return res
+}
+
+func role_rankup_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var role_id int
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换角色ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	res := p.rankup_role(int32(role_id))
+	if res > 0 {
+		log.Debug("玩家[%v]升级了角色[%v]品阶[%v]", p.Id, role_id, res)
+	}
+
+	return res
+}
+
+func role_decompose_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var role_id int
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换角色ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	res := p.decompose_role(int32(role_id))
+	if res > 0 {
+		log.Debug("玩家[%v]分解了角色[%v]", p.Id, role_id)
+	}
+
+	return res
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
-	/*
-		"player_info":           player_info_cmd,
-		  "add_exp":               add_exp_cmd,
-		  "add_item":              add_item_cmd,
-		  "add_all_item":          add_all_item_cmd,
-		  "use_item":              use_item_cmd,
-		  "list_item":             list_item_cmd,
-		  "add_coin":              add_coin_cmd,
-		  "set_coin":              set_coin_cmd,
-		  "add_diamond":           add_diamond_cmd,
-		  "set_diamond":           set_diamond_cmd,
-		  "add_friendpoints":      add_friend_points_cmd,
-		  "add_charm":             add_charm_cmd,
-		  "add_zan":               add_zan_cmd,
-		  "add_star":              add_star_cmd,
-		  "draw_card":             draw_card_cmd,
-		  "drop_items":            drop_items_cmd,
-		  "shop_items":            get_shop_items_cmd,
-		  "refresh_shop":          refresh_shop_cmd,
-		  "buy_item":              buy_shop_item_cmd,
-		  "sell_item":             sell_item_cmd,
-		  "get_dailys":            get_dailys_cmd,
-		  "get_achieves":          get_achieves_cmd,
-		  "complete_task":         complete_task_cmd,
-		  "daily_reward":          get_daily_reward_cmd,
-		  "achieve_reward":        get_achieve_reward_cmd,
-		  "search_friend":         search_friend_id_cmd,
-		  "search_friend_name":    search_friend_name_cmd,
-		  "add_friend":            add_friend_cmd,
-		  "agree_friend":          agree_friend_cmd,
-		  "refuse_friend":         refuse_friend_cmd,
-		  "remove_friend":         remove_friend_cmd,
-		  "get_friends":           get_friends_cmd,
-		  "get_friend_info":       get_friend_info_cmd,
-		  "give_friend_points":    give_friend_points_cmd,
-		  "get_friend_points":     get_friend_points_cmd,
-		  "friend_chat":           friend_chat_cmd,
-		  "friend_unread_num":     friend_get_unread_message_num_cmd,
-		  "friend_unread":         friend_pull_unread_cmd,
-		  "friend_confirm_unread": friend_confirm_unread_cmd,
-		  "send_test_mail":        send_test_mail,
-		  "finish_stage":          finish_stage_cmd,
-		  "act_test":              activity_finished_cmd,
-		  "rank_test":             rank_test_cmd,
-		  "rank_test2":            rank_test2_cmd,
-		  "ranklist":              ranklist_cmd,
-		  "world_chat":            world_chat_cmd,
-		  "pull_world_chat":       pull_world_chat_cmd,
-		  "push_sysmsg":           push_sysmsg_cmd,
-		  "push_sysmsg_text":      push_sysmsg_text_cmd,
-		  "reset_day_sign_reward": reset_day_sign_reward,
-	*/
 	"test_lua":         test_lua_cmd,
 	"rand_role":        rand_role_cmd,
 	"list_role":        list_role_cmd,
@@ -1294,6 +1335,10 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"start_hangup":     start_hangup_cmd,
 	"hangup_income":    hangup_income_cmd,
 	"leave_game":       leave_game_cmd,
+	"add_item":         add_item_cmd,
+	"role_levelup":     role_levelup_cmd,
+	"role_rankup":      role_rankup_cmd,
+	"role_decompose":   role_decompose_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {

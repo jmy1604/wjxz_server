@@ -115,6 +115,9 @@ func (this *Player) get_item(id int32) int32 {
 	return c
 }
 
+func (this *Player) add_all_items() {
+}
+
 func (this *Player) send_items() {
 	msg := &msg_client_message.S2CItemsSync{}
 	msg.Items = this.db.Items.BuildMsg()

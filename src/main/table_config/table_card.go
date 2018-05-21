@@ -32,6 +32,8 @@ type XmlCardItem struct {
 	SuperSkillID      int32  `xml:"SuperSkillID,attr"`
 	PassiveSkillIDStr string `xml:"PassiveSkillID,attr"`
 	PassiveSkillIds   []int32
+	DecomposeResStr   string `xml:"DecomposeRes,attr"`
+	DecomposeRes      []int32
 }
 
 type XmlCardConfig struct {
@@ -87,6 +89,10 @@ func (this *CardTableMgr) Load() bool {
 			tmp_item.PassiveSkillIds = make([]int32, 0)
 		} else {
 			tmp_item.PassiveSkillIds = pids
+		}
+		tmp_item.DecomposeRes = parse_xml_str_arr2(tmp_item.DecomposeResStr, ",")
+		if tmp_item.DecomposeRes == nil {
+			tmp_item.DecomposeRes = make([]int32, 0)
 		}
 
 		this.Map[tmp_item.Id] = tmp_item

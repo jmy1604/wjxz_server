@@ -21,8 +21,14 @@ enum MSGID {
 	S2C_LEAVE_GAME_RESPONSE					= 11004; // 离开游戏返回 S2CLeaveGameResponse
 	S2C_PLAYER_INFO_RESPONSE				= 11005; // 玩家信息 S2CPlayerInfoResponse
 	
-	S2C_ROLES_RESPONSE						= 11010; // 角色请求 S2CRolesRequest
-	S2C_ROLES_CHANGE_NOTIFY					= 11011; // 角色更新 S2CRolesChangeNotify
+	S2C_ROLES_RESPONSE						= 11050; // 角色请求 S2CRolesRequest
+	S2C_ROLES_CHANGE_NOTIFY					= 11151; // 角色更新 S2CRolesChangeNotify
+	C2S_ROLE_LEVELUP_REQUEST			    = 11152; // 请求角色升级 C2SRoleLevelUpRequest
+	S2C_ROLE_LEVELUP_RESPONSE				= 11153; // 请求角色升级返回 S2CRoleLevelUpResponse
+	C2S_ROLE_RANKUP_REQUEST					= 11154; // 请求角色升阶 C2SRoleRankUpRequest
+	S2C_ROLE_RANKUP_RESPONSE				= 11155; // 请求角色升阶返回 S2CRoleRankUpResponse
+	C2S_ROLE_DECOMPOSE_REQUEST				= 11156; // 请求角色分解 C2SRoleDecomposeRequest
+	S2C_ROLE_DECOMPOSE_RESPONSE				= 11157; // 请求角色分解返回 S2CRoleDecomposeResponse
 	
 	C2S_BATTLE_RESULT_REQUEST				= 10100; // 战斗结果请求 C2SBattleResultRequest
 	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse
