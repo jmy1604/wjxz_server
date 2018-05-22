@@ -223,12 +223,13 @@ func (this *Player) rankup_role(role_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 	}
 
-	if int(rank) >= len(rankup_table_mgr.Array) {
+	table_id, _ := this.db.Roles.GetTableId(role_id)
+	cards := card_table_mgr.GetCards(table_id)
+	if len(cards) <= int(rank) {
 		log.Error("Player[%v] is already max rank[%v]", this.Id, rank)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_RANK_IS_MAX)
 	}
 
-	table_id, _ := this.db.Roles.GetTableId(role_id)
 	card_data := card_table_mgr.GetRankCard(table_id, rank)
 	if card_data == nil {
 		log.Error("Cant found card[%v,%v] data", table_id, rank)
@@ -237,7 +238,8 @@ func (this *Player) rankup_role(role_id int32) int32 {
 
 	rank_data := rankup_table_mgr.Get(rank)
 	if rank_data == nil {
-
+		log.Error("Cant found rankup[%v] data", rank)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_RANKUP_DATA_NOT_FOUND)
 	}
 	var cost_resources []int32
 	if card_data.Type == 1 {
@@ -371,7 +373,7 @@ func (this *Player) decompose_role(role_id int32) int32 {
 	return 1
 }
 
-func role_msgid2proto(msg_id uint16) proto.Message {
+/*func role_msgid2proto(msg_id uint16) proto.Message {
 	if msg_id == uint16(msg_client_message_id.MSGID_C2S_ROLE_LEVELUP_REQUEST) {
 		return &msg_client_message.C2SRoleLevelUpRequest{}
 	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_ROLE_RANKUP_REQUEST) {
@@ -381,30 +383,33 @@ func role_msgid2proto(msg_id uint16) proto.Message {
 	} else {
 		return nil
 	}
-}
+}*/
 
-func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SRoleLevelUpRequest)
-	if req == nil || p == nil {
-		log.Error("C2SRoleLevelUpRequest proto is invalid")
+func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleLevelUpRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 	return p.levelup_role(req.GetRoleId())
 }
 
-func C2SRoleRankUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SRoleRankUpRequest)
-	if req == nil || p == nil {
-		log.Error("C2SRoleRankUpRequest proto is invalid")
+func C2SRoleRankUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleRankUpRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 	return p.rankup_role(req.GetRoleId())
 }
 
-func C2SRoleDecomposeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SRoleDecomposeRequest)
-	if req == nil || p == nil {
-		log.Error("C2SRoleDecomposeRequest proto is invalid")
+func C2SRoleDecomposeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleDecomposeRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 	return p.decompose_role(req.GetRoleId())

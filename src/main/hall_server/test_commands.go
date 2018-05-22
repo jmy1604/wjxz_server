@@ -1021,7 +1021,9 @@ func list_role_cmd(p *Player, args []string) int32 {
 			if !o {
 				continue
 			}
-			log.Debug("role_id:%v, table_id:%v", all[i], table_id)
+			level, _ := p.db.Roles.GetLevel(all[i])
+			rank, _ := p.db.Roles.GetRank(all[i])
+			log.Debug("role_id:%v, table_id:%v, level:%v, rank:%v", all[i], table_id, level, rank)
 		}
 	}
 	return 1
@@ -1341,9 +1343,11 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"role_decompose":   role_decompose_cmd,
 }
 
-func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2S_TEST_COMMAND)
-	if p == nil || req == nil {
+func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+	var req msg_client_message.C2S_TEST_COMMAND
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("client_msg_handler unmarshal sub msg failed err(%s) !", err.Error())
 		return -1
 	}
 

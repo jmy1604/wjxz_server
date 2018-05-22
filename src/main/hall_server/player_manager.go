@@ -236,9 +236,13 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST), C2SSetHangupCampaignHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_HANGUP_INCOME_REQUEST), C2SCampaignHangupIncomeHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_DATA_REQUEST), C2SCampaignDataHandler)
+
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ROLE_LEVELUP_REQUEST), C2SRoleLevelUpHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ROLE_RANKUP_REQUEST), C2SRoleRankUpHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ROLE_DECOMPOSE_REQUEST), C2SRoleDecomposeHandler)
 }
 
-func client_msgid2msg(msg_id uint16) proto.Message {
+/*func client_msgid2msg(msg_id uint16) proto.Message {
 	msg := base_msgid2msg(msg_id)
 	if msg == nil {
 		msg = battle_msgid2proto(msg_id)
@@ -262,11 +266,16 @@ func base_msgid2msg(msg_id uint16) proto.Message {
 		log.Warn("Cant get base proto message by msg_id[%v]", msg_id)
 	}
 	return nil
-}
+}*/
 
-func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg proto.Message) (int32, *Player) {
+func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request /*msg proto.Message*/, msg_data []byte) (int32, *Player) {
 	var p *Player
-	req := msg.(*msg_client_message.C2SEnterGameRequest)
+	var req msg_client_message.C2SEnterGameRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
+		return -1, p
+	}
 
 	acc := req.GetAcc()
 	if "" == acc {
@@ -337,20 +346,22 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg prot
 	return 1, p
 }
 
-func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SLeaveGameRequest)
-	if req == nil {
-		log.Error("C2SLeaveGameRequest proto is invalid")
+func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+	var req msg_client_message.C2SLeaveGameRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 	p.OnLogout()
 	return 1
 }
 
-func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SHeartbeat)
-	if req == nil {
-		log.Error("C2SHeartbeat proto is invalid")
+func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+	var req msg_client_message.C2SHeartbeat
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 

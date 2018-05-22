@@ -747,7 +747,7 @@ func (this *BattleTeam) HasDelayTriggerEventSkill(trigger_event int32, behiter *
 	return false
 }
 
-func battle_msgid2proto(msg_id uint16) proto.Message {
+/*func battle_msgid2proto(msg_id uint16) proto.Message {
 	if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST) {
 		return &msg_client_message.C2SBattleResultRequest{}
 	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_SET_TEAM_REQUEST) {
@@ -763,12 +763,13 @@ func battle_msgid2proto(msg_id uint16) proto.Message {
 	} else {
 		return nil
 	}
-}
+}*/
 
-func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SBattleResultRequest)
-	if req == nil || p == nil {
-		log.Error("C2SBattleResultRequest player[%v] proto is invalid", p.Id)
+func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+	var req msg_client_message.C2SBattleResultRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 
@@ -791,10 +792,11 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg prot
 	return res
 }
 
-func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SSetTeamRequest)
-	if req == nil || p == nil {
-		log.Error("C2SSetTeamHandler player[%v] proto is invalid", p.Id)
+func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+	var req msg_client_message.C2SSetTeamRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 
@@ -815,10 +817,11 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg pr
 	return 1
 }
 
-func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SBattleSetHangupCampaignRequest)
-	if req == nil || p == nil {
-		log.Error("C2SSetHangupCampaignHandler proto is invalid")
+func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+	var req msg_client_message.C2SBattleSetHangupCampaignRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 
@@ -837,10 +840,11 @@ func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Play
 	return 1
 }
 
-func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCampaignHangupIncomeRequest)
-	if req == nil || p == nil {
-		log.Error("C2SCompaignHangupIncomeRequest proto is invalid")
+func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+	var req msg_client_message.C2SCampaignHangupIncomeRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 
@@ -849,10 +853,11 @@ func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *P
 	return 1
 }
 
-func C2SCampaignDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SCampaignDataRequest)
-	if req == nil || p == nil {
-		log.Error("C2SCampaignDataRequest proto is invalid")
+func C2SCampaignDataHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+	var req msg_client_message.C2SCampaignDataRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
 	passed_ids := p.db.Campaigns.GetPassedCampaignIds()

@@ -38,9 +38,9 @@ func (this *MsgHttpHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 //=======================================================
 
-type CLIENT_MSG_HANDLER func(http.ResponseWriter, *http.Request, proto.Message) (int32, *Player)
+type CLIENT_MSG_HANDLER func(http.ResponseWriter, *http.Request /*proto.Message*/, []byte) (int32, *Player)
 
-type CLIENT_PLAYER_MSG_HANDLER func(http.ResponseWriter, *http.Request, *Player, proto.Message) int32
+type CLIENT_PLAYER_MSG_HANDLER func(http.ResponseWriter, *http.Request, *Player /*proto.Message*/, []byte) int32
 
 type MsgHanlderInfo struct {
 	//typ                reflect.Type
@@ -170,7 +170,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//req := reflect.New(handlerinfo.typ).Interface().(proto.Message)
-	req := client_msgid2msg(uint16(tmp_msg.GetMsgCode()))
+	/*req := client_msgid2msg(uint16(tmp_msg.GetMsgCode()))
 	if req == nil {
 		return
 	}
@@ -178,9 +178,9 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	if nil != err {
 		log.Error("client_msg_handler unmarshal sub msg failed err(%s) !", err.Error())
 		return
-	}
+	}*/
 
-	log.Info("[接收] [玩家%d:%v] [%s] ", tmp_msg.GetPlayerId(), tmp_msg.GetMsgCode(), req.String())
+	log.Info("[接收] [玩家%d:%v] [%s] ", tmp_msg.GetPlayerId(), tmp_msg.GetMsgCode() /*req.String()*/, tmp_msg.GetData())
 
 	/*
 		pid := tmp_msg.GetPlayerId()
@@ -214,11 +214,11 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			p.bhandling = true
 			p.b_base_prop_chg = false
-			ret_code = handlerinfo.player_msg_handler(w, r, p, req)
+			ret_code = handlerinfo.player_msg_handler(w, r, p /*req*/, tmp_msg.GetData())
 		}
 
 	} else {
-		ret_code, p = handlerinfo.msg_handler(w, r, req)
+		ret_code, p = handlerinfo.msg_handler(w, r /*req*/, tmp_msg.GetData())
 	}
 
 	if ret_code <= 0 {
