@@ -315,6 +315,17 @@ func (this *Player) decompose_role(role_id int32) int32 {
 		log.Error("Player[%v] not have role[%v]", this.Id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 	}
+
+	if this.attack_team.HasRole(role_id) {
+		log.Error("Player[%v] attack team has role[%v], cant decompose", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+	}
+
+	if this.defense_team.HasRole(role_id) {
+		log.Error("Player[%v] defense team has role[%v], cant decompose", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+	}
+
 	rank, _ := this.db.Roles.GetRank(role_id)
 	table_id, _ := this.db.Roles.GetTableId(role_id)
 
@@ -324,11 +335,13 @@ func (this *Player) decompose_role(role_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
 	}
 
-	this.tmp_cache_items = make(map[int32]int32)
 	for i := 0; i < len(card_data.DecomposeRes)/2; i++ {
 		item_id := card_data.DecomposeRes[2*i]
 		item_num := card_data.DecomposeRes[2*i+1]
 		this.add_resource(item_id, item_num)
+		if this.tmp_cache_items == nil {
+			this.tmp_cache_items = make(map[int32]int32)
+		}
 		this.tmp_cache_items[item_id] += item_num
 	}
 
@@ -342,6 +355,9 @@ func (this *Player) decompose_role(role_id int32) int32 {
 			item_id := levelup_data.CardDecomposeRes[2*i]
 			item_num := levelup_data.CardDecomposeRes[2*i+1]
 			this.add_resource(item_id, item_num)
+			if this.tmp_cache_items == nil {
+				this.tmp_cache_items = make(map[int32]int32)
+			}
 			this.tmp_cache_items[item_id] += item_num
 		}
 	}
@@ -350,6 +366,9 @@ func (this *Player) decompose_role(role_id int32) int32 {
 	if rank_res != nil {
 		for i := 0; i < len(rank_res)/2; i++ {
 			this.add_resource(rank_res[2*i], rank_res[2*i+1])
+			if this.tmp_cache_items == nil {
+				this.tmp_cache_items = make(map[int32]int32)
+			}
 			this.tmp_cache_items[rank_res[2*i]] += rank_res[2*i+1]
 		}
 	}
@@ -366,6 +385,7 @@ func (this *Player) decompose_role(role_id int32) int32 {
 				ItemNum:   v,
 			})
 		}
+		this.tmp_cache_items = nil
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DECOMPOSE_RESPONSE), response)
 

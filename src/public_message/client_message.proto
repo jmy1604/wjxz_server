@@ -36,6 +36,7 @@ enum E_ERR {
 	PLAYER_ROLE_LEVEL_IS_MAX				= -12003; // 角色等级已经最大
 	PLAYER_ROLE_RANK_IS_MAX					= -12004; // 角色品阶已经最大
 	PLAYER_ROLE_RANKUP_DATA_NOT_FOUND		= -12005; // 角色品阶升级数据不存在
+	PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE		= -12006; // 角色在阵容中，不能分解
 	
 	// 关卡
 	PLAYER_ALREADY_FIGHT_CAMPAIGN			= -13001; // 已打过该战役
