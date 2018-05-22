@@ -242,32 +242,6 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ROLE_DECOMPOSE_REQUEST), C2SRoleDecomposeHandler)
 }
 
-/*func client_msgid2msg(msg_id uint16) proto.Message {
-	msg := base_msgid2msg(msg_id)
-	if msg == nil {
-		msg = battle_msgid2proto(msg_id)
-		if msg == nil {
-			msg = role_msgid2proto(msg_id)
-		}
-	}
-	return msg
-}
-
-func base_msgid2msg(msg_id uint16) proto.Message {
-	if msg_id == uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND) {
-		return &msg_client_message.C2S_TEST_COMMAND{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT) {
-		return &msg_client_message.C2SHeartbeat{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST) {
-		return &msg_client_message.C2SEnterGameRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_LEAVE_GAME_REQUEST) {
-		return &msg_client_message.C2SLeaveGameRequest{}
-	} else {
-		log.Warn("Cant get base proto message by msg_id[%v]", msg_id)
-	}
-	return nil
-}*/
-
 func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request /*msg proto.Message*/, msg_data []byte) (int32, *Player) {
 	var p *Player
 	var req msg_client_message.C2SEnterGameRequest

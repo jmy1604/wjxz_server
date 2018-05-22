@@ -337,20 +337,21 @@ func (this *Player) decompose_role(role_id int32) int32 {
 		log.Error("Not found levelup[%v] data", level)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_DATA_NOT_FOUND)
 	}
-	for i := 0; i < len(levelup_data.CardDecomposeRes)/2; i++ {
-		item_id := levelup_data.CardDecomposeRes[2*i]
-		item_num := levelup_data.CardDecomposeRes[2*i+1]
-		this.add_resource(item_id, item_num)
-		this.tmp_cache_items[item_id] += item_num
+	if levelup_data.CardDecomposeRes != nil {
+		for i := 0; i < len(levelup_data.CardDecomposeRes)/2; i++ {
+			item_id := levelup_data.CardDecomposeRes[2*i]
+			item_num := levelup_data.CardDecomposeRes[2*i+1]
+			this.add_resource(item_id, item_num)
+			this.tmp_cache_items[item_id] += item_num
+		}
 	}
 
 	rank_res := get_decompose_rank_res(table_id, rank)
-	if rank_res == nil {
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_DATA_NOT_FOUND)
-	}
-	for i := 0; i < len(rank_res)/2; i++ {
-		this.add_resource(rank_res[2*i], rank_res[2*i+1])
-		this.tmp_cache_items[rank_res[2*i]] += rank_res[2*i+1]
+	if rank_res != nil {
+		for i := 0; i < len(rank_res)/2; i++ {
+			this.add_resource(rank_res[2*i], rank_res[2*i+1])
+			this.tmp_cache_items[rank_res[2*i]] += rank_res[2*i+1]
+		}
 	}
 
 	this.db.Roles.Remove(role_id)
@@ -372,18 +373,6 @@ func (this *Player) decompose_role(role_id int32) int32 {
 
 	return 1
 }
-
-/*func role_msgid2proto(msg_id uint16) proto.Message {
-	if msg_id == uint16(msg_client_message_id.MSGID_C2S_ROLE_LEVELUP_REQUEST) {
-		return &msg_client_message.C2SRoleLevelUpRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_ROLE_RANKUP_REQUEST) {
-		return &msg_client_message.C2SRoleRankUpRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_ROLE_DECOMPOSE_REQUEST) {
-		return &msg_client_message.C2SRoleDecomposeRequest{}
-	} else {
-		return nil
-	}
-}*/
 
 func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleLevelUpRequest

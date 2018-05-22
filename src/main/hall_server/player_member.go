@@ -592,7 +592,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	this.init_passive_data(role_card.PassiveSkillIds)
 	if this.team.team_type == BATTLE_STAGE_TEAM {
 		// id表示怪物装备
-		this.init_equip(id)
+		//this.init_equip(id)
 	} else {
 		this.init_equips()
 	}

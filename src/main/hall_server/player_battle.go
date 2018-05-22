@@ -231,7 +231,10 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 			}
 
 			m := team_member_pool.Get()
-			m.init(this, monster.EquipID, monster.Level, role_card, pos)
+			for _, eid := range monster.EquipID {
+				m.init_equip(eid)
+			}
+			m.init(this, 0, monster.Level, role_card, pos)
 			this.members[pos] = m
 		}
 	}

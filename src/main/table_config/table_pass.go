@@ -13,7 +13,7 @@ type JsonMonster struct {
 	MonsterID int32
 	Rank      int32
 	Level     int32
-	EquipID   int32
+	EquipID   []int32
 }
 
 type XmlPassItem struct {
