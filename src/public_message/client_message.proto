@@ -109,7 +109,6 @@ message C2S_TEST_COMMAND {
 message ItemInfo {
 	int32 ItemCfgId 	= 1; // 配置物品
 	int32 ItemNum 		= 2; // 物品数目
-	int32 RemainSeconds = 3; // 物品剩余时间
 }
 
 // 好友信息
@@ -126,30 +125,6 @@ message FriendInfo {
 	int32 Zan				= 10; // 赞
 	bool IsZanToday			= 11; // 今天是否赞过
 	bool IsOnline			= 12; // 是否在线
-}
-
-message PlayerStageInfo {
-	int32 PlayerId 			= 1; // 玩家Id
-	int32 Score 			= 2; // 我的积分
-	string Name 			= 3; // 玩家名称
-	int32 Lvl 				= 4; // 玩家等级
-	string Icon 			= 5; // 玩家图标
-	string CustomIcon 		= 6; // 玩家自定义图标
-}
-
-message S2CStagePass {
-	int32 StageId 						= 1; // 关卡Id
-	int32 Stars 						= 2; // 通关星星
-	int32 Score 						= 3; // 通关积分
-	int32 TopScore 						= 4; // 最高积分
-	repeated ItemInfo UseItems 			= 5; // 使用的物品
-	int32 GetCoin 						= 6; // 获取的金币
-	repeated ItemInfo Getitems 			= 7; // 获得的物品
-	repeated PlayerStageInfo RankItems 	= 8; // 排行榜信息
-	repeated PlayerStageInfo FriendItems = 9; // 好友信息
-	int32 Result 						= 12; // 通关结果  0 失败  1 过关
-	repeated ItemInfo GetitemsFirst 	= 13; // 获得的首通奖励
-	repeated ItemInfo Getitems3Star 	= 14; // 获得的首次3星奖励
 }
 
 // 登陆
