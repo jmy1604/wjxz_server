@@ -309,6 +309,23 @@ func get_decompose_rank_res(table_id, rank int32) []int32 {
 	return resources
 }
 
+func (this *Player) team_has_role(team_id int32, role_id int32) bool {
+	var members []int32
+	if team_id == BATTLE_ATTACK_TEAM {
+		members = this.db.BattleTeam.GetAttackMembers()
+	} else if team_id == BATTLE_DEFENSE_TEAM {
+		members = this.db.BattleTeam.GetDefenseMembers()
+	}
+	if members != nil {
+		for _, m := range members {
+			if role_id == m {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (this *Player) decompose_role(role_id int32) int32 {
 	level, o := this.db.Roles.GetLevel(role_id)
 	if !o {
@@ -316,12 +333,17 @@ func (this *Player) decompose_role(role_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 	}
 
-	if this.attack_team.HasRole(role_id) {
+	/*if this.team_member_mgr[role_id] != nil {
+		log.Error("Player[%v] team has role[%v], cant decompose", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+	}*/
+
+	if this.team_has_role(BATTLE_ATTACK_TEAM, role_id) {
 		log.Error("Player[%v] attack team has role[%v], cant decompose", this.Id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
 	}
 
-	if this.defense_team.HasRole(role_id) {
+	if this.team_has_role(BATTLE_DEFENSE_TEAM, role_id) {
 		log.Error("Player[%v] defense team has role[%v], cant decompose", this.Id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
 	}
@@ -374,6 +396,11 @@ func (this *Player) decompose_role(role_id int32) int32 {
 	}
 
 	this.db.Roles.Remove(role_id)
+	role := this.team_member_mgr[role_id]
+	if role != nil {
+		team_member_pool.Put(role)
+		delete(this.team_member_mgr, role_id)
+	}
 
 	response := &msg_client_message.S2CRoleDecomposeResponse{
 		RoleId: role_id,
