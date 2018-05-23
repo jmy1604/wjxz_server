@@ -335,6 +335,7 @@ message S2CCampaignDataResponse {
 	repeated int32 PassedCampaignIds		= 1; // 已打过的战役
 	int32 UnlockCampaignId					= 2; // 已战役关卡ID
 	int32 HangupCampaignId					= 3; // 挂机战役关卡
+	repeated ItemInfo StaticIncomes			= 4; // 当前挂机固定收益
 }
 
 // 请求战役挂机收益
