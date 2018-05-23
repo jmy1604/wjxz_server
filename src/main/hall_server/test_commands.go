@@ -1224,6 +1224,11 @@ func hangup_income_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func campaign_data_cmd(p *Player, args []string) int32 {
+	p.send_campaigns()
+	return 1
+}
+
 func leave_game_cmd(p *Player, args []string) int32 {
 	p.OnLogout()
 	return 1
@@ -1336,6 +1341,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"fight_campaign":   fight_campaign_cmd,
 	"start_hangup":     start_hangup_cmd,
 	"hangup_income":    hangup_income_cmd,
+	"campaign_data":    campaign_data_cmd,
 	"leave_game":       leave_game_cmd,
 	"add_item":         add_item_cmd,
 	"role_levelup":     role_levelup_cmd,

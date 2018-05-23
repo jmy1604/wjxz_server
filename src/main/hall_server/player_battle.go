@@ -750,25 +750,7 @@ func (this *BattleTeam) HasDelayTriggerEventSkill(trigger_event int32, behiter *
 	return false
 }
 
-/*func battle_msgid2proto(msg_id uint16) proto.Message {
-	if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST) {
-		return &msg_client_message.C2SBattleResultRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_SET_TEAM_REQUEST) {
-		return &msg_client_message.C2SSetTeamRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST) {
-		return &msg_client_message.C2SBattleSetHangupCampaignRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST) {
-		return &msg_client_message.C2SBattleResultRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_HANGUP_INCOME_REQUEST) {
-		return &msg_client_message.C2SCampaignHangupIncomeRequest{}
-	} else if msg_id == uint16(msg_client_message_id.MSGID_C2S_CAMPAIGN_DATA_REQUEST) {
-		return &msg_client_message.C2SCampaignDataRequest{}
-	} else {
-		return nil
-	}
-}*/
-
-func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SBattleResultRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
@@ -795,7 +777,7 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg pro
 	return res
 }
 
-func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SSetTeamRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -820,7 +802,7 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg p
 	return 1
 }
 
-func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SBattleSetHangupCampaignRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -843,7 +825,7 @@ func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Play
 	return 1
 }
 
-func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SCampaignHangupIncomeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -856,18 +838,13 @@ func C2SCampaignHangupIncomeHandler(w http.ResponseWriter, r *http.Request, p *P
 	return 1
 }
 
-func C2SCampaignDataHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+func C2SCampaignDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SCampaignDataRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
 		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
-	passed_ids := p.db.Campaigns.GetPassedCampaignIds()
-	response := &msg_client_message.S2CCampaignDataResponse{}
-	response.PassedCampaignIds = passed_ids
-	response.UnlockCampaignId = p.db.CampaignCommon.GetCurrentCampaignId()
-	response.HangupCampaignId = p.db.CampaignCommon.GetHangupCampaignId()
-	p.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_DATA_RESPONSE), response)
+	p.send_campaigns()
 	return 1
 }

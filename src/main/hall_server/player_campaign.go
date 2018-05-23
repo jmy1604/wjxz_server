@@ -429,3 +429,12 @@ func (this *dbPlayerCampaignColumn) GetPassedCampaignIds() []int32 {
 	}
 	return ids
 }
+
+func (this *Player) send_campaigns() {
+	passed_ids := this.db.Campaigns.GetPassedCampaignIds()
+	response := &msg_client_message.S2CCampaignDataResponse{}
+	response.PassedCampaignIds = passed_ids
+	response.UnlockCampaignId = this.db.CampaignCommon.GetCurrentCampaignId()
+	response.HangupCampaignId = this.db.CampaignCommon.GetHangupCampaignId()
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_DATA_RESPONSE), response)
+}
