@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item FormulaID="1" FusionType="1" ResultDropID="21101" MainCardID="1051" Cost1IDcond="1051" Cost1CampCond="0" Cost1TypeCond="0" Cost1StarCond="0" Cost1NumCond="3" Cost2IDcond="0" Cost2CampCond="1" Cost2TypeCond="0" Cost2StarCond="4" Cost2NumCond="3" Cost3IDcond="0" Cost3CampCond="0" Cost3TypeCond="1" Cost3StarCond="4" Cost3NumCond="3" />
+     <item FormulaID="2" FusionType="2" ResultDropID="30001" MainCardID="0" Cost1IDcond="0" Cost1CampCond="1" Cost1TypeCond="0" Cost1StarCond="4" Cost1NumCond="10" Cost2IDcond="0" Cost2CampCond="0" Cost2TypeCond="0" Cost2StarCond="0" Cost2NumCond="0" Cost3IDcond="0" Cost3CampCond="0" Cost3TypeCond="0" Cost3StarCond="0" Cost3NumCond="0" />
+     <item FormulaID="3" FusionType="2" ResultDropID="31001" MainCardID="0" Cost1IDcond="0" Cost1CampCond="0" Cost1TypeCond="1" Cost1StarCond="4" Cost1NumCond="10" Cost2IDcond="0" Cost2CampCond="0" Cost2TypeCond="0" Cost2StarCond="0" Cost2NumCond="0" Cost3IDcond="0" Cost3CampCond="0" Cost3TypeCond="0" Cost3StarCond="0" Cost3NumCond="0" />
+</Config>
