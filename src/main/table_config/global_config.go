@@ -31,17 +31,17 @@ type TimeData struct {
 }
 
 type GlobalConfig struct {
-	InitRoles    []int32
-	InitItems    []CfgIdNum
-	InitItem_len int32
-	InitDiamond  int32
-	InitCoin     int32
-
-	InitEnergy int32
-	MaxEnergy  int32
-	EnergyAdd  int32
-
-	HeartbeatInterval int32 // 心跳间隔
+	InitRoles         []int32    // 初始角色
+	InitItems         []CfgIdNum // 初始物品
+	InitItem_len      int32      // 初始物品长度
+	InitDiamond       int32      // 初始钻石
+	InitCoin          int32      // 初始金币
+	InitEnergy        int32      // 初始怒气
+	MaxEnergy         int32      // 最大怒气
+	EnergyAdd         int32      // 怒气增量
+	HeartbeatInterval int32      // 心跳间隔
+	MailMaxCount      int32      // 最大邮件数
+	MailExistDays     int32      // 邮件保留天数
 
 	MaxFriendNum int32
 

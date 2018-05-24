@@ -243,7 +243,7 @@ func (this *Player) set_hangup_campaign_id(campaign_id int32) int32 {
 	return 1
 }
 
-func (this *Player) cache_campaign_static_income(item_id, item_num int32) {
+func (this *Player) cache_campaign_static_income(item_id, item_num int32) *msg_client_message.ItemInfo {
 	if !this.db.CampaignStaticIncomes.HasIndex(item_id) {
 		this.db.CampaignStaticIncomes.Add(&dbPlayerCampaignStaticIncomeData{
 			ItemId:  item_id,
@@ -251,6 +251,11 @@ func (this *Player) cache_campaign_static_income(item_id, item_num int32) {
 		})
 	} else {
 		this.db.CampaignStaticIncomes.IncbyItemNum(item_id, item_num)
+	}
+
+	return &msg_client_message.ItemInfo{
+		ItemCfgId: item_id,
+		ItemNum:   item_num,
 	}
 }
 
@@ -265,7 +270,7 @@ func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaig
 		item_id := campaign.StaticRewardItem[2*i]
 		item_num := n * campaign.StaticRewardItem[2*i+1]
 		if is_cache {
-			this.cache_campaign_static_income(item_id, item_num)
+			incomes = append(incomes, this.cache_campaign_static_income(item_id, item_num))
 		} else {
 			if tmp_cache_items == nil {
 				tmp_cache_items = make(map[int32]int32)
@@ -299,7 +304,7 @@ func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaig
 	return
 }
 
-func (this *Player) cache_campaign_random_income(item_id, item_num int32) {
+func (this *Player) cache_campaign_random_income(item_id, item_num int32) *msg_client_message.ItemInfo {
 	if !this.db.CampaignRandomIncomes.HasIndex(item_id) {
 		this.db.CampaignRandomIncomes.Add(&dbPlayerCampaignRandomIncomeData{
 			ItemId:  item_id,
@@ -307,6 +312,10 @@ func (this *Player) cache_campaign_random_income(item_id, item_num int32) {
 		})
 	} else {
 		this.db.CampaignRandomIncomes.IncbyItemNum(item_id, item_num)
+	}
+	return &msg_client_message.ItemInfo{
+		ItemCfgId: item_id,
+		ItemNum:   item_num,
 	}
 }
 
@@ -352,7 +361,7 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 		this.tmp_cache_items = nil
 	} else {
 		for k, v := range this.tmp_cache_items {
-			this.cache_campaign_random_income(k, v)
+			incomes = append(incomes, this.cache_campaign_random_income(k, v))
 		}
 	}
 	return

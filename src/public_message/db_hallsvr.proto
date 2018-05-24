@@ -144,6 +144,7 @@ message PlayerMail{
 	optional int32 SendUnix=5;
 	repeated int32 AttachItemIds=6;
 	repeated int32 AttachItemNums=7;
+	optional int32 IsRead=8;
 }
 
 message PlayerMailList{

@@ -732,6 +732,7 @@ type dbPlayerMailData struct{
 	SendUnix int32
 	AttachItemIds []int32
 	AttachItemNums []int32
+	IsRead int32
 }
 func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 	if pb == nil {
@@ -752,6 +753,7 @@ func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 	for i, v := range pb.GetAttachItemNums() {
 		this.AttachItemNums[i] = v
 	}
+	this.IsRead = pb.GetIsRead()
 	return
 }
 func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
@@ -770,6 +772,7 @@ func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
 	for i, v := range this.AttachItemNums {
 		pb.AttachItemNums[i]=v
 	}
+	pb.IsRead = proto.Int32(this.IsRead)
 	return
 }
 func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
@@ -786,6 +789,7 @@ func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
 	for _ii, _vv := range this.AttachItemNums {
 		d.AttachItemNums[_ii]=_vv
 	}
+	d.IsRead = this.IsRead
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -3629,6 +3633,13 @@ func (this *dbPlayerMailCommonColumn)SetCurrId(v int32){
 	this.m_changed = true
 	return
 }
+func (this *dbPlayerMailCommonColumn)IncbyCurrId(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailCommonColumn.IncbyCurrId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.CurrId += v
+	this.m_changed = true
+	return this.m_data.CurrId
+}
 type dbPlayerMailColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerMailData
@@ -3897,6 +3908,28 @@ func (this *dbPlayerMailColumn)SetAttachItemNums(id int32,v []int32)(has bool){
 	for _ii, _vv := range v {
 		d.AttachItemNums[_ii]=_vv
 	}
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerMailColumn)GetIsRead(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetIsRead")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.IsRead
+	return v,true
+}
+func (this *dbPlayerMailColumn)SetIsRead(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetIsRead")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.IsRead = v
 	this.m_changed = true
 	return true
 }

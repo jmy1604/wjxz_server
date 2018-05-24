@@ -259,7 +259,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"CurrId"}
+						{"Type":"int32","Index":1,"Name":"CurrId","Incby":true}
 					]
 				},
 				{
@@ -277,6 +277,7 @@
 						{"Type":"int32","Index":5,"Name":"SendUnix"},
 						{"Type":"int32","Index":6,"Name":"AttachItemIds","Repeated":true},
 						{"Type":"int32","Index":7,"Name":"AttachItemNums","Repeated":true},
+						{"Type":"int32","Index":8,"Name":"IsRead"}
 					]
 				},
 				{

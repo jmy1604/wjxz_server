@@ -51,6 +51,10 @@ enum E_ERR {
 	PLAYER_CAMPAIGN_MUST_PlAY_NEXT			= -13002; // 只能打下一战役
 	PLAYER_NOT_FOUND_CAMPAIGN_TABLE_DATA	= -13003; // 没有战役数据
 	PLAYER_CANT_FIGHT_THE_CAMPAIGN			= -13004; // 不能打该战役
+	
+	// 邮件
+	PLAYER_MAIL_OVER_MAX_COUNT				= -14000; // 超出邮件最大数量
+	PLAYER_MAIL_NOT_FOUND					= -14001; // 邮件不存在
 		
 	// 玩家
 	PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
@@ -456,6 +460,17 @@ message C2SRoleFusionRequest {
 message S2CRoleFusionResponse {
 	int32 NewCardId							= 1; // 生成的新卡，配置ID
 	int32 RoleId							= 2; // 新卡的角色ID
+}
+
+// --------------------------------- 邮件 -------------------------------------
+// 拉取邮件
+message C2SGetMailsRequest {
+	int32 MailCount							= 1; // 拉取的邮件数量
+	int32 MailType							= 2; // 邮件类型
+}
+message MailData {
+	int32 MailId							= 1;
+	int32 MailType							= 2;
 }
 
 //////////////////////////////////////////////////////////////////////////////
