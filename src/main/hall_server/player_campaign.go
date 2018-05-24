@@ -294,7 +294,7 @@ func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaig
 		}
 		if tmp_cache_items != nil {
 			for k, v := range tmp_cache_items {
-				if this.add_item(k, v) {
+				if this.add_resource(k, v) {
 					incomes = append(incomes, &msg_client_message.ItemInfo{
 						ItemCfgId: k,
 						ItemNum:   v,
@@ -357,7 +357,7 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 		}
 
 		for k, v := range this.tmp_cache_items {
-			if this.add_item(k, v) {
+			if this.add_resource(k, v) {
 				incomes = append(incomes, &msg_client_message.ItemInfo{
 					ItemCfgId: k,
 					ItemNum:   v,
@@ -468,8 +468,10 @@ func (this *Player) check_income_state() int32 {
 		}
 		return 0
 	}
-	this.db.NotifyStates.Add(&dbPlayerNotifyStateData{
-		ModuleType: int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME),
-	})
+	if !this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME)) {
+		this.db.NotifyStates.Add(&dbPlayerNotifyStateData{
+			ModuleType: int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME),
+		})
+	}
 	return 1
 }
