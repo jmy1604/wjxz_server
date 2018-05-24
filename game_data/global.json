@@ -1,8 +1,18 @@
 {
-	"InitRoles":[1102,1,10,5051,1,10,4105,1,10,4106,1,10,2106,1,10,3105,1,10],
+	"InitRoles":[10006,1,10,10004,1,10,10005,1,10,10001,1,10,10002,1,10,10003,1,10],
 	"InitItems":[],
 	"InitDiamond":100000,
 	"InitCoin":100000000,
+	
+	"InitEnergy":30,
+	"MaxEnergy":60,
+	"EnergyAdd":20,
+	
+	"HeartbeatInterval":60,
+	
+	"MailMaxCount":300,
+	"MailExistDays":14,
+	
 	"MaxFriendNum":200,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
