@@ -4,13 +4,14 @@ import (
 	"libs/log"
 	_ "main/table_config"
 	"math"
+	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
 	_ "sync"
 	_ "time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	_ "github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 // 物品类型
@@ -315,6 +316,74 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 	return 1
 }
 
+func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
+	piece_num := this.get_item(piece_id)
+	if piece_num <= 0 {
+		log.Error("Player[%v] no piece[%v], cant fusion", this.Id, piece_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NOT_FOUND)
+	}
+
+	piece := item_table_mgr.Get(piece_id)
+	if piece == nil {
+		log.Error("Cant found item[%v] table data", piece_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
+	}
+
+	if piece.ComposeType != 2 {
+		log.Error("Cant fusion item with piece[%v]", piece_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
+	}
+
+	if piece.ComposeNum*fusion_num > piece_num {
+		log.Error("Player[%v] piece[%v] not enough to fusion", this.Id, piece_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_COUNT_NOT_ENOUGH_TO_FUSION)
+	}
+
+	o, item := this.drop_item_by_id(piece.ComposeDropID, true, true)
+	if !o {
+		log.Error("Player[%v] fusion item with piece[%v] failed", this.Id, piece_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
+	}
+
+	this.del_item(piece_id, fusion_num*piece.ComposeNum)
+
+	response := &msg_client_message.S2CItemFusionResponse{
+		Item: item,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_FUSION_RESPONSE), response)
+
+	log.Debug("Player[%v] fusioned item[%v] with piece[%v,%v]", this.Id, item.ItemCfgId)
+
+	return 1
+}
+
+func (this *Player) sell_item(item_id, item_num int32) int32 {
+	item := item_table_mgr.Get(item_id)
+	if item == nil {
+		log.Error("Cant found item[%v] table data", item_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
+	}
+
+	if this.get_item(item_id) < item_num {
+		log.Error("Player[%v] item[%v] not enough", this.Id, item_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
+	}
+
+	this.del_item(item_id, item_num)
+	this.add_gold(item.SellPrice)
+
+	response := &msg_client_message.S2CItemSellResponse{
+		ItemId:  item_id,
+		ItemNum: item_num,
+		Gold:    item.SellPrice,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_SELL_RESPONSE), response)
+
+	log.Debug("Player[%v] sell item[%v,%v], get gold[%v]", this.Id, item_id, item_num, item.SellPrice)
+
+	return 1
+}
+
 /*
 func (this *Player) add_handbook_data(item_id int32) {
 	var d dbPlayerHandbookItemData
@@ -454,3 +523,23 @@ func (this *Player) RemoveItems(itemidnums []int32, reason, mod string) {
 	return
 }
 */
+
+func C2SItemFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SItemFusionRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
+		return -1
+	}
+	return p.fusion_item(req.GetPieceId(), req.GetFusionNum())
+}
+
+func C2SItemSellHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SItemSellRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.sell_item(req.GetItemId(), req.GetItemNum())
+}

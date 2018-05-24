@@ -204,17 +204,14 @@
 					]
 				},
 				{
-					"DBColumnName":"ChapterUnLock",
+					"DBColumnName":"NotifyState",
 					"InUse":true,
-					"ColumnName":"ChapterUnLock",
+					"ColumnName":"NotifyState",
 					"Preload":true,
-					"Map":false,
+					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"ChapterId"},
-						{"Type":"int32","Index":2,"Name":"PlayerIds","Repeated":true},
-						{"Type":"int32","Index":3,"Name":"CurHelpIds","Repeated":true},
-						{"Type":"int32","Index":4,"Name":"StartUnix"}
+						{"Type":"int32","Index":1,"Name":"ModuleType"}
 					]
 				},
 				{
@@ -255,6 +252,17 @@
 					]
 				},
 				{
+					"DBColumnName":"MailCommon",
+					"InUse":true,
+					"ColumnName":"MailCommon",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"CurrId"}
+					]
+				},
+				{
 					"DBColumnName":"Mail",
 					"InUse":true,
 					"ColumnName":"Mail",
@@ -262,18 +270,13 @@
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"MailId"},
-						{"Type":"int8","Index":2,"Name":"MailType"},
-						{"Type":"string","Index":3,"Name":"MailTitle"},
-						{"Type":"int32","Index":4,"Name":"SenderId"},
-						{"Type":"string","Index":5,"Name":"SenderName"},
-						{"Type":"string","Index":6,"Name":"Content"},
-						{"Type":"int32","Index":7,"Name":"SendUnix"},
-						{"Type":"int32","Index":8,"Name":"OverUnix"},
-						{"Type":"int32","Index":9,"Name":"ObjIds","Repeated":true},
-						{"Type":"int32","Index":10,"Name":"ObjNums","Repeated":true},
-						{"Type":"int8","Index":11,"Name":"State"},
-						{"Type":"int32","Index":12,"Name":"ExtraDatas","Repeated":true}
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int8","Index":2,"Name":"Type"},
+						{"Type":"string","Index":3,"Name":"Title"},
+						{"Type":"string","Index":4,"Name":"Content"},
+						{"Type":"int32","Index":5,"Name":"SendUnix"},
+						{"Type":"int32","Index":6,"Name":"AttachItemIds","Repeated":true},
+						{"Type":"int32","Index":7,"Name":"AttachItemNums","Repeated":true},
 					]
 				},
 				{

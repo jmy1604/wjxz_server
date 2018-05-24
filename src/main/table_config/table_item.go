@@ -15,6 +15,10 @@ type XmlItemItem struct {
 	EquipSkillStr string `xml:"EquipSkill,attr"`
 	EquipAttr     []int32
 	EquipSkill    []int32
+	ComposeNum    int32 `xml:"ComposeNum,attr"`
+	ComposeType   int32 `xml:"ComposeType,attr"`
+	ComposeDropID int32 `xml:"ComposeDropID,attr"`
+	SellPrice     int32 `xml:"SellPrice,attr"`
 }
 
 type XmlItemConfig struct {

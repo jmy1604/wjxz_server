@@ -40,6 +40,10 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 		}
 
 		if tmp_item.Weight > rand_val || get_same {
+			if tmp_item.DropItemID == 0 {
+				return nil
+			}
+
 			if check_same {
 				if _, o := this.used_drop_ids[tmp_item.DropItemID]; o {
 					get_same = true
@@ -56,16 +60,20 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 			_, num := rand31n_from_range(tmp_item.Min, tmp_item.Max)
 			if nil != item_table_mgr.Map[tmp_item.DropItemID] {
 				if badd {
-					if !this.add_item(tmp_item.DropItemID, num) {
+					if !this.add_resource(tmp_item.DropItemID, num) {
 						log.Error("Player[%v] rand dropid[%d] not item or cat or building or item resource", this.Id, tmp_item.DropItemID)
 						continue
 					}
 				}
 			} else {
-				if badd {
-					if !this.add_resource(tmp_item.DropItemID, num) {
-						log.Error("Player[%v] rand dropid[%d] not item or cat or building or item resource", this.Id, tmp_item.DropItemID)
-						continue
+				if card_table_mgr.GetCards(tmp_item.DropItemID) != nil {
+					if badd {
+						for i := int32(0); i < num; i++ {
+							if this.new_role(tmp_item.DropItemID, 1, 1) == 0 {
+								log.Error("Player[%v] rand dropid[%d] not item or cat or building or item resource", this.Id, tmp_item.DropItemID)
+								continue
+							}
+						}
 					}
 				}
 			}

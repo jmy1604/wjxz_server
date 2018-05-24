@@ -1327,6 +1327,93 @@ func role_decompose_cmd(p *Player, args []string) int32 {
 	return res
 }
 
+func item_fusion_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var piece_id, fusion_num int
+	piece_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换碎片ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+	fusion_num, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("转换合成次数[%v]失败[%v]", args[1], err.Error())
+		return -1
+	}
+
+	return p.fusion_item(int32(piece_id), int32(fusion_num))
+}
+
+func item_sell_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var item_id, item_num int
+	item_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换物品ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+	item_num, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("转换物品数量[%v]失败[%v]", args[1], err.Error())
+		return -1
+	}
+
+	return p.sell_item(int32(item_id), int32(item_num))
+}
+
+func fusion_role_cmd(p *Player, args []string) int32 {
+	if len(args) < 3 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var err error
+	var fusion_id, main_card_id int
+	fusion_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换合成角色ID[%v]失败[%v]", args[0], err.Error())
+		return -1
+	}
+	main_card_id, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("转换主卡ID[%v]失败[%v]", args[1], err.Error())
+		return -1
+	}
+
+	var cost1_ids, cost2_ids, cost3_ids []int32
+	cost1_ids = parse_xml_str_arr2(args[2], "|")
+	if cost1_ids == nil || len(cost1_ids) == 0 {
+		log.Error("消耗角色1系列转换错误")
+		return -1
+	}
+	if len(args) > 3 {
+		cost2_ids = parse_xml_str_arr2(args[3], "|")
+		if cost2_ids == nil || len(cost2_ids) == 0 {
+			log.Error("消耗角色2系列转换错误")
+			return -1
+		}
+		if len(args) > 4 {
+			cost3_ids = parse_xml_str_arr2(args[4], "|")
+			if cost3_ids == nil || len(cost3_ids) == 0 {
+				log.Error("消耗角色3系列转换错误")
+				return -1
+			}
+		}
+	}
+
+	return p.fusion_role(int32(fusion_id), int32(main_card_id), [][]int32{cost1_ids, cost2_ids, cost3_ids})
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1347,6 +1434,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"role_levelup":     role_levelup_cmd,
 	"role_rankup":      role_rankup_cmd,
 	"role_decompose":   role_decompose_cmd,
+	"item_fusion":      item_fusion_cmd,
+	"item_sell":        item_sell_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

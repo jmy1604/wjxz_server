@@ -234,6 +234,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("rankup_table_mgr init succeed")
 	}
 
+	if !fusion_table_mgr.Init() {
+		log.Error("fusion_table_mgr init failed")
+		return errors.New("fusion_table_mgr init failed")
+	} else {
+		log.Info("fusion_table_mgr init succeed")
+	}
+
 	conn_timer_mgr.Init()
 
 	return
@@ -390,6 +397,7 @@ var stage_table_mgr table_config.PassTableMgr
 var campaign_table_mgr table_config.CampaignTableMgr
 var levelup_table_mgr table_config.LevelUpTableMgr
 var rankup_table_mgr table_config.RankUpTableMgr
+var fusion_table_mgr table_config.FusionTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

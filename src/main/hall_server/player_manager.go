@@ -224,6 +224,25 @@ func (this *PlayerManager) SendMsgToAllPlayers(msg proto.Message) {
 	}
 }
 
+func (this *Player) send_notify_state() {
+	var response *msg_client_message.S2CStateNotify
+	s := this.check_income_state()
+	if s != 0 {
+		if response == nil {
+			response = &msg_client_message.S2CStateNotify{}
+		}
+	}
+	if s > 0 {
+		response.States = append(response.States, int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
+	} else if s < 0 {
+		response.CancelStates = append(response.CancelStates, int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
+	}
+
+	if response != nil {
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_STATE_NOTIFY), response)
+	}
+}
+
 //==============================================================================
 func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ENTER_GAME_REQUEST), C2SEnterGameRequestHandler)
@@ -240,9 +259,12 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ROLE_LEVELUP_REQUEST), C2SRoleLevelUpHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ROLE_RANKUP_REQUEST), C2SRoleRankUpHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ROLE_DECOMPOSE_REQUEST), C2SRoleDecomposeHandler)
+
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ITEM_FUSION_REQUEST), C2SItemFusionHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ITEM_SELL_REQUEST), C2SItemSellHandler)
 }
 
-func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request /*msg proto.Message*/, msg_data []byte) (int32, *Player) {
+func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data []byte) (int32, *Player) {
 	var p *Player
 	var req msg_client_message.C2SEnterGameRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -312,6 +334,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request /*msg pro
 		p.send_items()
 		p.send_roles()
 	}
+	p.send_info()
 	p.send_teams()
 	p.notify_enter_complete()
 
@@ -344,5 +367,6 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg
 		return int32(msg_client_message.E_ERR_PLAYER_IS_OFFLINE)
 	}
 	conn_timer_mgr.Insert(p.Id)
+	p.send_notify_state()
 	return 1
 }

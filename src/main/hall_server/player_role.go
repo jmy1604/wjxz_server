@@ -2,7 +2,7 @@ package main
 
 import (
 	"libs/log"
-	_ "main/table_config"
+	"main/table_config"
 	"math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
@@ -123,6 +123,15 @@ func (this *Player) rand_role() int32 {
 	}
 
 	return id
+}
+
+func (this *Player) delete_role(role_id int32) bool {
+	if !this.db.Roles.HasIndex(role_id) {
+		return false
+	}
+	this.db.Roles.Remove(role_id)
+	this.roles_id_change_info.id_remove(role_id)
+	return true
 }
 
 func (this *Player) check_and_send_roles_change() {
@@ -421,6 +430,102 @@ func (this *Player) decompose_role(role_id int32) int32 {
 	return 1
 }
 
+func (this *Player) check_fusion_role_cond(cost_role_ids []int32, cost_cond *table_config.FusionCostCond) int32 {
+	for i := 0; i < len(cost_role_ids); i++ {
+		if !this.db.Roles.HasIndex(cost_role_ids[i]) {
+			log.Error("Player[%v] fusion role need role[%v] not found", this.Id, cost_role_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_FUSION_NEED_ROLE_NOT_FOUND)
+		}
+
+		table_id, _ := this.db.Roles.GetTableId(cost_role_ids[i])
+		if cost_cond.CostId > 0 && table_id != cost_cond.CostId {
+			log.Error("Player[%v] fusion cost role[%v] invalid", this.Id, cost_role_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
+		} else {
+			rank, _ := this.db.Roles.GetRank(cost_role_ids[i])
+			card := card_table_mgr.GetRankCard(table_id, rank)
+			if card == nil {
+				log.Error("Player[%v] fusion role[%v] not found card[%v] with rank[%v]", this.Id, cost_role_ids[i], table_id, rank)
+				return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
+			}
+			if card.Camp != cost_cond.CostCamp {
+				log.Error("Player[%v] fusion role[%v] camp[%v] invalid", this.Id, cost_role_ids[i], card.Camp)
+				return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
+			}
+			if card.Type != cost_cond.CostType {
+				log.Error("Player[%v] fusion role[%v] type[%v] invalid", this.Id, cost_role_ids[i], card.Type)
+				return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
+			}
+			if card.Rarity != cost_cond.CostStar {
+				log.Error("Player[%v] fusion role[%v] star[%v] invalid", this.Id, cost_role_ids[i], card.Type)
+				return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
+			}
+		}
+	}
+	return 1
+}
+
+func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][]int32) int32 {
+	fusion := fusion_table_mgr.Get(fusion_id)
+	if fusion == nil {
+		log.Error("Fusion[%v] table data not found", fusion_id)
+		return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_TABLE_DATA_NOT_FOUND)
+	}
+
+	// 固定配方
+	if fusion.FusionType == 1 {
+		if !this.db.Roles.HasIndex(main_role_id) {
+			log.Error("Player[%v] fusion[%v] not found main role[%v]", this.Id, fusion_id, main_role_id)
+			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_ROLE_NOT_FOUND)
+		}
+	}
+
+	for i := 0; i < len(cost_role_ids); i++ {
+		if i >= len(fusion.CostConds) {
+			break
+		}
+		if cost_role_ids[i] != nil && int(fusion.CostConds[i].CostNum) > len(cost_role_ids[i]) {
+			log.Error("Player[%v] fusion[%v] cost[%v] not enough", this.Id, fusion_id, fusion.CostConds[i].CostId)
+			return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_MATERIAL_NOT_ENOUGH)
+		}
+		res := this.check_fusion_role_cond(cost_role_ids[i], fusion.CostConds[i])
+		if res < 0 {
+			return res
+		}
+	}
+
+	var item *msg_client_message.ItemInfo
+	var o bool
+	if o, item = this.drop_item_by_id(fusion.ResultDropID, true, true); !o {
+		log.Error("Player[%v] fusion[%v] drop new card failed", this.Id, fusion_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_FUSION_FAILED)
+	}
+
+	for i := 0; i < len(cost_role_ids); i++ {
+		for j := 0; j < len(cost_role_ids[i]); j++ {
+			this.delete_role(cost_role_ids[i][j])
+		}
+	}
+
+	new_role_id := int32(0)
+	if fusion.FusionType == 1 {
+		this.db.Roles.SetTableId(main_role_id, item.ItemCfgId)
+		this.roles_id_change_info.id_update(main_role_id)
+	} else {
+		new_role_id = this.new_role(item.ItemCfgId, 1, 1)
+	}
+
+	response := &msg_client_message.S2CRoleFusionResponse{
+		NewCardId: item.ItemCfgId,
+		RoleId:    new_role_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_FUSION_RESPONSE), response)
+
+	log.Debug("Player[%v] fusion[%v] main_card[%v] get new role[%v] new card[%v], cost cards[%v]", this.Id, fusion_id, main_role_id, new_role_id, item.ItemCfgId, cost_role_ids)
+
+	return 1
+}
+
 func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleLevelUpRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -445,8 +550,18 @@ func C2SRoleDecomposeHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	var req msg_client_message.C2SRoleDecomposeRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if nil != err {
-		log.Error("Unmarshal msg failed err(%s) !", err.Error())
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
 	return p.decompose_role(req.GetRoleId())
+}
+
+func C2SRoleFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleFusionRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.fusion_role(req.GetFusionId(), req.GetMainCardId(), [][]int32{req.GetCost1CardIds(), req.GetCost2CardIds(), req.GetCost3CardIds()})
 }

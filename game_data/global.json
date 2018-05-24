@@ -10,6 +10,9 @@
 	
 	"HeartbeatInterval":60,
 	
+	"MailMaxCount":300,
+	"MailExistDays":14,
+	
 	"MaxFriendNum":200,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

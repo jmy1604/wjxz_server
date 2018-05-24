@@ -7,6 +7,7 @@
      <item BuffID="5" Effect="3" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="6" Effect="4" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="7" Effect="4" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
+     <item BuffID="8" Effect="4" Type="2" ResistCountMax="0" MutexType="2" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="101" Effect="5|9" Type="1" ResistCountMax="0" MutexType="13" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="102" Effect="5|10" Type="1" ResistCountMax="0" MutexType="13" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="103" Effect="5|11" Type="1" ResistCountMax="0" MutexType="13" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
@@ -68,12 +69,13 @@
      <item BuffID="403" Effect="0" Type="4" ResistCountMax="1" MutexType="33" ResistMutexType="13" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="404" Effect="0" Type="4" ResistCountMax="1" MutexType="34" ResistMutexType="1,2,3" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
      <item BuffID="411" Effect="0" Type="4" ResistCountMax="0" MutexType="35" ResistMutexType="2" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
-     <item BuffID="1001" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="1,1001" CancelMutexID="" />
-     <item BuffID="1002" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="2,1002" CancelMutexID="" />
-     <item BuffID="1003" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="3,1003" CancelMutexID="" />
-     <item BuffID="1004" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="4,1004" CancelMutexID="" />
-     <item BuffID="1005" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="5,1005" CancelMutexID="" />
-     <item BuffID="1006" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="6,1006" CancelMutexID="" />
-     <item BuffID="1007" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="7,1007" CancelMutexID="" />
+     <item BuffID="1001" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="1,1001" CancelMutexID="1,1001" />
+     <item BuffID="1002" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="2,1002" CancelMutexID="2,1002" />
+     <item BuffID="1003" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="3,1003" CancelMutexID="3,1003" />
+     <item BuffID="1004" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="4,1004" CancelMutexID="4,1004" />
+     <item BuffID="1005" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="5,1005" CancelMutexID="5,1005" />
+     <item BuffID="1006" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="6,1006" CancelMutexID="6,1006" />
+     <item BuffID="1007" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="7,1007" CancelMutexID="7,1007" />
+     <item BuffID="1008" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="8,1008" CancelMutexID="8,1008" />
      <item BuffID="2001" Effect="7|1020028" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="" CancelMutexID="" />
 </Config>
