@@ -758,6 +758,11 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 		return -1
 	}
 
+	if p.Id == req.GetFightPlayerId() {
+		log.Error("Cant fight with self")
+		return -1
+	}
+
 	if req.GetAttackMembers() != nil && len(req.GetAttackMembers()) > 0 {
 		res := p.SetAttackTeam(req.AttackMembers)
 		if res < 0 {

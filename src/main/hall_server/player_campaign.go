@@ -290,6 +290,7 @@ func (this *Player) get_campaign_static_income(campaign *table_config.XmlCampaig
 				d := tmp_cache_items[cache[i]]
 				tmp_cache_items[cache[i]] = d + n
 			}
+			this.db.CampaignStaticIncomes.Clear()
 		}
 		if tmp_cache_items != nil {
 			for k, v := range tmp_cache_items {
@@ -352,6 +353,7 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 				d := this.tmp_cache_items[cache[i]]
 				this.tmp_cache_items[cache[i]] = d + n
 			}
+			this.db.CampaignRandomIncomes.Clear()
 		}
 
 		for k, v := range this.tmp_cache_items {
@@ -362,6 +364,7 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 				})
 			}
 		}
+
 		this.tmp_cache_items = nil
 	} else {
 		for k, v := range this.tmp_cache_items {

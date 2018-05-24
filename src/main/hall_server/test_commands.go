@@ -6,6 +6,7 @@ import (
 	_ "libs/utils"
 	"net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 	"strconv"
 	_ "time"
 
@@ -1153,7 +1154,15 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 		log.Error("关卡[%v]不存在", stage_id)
 		return -1
 	}
-	p.FightInStage(stage)
+	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(stage)
+	response := &msg_client_message.S2CBattleResultResponse{}
+	response.IsWin = is_win
+	response.MyTeam = my_team
+	response.TargetTeam = target_team
+	response.EnterReports = enter_reports
+	response.Rounds = rounds
+	response.HasNextWave = has_next_wave
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 	log.Debug("玩家[%v]挑战了关卡[%v]", p.Id, stage_id)
 	return 1
 }
