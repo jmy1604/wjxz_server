@@ -441,3 +441,18 @@ func (this *Player) send_campaigns() {
 	response.StaticIncomes = incomes
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_DATA_RESPONSE), response)
 }
+
+// 返回值 1 增加 -1 删除  0 不做处理
+func (this *Player) check_income_state() int32 {
+	if this.hangup_income_get(0, true) == nil {
+		if this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME)) {
+			this.db.NotifyStates.Remove(int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
+			return -1
+		}
+		return 0
+	}
+	this.db.NotifyStates.Add(&dbPlayerNotifyStateData{
+		ModuleType: int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME),
+	})
+	return 1
+}
