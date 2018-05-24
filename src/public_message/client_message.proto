@@ -28,6 +28,8 @@ enum E_ERR {
 	PLAYER_ITEM_TYPE_NOT_MATCH				= -11003; // 物品类型不匹配
 	PLAYER_EQUIP_SLOT_EMPTY					= -11004; // 装备位置为空
 	PLAYER_EQUIP_TYPE_INVALID				= -11005; // 装备类型错误
+	PLAYER_ITEM_FUSION_FAILED				= -11006; // 不能合成物品
+	PLAYER_ITEM_COUNT_NOT_ENOUGH_TO_FUSION  = -11007; // 合成碎片数量不足
 	
 	// 角色
 	PLAYER_ROLE_NOT_FOUND					= -12000; // 角色不存在
@@ -37,6 +39,12 @@ enum E_ERR {
 	PLAYER_ROLE_RANK_IS_MAX					= -12004; // 角色品阶已经最大
 	PLAYER_ROLE_RANKUP_DATA_NOT_FOUND		= -12005; // 角色品阶升级数据不存在
 	PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE		= -12006; // 角色在阵容中，不能分解
+	PLAYER_ROLE_FUSION_FAILED				= -12007; // 角色合成失败
+	PLAYER_FUSION_NEED_ROLE_NOT_FOUND  		= -12008; // 合成角色需要的角色不存在
+	PLAYER_FUSION_ROLE_INVALID				= -12009; // 合成需要的角色不合法
+	PLAYER_FUSION_ROLE_TABLE_DATA_NOT_FOUND = -12010; // 角色合成配置数据不存在
+	PLAYER_FUSION_MAIN_ROLE_NOT_FOUND		= -12011; // 角色合成主角色不存在
+	PLAYER_FUSION_ROLE_MATERIAL_NOT_ENOUGH  = -12012; // 角色合成材料数量不足
 	
 	// 关卡
 	PLAYER_ALREADY_FIGHT_CAMPAIGN			= -13001; // 已打过该战役
@@ -93,6 +101,18 @@ enum E_ERR {
 	WORLDCHAT_SEND_MSG_BE_FORBIDEN   		= -102304; // 你被禁言了
 }
 
+// 红点状态
+enum MODULE {
+	STATE_NONE								= 0;
+	STATE_HANGUP_RANDOM_INCOME				= 1; // 挂机随机收益
+}
+
+// 红点提示通知
+message S2CStateNotify {
+	repeated int32 States					= 1; // 状态更新
+	repeated int32 CancelStates				= 2; // 状态取消
+}
+
 // 心跳
 message C2SHeartbeat {
 }
@@ -101,15 +121,15 @@ message C2SHeartbeat {
 
 // 测试用消息
 message C2S_TEST_COMMAND {
-	string cmd 			= 1;
-	repeated string args = 2;
+	string cmd 				= 1;
+	repeated string args 	= 2;
 }
 ///////////////////////////////////////end////////////////////////////////////
 
 // 物品
 message ItemInfo {
-	int32 ItemCfgId 	= 1; // 配置物品
-	int32 ItemNum 		= 2; // 物品数目
+	int32 ItemCfgId 		= 1; // 配置物品
+	int32 ItemNum 			= 2; // 物品数目
 }
 
 // 好友信息
@@ -371,6 +391,28 @@ message S2CItemsUpdate {
 	repeated ItemInfo ItemsAdd				= 1; // 增加的物品
 }
 
+// 物品合成
+message C2SItemFusionRequest {
+	int32 PieceId							= 1; // 碎片ID
+	int32 FusionNum							= 2; // 合成次数
+}
+
+message S2CItemFusionResponse {
+	ItemInfo Item                           = 1; // 合成的物品
+}
+
+// 出售物品
+message C2SItemSellRequest {
+	int32 ItemId                            = 1; // 出售物品ID
+	int32 ItemNum                           = 2; // 出售物品数量
+}
+
+message S2CItemSellResponse {
+	int32 ItemId                            = 1; // 出售物品ID
+	int32 ItemNum                           = 2; // 出售物品数量
+	int32 Gold                              = 3; // 获得金币
+}
+
 // ----------------------------------- 角色 ------------------------------------
 // 角色升级
 message C2SRoleLevelUpRequest {
@@ -401,6 +443,21 @@ message S2CRoleDecomposeResponse {
 	int32 RoleId							= 1; // 角色ID
 	repeated ItemInfo GetItems      		= 2; // 分解获得的物品
 }
+
+// 角色合成
+message C2SRoleFusionRequest {
+	int32 FusionId							= 1; // 合成ID
+	int32 MainCardId						= 2; // 主卡ID
+	repeated int32 Cost1CardIds				= 3; // 消耗的card1
+	repeated int32 Cost2CardIds				= 4; // 消耗的card2
+	repeated int32 Cost3CardIds				= 5; // 消耗的card3
+}
+
+message S2CRoleFusionResponse {
+	int32 NewCardId							= 1; // 生成的新卡，配置ID
+	int32 RoleId							= 2; // 新卡的角色ID
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 // 按昵称查找好友信息
