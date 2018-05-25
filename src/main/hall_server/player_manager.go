@@ -343,7 +343,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 	return 1, p
 }
 
-func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SLeaveGameRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
@@ -354,7 +354,7 @@ func C2SLeaveGameRequestHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return 1
 }
 
-func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
+func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SHeartbeat
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {

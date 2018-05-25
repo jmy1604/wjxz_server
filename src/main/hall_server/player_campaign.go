@@ -426,7 +426,7 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 		this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)
 	}
 
-	if incomes != nil {
+	if incomes != nil && !is_cache {
 		var msg msg_client_message.S2CCampaignHangupIncomeResponse
 		msg.Rewards = incomes
 		msg.IncomeType = income_type
