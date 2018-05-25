@@ -1014,7 +1014,61 @@ func rand_role_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func new_role_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var table_id, num int
+	var err error
+	table_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("转换角色配置ID[%v]错误[%v]", args[0], err.Error())
+		return -1
+	}
+
+	if len(args) > 1 {
+		num, err = strconv.Atoi(args[1])
+		if err != nil {
+			log.Error("转换角色数量[%v]错误[%v]", args[1], err.Error())
+			return -1
+		}
+	}
+
+	if num == 0 {
+		num = 1
+	}
+	for i := 0; i < num; i++ {
+		p.new_role(int32(table_id), 1, 1)
+	}
+	return 1
+}
+
 func list_role_cmd(p *Player, args []string) int32 {
+	var camp, typ, star int
+	var err error
+	if len(args) > 0 {
+		camp, err = strconv.Atoi(args[0])
+		if err != nil {
+			log.Error("转换阵营[%v]错误[%v]", args[0], err.Error())
+			return -1
+		}
+		if len(args) > 1 {
+			typ, err = strconv.Atoi(args[1])
+			if err != nil {
+				log.Error("转换卡牌类型[%v]错误[%v]", args[1], err.Error())
+				return -1
+			}
+			if len(args) > 2 {
+				star, err = strconv.Atoi(args[2])
+				if err != nil {
+					log.Error("转换卡牌星级[%v]错误[%v]", args[2], err.Error())
+					return -1
+				}
+			}
+		}
+	}
 	all := p.db.Roles.GetAllIndex()
 	if all != nil {
 		for i := 0; i < len(all); i++ {
@@ -1022,9 +1076,25 @@ func list_role_cmd(p *Player, args []string) int32 {
 			if !o {
 				continue
 			}
+
 			level, _ := p.db.Roles.GetLevel(all[i])
 			rank, _ := p.db.Roles.GetRank(all[i])
-			log.Debug("role_id:%v, table_id:%v, level:%v, rank:%v", all[i], table_id, level, rank)
+
+			card := card_table_mgr.GetRankCard(table_id, rank)
+			if card == nil {
+				continue
+			}
+
+			if camp > 0 && card.Camp != int32(camp) {
+				continue
+			}
+			if typ > 0 && card.Type != int32(typ) {
+				continue
+			}
+			if star > 0 && card.Rarity != int32(star) {
+				continue
+			}
+			log.Debug("role_id:%v, table_id:%v, level:%v, rank:%v, camp:%v, type:%v, star:%v", all[i], table_id, level, rank, camp, typ, star)
 		}
 	}
 	return 1
@@ -1428,6 +1498,7 @@ type test_cmd_func func(*Player, []string) int32
 var test_cmd2funcs = map[string]test_cmd_func{
 	"test_lua":         test_lua_cmd,
 	"rand_role":        rand_role_cmd,
+	"new_role":         new_role_cmd,
 	"list_role":        list_role_cmd,
 	"set_attack_team":  set_attack_team_cmd,
 	"set_defense_team": set_defense_team_cmd,
@@ -1444,6 +1515,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"role_rankup":      role_rankup_cmd,
 	"role_decompose":   role_decompose_cmd,
 	"item_fusion":      item_fusion_cmd,
+	"fusion_role":      fusion_role_cmd,
 	"item_sell":        item_sell_cmd,
 }
 

@@ -53,11 +53,6 @@ func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_m
 }
 
 func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
-	if this.db.Roles.HasIndex(role_id) {
-		log.Error("Player[%v] already has role[%v]", this.Id, role_id)
-		return 0
-	}
-
 	card := card_table_mgr.GetRankCard(role_id, rank)
 	if card == nil {
 		log.Error("Cant get role card by id[%v] rank[%v]", role_id, rank)
@@ -448,15 +443,15 @@ func (this *Player) check_fusion_role_cond(cost_role_ids []int32, cost_cond *tab
 				log.Error("Player[%v] fusion role[%v] not found card[%v] with rank[%v]", this.Id, cost_role_ids[i], table_id, rank)
 				return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
 			}
-			if card.Camp != cost_cond.CostCamp {
+			if cost_cond.CostCamp > 0 && card.Camp != cost_cond.CostCamp {
 				log.Error("Player[%v] fusion role[%v] camp[%v] invalid", this.Id, cost_role_ids[i], card.Camp)
 				return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
 			}
-			if card.Type != cost_cond.CostType {
+			if cost_cond.CostType > 0 && card.Type != cost_cond.CostType {
 				log.Error("Player[%v] fusion role[%v] type[%v] invalid", this.Id, cost_role_ids[i], card.Type)
 				return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
 			}
-			if card.Rarity != cost_cond.CostStar {
+			if cost_cond.CostStar > 0 && card.Rarity != cost_cond.CostStar {
 				log.Error("Player[%v] fusion role[%v] star[%v] invalid", this.Id, cost_role_ids[i], card.Type)
 				return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_INVALID)
 			}
@@ -478,14 +473,24 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 			log.Error("Player[%v] fusion[%v] not found main role[%v]", this.Id, fusion_id, main_role_id)
 			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_ROLE_NOT_FOUND)
 		}
+
+		main_card_id, _ := this.db.Roles.GetTableId(main_role_id)
+		if main_card_id != fusion.MainCardID {
+			log.Error("Player[%v] fusion[%v] main card id[%v] is invalid", this.Id, main_card_id)
+			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_CARD_INVALID)
+		}
 	}
 
 	for i := 0; i < len(cost_role_ids); i++ {
 		if i >= len(fusion.CostConds) {
 			break
 		}
-		if cost_role_ids[i] != nil && int(fusion.CostConds[i].CostNum) > len(cost_role_ids[i]) {
-			log.Error("Player[%v] fusion[%v] cost[%v] not enough", this.Id, fusion_id, fusion.CostConds[i].CostId)
+		cn := int32(0)
+		if cost_role_ids[i] != nil {
+			cn = int32(len(cost_role_ids[i]))
+		}
+		if fusion.CostConds[i].CostNum > cn {
+			log.Error("Player[%v] fusion[%v] cost num %v not enough, need %v", this.Id, fusion_id, cn, fusion.CostConds[i].CostNum)
 			return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_MATERIAL_NOT_ENOUGH)
 		}
 		res := this.check_fusion_role_cond(cost_role_ids[i], fusion.CostConds[i])
@@ -496,7 +501,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 
 	var item *msg_client_message.ItemInfo
 	var o bool
-	if o, item = this.drop_item_by_id(fusion.ResultDropID, true, true); !o {
+	if o, item = this.drop_item_by_id(fusion.ResultDropID, true, false); !o {
 		log.Error("Player[%v] fusion[%v] drop new card failed", this.Id, fusion_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_FUSION_FAILED)
 	}
