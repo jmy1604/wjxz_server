@@ -549,7 +549,7 @@ func (this *TeamMember) init_equips() {
 	}
 }
 
-func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
+func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, extra_equips []int32) {
 	if this.attrs == nil {
 		this.attrs = make([]int32, ATTR_COUNT_MAX)
 	} else {
@@ -595,6 +595,12 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 		this.init_equips()
 	}
 
+	if extra_equips != nil {
+		for _, eid := range extra_equips {
+			this.init_equip(eid)
+		}
+	}
+
 	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
 	this.attack = (role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
 	this.defense = (role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
@@ -605,7 +611,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 }
 
 func (this *TeamMember) init_with_summon(user *TeamMember, team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
-	this.init(team, id, level, role_card, pos)
+	this.init(team, id, level, role_card, pos, nil)
 	for i := 0; i < len(user.attrs); i++ {
 		this.attrs[i] = user.attrs[i]
 	}

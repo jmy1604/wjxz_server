@@ -176,7 +176,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 			m = team_member_pool.Get()
 			p.team_member_mgr[members[i]] = m
 		}
-		m.init(this, members[i], level, role_card, int32(i))
+		m.init(this, members[i], level, role_card, int32(i), nil)
 		this.members[i] = m
 
 		// 装备BUFF增加属性
@@ -231,10 +231,8 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 			}
 
 			m := team_member_pool.Get()
-			for _, eid := range monster.EquipID {
-				m.init_equip(eid)
-			}
-			m.init(this, 0, monster.Level, role_card, pos)
+
+			m.init(this, 0, monster.Level, role_card, pos, monster.EquipID)
 			this.members[pos] = m
 		}
 	}
