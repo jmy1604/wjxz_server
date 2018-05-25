@@ -225,7 +225,7 @@ func (this *LoginServer) StartHttps(crt_file, key_file string) bool {
 		Handler:     &LoginHttpHandle{},
 		ReadTimeout: 6 * time.Second,
 		TLSConfig: &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: false,
 		},
 	}
 

@@ -109,7 +109,7 @@ func (this *MsgHandlerMgr) StartHttps(crt_file, key_file string) bool {
 		Handler:     &MsgHttpHandle{},
 		ReadTimeout: 6 * time.Second,
 		TLSConfig: &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: false,
 		},
 	}
 
