@@ -15,78 +15,7 @@ import (
 	_ "github.com/yuin/gopher-lua"
 )
 
-/*func player_info_cmd(p *Player, args []string) int32 {
-	log.Info("### 玩家基础信息如下：")
-	log.Info("###### Name: %v", p.db.GetName())
-	log.Info("###### Level: %v", p.db.Info.GetLvl())
-	log.Info("###### Exp: %v", p.db.Info.GetExp())
-	log.Info("###### Diamond: %v", p.db.Info.GetDiamond())
-	log.Info("###### Coin: %v", p.db.Info.GetCoin())
-	log.Info("###### CharmVal: %v", p.db.Info.GetCharmVal())
-	log.Info("###### MaxUnlockStage: %v", p.db.Info.GetMaxUnlockStage())
-	log.Info("###### CurMaxStage: %v", p.db.Info.GetCurMaxStage())
-	log.Info("###### Star: %v", p.db.Info.GetTotalStars())
-	log.Info("###### FriendPoints: %v", p.db.Info.GetFriendPoints())
-	log.Info("###### Zan: %v", p.db.Info.GetZan())
-	log.Info("###### Spirit: %v", p.CalcSpirit())
-	return 0
-}
-
-func add_exp_cmd(p *Player, args []string) int32 {
-	if len(args) < 1 {
-		log.Error("参数数量[%v]不够", len(args))
-		return -1
-	}
-
-	var exp int
-	var err error
-	exp, err = strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("经验[%v]转换失败[%v]", exp, err.Error())
-		return -1
-	}
-
-	p.AddExp(int32(exp), "test_add_exp", "test_command")
-	return 1
-}
-
-func add_item_cmd(p *Player, args []string) int32 {
-	if len(args) < 2 {
-		log.Error("参数数量[%v]不够", len(args))
-		return -1
-	}
-
-	item_id, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("物品ID[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-
-	item := item_table_mgr.Map[int32(item_id)]
-	if item == nil {
-		log.Error("没有物品[%v]配置", item_id)
-		return -1
-	}
-
-	item_count, err2 := strconv.Atoi(args[1])
-	if err2 != nil {
-		log.Error("物品数量[%v]转换失败[%v]", args[1], err2.Error())
-		return -1
-	}
-
-	if item_count < 0 {
-		p.RemoveItem(int32(item_id), int32(item_count), false)
-	} else {
-		p.AddItem(int32(item_id), int32(item_count), "test_add_item", "test_command", false)
-	}
-	return 1
-}
-
-func add_all_item_cmd(p *Player, args []string) int32 {
-	p.add_all_items()
-	p.SendItemsUpdate()
-	return 1
-}
+/*
 
 func use_item_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
@@ -117,131 +46,6 @@ func use_item_cmd(p *Player, args []string) int32 {
 		}
 	}
 	return p.use_item(int32(item_id), int32(item_num))
-}
-
-func list_item_cmd(p *Player, args []string) int32 {
-	ids := p.db.Items.GetAllIndex()
-	if ids == nil || len(ids) == 0 {
-		log.Warn("玩家[%v]没有物品", p.Id)
-		return -1
-	}
-	log.Info("@@@ 玩家[%v]物品列表如下：", p.Id)
-	for i, id := range ids {
-		item_data := p.db.Items.Get(id)
-		if item_data == nil {
-			log.Warn("玩家[%v]没有物品[%v]", p.Id, id)
-			continue
-		}
-		log.Info("@@@@@@ [%v] Id[%v] CfgId[%v] Num[%v] RemainSeconds[%v]", i, id, item_data.ItemCfgId, item_data.ItemNum, item_data.RemainSeconds)
-	}
-	return 0
-}
-
-func add_coin_cmd(p *Player, args []string) int32 {
-	if len(args) < 1 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-	coin, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("金币数量[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-
-	p.AddCoin(int32(coin), "test_add_coin", "test_command")
-	return 1
-}
-
-func set_coin_cmd(p *Player, args []string) int32 {
-	if len(args) < 1 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-	coin, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("金币数量[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-	if coin < 0 {
-		return -1
-	}
-	p.db.Info.SetCoin(int32(coin))
-	return 1
-}
-
-func add_diamond_cmd(p *Player, args []string) int32 {
-	if len(args) < 1 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-	diamond, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("钻石数量[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-	p.AddDiamond(int32(diamond), "test_add_diamond", "test_command")
-	return 1
-}
-
-func set_diamond_cmd(p *Player, args []string) int32 {
-	if len(args) < 1 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-	diamond, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("钻石数量[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-	if diamond < 0 {
-		return -1
-	}
-	p.db.Info.SetDiamond(int32(diamond))
-	return 1
-}
-
-func draw_card_cmd(p *Player, args []string) int32 {
-	if len(args) < 2 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-	draw_type, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("抽奖类型[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-	draw_num, err2 := strconv.Atoi(args[1])
-	if err2 != nil {
-		log.Error("抽奖次数[%v]转换失败[%v]", args[1], err.Error())
-		return -1
-	}
-	return p.DrawCard(int32(draw_type), int32(draw_num))
-}
-
-func drop_items_cmd(p *Player, args []string) int32 {
-	if len(args)%2 != 0 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-
-	var err error
-	var n int
-	a := make([]int32, len(args))
-	for i := 0; i < len(args); i++ {
-		n, err = strconv.Atoi(args[i])
-		if err != nil {
-			log.Error("掉落参数[%v]错误[%v]", args[i], err.Error())
-			return -1
-		}
-		a[i] = int32(n)
-	}
-
-	b, items := p.DropItems2([]int32(a), true)
-	if !b {
-		return -1
-	}
-	log.Debug("@@@@@@ droped items[%v]", items)
-	return 1
 }
 
 func get_shop_items_cmd(p *Player, args []string) int32 {
@@ -278,29 +82,6 @@ func buy_shop_item_cmd(p *Player, args []string) int32 {
 	return p.buy_item(int32(item_id), 1, true)
 }
 
-func sell_item_cmd(p *Player, args []string) int32 {
-	if len(args) < 2 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-
-	var item_id, item_num int
-	var err error
-	item_id, err = strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("物品ID[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-
-	item_num, err = strconv.Atoi(args[1])
-	if err != nil {
-		log.Error("物品[%v]数量转换失败[%v]", args[1], err.Error())
-		return -1
-	}
-
-	return p.sell_item(int32(item_id), int32(item_num))
-}
-
 func refresh_shop_cmd(p *Player, args []string) int32 {
 	if p.check_all_shop_items_refresh(true) {
 		return 1
@@ -323,57 +104,6 @@ func add_friend_points_cmd(p *Player, args []string) int32 {
 	}
 
 	return p.AddFriendPoints(int32(friend_points), "test_add_friend_points", "test")
-}
-
-func add_charm_cmd(p *Player, args []string) int32 {
-	if len(args) < 1 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-
-	var charm int
-	var err error
-	charm, err = strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("魅力值[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-
-	if charm < 0 {
-		return p.SubCharmVal(int32(-charm), "test_add_charm", "test")
-	} else {
-		return p.AddCharmVal(int32(charm), "test_add_charm", "test")
-	}
-}
-
-func add_zan_cmd(p *Player, args []string) int32 {
-	if len(args) < 1 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-
-	zan, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("赞[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-
-	return p.AddZan(int32(zan), "test_add_charm_medal", "test")
-}
-
-func add_star_cmd(p *Player, args []string) int32 {
-	if len(args) < 1 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-
-	star, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("星星数[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-
-	return p.AddStar(int32(star), "test_add_star", "test")
 }
 
 func get_dailys_cmd(p *Player, args []string) int32 {
@@ -737,42 +467,6 @@ func send_test_mail(p *Player, args []string) int32 {
 	return 1
 }
 
-func finish_stage_cmd(p *Player, args []string) int32 {
-	if len(args) < 2 {
-		log.Error("参数[%v]不够", len(args))
-		return -1
-	}
-
-	var result, stage_id int
-	var err error
-	result, err = strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("通关结果[%v]转换失败[%v]", args[0], err.Error())
-		return -1
-	}
-
-	stage_id, err = strconv.Atoi(args[1])
-	if err != nil {
-		log.Error("关卡ID[%v]转换失败[%v]", args[1], err.Error())
-		return -1
-	}
-
-	var stars = 3
-	if len(args) >= 3 {
-		stars, err = strconv.Atoi(args[2])
-		if nil != err {
-			log.Info("填写的星星数有问题[%s]")
-			stars = 3
-		}
-	}
-
-	var d StageBeginData
-	d.stage_id = int32(stage_id)
-	p.CheckBeginStage(&d)
-
-	return p.stage_pass(int32(result), int32(stage_id), int32(99999), int32(stars), make([]*msg_client_message.ItemInfo, 0), true)
-}
-
 func activity_finished_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
@@ -1094,7 +788,7 @@ func list_role_cmd(p *Player, args []string) int32 {
 			if star > 0 && card.Rarity != int32(star) {
 				continue
 			}
-			log.Debug("role_id:%v, table_id:%v, level:%v, rank:%v, camp:%v, type:%v, star:%v", all[i], table_id, level, rank, camp, typ, star)
+			log.Debug("role_id:%v, table_id:%v, level:%v, rank:%v, camp:%v, type:%v, star:%v", all[i], table_id, level, rank, card.Camp, card.Type, card.Rarity)
 		}
 	}
 	return 1
