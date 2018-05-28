@@ -968,8 +968,9 @@ func start_hangup_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	if p.set_hangup_campaign_id(int32(campaign_id)) < 0 {
-		return -1
+	res := p.set_hangup_campaign_id(int32(campaign_id))
+	if res < 0 {
+		return res
 	}
 
 	log.Debug("玩家[%v]设置了挂机战役关卡[%v]", p.Id, campaign_id)

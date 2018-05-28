@@ -219,8 +219,8 @@ func (this *Player) set_hangup_campaign_id(campaign_id int32) int32 {
 	} else if campaign_id != hangup_id {
 		if !this.db.Campaigns.HasIndex(campaign_id) {
 			current_campaign_id := this.db.CampaignCommon.GetCurrentCampaignId()
-			next_campaign_id := get_next_campaign_id(current_campaign_id)
-			if next_campaign_id != campaign_id {
+			//next_campaign_id := get_next_campaign_id(current_campaign_id)
+			if current_campaign_id != campaign_id {
 				return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
 			}
 
