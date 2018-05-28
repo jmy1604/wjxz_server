@@ -134,6 +134,7 @@ message PlayerChestList{
 
 message PlayerMailCommon{
 	optional int32 CurrId=1;
+	optional int32 FirstId=2;
 }
 
 message PlayerMail{
@@ -145,6 +146,8 @@ message PlayerMail{
 	repeated int32 AttachItemIds=6;
 	repeated int32 AttachItemNums=7;
 	optional int32 IsRead=8;
+	optional int32 PrevId=9;
+	optional int32 NextId=10;
 }
 
 message PlayerMailList{

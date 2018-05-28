@@ -370,9 +370,8 @@ message C2SCampaignHangupIncomeRequest {
 
 // 关卡战斗结果奖励
 message S2CCampaignHangupIncomeResponse {
-	int32 IncomeType						= 1; // 收益类型
+	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战斗奖励
 	repeated ItemInfo Rewards				= 2; // 奖励
-	
 }
 
 // 设置挂机战役关卡

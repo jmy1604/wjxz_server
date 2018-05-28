@@ -196,12 +196,13 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		for i := 0; i < len(stage.RewardList)/2; i++ {
 			item_id := stage.RewardList[2*i]
 			item_num := stage.RewardList[2*i+1]
-			this.add_item(item_id, item_num)
+			this.add_resource(item_id, item_num)
 			rewards_msg.Rewards = append(rewards_msg.Rewards, &msg_client_message.ItemInfo{
 				ItemCfgId: item_id,
 				ItemNum:   item_num,
 			})
 		}
+		rewards_msg.IncomeType = 2
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), rewards_msg)
 	}
 

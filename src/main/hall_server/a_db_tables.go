@@ -707,21 +707,25 @@ func (this* dbPlayerChestData)clone_to(d *dbPlayerChestData){
 }
 type dbPlayerMailCommonData struct{
 	CurrId int32
+	FirstId int32
 }
 func (this* dbPlayerMailCommonData)from_pb(pb *db.PlayerMailCommon){
 	if pb == nil {
 		return
 	}
 	this.CurrId = pb.GetCurrId()
+	this.FirstId = pb.GetFirstId()
 	return
 }
 func (this* dbPlayerMailCommonData)to_pb()(pb *db.PlayerMailCommon){
 	pb = &db.PlayerMailCommon{}
 	pb.CurrId = proto.Int32(this.CurrId)
+	pb.FirstId = proto.Int32(this.FirstId)
 	return
 }
 func (this* dbPlayerMailCommonData)clone_to(d *dbPlayerMailCommonData){
 	d.CurrId = this.CurrId
+	d.FirstId = this.FirstId
 	return
 }
 type dbPlayerMailData struct{
@@ -733,6 +737,8 @@ type dbPlayerMailData struct{
 	AttachItemIds []int32
 	AttachItemNums []int32
 	IsRead int32
+	PrevId int32
+	NextId int32
 }
 func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 	if pb == nil {
@@ -754,6 +760,8 @@ func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 		this.AttachItemNums[i] = v
 	}
 	this.IsRead = pb.GetIsRead()
+	this.PrevId = pb.GetPrevId()
+	this.NextId = pb.GetNextId()
 	return
 }
 func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
@@ -773,6 +781,8 @@ func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
 		pb.AttachItemNums[i]=v
 	}
 	pb.IsRead = proto.Int32(this.IsRead)
+	pb.PrevId = proto.Int32(this.PrevId)
+	pb.NextId = proto.Int32(this.NextId)
 	return
 }
 func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
@@ -790,6 +800,8 @@ func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
 		d.AttachItemNums[_ii]=_vv
 	}
 	d.IsRead = this.IsRead
+	d.PrevId = this.PrevId
+	d.NextId = this.NextId
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -3640,6 +3652,19 @@ func (this *dbPlayerMailCommonColumn)IncbyCurrId(v int32)(r int32){
 	this.m_changed = true
 	return this.m_data.CurrId
 }
+func (this *dbPlayerMailCommonColumn)GetFirstId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailCommonColumn.GetFirstId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.FirstId
+	return
+}
+func (this *dbPlayerMailCommonColumn)SetFirstId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailCommonColumn.SetFirstId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.FirstId = v
+	this.m_changed = true
+	return
+}
 type dbPlayerMailColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerMailData
@@ -3930,6 +3955,50 @@ func (this *dbPlayerMailColumn)SetIsRead(id int32,v int32)(has bool){
 		return
 	}
 	d.IsRead = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerMailColumn)GetPrevId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetPrevId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.PrevId
+	return v,true
+}
+func (this *dbPlayerMailColumn)SetPrevId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetPrevId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.PrevId = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerMailColumn)GetNextId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetNextId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.NextId
+	return v,true
+}
+func (this *dbPlayerMailColumn)SetNextId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetNextId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.NextId = v
 	this.m_changed = true
 	return true
 }

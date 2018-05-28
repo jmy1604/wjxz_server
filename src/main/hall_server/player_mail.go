@@ -10,24 +10,24 @@ import (
 	_ "github.com/golang/protobuf/proto"
 )
 
-func (this *Player) get_min_mail_id() int32 {
-	all := this.db.Mails.GetAllIndex()
-	if all == nil || len(all) == 0 {
-		return 0
-	}
+type MailNode struct {
+	id      int32
+	prev_id int32
+	next_id int32
+}
 
-	min_id := int32(0)
-	for i := 0; i < len(all); i++ {
-		if min_id == 0 || min_id > all[i] {
-			min_id = all[i]
-		}
-	}
-	return min_id
+type MailList struct {
+	first *MailNode
+	last  *MailNode
+}
+
+func (this *MailList) init(p *Player) {
+	//first_id := p.db.MailCommon.GetFirstId()
 }
 
 func (this *Player) new_mail(typ int32, title, content string) int32 {
 	if this.db.Mails.NumAll() >= global_config_mgr.GetGlobalConfig().MailMaxCount {
-		min_id := this.get_min_mail_id()
+		min_id := this.db.MailCommon.GetFirstId()
 		this.db.Mails.Remove(min_id)
 	}
 	new_id := this.db.MailCommon.IncbyCurrId(1)
