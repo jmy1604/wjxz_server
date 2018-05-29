@@ -434,12 +434,18 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 		this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)
 	}
 
-	if incomes != nil && !is_cache {
+	if !is_cache {
 		var msg msg_client_message.S2CCampaignHangupIncomeResponse
-		msg.Rewards = incomes
 		msg.IncomeType = income_type
+		if incomes != nil {
+			msg.Rewards = incomes
+		} else {
+			msg.Rewards = make([]*msg_client_message.ItemInfo, 0)
+		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), &msg)
-		log.Debug("Player[%v] hangup %v incomes: %v", this.Id, income_type, incomes)
+		if incomes != nil {
+			log.Debug("Player[%v] hangup %v incomes: %v", this.Id, income_type, incomes)
+		}
 	}
 
 	return

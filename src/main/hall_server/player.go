@@ -235,7 +235,7 @@ func (this *Player) PopCurMsgData() []byte {
 	return out_bytes
 }
 
-func (this *Player) Send(msg_id uint16, msg proto.Message) {
+func (this *Player) Send(msg_id uint16, msg proto.Message) (msg_data []byte) {
 	if !this.bhandling {
 		log.Error("Player [%d] send msg[%d] no bhandling !", this.Id, msg_id)
 		return
@@ -243,13 +243,15 @@ func (this *Player) Send(msg_id uint16, msg proto.Message) {
 
 	log.Info("[发送] [玩家%d:%v] [%s] !", this.Id, msg_id, msg.String())
 
-	data, err := proto.Marshal(msg)
+	var err error
+	msg_data, err = proto.Marshal(msg)
 	if nil != err {
 		log.Error("Player Marshal msg failed err[%s] !", err.Error())
 		return
 	}
 
-	this.add_msg_data(msg_id, data)
+	this.add_msg_data(msg_id, msg_data)
+	return
 }
 
 func (this *Player) OnCreate() {
@@ -714,7 +716,13 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		MyMemberCures:       members_cure[this.attack_team.side],
 		TargetMemberCures:   members_cure[p.defense_team.side],
 	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
+	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
+
+	// 保存录像
+	if d != nil {
+		battle_record_mgr.SaveNew(this.Id, p.Id, d)
+	}
+
 	Output_S2CBattleResult(this, response)
 	return 1
 }

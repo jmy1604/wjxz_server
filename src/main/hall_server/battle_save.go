@@ -41,6 +41,7 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 		defenser.db.BattleSaves.Add(&dbPlayerBattleSaveData{
 			Id: row.GetId(),
 		})
+		log.Debug("Battle Record[%v] saved with attacker[%v] and defenser[%v]", row.GetId(), attacker_id, defenser_id)
 	}
 	return true
 }
