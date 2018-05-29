@@ -36,6 +36,10 @@ enum MSGID {
 	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse
 	C2S_BATTLE_RECORD_REQUEST				= 10102; // 录像数据请求 C2SBattleRecordRequest
 	S2C_BATTLE_RECORD_RESPONSE              = 10103; // 录像数据请求返回 S2CBattleRecordResponse
+	C2S_BATTLE_RECORD_LIST_REQUEST			= 10104; // 录像数据列表请求 C2SBattleRecordListRequest
+	S2C_BATTLE_RECORD_LIST_RESPONSE			= 10105; // 录像数据列表返回 S2CBattleRecordListResponse
+	C2S_BATTLE_RECORD_DELETE_REQUEST		= 10106; // 录像删除请求 C2SBattleRecordDeleteRequest
+	S2C_BATTLE_RECORD_DELETE_RESPONSE		= 10107; // 录像删除返回 S2CBattleRecordDeleteResponse
 	
 	C2S_SET_TEAM_REQUEST					= 10200; // 设置阵营 C2SSetTeamRequest
 	S2C_SET_TEAM_RESPONSE					= 10201; // 设置阵营返回 S2CSetTeamResponse

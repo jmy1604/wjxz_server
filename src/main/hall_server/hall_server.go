@@ -53,6 +53,7 @@ func (this *HallServer) Init() (ok bool) {
 
 	world_chat_mgr.Init()
 	anouncement_mgr.Init()
+	battle_record_mgr.Init()
 
 	err := this.OnInit()
 	if err != nil {

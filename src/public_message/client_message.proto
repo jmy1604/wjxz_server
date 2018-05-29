@@ -20,6 +20,8 @@ enum E_ERR {
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
 	PLAYER_SET_DEFENSE_MEMBERS_FAILED		= -10001; // 设置防守阵营失败
 	PLAYER_IS_DEFENSING						= -10002; // 对方正在战斗
+	PLAYER_BATTLE_RECORD_NOT_FOUND			= -10003; // 战斗录像不存在
+	PLAYER_BATTLE_RECORD_FORBIDDEN_DELETE   = -10004; // 不能删除录像
 	
 	// 物品装备
 	PLAYER_ITEM_NOT_FOUND					= -11000; // 物品找不到
@@ -359,6 +361,21 @@ message S2CBattleResultResponse {
 	int32 NextCampaignId					= 11; // 下一个战役ID
 }
 
+// 请求录像列表
+message C2SBattleRecordListRequest {
+}
+message BattleRecordData {
+	int32 RecordId							= 1; // 录像ID
+	int32 AttackerId						= 2; // 攻击者ID
+	string AttackerName						= 3; // 攻击者昵称
+	int32 DefenserId						= 4; // 防守者ID
+	string DefenserName						= 5; // 防守者昵称
+	int32 RecordTime						= 6; // 录像时间
+}
+message S2CBattleRecordListResponse {
+	repeated BattleRecordData Records		= 1; // 录像列表
+}
+
 // 请求录像
 message C2SBattleRecordRequest {
 	int32 Id								= 1; // 录像ID
@@ -371,6 +388,14 @@ message S2CBattleRecordResponse {
 	string DefenserName						= 5; // 防守者昵称
 	bytes RecordData						= 6; // 录像数据
 	int32 RecordTime						= 7; // 录像时间
+}
+
+// 删除录像
+message C2SBattleRecordDeleteRequest {
+	int32 RecordId							= 1; // 录像ID
+}
+message S2CBattleRecordDeleteResponse {
+	int32 RecordId							= 1; // 录像Id
 }
 
 // ---------------------------------- 关卡 ------------------------------------
