@@ -351,13 +351,26 @@ message S2CBattleResultResponse {
 	repeated BattleMemberItem TargetTeam	= 3; // 战斗前敌方阵容
 	repeated BattleReportItem EnterReports 	= 4; // 进场时战报，一般是被动技效果
 	repeated BattleRoundReports Rounds 		= 5; // 回合
-	bool HasNextWave						= 6; // 关卡是否有下一波战斗
-	int32 NextCampaignId					= 7; // 下一个战役ID
+	map<int32, int32> MyMemberDamages		= 6; // 我方攻击者统计伤害
+	map<int32, int32> TargetMemberDamages 	= 7; // 敌方攻击者伤害统计
+	map<int32, int32> MyMemberCures			= 8; // 我方治疗统计
+	map<int32, int32> TargetMemberCures   	= 9; // 敌方治疗统计
+	bool HasNextWave						= 10; // 关卡是否有下一波战斗
+	int32 NextCampaignId					= 11; // 下一个战役ID
 }
 
 // 请求录像
-message C2SBattleSaveRequest {
-	
+message C2SBattleRecordRequest {
+	int32 Id								= 1; // 录像ID
+}
+message S2CBattleRecordResponse {
+	int32 Id								= 1; // 录像ID
+	int32 AttackerId						= 2; // 攻击者ID
+	string AttackerName						= 3; // 攻击者昵称
+	int32 DefenserId						= 4; // 防守者ID
+	string DefenserName						= 5; // 防守者昵称
+	bytes RecordData						= 6; // 录像数据
+	int32 RecordTime						= 7; // 录像时间
 }
 
 // ---------------------------------- 关卡 ------------------------------------

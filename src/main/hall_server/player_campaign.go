@@ -178,14 +178,21 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 	if rounds == nil {
 		rounds = make([]*msg_client_message.BattleRoundReports, 0)
 	}
+
+	member_damages := this.attack_team.common_data.members_damage
+	member_cures := this.attack_team.common_data.members_cure
 	response := &msg_client_message.S2CBattleResultResponse{
-		IsWin:          is_win,
-		EnterReports:   enter_reports,
-		Rounds:         rounds,
-		MyTeam:         my_team,
-		TargetTeam:     target_team,
-		HasNextWave:    has_next_wave,
-		NextCampaignId: next_campaign_id,
+		IsWin:               is_win,
+		EnterReports:        enter_reports,
+		Rounds:              rounds,
+		MyTeam:              my_team,
+		TargetTeam:          target_team,
+		MyMemberDamages:     member_damages[this.attack_team.side],
+		TargetMemberDamages: member_damages[this.stage_team.side],
+		MyMemberCures:       member_cures[this.attack_team.side],
+		TargetMemberCures:   member_cures[this.stage_team.side],
+		HasNextWave:         has_next_wave,
+		NextCampaignId:      next_campaign_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

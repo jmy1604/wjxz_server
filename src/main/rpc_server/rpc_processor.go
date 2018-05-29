@@ -1001,7 +1001,7 @@ func rpc_call_anouncement_player_first_rank(rank_type int32, rank_param int32, p
 	return nil
 }
 
-func (this *H2R_RankingListProc) anouncement_stage_total_score_first_rank(before_first_item utils.SkiplistNodeValue) {
+func (this *H2R_RankingListProc) anouncement_stage_total_score_first_rank(before_first_item utils.SkiplistNode) {
 	first_item := this.stage_total_score_ranking_list.GetByRank(1)
 	if before_first_item == nil || !before_first_item.KeyEqual(first_item) {
 		first_item_node := first_item.(*RankStageScoreItem)
@@ -1012,7 +1012,7 @@ func (this *H2R_RankingListProc) anouncement_stage_total_score_first_rank(before
 	}
 }
 
-func (this *H2R_RankingListProc) anouncement_stage_score_first_rank(rank_list *utils.CommonRankingList, stage_id int32, before_first_item utils.SkiplistNodeValue) {
+func (this *H2R_RankingListProc) anouncement_stage_score_first_rank(rank_list *utils.CommonRankingList, stage_id int32, before_first_item utils.SkiplistNode) {
 	first_item := rank_list.GetByRank(1)
 	if before_first_item == nil || !before_first_item.KeyEqual(first_item) {
 		first_item_node := first_item.(*RankStageScoreItem)
@@ -1023,7 +1023,7 @@ func (this *H2R_RankingListProc) anouncement_stage_score_first_rank(rank_list *u
 	}
 }
 
-func (this *H2R_RankingListProc) anouncement_charm_first_rank(before_first_item utils.SkiplistNodeValue) {
+func (this *H2R_RankingListProc) anouncement_charm_first_rank(before_first_item utils.SkiplistNode) {
 	first_item := this.charm_ranking_list.GetByRank(1)
 	if before_first_item == nil || !before_first_item.KeyEqual(first_item) {
 		first_item_node := first_item.(*RankCharmItem)
@@ -1034,7 +1034,7 @@ func (this *H2R_RankingListProc) anouncement_charm_first_rank(before_first_item 
 	}
 }
 
-func (this *H2R_RankingListProc) anouncement_zaned_first_rank(before_first_item utils.SkiplistNodeValue) {
+func (this *H2R_RankingListProc) anouncement_zaned_first_rank(before_first_item utils.SkiplistNode) {
 	first_item := this.zaned_ranking_list.GetByRank(1)
 	if before_first_item == nil || !before_first_item.KeyEqual(first_item) {
 		first_item_node := first_item.(*RankZanedItem)

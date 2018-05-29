@@ -10,17 +10,17 @@ import (
 // -----------------------------------------------------------------------------
 type CommonRankingList struct {
 	ranking_items *Skiplist
-	key2item      map[interface{}]SkiplistNodeValue
-	root_node     SkiplistNodeValue
+	key2item      map[interface{}]SkiplistNode
+	root_node     SkiplistNode
 	max_rank      int32
 	items_pool    *sync.Pool
 	locker        *sync.RWMutex
 }
 
-func NewCommonRankingList(root_node SkiplistNodeValue, max_rank int32) *CommonRankingList {
+func NewCommonRankingList(root_node SkiplistNode, max_rank int32) *CommonRankingList {
 	ranking_list := &CommonRankingList{
 		ranking_items: NewSkiplist(),
-		key2item:      make(map[interface{}]SkiplistNodeValue),
+		key2item:      make(map[interface{}]SkiplistNode),
 		root_node:     root_node,
 		max_rank:      max_rank,
 		items_pool: &sync.Pool{
@@ -34,7 +34,7 @@ func NewCommonRankingList(root_node SkiplistNodeValue, max_rank int32) *CommonRa
 	return ranking_list
 }
 
-func (this *CommonRankingList) GetByRank(rank int32) SkiplistNodeValue {
+func (this *CommonRankingList) GetByRank(rank int32) SkiplistNode {
 	this.locker.RLock()
 	defer this.locker.RUnlock()
 
@@ -42,12 +42,12 @@ func (this *CommonRankingList) GetByRank(rank int32) SkiplistNodeValue {
 	if item == nil {
 		return nil
 	}
-	new_item := this.items_pool.Get().(SkiplistNodeValue)
+	new_item := this.items_pool.Get().(SkiplistNode)
 	new_item.Assign(item)
 	return new_item
 }
 
-func (this *CommonRankingList) GetByKey(key interface{}) SkiplistNodeValue {
+func (this *CommonRankingList) GetByKey(key interface{}) SkiplistNode {
 	this.locker.RLock()
 	defer this.locker.RUnlock()
 
@@ -55,12 +55,12 @@ func (this *CommonRankingList) GetByKey(key interface{}) SkiplistNodeValue {
 	if !o || item == nil {
 		return nil
 	}
-	new_item := this.items_pool.Get().(SkiplistNodeValue)
+	new_item := this.items_pool.Get().(SkiplistNode)
 	new_item.Assign(item)
 	return new_item
 }
 
-func (this *CommonRankingList) insert(key interface{}, item SkiplistNodeValue, is_lock bool) bool {
+func (this *CommonRankingList) insert(key interface{}, item SkiplistNode, is_lock bool) bool {
 	if is_lock {
 		this.locker.Lock()
 		defer this.locker.Unlock()
@@ -70,7 +70,7 @@ func (this *CommonRankingList) insert(key interface{}, item SkiplistNodeValue, i
 	return true
 }
 
-func (this *CommonRankingList) Insert(key interface{}, item SkiplistNodeValue) bool {
+func (this *CommonRankingList) Insert(key interface{}, item SkiplistNode) bool {
 	return this.insert(key, item, true)
 }
 
@@ -100,7 +100,7 @@ func (this *CommonRankingList) Delete(key interface{}) bool {
 	return this.delete(key, true)
 }
 
-func (this *CommonRankingList) Update(item SkiplistNodeValue) bool {
+func (this *CommonRankingList) Update(item SkiplistNode) bool {
 	this.locker.Lock()
 	defer this.locker.Unlock()
 
@@ -113,7 +113,7 @@ func (this *CommonRankingList) Update(item SkiplistNodeValue) bool {
 		old_item.Assign(item)
 		return this.insert(item.GetKey(), old_item, false)
 	} else {
-		new_item := this.items_pool.Get().(SkiplistNodeValue)
+		new_item := this.items_pool.Get().(SkiplistNode)
 		new_item.Assign(item)
 		return this.insert(item.GetKey(), new_item, false)
 	}
@@ -138,7 +138,7 @@ func (this *CommonRankingList) GetRangeNodes(rank_start, rank_num int32, nodes [
 		rank_num = real_num
 	}
 
-	items := make([]SkiplistNodeValue, rank_num)
+	items := make([]SkiplistNode, rank_num)
 	b := this.ranking_items.GetByRankRange(rank_start, rank_num, items)
 	if !b {
 		log.Warn("Ranking List rank range[%v,%v] is empty", rank_start, rank_num)

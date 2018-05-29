@@ -239,19 +239,6 @@
 					]
 				},
 				{
-					"DBColumnName":"Chest",
-					"InUse":true,
-					"ColumnName":"Chest",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Pos"},
-						{"Type":"int32","Index":2,"Name":"ChestId"},
-						{"Type":"int32","Index":3,"Name":"OpenSec"}
-					]
-				},
-				{
 					"DBColumnName":"MailCommon",
 					"InUse":true,
 					"ColumnName":"MailCommon",
@@ -282,6 +269,17 @@
 						{"Type":"int32","Index":8,"Name":"IsRead"},
 						{"Type":"int32","Index":9,"Name":"PrevId"},
 						{"Type":"int32","Index":10,"Name":"NextId"}
+					]
+				},
+				{
+					"DBColumnName":"BattleSave",
+					"InUse":true,
+					"ColumnName":"BattleSave",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"}
 					]
 				},
 				{
@@ -529,7 +527,7 @@
 			"DBTableName":"BattleSave",
 			"SingleRow":false,
 			"AutoPrimaryKey":true,
-			"PrimaryKeyName":"SaveId",
+			"PrimaryKeyName":"Id",
 			"PrimaryKeyType":"int32",
 			"PrimaryKeySize":11,
 			"Columns":[
@@ -544,6 +542,18 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"bytes","Index":1,"Name":"Data"}
+					]
+				},
+				{
+					"ColumnName":"SaveTime",
+					"DBColumnName":"SaveTime",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
 					]
 				},
 				{

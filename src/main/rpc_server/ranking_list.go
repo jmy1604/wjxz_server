@@ -134,11 +134,11 @@ func (this *RankStageTotalScoreItem) GetValue() interface{} {
 	return this.StageTotalScore
 }
 
-func (this *RankStageTotalScoreItem) New() utils.SkiplistNodeValue {
+func (this *RankStageTotalScoreItem) New() utils.SkiplistNode {
 	return &RankStageTotalScoreItem{}
 }
 
-func (this *RankStageTotalScoreItem) Assign(node utils.SkiplistNodeValue) {
+func (this *RankStageTotalScoreItem) Assign(node utils.SkiplistNode) {
 	n := node.(*RankStageTotalScoreItem)
 	if n == nil {
 		return
@@ -231,11 +231,11 @@ func (this *RankStageScoreItem) GetValue() interface{} {
 	return this.StageScore
 }
 
-func (this *RankStageScoreItem) New() utils.SkiplistNodeValue {
+func (this *RankStageScoreItem) New() utils.SkiplistNode {
 	return &RankStageScoreItem{}
 }
 
-func (this *RankStageScoreItem) Assign(node utils.SkiplistNodeValue) {
+func (this *RankStageScoreItem) Assign(node utils.SkiplistNode) {
 	n := node.(*RankStageScoreItem)
 	if n != nil {
 		this.PlayerId = n.PlayerId
@@ -329,11 +329,11 @@ func (this *RankCharmItem) GetValue() interface{} {
 	return this.Charm
 }
 
-func (this *RankCharmItem) New() utils.SkiplistNodeValue {
+func (this *RankCharmItem) New() utils.SkiplistNode {
 	return &RankCharmItem{}
 }
 
-func (this *RankCharmItem) Assign(node utils.SkiplistNodeValue) {
+func (this *RankCharmItem) Assign(node utils.SkiplistNode) {
 	n := node.(*RankCharmItem)
 	if n != nil {
 		this.PlayerId = n.PlayerId
@@ -425,11 +425,11 @@ func (this *RankZanedItem) GetValue() interface{} {
 	return this.Zaned
 }
 
-func (this *RankZanedItem) New() utils.SkiplistNodeValue {
+func (this *RankZanedItem) New() utils.SkiplistNode {
 	return &RankZanedItem{}
 }
 
-func (this *RankZanedItem) Assign(node utils.SkiplistNodeValue) {
+func (this *RankZanedItem) Assign(node utils.SkiplistNode) {
 	n := node.(*RankZanedItem)
 	if n != nil {
 		this.PlayerId = n.PlayerId

@@ -122,16 +122,6 @@ message PlayerShopLimitedInfoList{
 	repeated PlayerShopLimitedInfo List=1;
 }
 
-message PlayerChest{
-	optional int32 Pos=1;
-	optional int32 ChestId=2;
-	optional int32 OpenSec=3;
-}
-
-message PlayerChestList{
-	repeated PlayerChest List=1;
-}
-
 message PlayerMailCommon{
 	optional int32 CurrId=1;
 	optional int32 FirstId=2;
@@ -153,6 +143,14 @@ message PlayerMail{
 
 message PlayerMailList{
 	repeated PlayerMail List=1;
+}
+
+message PlayerBattleSave{
+	optional int32 Id=1;
+}
+
+message PlayerBattleSaveList{
+	repeated PlayerBattleSave List=1;
 }
 
 message PlayerDialyTask{

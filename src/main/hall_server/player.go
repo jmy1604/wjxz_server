@@ -700,12 +700,19 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	if rounds == nil {
 		rounds = make([]*msg_client_message.BattleRoundReports, 0)
 	}
+
+	members_damage := this.attack_team.common_data.members_damage
+	members_cure := p.defense_team.common_data.members_cure
 	response := &msg_client_message.S2CBattleResultResponse{
-		IsWin:        is_win,
-		EnterReports: enter_reports,
-		Rounds:       rounds,
-		MyTeam:       my_team,
-		TargetTeam:   target_team,
+		IsWin:               is_win,
+		EnterReports:        enter_reports,
+		Rounds:              rounds,
+		MyTeam:              my_team,
+		TargetTeam:          target_team,
+		MyMemberDamages:     members_damage[this.attack_team.side],
+		TargetMemberDamages: members_damage[p.defense_team.side],
+		MyMemberCures:       members_cure[this.attack_team.side],
+		TargetMemberCures:   members_cure[p.defense_team.side],
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 	Output_S2CBattleResult(this, response)

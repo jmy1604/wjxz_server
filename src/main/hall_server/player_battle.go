@@ -23,6 +23,23 @@ type BattleCommonData struct {
 	changed_fighters []*msg_client_message.BattleFighter
 	round_num        int32
 	delay_skill_list *DelaySkillList
+	members_damage   []map[int32]int32
+	members_cure     []map[int32]int32
+}
+
+func (this *BattleCommonData) Init() {
+	if this.members_damage == nil {
+		this.members_damage = make([]map[int32]int32, 2)
+	}
+	for i := 0; i < len(this.members_damage); i++ {
+		this.members_damage[i] = make(map[int32]int32)
+	}
+	if this.members_cure == nil {
+		this.members_cure = make([]map[int32]int32, 2)
+	}
+	for i := 0; i < len(this.members_cure); i++ {
+		this.members_cure[i] = make(map[int32]int32)
+	}
 }
 
 func (this *BattleCommonData) Reset() {
@@ -582,6 +599,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	// 存放战报
 	if this.common_data == nil {
 		this.common_data = &BattleCommonData{}
+		this.common_data.Init()
 	}
 	target_team.common_data = this.common_data
 	this.common_data.Reset()

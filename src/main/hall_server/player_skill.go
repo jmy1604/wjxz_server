@@ -902,6 +902,8 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 	var report, last_report *msg_client_message.BattleReportItem
 	last_report = self.team.GetLastReport()
+	members_damage := self.team.common_data.members_damage
+	members_cure := self.team.common_data.members_cure
 
 	// 对方是否有成员死亡
 	has_target_dead := false
@@ -972,6 +974,10 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					report.User.Damage += self_dmg
 					tm = build_battle_report_item_add_target_item(report, target_team, target_pos[j], target_dmg, is_critical, is_block, is_absorb, anti_type)
+
+					// 伤害
+					members_damage[self.team.side][self.pos] += target_dmg
+					members_damage[target.team.side][target.pos] += self_dmg
 				}
 				//------------------------------
 
@@ -1063,6 +1069,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							self_team.common_data.reports = append(self_team.common_data.reports, report)
 						}
 						build_battle_report_item_add_target_item(report, target_team, target_pos[j], -cure, false, false, false, 0)
+						members_cure[self.team.side][self.pos] += cure
 					}
 					// -------------------------------------------
 					// 被动技，治疗时触发
@@ -1567,6 +1574,8 @@ func (this *BuffList) on_round_end() {
 	}
 
 	var item *msg_client_message.BattleFighter
+	members_damage := this.owner.team.common_data.members_damage
+	members_cure := this.owner.team.common_data.members_cure
 	bf := this.head
 	for bf != nil {
 		next := bf.next
@@ -1596,6 +1605,15 @@ func (this *BuffList) on_round_end() {
 						this.owner.team.common_data.changed_fighters = append(this.owner.team.common_data.changed_fighters, item)
 					}
 					item.Damage += dmg
+					if dmg != 0 {
+						if bf.attacker != nil {
+							if dmg > 0 {
+								members_damage[bf.attacker.team.side][bf.attacker.pos] += dmg
+							} else {
+								members_cure[bf.attacker.team.side][bf.attacker.pos] += -dmg
+							}
+						}
+					}
 					// ------------------------------------------------------------
 					log.Debug("Team[%v] member[%v] hp damage[%v] on buff[%v] left round[%v] end", this.owner.team.side, this.owner.pos, dmg, bf.buff.Id, bf.round_num)
 				}
