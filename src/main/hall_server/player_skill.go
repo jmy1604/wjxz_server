@@ -662,14 +662,17 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	// 增伤减伤总和
 	damage_add := self.attrs[ATTR_TOTAL_DAMAGE_ADD]
 	damage_sub := target.attrs[ATTR_TOTAL_DAMAGE_SUB]
+	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@ Start team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 
 	// 类型
 	if skill_type == SKILL_TYPE_NORMAL {
 		damage_add += self.attrs[ATTR_NORMAL_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_NORMAL_DAMAGE_SUB]
+		log.Debug("@@@@@@@@@@@@@@@ skill normal Team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 	} else if skill_type == SKILL_TYPE_SUPER {
 		damage_add += self.attrs[ATTR_RAGE_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_RAGE_DAMAGE_SUB]
+		log.Debug("@@@@@@@@@@@@@@@ skill super Team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 	} else if skill_type == SKILL_TYPE_PASSIVE {
 
 	} else {
@@ -681,9 +684,11 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
 		damage_add += self.attrs[ATTR_CLOSE_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_CLOSE_DAMAGE_SUB]
+		log.Debug("@@@@@@@@@@@@@@@ skill melee Team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 	} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
 		damage_add += self.attrs[ATTR_REMOTE_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_REMOTE_DAMAGE_SUB]
+		log.Debug("@@@@@@@@@@@@@@@ skill remote Team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 	} else if skill_fight_type == SKILL_FIGHT_TYPE_NONE {
 
 	} else {

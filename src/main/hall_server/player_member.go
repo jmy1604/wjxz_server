@@ -254,6 +254,7 @@ func (this *TeamMember) add_skill_attr(skill_id int32) {
 		return
 	}
 	this.add_attrs(skill.SkillAttr)
+	log.Debug("!!!!!!!!!!!!! Team[%v] member[%v] add skill[%v] attrs[%v]", this.team.side, this.pos, skill_id, skill.SkillAttr)
 }
 
 func (this *TeamMember) init_passive_data(skills []int32) {
@@ -533,7 +534,7 @@ func (this *TeamMember) init_equip(equip_id int32) {
 		}
 	}
 	this.add_attrs(d.EquipAttr)
-	log.Debug("@@@@@@@@@@@@@@############## team[%v] member[%v] init equip [%v] skill[%v]", this.team.side, this.pos, equip_id, d.EquipSkill)
+	log.Debug("@@@@@@@@@@@@@@############## team[%v] member[%v] init equip [%v] skill[%v] attrs[%v]", this.team.side, this.pos, equip_id, d.EquipSkill, d.EquipAttr)
 }
 
 func (this *TeamMember) init_equips() {
