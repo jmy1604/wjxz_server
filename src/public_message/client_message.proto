@@ -356,6 +356,9 @@ message S2CBattleResultResponse {
 }
 
 // 请求录像
+message C2SBattleSaveRequest {
+	
+}
 
 // ---------------------------------- 关卡 ------------------------------------
 // 请求战役关卡数据
