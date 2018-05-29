@@ -77,6 +77,10 @@ func (this *PassTableMgr) Load() bool {
 			log.Error("Parse MonsterList[%v] error[%v]", tmp_item.MonsterList, err.Error())
 			return false
 		}
+		tmp_item.RewardList = parse_xml_str_arr2(tmp_item.RewardListStr, ",")
+		if tmp_item.RewardList == nil {
+			tmp_item.RewardList = make([]int32, 0)
+		}
 		this.Map[tmp_item.Id] = tmp_item
 		this.Array = append(this.Array, tmp_item)
 	}

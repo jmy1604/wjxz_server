@@ -731,6 +731,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	if defense < 0 {
 		defense = 0
 	}
+	old_attack := self.attrs[ATTR_ATTACK]
 	attack := self.attrs[ATTR_ATTACK] - defense
 	attack1 := self.attrs[ATTR_ATTACK] * self.attrs[ATTR_ATTACK] / (self.attrs[ATTR_ATTACK] + defense) / 5
 	if attack < attack1 {
@@ -796,7 +797,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		}
 	}
 
-	// 状态伤害
+	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@ Team[%v] member[%v] attack[%v] defense[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, old_attack, defense, damage_add, damage_sub)
 
 	return
 }
