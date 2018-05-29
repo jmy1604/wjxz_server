@@ -14,19 +14,19 @@ type skiplist_layer struct {
 	span int32
 }
 
-type SkiplistNodeValue interface {
+type SkiplistNode interface {
 	Less(node interface{}) bool
 	Greater(node interface{}) bool
 	KeyEqual(key interface{}) bool
 	GetKey() interface{}
 	GetValue() interface{}
-	New() SkiplistNodeValue
-	Assign(node SkiplistNodeValue)
+	New() SkiplistNode
+	Assign(node SkiplistNode)
 	CopyDataTo(node interface{})
 }
 
 type skiplist_node struct {
-	value  SkiplistNodeValue
+	value  SkiplistNode
 	layers []*skiplist_layer
 }
 
@@ -51,7 +51,7 @@ func random_skiplist_layer() int32 {
 	return n
 }
 
-func new_skiplist_node(layer int32, v SkiplistNodeValue) *skiplist_node {
+func new_skiplist_node(layer int32, v SkiplistNode) *skiplist_node {
 	sp_layers := make([]*skiplist_layer, layer)
 	for i := int32(0); i < layer; i++ {
 		sp_layers[i] = &skiplist_layer{}
@@ -72,7 +72,7 @@ func NewSkiplist() *Skiplist {
 	}
 }
 
-func (this *Skiplist) Insert(v SkiplistNodeValue) int32 {
+func (this *Skiplist) Insert(v SkiplistNode) int32 {
 	if this.curr_length == 0 {
 		log.Debug("###[Skiplist]### first node[%v]", v)
 	}
@@ -129,7 +129,7 @@ func (this *Skiplist) Insert(v SkiplistNodeValue) int32 {
 	return new_layer
 }
 
-func (this *Skiplist) GetNode(v SkiplistNodeValue) (node *skiplist_node) {
+func (this *Skiplist) GetNode(v SkiplistNode) (node *skiplist_node) {
 	n := this.head
 	for i := this.curr_layer - 1; i >= 0; i-- {
 		for n.layers[i].next != nil && n.layers[i].next.value.Greater(v) {
@@ -159,7 +159,7 @@ func (this *Skiplist) GetNodeByRank(rank int32) (node *skiplist_node) {
 	return
 }
 
-func (this *Skiplist) GetByRank(rank int32) (v SkiplistNodeValue) {
+func (this *Skiplist) GetByRank(rank int32) (v SkiplistNode) {
 	node := this.GetNodeByRank(rank)
 	if node == nil {
 		return nil
@@ -167,7 +167,7 @@ func (this *Skiplist) GetByRank(rank int32) (v SkiplistNodeValue) {
 	return node.value
 }
 
-func (this *Skiplist) GetRank(v SkiplistNodeValue) (rank int32) {
+func (this *Skiplist) GetRank(v SkiplistNode) (rank int32) {
 	node := this.head
 	for i := this.curr_layer - 1; i >= 0; i-- {
 		for node.layers[i].next != nil && node.layers[i].next.value.Greater(v) {
@@ -182,7 +182,7 @@ func (this *Skiplist) GetRank(v SkiplistNodeValue) (rank int32) {
 	return 0
 }
 
-func (this *Skiplist) GetByRankRange(rank_start, rank_num int32, values []SkiplistNodeValue) bool {
+func (this *Skiplist) GetByRankRange(rank_start, rank_num int32, values []SkiplistNode) bool {
 	node := this.GetNodeByRank(rank_start)
 	if node == nil || rank_num <= 0 || values == nil {
 		return false
@@ -235,7 +235,7 @@ func (this *Skiplist) DeleteNode(node *skiplist_node) {
 	}
 }
 
-func (this *Skiplist) Delete(v SkiplistNodeValue) bool {
+func (this *Skiplist) Delete(v SkiplistNode) bool {
 	if this.curr_length == 0 {
 		return false
 	}
@@ -265,7 +265,7 @@ func (this *Skiplist) DeleteByRank(rank int32) bool {
 	return true
 }
 
-func (this *Skiplist) PullList() (nodes []SkiplistNodeValue) {
+func (this *Skiplist) PullList() (nodes []SkiplistNode) {
 	node := this.head
 	for node.layers[0].next != nil {
 		nodes = append(nodes, node.layers[0].next.value)
@@ -320,11 +320,11 @@ func (this PlayerId) GetValue() interface{} {
 	return this
 }
 
-func (this PlayerId) New() SkiplistNodeValue {
+func (this PlayerId) New() SkiplistNode {
 	return this
 }
 
-func (this PlayerId) Assign(node SkiplistNodeValue) {
+func (this PlayerId) Assign(node SkiplistNode) {
 }
 
 func (this PlayerId) CopyDataTo(node interface{}) {
@@ -398,11 +398,11 @@ func (this *PlayerInfo) GetValue() interface{} {
 	return this.PlayerId
 }
 
-func (this *PlayerInfo) New() SkiplistNodeValue {
+func (this *PlayerInfo) New() SkiplistNode {
 	return &PlayerInfo{}
 }
 
-func (this *PlayerInfo) Assign(node SkiplistNodeValue) {
+func (this *PlayerInfo) Assign(node SkiplistNode) {
 	n := node.(*PlayerInfo)
 	if n == nil {
 		return
@@ -491,7 +491,7 @@ func SkiplistTest2(node_count int32) {
 		log.Debug("    layer[%v] node length[%v]", i+1, sp.GetLayerLength(i+1))
 	}
 
-	sn := make([]SkiplistNodeValue, 20)
+	sn := make([]SkiplistNode, 20)
 	for i := int32(0); i < node_count; i++ {
 		r := rand.Int31n(node_count)
 		s := player_infos[r]
