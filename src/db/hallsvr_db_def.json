@@ -260,7 +260,8 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"CurrId","Incby":true},
-						{"Type":"int32","Index":2,"Name":"FirstId"}
+						{"Type":"int32","Index":2,"Name":"FirstId"},
+						{"Type":"int32","Index":3,"Name":"LastSendTribeMailTime"}
 					]
 				},
 				{
@@ -521,6 +522,66 @@
 						{"Type":"int32","Index":2,"Name":"Drawed"}
 					]
 				}
+			]
+		},
+		{
+			"TableName":"BattleSave",
+			"DBTableName":"BattleSave",
+			"SingleRow":false,
+			"AutoPrimaryKey":true,
+			"PrimaryKeyName":"SaveId",
+			"PrimaryKeyType":"int32",
+			"PrimaryKeySize":11,
+			"Columns":[
+				{
+					"ColumnName":"Data",
+					"DBColumnName":"Data",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"bytes","Index":1,"Name":"Data"}
+					]
+				},
+				{
+					"ColumnName":"Attacker",
+					"DBColumnName":"Attacker",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"Defenser",
+					"DBColumnName":"Defenser",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",				
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[				
+					]
+				},
+				{
+					"ColumnName":"DeleteState",
+					"DBColumnName":"DeleteState",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+					]
+				},
 			]
 		},
 		{

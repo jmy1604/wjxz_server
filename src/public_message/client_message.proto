@@ -56,6 +56,10 @@ enum E_ERR {
 	// 邮件
 	PLAYER_MAIL_OVER_MAX_COUNT				= -14000; // 超出邮件最大数量
 	PLAYER_MAIL_NOT_FOUND					= -14001; // 邮件不存在
+	PLAYER_MAIL_NO_ATTACHED_ITEM			= -14002; // 邮件没有附加物品
+	PLAYER_MAIL_SEND_FAILED					= -14003; // 发送邮件失败
+	PLAYER_MAIL_RECEIVER_NOT_FOUND			= -14004; // 邮件接受者不存在
+	PLAYER_MAIL_TRIBE_IS_COOLDOWN			= -14005; // 部落邮件发送冷却中
 		
 	// 玩家
 	PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
@@ -351,6 +355,8 @@ message S2CBattleResultResponse {
 	int32 NextCampaignId					= 7; // 下一个战役ID
 }
 
+// 请求录像
+
 // ---------------------------------- 关卡 ------------------------------------
 // 请求战役关卡数据
 message C2SCampaignDataRequest {
@@ -463,14 +469,61 @@ message S2CRoleFusionResponse {
 }
 
 // --------------------------------- 邮件 -------------------------------------
-// 拉取邮件
-message C2SGetMailsRequest {
-	int32 MailCount							= 1; // 拉取的邮件数量
+// 发送邮件
+message C2SMailSendRequest {
+	int32 ReceiverId						= 1; // 接收者ID
 	int32 MailType							= 2; // 邮件类型
+	string MailTitle						= 3; // 邮件标题
+	string MailContent						= 4; // 邮件内容
+	repeated ItemInfo AttachedItems			= 5; // 附加物品
 }
-message MailData {
-	int32 MailId							= 1;
-	int32 MailType							= 2;
+message S2CMailSendResponse {
+	int32 MailId							= 1; // 邮件ID
+}
+
+// 获取邮件列表
+message C2SMailListRequest {
+}
+message MailBasicData {
+	int32 Id								= 1; // 邮件ID
+	int32 Type								= 2; // 邮件类型
+	string Title							= 3; // 邮件标题
+	string SenderName						= 4; // 发送者
+	int32 SendTime							= 5; // 发送时间
+	bool IsRead								= 6; // 是否已读
+}
+message S2CMailListResponse {
+	repeated MailBasicData Mails            = 1; //
+}
+
+// 请求邮件具体内容
+message C2SMailDetailRequest {
+	repeated int32 Ids                  	= 1; // 邮件ID
+}
+message MailDetail {
+	int32 Id								= 1; // 邮件ID
+	string Content							= 2; // 邮件内容
+	repeated ItemInfo AttachedItems			= 3; // 附加物品
+}
+message S2CMailDetailResponse {
+	repeated MailDetail Mails               = 1; // 邮件细节
+}
+
+// 获取邮件附加物品
+message C2SMailGetAttachedItemsRequest {
+	int32 MailId							= 1; // 邮件ID
+}
+message S2CMailGetAttachedItemsResponse {
+	int32 MailId							= 1; // 邮件ID
+	repeated ItemInfo AttachedItems			= 2; // 附加物品
+}
+
+// 删除邮件
+message C2SMailDeleteRequest {
+	repeated int32 MailIds					= 1; // 邮件ID
+}
+message S2CMailDeleteResponse {
+	repeated int32 MailIds					= 1; // 邮件ID
 }
 
 //////////////////////////////////////////////////////////////////////////////

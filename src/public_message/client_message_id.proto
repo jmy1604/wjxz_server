@@ -52,4 +52,15 @@ enum MSGID {
 	S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE		= 10403; // 战役挂机收益返回 S2CCampaignHangupIncomeResponse
 	C2S_BATTLE_SET_HANGUP_CAMPAIGN_REQUEST  = 10404; // 设置挂机战役ID C2SBattleSetHangupCampaignRequest
 	S2C_BATTLE_SET_HANGUP_CAMPAIGN_RESPONSE = 10405; // 设置挂机战役ID返回 S2CBattleSetHangupCampaignResponse
+	
+	C2S_MAIL_SEND_REQUEST					= 10500; // 请求发送邮件 C2SMailSendRequest
+	S2C_MAIL_SEND_RESPONSE					= 10501; // 发送邮件返回 S2CMailSendResponse
+	C2S_MAIL_LIST_REQUEST 					= 10502; // 请求邮件列表 C2SMailListRequest
+	S2C_MAIL_LIST_RESPONSE 					= 10503; // 邮件列表返回 S2CMailListResponse
+	C2S_MAIL_DETAIL_REQUEST					= 10504; // 请求邮件详细内容 C2SMailDetailRequest
+	S2C_MAIL_DETAIL_RESPONSE				= 10505; // 邮件详细内容返回 S2CMailDetailResponse
+	C2S_MAIL_GET_ATTACHED_ITEMS_REQUEST		= 10506; // 请求邮件附件获取 C2SMailGetAttachedItemsRequest
+	S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE	= 10507; // 邮件附件获取返回 S2CMailGetAttachedItemsResponse
+	C2S_MAIL_DELETE_REQUEST					= 10508; // 请求删除邮件 C2SMailDeleteRequest
+	S2C_MAIL_DELETE_RESPONSE				= 10509; // 删除邮件返回 S2CMailDeleteResponse
 }

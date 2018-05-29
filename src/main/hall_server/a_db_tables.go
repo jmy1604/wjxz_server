@@ -708,6 +708,7 @@ func (this* dbPlayerChestData)clone_to(d *dbPlayerChestData){
 type dbPlayerMailCommonData struct{
 	CurrId int32
 	FirstId int32
+	LastSendTribeMailTime int32
 }
 func (this* dbPlayerMailCommonData)from_pb(pb *db.PlayerMailCommon){
 	if pb == nil {
@@ -715,17 +716,20 @@ func (this* dbPlayerMailCommonData)from_pb(pb *db.PlayerMailCommon){
 	}
 	this.CurrId = pb.GetCurrId()
 	this.FirstId = pb.GetFirstId()
+	this.LastSendTribeMailTime = pb.GetLastSendTribeMailTime()
 	return
 }
 func (this* dbPlayerMailCommonData)to_pb()(pb *db.PlayerMailCommon){
 	pb = &db.PlayerMailCommon{}
 	pb.CurrId = proto.Int32(this.CurrId)
 	pb.FirstId = proto.Int32(this.FirstId)
+	pb.LastSendTribeMailTime = proto.Int32(this.LastSendTribeMailTime)
 	return
 }
 func (this* dbPlayerMailCommonData)clone_to(d *dbPlayerMailCommonData){
 	d.CurrId = this.CurrId
 	d.FirstId = this.FirstId
+	d.LastSendTribeMailTime = this.LastSendTribeMailTime
 	return
 }
 type dbPlayerMailData struct{
@@ -1295,6 +1299,28 @@ func (this* dbPlayerFirstDrawCardData)to_pb()(pb *db.PlayerFirstDrawCard){
 func (this* dbPlayerFirstDrawCardData)clone_to(d *dbPlayerFirstDrawCardData){
 	d.Id = this.Id
 	d.Drawed = this.Drawed
+	return
+}
+type dbBattleSaveDataData struct{
+	Data []byte
+}
+func (this* dbBattleSaveDataData)from_pb(pb *db.BattleSaveData){
+	if pb == nil {
+		return
+	}
+	this.Data = pb.GetData()
+	return
+}
+func (this* dbBattleSaveDataData)to_pb()(pb *db.BattleSaveData){
+	pb = &db.BattleSaveData{}
+	pb.Data = this.Data
+	return
+}
+func (this* dbBattleSaveDataData)clone_to(d *dbBattleSaveDataData){
+	d.Data = make([]byte, len(this.Data))
+	for _ii, _vv := range this.Data {
+		d.Data[_ii]=_vv
+	}
 	return
 }
 
@@ -3662,6 +3688,19 @@ func (this *dbPlayerMailCommonColumn)SetFirstId(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerMailCommonColumn.SetFirstId")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.FirstId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerMailCommonColumn)GetLastSendTribeMailTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailCommonColumn.GetLastSendTribeMailTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastSendTribeMailTime
+	return
+}
+func (this *dbPlayerMailCommonColumn)SetLastSendTribeMailTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailCommonColumn.SetLastSendTribeMailTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastSendTribeMailTime = v
 	this.m_changed = true
 	return
 }
@@ -8323,6 +8362,576 @@ func (this *dbPlayerTable) GetRow(PlayerId int32) (row *dbPlayerRow) {
 	}
 	return row
 }
+type dbBattleSaveDataColumn struct{
+	m_row *dbBattleSaveRow
+	m_data *dbBattleSaveDataData
+	m_changed bool
+}
+func (this *dbBattleSaveDataColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbBattleSaveDataData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.BattleSaveData{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetSaveId())
+		return
+	}
+	this.m_data = &dbBattleSaveDataData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbBattleSaveDataColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetSaveId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbBattleSaveDataColumn)Get( )(v *dbBattleSaveDataData ){
+	this.m_row.m_lock.UnSafeRLock("dbBattleSaveDataColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbBattleSaveDataData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbBattleSaveDataColumn)Set(v dbBattleSaveDataData ){
+	this.m_row.m_lock.UnSafeLock("dbBattleSaveDataColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbBattleSaveDataData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbBattleSaveDataColumn)GetData( )(v []byte){
+	this.m_row.m_lock.UnSafeRLock("dbBattleSaveDataColumn.GetData")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]byte, len(this.m_data.Data))
+	for _ii, _vv := range this.m_data.Data {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbBattleSaveDataColumn)SetData(v []byte){
+	this.m_row.m_lock.UnSafeLock("dbBattleSaveDataColumn.SetData")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Data = make([]byte, len(v))
+	for _ii, _vv := range v {
+		this.m_data.Data[_ii]=_vv
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbBattleSaveRow)GetAttacker( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveAttackerColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_Attacker)
+}
+func (this *dbBattleSaveRow)SetAttacker(v int32){
+	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveAttackerColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_Attacker=int32(v)
+	this.m_Attacker_changed=true
+	return
+}
+func (this *dbBattleSaveRow)GetDefenser( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveDefenserColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_Defenser)
+}
+func (this *dbBattleSaveRow)SetDefenser(v int32){
+	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveDefenserColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_Defenser=int32(v)
+	this.m_Defenser_changed=true
+	return
+}
+func (this *dbBattleSaveRow)GetDeleteState( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveDeleteStateColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_DeleteState)
+}
+func (this *dbBattleSaveRow)SetDeleteState(v int32){
+	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveDeleteStateColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_DeleteState=int32(v)
+	this.m_DeleteState_changed=true
+	return
+}
+type dbBattleSaveRow struct {
+	m_table *dbBattleSaveTable
+	m_lock       *RWMutex
+	m_loaded  bool
+	m_new     bool
+	m_remove  bool
+	m_touch      int32
+	m_releasable bool
+	m_valid   bool
+	m_SaveId        int32
+	Data dbBattleSaveDataColumn
+	m_Attacker_changed bool
+	m_Attacker int32
+	m_Defenser_changed bool
+	m_Defenser int32
+	m_DeleteState_changed bool
+	m_DeleteState int32
+}
+func new_dbBattleSaveRow(table *dbBattleSaveTable, SaveId int32) (r *dbBattleSaveRow) {
+	this := &dbBattleSaveRow{}
+	this.m_table = table
+	this.m_SaveId = SaveId
+	this.m_lock = NewRWMutex()
+	this.m_Attacker_changed=true
+	this.m_Defenser_changed=true
+	this.m_DeleteState_changed=true
+	this.Data.m_row=this
+	this.Data.m_data=&dbBattleSaveDataData{}
+	return this
+}
+func (this *dbBattleSaveRow) GetSaveId() (r int32) {
+	return this.m_SaveId
+}
+func (this *dbBattleSaveRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbBattleSaveRow.save_data")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_new {
+		db_args:=new_db_args(5)
+		db_args.Push(this.m_SaveId)
+		dData,db_err:=this.Data.save()
+		if db_err!=nil{
+			log.Error("insert save Data failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dData)
+		db_args.Push(this.m_Attacker)
+		db_args.Push(this.m_Defenser)
+		db_args.Push(this.m_DeleteState)
+		args=db_args.GetArgs()
+		state = 1
+	} else {
+		if this.Data.m_changed||this.m_Attacker_changed||this.m_Defenser_changed||this.m_DeleteState_changed{
+			update_string = "UPDATE BattleSaves SET "
+			db_args:=new_db_args(5)
+			if this.Data.m_changed{
+				update_string+="Data=?,"
+				dData,err:=this.Data.save()
+				if err!=nil{
+					log.Error("update save Data failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dData)
+			}
+			if this.m_Attacker_changed{
+				update_string+="Attacker=?,"
+				db_args.Push(this.m_Attacker)
+			}
+			if this.m_Defenser_changed{
+				update_string+="Defenser=?,"
+				db_args.Push(this.m_Defenser)
+			}
+			if this.m_DeleteState_changed{
+				update_string+="DeleteState=?,"
+				db_args.Push(this.m_DeleteState)
+			}
+			update_string = strings.TrimRight(update_string, ", ")
+			update_string+=" WHERE SaveId=?"
+			db_args.Push(this.m_SaveId)
+			args=db_args.GetArgs()
+			state = 2
+		}
+	}
+	this.m_new = false
+	this.Data.m_changed = false
+	this.m_Attacker_changed = false
+	this.m_Defenser_changed = false
+	this.m_DeleteState_changed = false
+	if release && this.m_loaded {
+		atomic.AddInt32(&this.m_table.m_gc_n, -1)
+		this.m_loaded = false
+		released = true
+	}
+	return nil,released,state,update_string,args
+}
+func (this *dbBattleSaveRow) Save(release bool) (err error, d bool, released bool) {
+	err,released, state, update_string, args := this.save_data(release)
+	if err != nil {
+		log.Error("save data failed")
+		return err, false, false
+	}
+	if state == 0 {
+		d = false
+	} else if state == 1 {
+		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
+		if err != nil {
+			log.Error("INSERT BattleSaves exec failed %v ", this.m_SaveId)
+			return err, false, released
+		}
+		d = true
+	} else if state == 2 {
+		_, err = this.m_table.m_dbc.Exec(update_string, args...)
+		if err != nil {
+			log.Error("UPDATE BattleSaves exec failed %v", this.m_SaveId)
+			return err, false, released
+		}
+		d = true
+	}
+	return nil, d, released
+}
+func (this *dbBattleSaveRow) Touch(releasable bool) {
+	this.m_touch = int32(time.Now().Unix())
+	this.m_releasable = releasable
+}
+type dbBattleSaveRowSort struct {
+	rows []*dbBattleSaveRow
+}
+func (this *dbBattleSaveRowSort) Len() (length int) {
+	return len(this.rows)
+}
+func (this *dbBattleSaveRowSort) Less(i int, j int) (less bool) {
+	return this.rows[i].m_touch < this.rows[j].m_touch
+}
+func (this *dbBattleSaveRowSort) Swap(i int, j int) {
+	temp := this.rows[i]
+	this.rows[i] = this.rows[j]
+	this.rows[j] = temp
+}
+type dbBattleSaveTable struct{
+	m_dbc *DBC
+	m_lock *RWMutex
+	m_rows map[int32]*dbBattleSaveRow
+	m_new_rows map[int32]*dbBattleSaveRow
+	m_removed_rows map[int32]*dbBattleSaveRow
+	m_gc_n int32
+	m_gcing int32
+	m_pool_size int32
+	m_preload_select_stmt *sql.Stmt
+	m_preload_max_id int32
+	m_save_insert_stmt *sql.Stmt
+	m_delete_stmt *sql.Stmt
+	m_max_id int32
+	m_max_id_changed bool
+}
+func new_dbBattleSaveTable(dbc *DBC) (this *dbBattleSaveTable) {
+	this = &dbBattleSaveTable{}
+	this.m_dbc = dbc
+	this.m_lock = NewRWMutex()
+	this.m_rows = make(map[int32]*dbBattleSaveRow)
+	this.m_new_rows = make(map[int32]*dbBattleSaveRow)
+	this.m_removed_rows = make(map[int32]*dbBattleSaveRow)
+	return this
+}
+func (this *dbBattleSaveTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS BattleSavesMaxId(PlaceHolder int(11),MaxSaveId int(11),PRIMARY KEY (PlaceHolder))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS BattleSavesMaxId failed")
+		return
+	}
+	r := this.m_dbc.QueryRow("SELECT Count(*) FROM BattleSavesMaxId WHERE PlaceHolder=0")
+	if r != nil {
+		var count int32
+		err = r.Scan(&count)
+		if err != nil {
+			log.Error("scan count failed")
+			return
+		}
+		if count == 0 {
+		_, err = this.m_dbc.Exec("INSERT INTO BattleSavesMaxId (PlaceHolder,MaxSaveId) VALUES (0,0)")
+			if err != nil {
+				log.Error("INSERTBattleSavesMaxId failed")
+				return
+			}
+		}
+	}
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS BattleSaves(SaveId int(11),PRIMARY KEY (SaveId))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS BattleSaves failed")
+		return
+	}
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='BattleSaves'", this.m_dbc.m_db_name)
+	if err != nil {
+		log.Error("SELECT information_schema failed")
+		return
+	}
+	columns := make(map[string]int32)
+	for rows.Next() {
+		var column_name string
+		var ordinal_position int32
+		err = rows.Scan(&column_name, &ordinal_position)
+		if err != nil {
+			log.Error("scan information_schema row failed")
+			return
+		}
+		if ordinal_position < 1 {
+			log.Error("col ordinal out of range")
+			continue
+		}
+		columns[column_name] = ordinal_position
+	}
+	_, hasData := columns["Data"]
+	if !hasData {
+		_, err = this.m_dbc.Exec("ALTER TABLE BattleSaves ADD COLUMN Data LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN Data failed")
+			return
+		}
+	}
+	_, hasAttacker := columns["Attacker"]
+	if !hasAttacker {
+		_, err = this.m_dbc.Exec("ALTER TABLE BattleSaves ADD COLUMN Attacker int(11)")
+		if err != nil {
+			log.Error("ADD COLUMN Attacker failed")
+			return
+		}
+	}
+	_, hasDefenser := columns["Defenser"]
+	if !hasDefenser {
+		_, err = this.m_dbc.Exec("ALTER TABLE BattleSaves ADD COLUMN Defenser int(11)")
+		if err != nil {
+			log.Error("ADD COLUMN Defenser failed")
+			return
+		}
+	}
+	_, hasDeleteState := columns["DeleteState"]
+	if !hasDeleteState {
+		_, err = this.m_dbc.Exec("ALTER TABLE BattleSaves ADD COLUMN DeleteState int(11)")
+		if err != nil {
+			log.Error("ADD COLUMN DeleteState failed")
+			return
+		}
+	}
+	return
+}
+func (this *dbBattleSaveTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT SaveId,Data,Attacker,Defenser,DeleteState FROM BattleSaves")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbBattleSaveTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO BattleSaves (SaveId,Data,Attacker,Defenser,DeleteState) VALUES (?,?,?,?,?)")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbBattleSaveTable) prepare_delete_stmt() (err error) {
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM BattleSaves WHERE SaveId=?")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbBattleSaveTable) Init() (err error) {
+	err=this.check_create_table()
+	if err!=nil{
+		log.Error("check_create_table failed")
+		return
+	}
+	err=this.prepare_preload_select_stmt()
+	if err!=nil{
+		log.Error("prepare_preload_select_stmt failed")
+		return
+	}
+	err=this.prepare_save_insert_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	err=this.prepare_delete_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	return
+}
+func (this *dbBattleSaveTable) Preload() (err error) {
+	r_max_id := this.m_dbc.QueryRow("SELECT MaxSaveId FROM BattleSavesMaxId WHERE PLACEHOLDER=0")
+	if r_max_id != nil {
+		err = r_max_id.Scan(&this.m_max_id)
+		if err != nil {
+			log.Error("scan max id failed")
+			return
+		}
+	}
+	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
+	if err != nil {
+		log.Error("SELECT")
+		return
+	}
+	var SaveId int32
+	var dData []byte
+	var dAttacker int32
+	var dDefenser int32
+	var dDeleteState int32
+	for r.Next() {
+		err = r.Scan(&SaveId,&dData,&dAttacker,&dDefenser,&dDeleteState)
+		if err != nil {
+			log.Error("Scan")
+			return
+		}
+		if SaveId>this.m_max_id{
+			log.Error("max id ext")
+			this.m_max_id = SaveId
+			this.m_max_id_changed = true
+		}
+		row := new_dbBattleSaveRow(this,SaveId)
+		err = row.Data.load(dData)
+		if err != nil {
+			log.Error("Data %v", SaveId)
+			return
+		}
+		row.m_Attacker=dAttacker
+		row.m_Defenser=dDefenser
+		row.m_DeleteState=dDeleteState
+		row.m_Attacker_changed=false
+		row.m_Defenser_changed=false
+		row.m_DeleteState_changed=false
+		row.m_valid = true
+		this.m_rows[SaveId]=row
+	}
+	return
+}
+func (this *dbBattleSaveTable) GetPreloadedMaxId() (max_id int32) {
+	return this.m_preload_max_id
+}
+func (this *dbBattleSaveTable) fetch_rows(rows map[int32]*dbBattleSaveRow) (r map[int32]*dbBattleSaveRow) {
+	this.m_lock.UnSafeLock("dbBattleSaveTable.fetch_rows")
+	defer this.m_lock.UnSafeUnlock()
+	r = make(map[int32]*dbBattleSaveRow)
+	for i, v := range rows {
+		r[i] = v
+	}
+	return r
+}
+func (this *dbBattleSaveTable) fetch_new_rows() (new_rows map[int32]*dbBattleSaveRow) {
+	this.m_lock.UnSafeLock("dbBattleSaveTable.fetch_new_rows")
+	defer this.m_lock.UnSafeUnlock()
+	new_rows = make(map[int32]*dbBattleSaveRow)
+	for i, v := range this.m_new_rows {
+		_, has := this.m_rows[i]
+		if has {
+			log.Error("rows already has new rows %v", i)
+			continue
+		}
+		this.m_rows[i] = v
+		new_rows[i] = v
+	}
+	for i, _ := range new_rows {
+		delete(this.m_new_rows, i)
+	}
+	return
+}
+func (this *dbBattleSaveTable) save_rows(rows map[int32]*dbBattleSaveRow, quick bool) {
+	for _, v := range rows {
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		err, delay, _ := v.Save(false)
+		if err != nil {
+			log.Error("save failed %v", err)
+		}
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		if delay&&!quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+}
+func (this *dbBattleSaveTable) Save(quick bool) (err error){
+	if this.m_max_id_changed {
+		max_id := atomic.LoadInt32(&this.m_max_id)
+		_, err := this.m_dbc.Exec("UPDATE BattleSavesMaxId SET MaxSaveId=?", max_id)
+		if err != nil {
+			log.Error("save max id failed %v", err)
+		}
+	}
+	removed_rows := this.fetch_rows(this.m_removed_rows)
+	for _, v := range removed_rows {
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetSaveId())
+		if err != nil {
+			log.Error("exec delete stmt failed %v", err)
+		}
+		v.m_valid = false
+		if !quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+	this.m_removed_rows = make(map[int32]*dbBattleSaveRow)
+	rows := this.fetch_rows(this.m_rows)
+	this.save_rows(rows, quick)
+	new_rows := this.fetch_new_rows()
+	this.save_rows(new_rows, quick)
+	return
+}
+func (this *dbBattleSaveTable) AddRow() (row *dbBattleSaveRow) {
+	this.m_lock.UnSafeLock("dbBattleSaveTable.AddRow")
+	defer this.m_lock.UnSafeUnlock()
+	SaveId := atomic.AddInt32(&this.m_max_id, 1)
+	this.m_max_id_changed = true
+	row = new_dbBattleSaveRow(this,SaveId)
+	row.m_new = true
+	row.m_loaded = true
+	row.m_valid = true
+	this.m_new_rows[SaveId] = row
+	atomic.AddInt32(&this.m_gc_n,1)
+	return row
+}
+func (this *dbBattleSaveTable) RemoveRow(SaveId int32) {
+	this.m_lock.UnSafeLock("dbBattleSaveTable.RemoveRow")
+	defer this.m_lock.UnSafeUnlock()
+	row := this.m_rows[SaveId]
+	if row != nil {
+		row.m_remove = true
+		delete(this.m_rows, SaveId)
+		rm_row := this.m_removed_rows[SaveId]
+		if rm_row != nil {
+			log.Error("rows and removed rows both has %v", SaveId)
+		}
+		this.m_removed_rows[SaveId] = row
+		_, has_new := this.m_new_rows[SaveId]
+		if has_new {
+			delete(this.m_new_rows, SaveId)
+			log.Error("rows and new_rows both has %v", SaveId)
+		}
+	} else {
+		row = this.m_removed_rows[SaveId]
+		if row == nil {
+			_, has_new := this.m_new_rows[SaveId]
+			if has_new {
+				delete(this.m_new_rows, SaveId)
+			} else {
+				log.Error("row not exist %v", SaveId)
+			}
+		} else {
+			log.Error("already removed %v", SaveId)
+			_, has_new := this.m_new_rows[SaveId]
+			if has_new {
+				delete(this.m_new_rows, SaveId)
+				log.Error("removed rows and new_rows both has %v", SaveId)
+			}
+		}
+	}
+}
+func (this *dbBattleSaveTable) GetRow(SaveId int32) (row *dbBattleSaveRow) {
+	this.m_lock.UnSafeRLock("dbBattleSaveTable.GetRow")
+	defer this.m_lock.UnSafeRUnlock()
+	row = this.m_rows[SaveId]
+	if row == nil {
+		row = this.m_new_rows[SaveId]
+	}
+	return row
+}
 func (this *dbGooglePayRecordRow)GetSn( )(r string ){
 	this.m_lock.UnSafeRLock("dbGooglePayRecordRow.GetdbGooglePayRecordSnColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -11285,6 +11894,7 @@ type DBC struct {
 	m_db_password		string
 	Global *dbGlobalTable
 	Players *dbPlayerTable
+	BattleSaves *dbBattleSaveTable
 	GooglePayRecords *dbGooglePayRecordTable
 	ApplePayRecords *dbApplePayRecordTable
 	FaceBPayRecords *dbFaceBPayRecordTable
@@ -11303,6 +11913,12 @@ func (this *DBC)init_tables()(err error){
 	err = this.Players.Init()
 	if err != nil {
 		log.Error("init Players table failed")
+		return
+	}
+	this.BattleSaves = new_dbBattleSaveTable(this)
+	err = this.BattleSaves.Init()
+	if err != nil {
+		log.Error("init BattleSaves table failed")
 		return
 	}
 	this.GooglePayRecords = new_dbGooglePayRecordTable(this)
@@ -11357,6 +11973,13 @@ func (this *DBC)Preload()(err error){
 		return
 	}else{
 		log.Info("preload Players table succeed !")
+	}
+	err = this.BattleSaves.Preload()
+	if err != nil {
+		log.Error("preload BattleSaves table failed")
+		return
+	}else{
+		log.Info("preload BattleSaves table succeed !")
 	}
 	err = this.GooglePayRecords.Preload()
 	if err != nil {
@@ -11421,6 +12044,11 @@ func (this *DBC)Save(quick bool)(err error){
 	err = this.Players.Save(quick)
 	if err != nil {
 		log.Error("save Players table failed")
+		return
+	}
+	err = this.BattleSaves.Save(quick)
+	if err != nil {
+		log.Error("save BattleSaves table failed")
 		return
 	}
 	err = this.GooglePayRecords.Save(quick)

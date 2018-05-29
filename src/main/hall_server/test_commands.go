@@ -1188,6 +1188,70 @@ func fusion_role_cmd(p *Player, args []string) int32 {
 	return p.fusion_role(int32(fusion_id), int32(main_card_id), [][]int32{cost1_ids, cost2_ids, cost3_ids})
 }
 
+func send_mail_cmd(p *Player, args []string) int32 {
+	if len(args) < 4 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var receiver_id, mail_type int
+	//var title, content string
+	var err error
+	receiver_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("接收者ID[%v]转换失败[%v]", receiver_id, err.Error())
+		return -1
+	}
+	mail_type, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("邮件类型[%v]转换失败[%v]", mail_type, err.Error())
+		return -1
+	}
+
+	return SendMail(p, int32(receiver_id), int32(mail_type), args[2], args[3], nil)
+}
+
+func mail_list_cmd(p *Player, args []string) int32 {
+	return p.GetMailList()
+}
+
+func mail_detail_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	mail_ids := parse_xml_str_arr2(args[0], "|")
+	return p.GetMailDetail(mail_ids)
+}
+
+func mail_items_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var mail_id int
+	var err error
+	mail_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("邮件ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.GetMailAttachedItems(int32(mail_id))
+}
+
+func delete_mail_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	mail_ids := parse_xml_str_arr2(args[0], "|")
+	return p.DeleteMails(mail_ids)
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1212,6 +1276,11 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"item_fusion":      item_fusion_cmd,
 	"fusion_role":      fusion_role_cmd,
 	"item_sell":        item_sell_cmd,
+	"send_mail":        send_mail_cmd,
+	"mail_list":        mail_list_cmd,
+	"mail_detail":      mail_detail_cmd,
+	"mail_items":       mail_items_cmd,
+	"delete_mail":      delete_mail_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

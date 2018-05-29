@@ -12,6 +12,7 @@
 	
 	"MailMaxCount":300,
 	"MailExistDays":14,
+	"MailTribeSendCooldown":12,
 	
 	"MaxFriendNum":200,
 	

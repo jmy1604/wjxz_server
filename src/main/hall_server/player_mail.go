@@ -1,28 +1,77 @@
 package main
 
 import (
-	_ "libs/log"
+	"libs/log"
 	_ "libs/socket"
 	_ "main/table_config"
+	"net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
+	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	_ "github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
-type MailNode struct {
-	id      int32
-	prev_id int32
-	next_id int32
+const (
+	MAIL_TYPE_SYSTEM = 1
+	MAIL_TYPE_REWARD = 2
+	MAIL_TYPE_TRIBE  = 3
+)
+
+func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailBasicData) {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetMailList")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	for _, v := range this.m_data {
+		is_read := false
+		if v.IsRead > 0 {
+			is_read = true
+		}
+		d := &msg_client_message.MailBasicData{
+			Id:       v.Id,
+			Type:     int32(v.Type),
+			Title:    v.Title,
+			SendTime: v.SendUnix,
+			IsRead:   is_read,
+		}
+		mails = append(mails, d)
+	}
+	return
 }
 
-type MailList struct {
-	first *MailNode
-	last  *MailNode
+func get_items_info_from(item_ids, item_nums []int32) (items []*msg_client_message.ItemInfo) {
+	if item_ids != nil && item_nums != nil {
+		ids_len := len(item_ids)
+		nums_len := len(item_nums)
+		l := ids_len
+		if l > nums_len {
+			l = nums_len
+		}
+		for i := 0; i < l; i++ {
+			item := &msg_client_message.ItemInfo{
+				ItemCfgId: item_ids[i],
+				ItemNum:   item_nums[i],
+			}
+			items = append(items, item)
+		}
+	}
+	return
 }
 
-func (this *MailList) init(p *Player) {
-	//first_id := p.db.MailCommon.GetFirstId()
+func (this *dbPlayerMailColumn) GetMailDetail(mail_id int32) (attached_items []*msg_client_message.ItemInfo, content string) {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetMailDetail")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	d := this.m_data[mail_id]
+	if d == nil {
+		return
+	}
+
+	attached_items = get_items_info_from(d.AttachItemIds, d.AttachItemNums)
+	content = d.Content
+
+	return
 }
 
 func (this *Player) new_mail(typ int32, title, content string) int32 {
@@ -32,10 +81,11 @@ func (this *Player) new_mail(typ int32, title, content string) int32 {
 	}
 	new_id := this.db.MailCommon.IncbyCurrId(1)
 	this.db.Mails.Add(&dbPlayerMailData{
-		Id:      new_id,
-		Type:    int8(typ),
-		Title:   title,
-		Content: content,
+		Id:       new_id,
+		Type:     int8(typ),
+		Title:    title,
+		Content:  content,
+		SendUnix: int32(time.Now().Unix()),
 	})
 	return new_id
 }
@@ -59,4 +109,192 @@ func (this *Player) delete_mail(mail_id int32) int32 {
 	}
 	this.db.Mails.Remove(mail_id)
 	return 1
+}
+
+func SendMail(sender *Player, receiver_id, mail_type int32, title string, content string, attached_items []*msg_client_message.ItemInfo) int32 {
+	if mail_type == MAIL_TYPE_TRIBE {
+		if sender == nil {
+			return -1
+		}
+		last_send := sender.db.MailCommon.GetLastSendTribeMailTime()
+		now_time := int32(time.Now().Unix())
+		if now_time-last_send < 3600*global_config_mgr.GetGlobalConfig().MailTribeSendCooldown {
+			log.Error("Player[%v] tribe mail is cooldown", sender.Id)
+			return int32(msg_client_message.E_ERR_PLAYER_MAIL_TRIBE_IS_COOLDOWN)
+		}
+	}
+	receiver := player_mgr.GetPlayerById(receiver_id)
+	if receiver == nil {
+		log.Error("Mail receiver[%v] not found", receiver_id)
+		return int32(msg_client_message.E_ERR_PLAYER_MAIL_RECEIVER_NOT_FOUND)
+	}
+	mail_id := receiver.new_mail(mail_type, title, content)
+	if mail_id <= 0 {
+		log.Error("new mail create failed")
+		return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)
+	}
+	if attached_items != nil {
+		for i := 0; i < len(attached_items); i++ {
+			res := receiver.attach_mail_item(mail_id, attached_items[i].ItemCfgId, attached_items[i].ItemNum)
+			if res < 0 {
+				return res
+			}
+		}
+	}
+
+	if mail_type == MAIL_TYPE_TRIBE && sender != nil {
+		sender.db.MailCommon.SetLastSendTribeMailTime(int32(time.Now().Unix()))
+	}
+
+	if sender != nil {
+		log.Debug("Player[%v] send mail[%v] type[%v] title[%v] content[%v]", sender.Id, mail_id, mail_type, title, content)
+	}
+
+	return mail_id
+}
+
+func (this *Player) GetMailList() int32 {
+	basic := this.db.Mails.GetMailList()
+	if basic == nil {
+		basic = make([]*msg_client_message.MailBasicData, 0)
+	}
+	response := &msg_client_message.S2CMailListResponse{
+		Mails: basic,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_LIST_RESPONSE), response)
+	return 1
+}
+
+func (this *Player) GetMailDetail(mail_ids []int32) int32 {
+	if mail_ids == nil || len(mail_ids) == 0 {
+		return -1
+	}
+
+	var details []*msg_client_message.MailDetail
+	for i := 0; i < len(mail_ids); i++ {
+		if !this.db.Mails.HasIndex(mail_ids[i]) {
+			return int32(msg_client_message.E_ERR_PLAYER_MAIL_NOT_FOUND)
+		}
+
+		attached_items, content := this.db.Mails.GetMailDetail(mail_ids[i])
+		if attached_items == nil {
+			attached_items = make([]*msg_client_message.ItemInfo, 0)
+		}
+		detail := &msg_client_message.MailDetail{
+			Id:            mail_ids[i],
+			Content:       content,
+			AttachedItems: attached_items,
+		}
+		details = append(details, detail)
+	}
+
+	response := &msg_client_message.S2CMailDetailResponse{
+		Mails: details,
+	}
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_DETAIL_RESPONSE), response)
+
+	return 1
+}
+
+func (this *Player) GetMailAttachedItems(mail_id int32) int32 {
+	item_ids, o := this.db.Mails.GetAttachItemIds(mail_id)
+	if !o {
+		return int32(msg_client_message.E_ERR_PLAYER_MAIL_NOT_FOUND)
+	}
+	item_nums, _ := this.db.Mails.GetAttachItemNums(mail_id)
+	items := get_items_info_from(item_ids, item_nums)
+	if items == nil {
+		return int32(msg_client_message.E_ERR_PLAYER_MAIL_NO_ATTACHED_ITEM)
+	}
+	for i := 0; i < len(items); i++ {
+		this.add_resource(items[i].ItemCfgId, items[i].ItemNum)
+	}
+	this.db.Mails.SetAttachItemIds(mail_id, nil)
+	this.db.Mails.SetAttachItemNums(mail_id, nil)
+	response := &msg_client_message.S2CMailGetAttachedItemsResponse{
+		MailId:        mail_id,
+		AttachedItems: items,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE), response)
+	return 1
+}
+
+func (this *Player) DeleteMails(mail_ids []int32) int32 {
+	if mail_ids == nil || len(mail_ids) == 0 {
+		return -1
+	}
+
+	for i := 0; i < len(mail_ids); i++ {
+		if !this.db.Mails.HasIndex(mail_ids[i]) {
+			return int32(msg_client_message.E_ERR_PLAYER_MAIL_NOT_FOUND)
+		}
+
+		this.db.Mails.Remove(mail_ids[i])
+	}
+
+	response := &msg_client_message.S2CMailDeleteResponse{
+		MailIds: mail_ids,
+	}
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_DELETE_RESPONSE), response)
+
+	return 1
+}
+
+func C2SMailSendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SMailSendRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	mail_id := SendMail(p, req.GetReceiverId(), req.GetMailType(), req.GetMailTitle(), req.GetMailContent(), req.GetAttachedItems())
+	if mail_id > 0 {
+		response := &msg_client_message.S2CMailSendResponse{
+			MailId: mail_id,
+		}
+		p.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_SEND_RESPONSE), response)
+	}
+	return mail_id
+}
+
+func C2SMailListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SMailListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
+		return -1
+	}
+	return p.GetMailList()
+}
+
+func C2SMailDetailHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SMailDetailRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.GetMailDetail(req.GetIds())
+}
+
+func C2SMailGetAttachedItemsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SMailGetAttachedItemsRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.GetMailAttachedItems(req.GetMailId())
+}
+
+func C2SMailDeleteHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SMailDeleteRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.DeleteMails(req.GetMailIds())
 }
