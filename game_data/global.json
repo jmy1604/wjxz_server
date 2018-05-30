@@ -14,6 +14,8 @@
 	"MailExistDays":14,
 	"MailTribeSendCooldown":12,
 	
+	"PlayerBattleRecordMaxCount":10,
+	
 	"MaxFriendNum":200,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

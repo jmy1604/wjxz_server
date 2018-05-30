@@ -147,6 +147,7 @@ message PlayerMailList{
 
 message PlayerBattleSave{
 	optional int32 Id=1;
+	optional int32 Side=2;
 }
 
 message PlayerBattleSaveList{

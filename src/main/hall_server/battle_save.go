@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"compress/flate"
 	"libs/log"
 	"net/http"
 	"public_message/gen_go/client_message"
@@ -20,6 +22,35 @@ func (this *BattleSaveManager) Init() {
 	this.saves = dbc.BattleSaves
 }
 
+func check_battle_record_count(attacker, defenser *Player) {
+	all := attacker.db.BattleSaves.GetAllIndex()
+	if all != nil && int32(len(all)) >= global_config_mgr.GetGlobalConfig().PlayerBattleRecordMaxCount {
+		et_id := int32(0)
+		save_time := int32(0)
+		for i := 0; i < len(all); i++ {
+			_, _, _, st := battle_record_mgr.GetRecord(attacker.Id, all[i])
+			if save_time == 0 || save_time > st {
+				save_time = st
+				et_id = all[i]
+			}
+		}
+		battle_record_mgr.DeleteRecord(attacker.Id, et_id)
+	}
+	all = defenser.db.BattleSaves.GetAllIndex()
+	if all != nil && int32(len(all)) >= global_config_mgr.GetGlobalConfig().PlayerBattleRecordMaxCount {
+		et_id := int32(0)
+		save_time := int32(0)
+		for i := 0; i < len(all); i++ {
+			_, _, _, st := battle_record_mgr.GetRecord(defenser.Id, all[i])
+			if save_time == 0 || save_time > st {
+				save_time = st
+				et_id = all[i]
+			}
+		}
+		battle_record_mgr.DeleteRecord(defenser.Id, et_id)
+	}
+}
+
 func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []byte) bool {
 	attacker := player_mgr.GetPlayerById(attacker_id)
 	if attacker == nil {
@@ -29,17 +60,39 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 	if defenser == nil {
 		return false
 	}
+
+	check_battle_record_count(attacker, defenser)
+
 	row := this.saves.AddRow()
 	if row != nil {
 		row.SetAttacker(attacker_id)
 		row.SetDefenser(defenser_id)
+		var b bytes.Buffer
+		w, err := flate.NewWriter(&b, 1)
+		if err != nil {
+			log.Error("flate.NewWriter failed: %v", err.Error())
+			return false
+		}
+		_, err = w.Write(data)
+		if err != nil {
+			log.Error("write_msgs flate.Write failed: %v", err.Error())
+			return false
+		}
+		err = w.Close()
+		if err != nil {
+			log.Error("flate.Close failed: %v", err.Error())
+			return false
+		}
+		data = b.Bytes()
 		row.Data.SetData(data)
 		row.SetSaveTime(int32(time.Now().Unix()))
 		attacker.db.BattleSaves.Add(&dbPlayerBattleSaveData{
-			Id: row.GetId(),
+			Id:   row.GetId(),
+			Side: 0,
 		})
 		defenser.db.BattleSaves.Add(&dbPlayerBattleSaveData{
-			Id: row.GetId(),
+			Id:   row.GetId(),
+			Side: 1,
 		})
 		log.Debug("Battle Record[%v] saved with attacker[%v] and defenser[%v]", row.GetId(), attacker_id, defenser_id)
 	}

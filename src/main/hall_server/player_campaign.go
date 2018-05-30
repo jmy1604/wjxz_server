@@ -103,17 +103,25 @@ func (this *Player) FightInStage(stage *table_config.XmlPassItem) (is_win bool, 
 	if this.attack_team == nil {
 		this.attack_team = &BattleTeam{}
 	}
-	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
-		log.Error("Player[%v] init attack team failed", this.Id)
-		return
-	}
 
 	if this.stage_team == nil {
 		this.stage_team = &BattleTeam{}
 	}
 
+	// 新的关卡初始化
 	if stage.Id != this.stage_id {
 		this.stage_wave = 0
+		if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+			log.Error("Player[%v] init attack team failed", this.Id)
+			return
+		}
+	} else {
+		if this.stage_wave == 0 {
+			if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+				log.Error("Player[%v] init attack team failed", this.Id)
+				return
+			}
+		}
 	}
 
 	if !this.stage_team.InitWithStage(1, stage.Id, this.stage_wave) {
@@ -197,7 +205,6 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	if is_win && !has_next_wave {
-
 		rewards_msg := &msg_client_message.S2CCampaignHangupIncomeResponse{}
 		// 奖励
 		for i := 0; i < len(stage.RewardList)/2; i++ {
