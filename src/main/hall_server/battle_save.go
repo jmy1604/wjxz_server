@@ -22,35 +22,6 @@ func (this *BattleSaveManager) Init() {
 	this.saves = dbc.BattleSaves
 }
 
-func check_battle_record_count(attacker, defenser *Player) {
-	all := attacker.db.BattleSaves.GetAllIndex()
-	if all != nil && int32(len(all)) >= global_config_mgr.GetGlobalConfig().PlayerBattleRecordMaxCount {
-		et_id := int32(0)
-		save_time := int32(0)
-		for i := 0; i < len(all); i++ {
-			_, _, _, st := battle_record_mgr.GetRecord(attacker.Id, all[i])
-			if save_time == 0 || save_time > st {
-				save_time = st
-				et_id = all[i]
-			}
-		}
-		battle_record_mgr.DeleteRecord(attacker.Id, et_id)
-	}
-	all = defenser.db.BattleSaves.GetAllIndex()
-	if all != nil && int32(len(all)) >= global_config_mgr.GetGlobalConfig().PlayerBattleRecordMaxCount {
-		et_id := int32(0)
-		save_time := int32(0)
-		for i := 0; i < len(all); i++ {
-			_, _, _, st := battle_record_mgr.GetRecord(defenser.Id, all[i])
-			if save_time == 0 || save_time > st {
-				save_time = st
-				et_id = all[i]
-			}
-		}
-		battle_record_mgr.DeleteRecord(defenser.Id, et_id)
-	}
-}
-
 func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []byte) bool {
 	attacker := player_mgr.GetPlayerById(attacker_id)
 	if attacker == nil {
@@ -60,8 +31,6 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 	if defenser == nil {
 		return false
 	}
-
-	check_battle_record_count(attacker, defenser)
 
 	row := this.saves.AddRow()
 	if row != nil {
@@ -84,16 +53,24 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 			return false
 		}
 		data = b.Bytes()
+
+		now_time := int32(time.Now().Unix())
 		row.Data.SetData(data)
-		row.SetSaveTime(int32(time.Now().Unix()))
+		row.SetSaveTime(now_time)
 		attacker.db.BattleSaves.Add(&dbPlayerBattleSaveData{
-			Id:   row.GetId(),
-			Side: 0,
+			Id:       row.GetId(),
+			Side:     0,
+			SaveTime: now_time,
 		})
 		defenser.db.BattleSaves.Add(&dbPlayerBattleSaveData{
-			Id:   row.GetId(),
-			Side: 1,
+			Id:       row.GetId(),
+			Side:     1,
+			SaveTime: now_time,
 		})
+
+		attacker.push_battle_record(row.GetId())
+		//defenser.push_battle_record(row.GetId())
+
 		log.Debug("Battle Record[%v] saved with attacker[%v] and defenser[%v]", row.GetId(), attacker_id, defenser_id)
 	}
 	return true
@@ -123,8 +100,16 @@ func (this *BattleSaveManager) GetRecord(requester_id, record_id int32) (attacke
 }
 
 func (this *BattleSaveManager) DeleteRecord(requester_id, record_id int32) int32 {
+	requester := player_mgr.GetPlayerById(requester_id)
+	if requester == nil {
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+	}
+
 	row := this.saves.GetRow(record_id)
 	if row == nil {
+		if requester.db.BattleSaves.HasIndex(record_id) {
+			requester.db.BattleSaves.Remove(record_id)
+		}
 		log.Error("Not found battle record[%v]", record_id)
 		return int32(msg_client_message.E_ERR_PLAYER_BATTLE_RECORD_NOT_FOUND)
 	}
@@ -178,12 +163,87 @@ func (this *BattleSaveManager) DeleteRecord(requester_id, record_id int32) int32
 	return 1
 }
 
+func (this *Player) push_battle_record(record_id int32) (pushed bool, remove_record int32) {
+	rt, o := this.db.BattleSaves.GetSaveTime(record_id)
+	if !o {
+		return
+	}
+	max_count := global_config_mgr.GetGlobalConfig().PlayerBattleRecordMaxCount
+	i := int32(0)
+	insert := false
+	for ; i < this.battle_record_count; i++ {
+		var st int32
+		st, o = this.db.BattleSaves.GetSaveTime(this.battle_record_list[i])
+		if !o {
+			for j := i; j < this.battle_record_count-1; j++ {
+				this.battle_record_list[j] = this.battle_record_list[j+1]
+			}
+			this.battle_record_count -= 1
+		}
+		if rt > st {
+			insert = true
+			break
+		}
+	}
+	if insert {
+		if this.battle_record_count >= max_count {
+			battle_record_mgr.DeleteRecord(this.Id, this.battle_record_list[max_count-1])
+			remove_record = this.battle_record_list[max_count-1]
+		}
+		// 往后挪
+		for j := this.battle_record_count - 1; j >= i; j-- {
+			if j >= max_count-1 {
+				continue
+			}
+			this.battle_record_list[j+1] = this.battle_record_list[j]
+		}
+		this.battle_record_list[i] = record_id
+		if this.battle_record_count < max_count {
+			this.battle_record_count += 1
+		}
+		pushed = true
+	} else {
+		if i < max_count {
+			this.battle_record_list[i] = record_id
+			this.battle_record_count += 1
+			pushed = true
+		} else {
+			battle_record_mgr.DeleteRecord(this.Id, record_id)
+		}
+	}
+	return
+}
+
+func (this *Player) init_battle_record_list() {
+	if this.battle_record_list != nil {
+		return
+	}
+
+	max_count := global_config_mgr.GetGlobalConfig().PlayerBattleRecordMaxCount
+	this.battle_record_list = make([]int32, max_count)
+	record_ids := this.db.BattleSaves.GetAllIndex()
+	if record_ids == nil {
+		return
+	}
+	for i := 0; i < len(record_ids); i++ {
+		row := dbc.BattleSaves.GetRow(record_ids[i])
+		if row == nil {
+			battle_record_mgr.DeleteRecord(this.Id, record_ids[i])
+		}
+		this.push_battle_record(record_ids[i])
+	}
+
+	record_ids = this.db.BattleSaves.GetAllIndex()
+	if record_ids != nil {
+		log.Debug("++++++++++++++++++++++ Player[%v] inited battle record list: %v", this.Id, this.battle_record_list)
+	}
+}
+
 func (this *Player) GetBattleRecordList() int32 {
 	var record_list []*msg_client_message.BattleRecordData
-	all := this.db.BattleSaves.GetAllIndex()
-	if all != nil {
-		for i := 0; i < len(all); i++ {
-			row := dbc.BattleSaves.GetRow(all[i])
+	if this.battle_record_list != nil {
+		for i := 0; i < len(this.battle_record_list); i++ {
+			row := dbc.BattleSaves.GetRow(this.battle_record_list[i])
 			if row != nil {
 				record := &msg_client_message.BattleRecordData{}
 				record.RecordId = row.GetId()

@@ -784,6 +784,7 @@ func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
 type dbPlayerBattleSaveData struct{
 	Id int32
 	Side int32
+	SaveTime int32
 }
 func (this* dbPlayerBattleSaveData)from_pb(pb *db.PlayerBattleSave){
 	if pb == nil {
@@ -791,17 +792,20 @@ func (this* dbPlayerBattleSaveData)from_pb(pb *db.PlayerBattleSave){
 	}
 	this.Id = pb.GetId()
 	this.Side = pb.GetSide()
+	this.SaveTime = pb.GetSaveTime()
 	return
 }
 func (this* dbPlayerBattleSaveData)to_pb()(pb *db.PlayerBattleSave){
 	pb = &db.PlayerBattleSave{}
 	pb.Id = proto.Int32(this.Id)
 	pb.Side = proto.Int32(this.Side)
+	pb.SaveTime = proto.Int32(this.SaveTime)
 	return
 }
 func (this* dbPlayerBattleSaveData)clone_to(d *dbPlayerBattleSaveData){
 	d.Id = this.Id
 	d.Side = this.Side
+	d.SaveTime = this.SaveTime
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -4012,6 +4016,28 @@ func (this *dbPlayerBattleSaveColumn)SetSide(id int32,v int32)(has bool){
 		return
 	}
 	d.Side = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerBattleSaveColumn)GetSaveTime(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleSaveColumn.GetSaveTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.SaveTime
+	return v,true
+}
+func (this *dbPlayerBattleSaveColumn)SetSaveTime(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerBattleSaveColumn.SetSaveTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.SaveTime = v
 	this.m_changed = true
 	return true
 }

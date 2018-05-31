@@ -662,17 +662,14 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	// 增伤减伤总和
 	damage_add := self.attrs[ATTR_TOTAL_DAMAGE_ADD]
 	damage_sub := target.attrs[ATTR_TOTAL_DAMAGE_SUB]
-	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@ Start team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 
 	// 类型
 	if skill_type == SKILL_TYPE_NORMAL {
 		damage_add += self.attrs[ATTR_NORMAL_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_NORMAL_DAMAGE_SUB]
-		log.Debug("@@@@@@@@@@@@@@@ skill normal Team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 	} else if skill_type == SKILL_TYPE_SUPER {
 		damage_add += self.attrs[ATTR_RAGE_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_RAGE_DAMAGE_SUB]
-		log.Debug("@@@@@@@@@@@@@@@ skill super Team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 	} else if skill_type == SKILL_TYPE_PASSIVE {
 
 	} else {
@@ -684,11 +681,9 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
 		damage_add += self.attrs[ATTR_CLOSE_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_CLOSE_DAMAGE_SUB]
-		log.Debug("@@@@@@@@@@@@@@@ skill melee Team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 	} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
 		damage_add += self.attrs[ATTR_REMOTE_DAMAGE_ADD]
 		damage_sub += target.attrs[ATTR_REMOTE_DAMAGE_SUB]
-		log.Debug("@@@@@@@@@@@@@@@ skill remote Team[%v] member[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, damage_add, damage_sub)
 	} else if skill_fight_type == SKILL_FIGHT_TYPE_NONE {
 
 	} else {
@@ -736,7 +731,6 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	if defense < 0 {
 		defense = 0
 	}
-	old_attack := self.attrs[ATTR_ATTACK]
 	attack := self.attrs[ATTR_ATTACK] - defense
 	attack1 := self.attrs[ATTR_ATTACK] * self.attrs[ATTR_ATTACK] / (self.attrs[ATTR_ATTACK] + defense) / 5
 	if attack < attack1 {
@@ -768,7 +762,6 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		if critical > rand.Int31n(10000) {
 			target_damage *= int32(math.Max(1.5, float64((20000+self.attrs[ATTR_CRITICAL_MULTI])/10000)))
 			is_critical = true
-			log.Debug("####### target_damage[%v]", target_damage)
 		}
 	}
 	if !is_critical {
@@ -777,7 +770,6 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		if block > rand.Int31n(10000) {
 			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64((5000-target.attrs[ATTR_BLOCK_DEFENSE_RATE]))/10000))))
 			is_block = true
-			log.Debug("@@@@@@@ target_damage[%v]", target_damage)
 		}
 	}
 
@@ -802,7 +794,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		}
 	}
 
-	log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@ Team[%v] member[%v] attack[%v] defense[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, old_attack, defense, damage_add, damage_sub)
+	//log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@ Team[%v] member[%v] attack[%v] defense[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, old_attack, defense, damage_add, damage_sub)
 
 	return
 }

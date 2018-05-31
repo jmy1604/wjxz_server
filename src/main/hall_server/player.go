@@ -103,6 +103,9 @@ type Player struct {
 	stage_id        int32
 	stage_wave      int32
 
+	battle_record_list  []int32 // 战斗录像，按时间排序
+	battle_record_count int32   // 录像数
+
 	roles_id_change_info IdChangeInfo    // 角色增删更新
 	items_changed_info   map[int32]int32 // 物品增删更新
 	tmp_cache_items      map[int32]int32
@@ -277,6 +280,7 @@ func (this *Player) OnLogin() {
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	this.team_member_mgr = make(map[int32]*TeamMember)
+	this.init_battle_record_list()
 }
 
 func (this *Player) OnLogout() {
