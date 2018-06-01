@@ -8,7 +8,7 @@
 	"MaxEnergy":60,
 	"EnergyAdd":20,
 	
-	"HeartbeatInterval":60,
+	"HeartbeatInterval":6000,
 	
 	"MailMaxCount":300,
 	"MailExistDays":14,
