@@ -104,24 +104,6 @@ message PlayerNotifyStateList{
 	repeated PlayerNotifyState List=1;
 }
 
-message PlayerShopItem{
-	optional int32 Id=1;
-	optional int32 LeftNum=2;
-}
-
-message PlayerShopItemList{
-	repeated PlayerShopItem List=1;
-}
-
-message PlayerShopLimitedInfo{
-	optional int32 LimitedDays=1;
-	optional int32 LastSaveTime=2;
-}
-
-message PlayerShopLimitedInfoList{
-	repeated PlayerShopLimitedInfo List=1;
-}
-
 message PlayerMailCommon{
 	optional int32 CurrId=1;
 	optional int32 FirstId=2;
@@ -153,6 +135,33 @@ message PlayerBattleSave{
 
 message PlayerBattleSaveList{
 	repeated PlayerBattleSave List=1;
+}
+
+message PlayerTalent{
+	optional int32 Id=1;
+	optional int32 Level=2;
+}
+
+message PlayerTalentList{
+	repeated PlayerTalent List=1;
+}
+
+message PlayerShopItem{
+	optional int32 Id=1;
+	optional int32 LeftNum=2;
+}
+
+message PlayerShopItemList{
+	repeated PlayerShopItem List=1;
+}
+
+message PlayerShopLimitedInfo{
+	optional int32 LimitedDays=1;
+	optional int32 LastSaveTime=2;
+}
+
+message PlayerShopLimitedInfoList{
+	repeated PlayerShopLimitedInfo List=1;
 }
 
 message PlayerDialyTask{

@@ -62,15 +62,13 @@ enum E_ERR {
 	PLAYER_MAIL_SEND_FAILED					= -14003; // 发送邮件失败
 	PLAYER_MAIL_RECEIVER_NOT_FOUND			= -14004; // 邮件接受者不存在
 	PLAYER_MAIL_TRIBE_IS_COOLDOWN			= -14005; // 部落邮件发送冷却中
+	
+	// 天赋
+	PLAYER_TALENT_NOT_FOUND					= -15000; // 没有该天赋
+	PLAYER_TALENT_LEVEL_IS_MAX				= -15001; // 天赋等级已满
+	PLAYER_TALENT_UP_NOT_ENOUGH_RESOURCE	= -15002; // 天赋升级没有足够资源
 		
 	// 玩家
-	PLAYER_ALREADY_ZAN_TODAY 				= -100000; // 今天已经赞过
-	PLAYER_RENAME_NEW_CANT_SAME_TO_OLD 		= -100001; // 昵称不能与原来相同
-	PLAYER_RENAME_NEW_CANT_EMPTY			= -100002; // 新昵称不能为空
-	PLAYER_RENAME_REMOVE_OLD_FAILED 		= -100003; // 旧昵称删除失败
-	PLAYER_RENAME_TOO_LONG_NAME				= -100004; // 新昵称太长
-	PLAYER_RENAME_NOT_ENOUGH_DIAMOND		= -100005; // 改昵称钻石不足
-	
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
 	CHARGE_ORDER_DATA_INVALID				= -200001;
 	CHARGE_ORDER_SIGNATURE_INVALID			= -200002;
@@ -300,7 +298,7 @@ message BattleMemberItem {
 	int32 Side								= 9; // 0 左  1 右
 }
 
-// 受击成员
+// 战斗成员
 message BattleFighter {
 	int32 Pos								= 1; // 位置
 	int32 HP								= 2; // 血量
@@ -353,8 +351,8 @@ message S2CBattleResultResponse {
 	repeated BattleMemberItem TargetTeam	= 3; // 战斗前敌方阵容
 	repeated BattleReportItem EnterReports 	= 4; // 进场时战报，一般是被动技效果
 	repeated BattleRoundReports Rounds 		= 5; // 回合
-	map<int32, int32> MyMemberDamages		= 6; // 我方攻击者统计伤害
-	map<int32, int32> TargetMemberDamages 	= 7; // 敌方攻击者伤害统计
+	map<int32, int32> MyMemberDamages		= 6; // 我方伤害统计
+	map<int32, int32> TargetMemberDamages 	= 7; // 敌方伤害统计
 	map<int32, int32> MyMemberCures			= 8; // 我方治疗统计
 	map<int32, int32> TargetMemberCures   	= 9; // 敌方治疗统计
 	bool HasNextWave						= 10; // 关卡是否有下一波战斗

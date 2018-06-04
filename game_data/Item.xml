@@ -1,146 +1,156 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item ID="1" ItemType="1" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="2" ItemType="3" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="3" ItemType="1" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="4" ItemType="3" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="5" ItemType="3" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="6" ItemType="3" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="7" ItemType="1" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="8" ItemType="1" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="9" ItemType="1" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10" ItemType="3" EquipType="0" Quality="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10001" ItemType="2" EquipType="1" Quality="1" EquipAttr="3,10" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10002" ItemType="2" EquipType="1" Quality="1" EquipAttr="3,20" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10003" ItemType="2" EquipType="1" Quality="2" EquipAttr="3,40" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10004" ItemType="2" EquipType="1" Quality="2" EquipAttr="3,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10005" ItemType="2" EquipType="1" Quality="3" EquipAttr="3,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10006" ItemType="2" EquipType="1" Quality="3" EquipAttr="3,160" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10007" ItemType="2" EquipType="1" Quality="3" EquipAttr="3,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11001" ItemType="2" EquipType="2" Quality="1" EquipAttr="1,100" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11002" ItemType="2" EquipType="2" Quality="1" EquipAttr="1,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11003" ItemType="2" EquipType="2" Quality="2" EquipAttr="1,400" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11004" ItemType="2" EquipType="2" Quality="2" EquipAttr="1,800" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11005" ItemType="2" EquipType="2" Quality="3" EquipAttr="1,1200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11006" ItemType="2" EquipType="2" Quality="3" EquipAttr="1,1600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11007" ItemType="2" EquipType="2" Quality="3" EquipAttr="1,2000" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12001" ItemType="2" EquipType="3" Quality="1" EquipAttr="3,3,1,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12002" ItemType="2" EquipType="3" Quality="1" EquipAttr="3,6,1,60" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12003" ItemType="2" EquipType="3" Quality="2" EquipAttr="3,12,1,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12004" ItemType="2" EquipType="3" Quality="2" EquipAttr="3,24,1,240" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12005" ItemType="2" EquipType="3" Quality="3" EquipAttr="3,36,1,360" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12006" ItemType="2" EquipType="3" Quality="3" EquipAttr="3,48,1,480" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12007" ItemType="2" EquipType="3" Quality="3" EquipAttr="3,60,1,600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13001" ItemType="2" EquipType="4" Quality="1" EquipAttr="3,3,4,6" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13002" ItemType="2" EquipType="4" Quality="1" EquipAttr="3,6,4,12" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13003" ItemType="2" EquipType="4" Quality="2" EquipAttr="3,12,4,24" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13004" ItemType="2" EquipType="4" Quality="2" EquipAttr="3,24,4,48" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13005" ItemType="2" EquipType="4" Quality="3" EquipAttr="3,36,4,72" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13006" ItemType="2" EquipType="4" Quality="3" EquipAttr="3,48,4,96" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13007" ItemType="2" EquipType="4" Quality="3" EquipAttr="3,60,4,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20001" ItemType="2" EquipType="2" Quality="0" EquipAttr="36,20000" EquipSkill="60021,60022" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20002" ItemType="2" EquipType="2" Quality="0" EquipAttr="" EquipSkill="60023" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20011" ItemType="2" EquipType="2" Quality="0" EquipAttr="" EquipSkill="60001,60002,60003,60004" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20012" ItemType="2" EquipType="2" Quality="0" EquipAttr="" EquipSkill="60005,60006,60007,60008" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20013" ItemType="2" EquipType="2" Quality="0" EquipAttr="" EquipSkill="60009,60010,60011,60012" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21001" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,10,20,10" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21002" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,20,20,20" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21003" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,30,20,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21004" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,40,20,40" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21005" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,50,20,50" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21006" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,60,20,60" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21007" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,70,20,70" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21008" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,80,20,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21009" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,90,20,90" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21010" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,100,20,100" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21011" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,110,20,110" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21012" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,120,20,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21013" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,130,20,130" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21014" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,140,20,140" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21015" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,150,20,150" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21016" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,160,20,160" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21017" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,170,20,170" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21018" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,180,20,180" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21019" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,190,20,190" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21020" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,200,20,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21021" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,210,20,210" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21022" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,220,20,220" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21023" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,230,20,230" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21024" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,240,20,240" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21025" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,250,20,250" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21026" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,260,20,260" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21027" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,270,20,270" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21028" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,280,20,280" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21029" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,290,20,290" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21030" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,300,20,300" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21031" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,310,20,310" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21032" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,320,20,320" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21033" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,330,20,330" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21034" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,340,20,340" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21035" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,350,20,350" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21036" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,360,20,360" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21037" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,370,20,370" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21038" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,380,20,380" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21039" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,390,20,390" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21040" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,400,20,400" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21041" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,410,20,410" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21042" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,420,20,420" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21043" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,430,20,430" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21044" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,440,20,440" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21045" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,450,20,450" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21046" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,460,20,460" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21047" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,470,20,470" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21048" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,480,20,480" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21049" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,490,20,490" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21050" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,500,20,500" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21051" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,510,20,510" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21052" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,520,20,520" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21053" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,530,20,530" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21054" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,540,20,540" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21055" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,550,20,550" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21056" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,560,20,560" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21057" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,570,20,570" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21058" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,580,20,580" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21059" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,590,20,590" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21060" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,600,20,600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21061" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,610,20,610" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21062" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,620,20,620" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21063" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,630,20,630" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21064" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,640,20,640" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21065" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,650,20,650" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21066" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,660,20,660" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21067" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,670,20,670" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21068" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,680,20,680" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21069" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,690,20,690" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21070" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,700,20,700" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21071" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,710,20,710" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21072" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,720,20,720" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21073" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,730,20,730" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21074" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,740,20,740" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21075" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,750,20,750" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21076" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,760,20,760" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21077" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,770,20,770" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21078" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,780,20,780" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21079" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,790,20,790" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21080" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,800,20,800" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21081" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,810,20,810" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21082" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,820,20,820" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21083" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,830,20,830" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21084" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,840,20,840" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21085" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,850,20,850" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21086" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,860,20,860" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21087" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,870,20,870" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21088" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,880,20,880" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21089" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,890,20,890" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21090" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,900,20,900" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21091" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,910,20,910" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21092" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,920,20,920" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21093" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,930,20,930" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21094" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,940,20,940" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21095" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,950,20,950" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21096" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,960,20,960" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21097" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,970,20,970" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21098" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,980,20,980" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21099" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,990,20,990" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21100" ItemType="2" EquipType="1" Quality="0" EquipAttr="15,1000,20,1000" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="1" ItemType="1" EquipType="0" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="2" ItemType="3" EquipType="0" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="3" ItemType="1" EquipType="0" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="4" ItemType="3" EquipType="0" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="5" ItemType="3" EquipType="0" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="6" ItemType="3" EquipType="0" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="7" ItemType="1" EquipType="0" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="8" ItemType="1" EquipType="0" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="9" ItemType="1" EquipType="0" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="10" ItemType="3" EquipType="0" Quality="1" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="10001" ItemType="2" EquipType="1" Quality="1" ShowStar ="1" EquipAttr="3,10" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="10002" ItemType="2" EquipType="1" Quality="1" ShowStar ="1" EquipAttr="3,20" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="10003" ItemType="2" EquipType="1" Quality="2" ShowStar ="2" EquipAttr="3,40" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="10004" ItemType="2" EquipType="1" Quality="2" ShowStar ="2" EquipAttr="3,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="10005" ItemType="2" EquipType="1" Quality="3" ShowStar ="3" EquipAttr="3,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="10006" ItemType="2" EquipType="1" Quality="3" ShowStar ="3" EquipAttr="3,160" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="10007" ItemType="2" EquipType="1" Quality="3" ShowStar ="3" EquipAttr="3,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="11001" ItemType="2" EquipType="2" Quality="1" ShowStar ="1" EquipAttr="1,100" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="11002" ItemType="2" EquipType="2" Quality="1" ShowStar ="1" EquipAttr="1,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="11003" ItemType="2" EquipType="2" Quality="2" ShowStar ="2" EquipAttr="1,400" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="11004" ItemType="2" EquipType="2" Quality="2" ShowStar ="2" EquipAttr="1,800" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="11005" ItemType="2" EquipType="2" Quality="3" ShowStar ="3" EquipAttr="1,1200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="11006" ItemType="2" EquipType="2" Quality="3" ShowStar ="3" EquipAttr="1,1600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="11007" ItemType="2" EquipType="2" Quality="3" ShowStar ="3" EquipAttr="1,2000" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="12001" ItemType="2" EquipType="3" Quality="1" ShowStar ="1" EquipAttr="3,3,1,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="12002" ItemType="2" EquipType="3" Quality="1" ShowStar ="1" EquipAttr="3,6,1,60" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="12003" ItemType="2" EquipType="3" Quality="2" ShowStar ="2" EquipAttr="3,12,1,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="12004" ItemType="2" EquipType="3" Quality="2" ShowStar ="2" EquipAttr="3,24,1,240" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="12005" ItemType="2" EquipType="3" Quality="3" ShowStar ="3" EquipAttr="3,36,1,360" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="12006" ItemType="2" EquipType="3" Quality="3" ShowStar ="3" EquipAttr="3,48,1,480" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="12007" ItemType="2" EquipType="3" Quality="3" ShowStar ="3" EquipAttr="3,60,1,600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="13001" ItemType="2" EquipType="4" Quality="1" ShowStar ="1" EquipAttr="3,3,4,6" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="13002" ItemType="2" EquipType="4" Quality="1" ShowStar ="1" EquipAttr="3,6,4,12" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="13003" ItemType="2" EquipType="4" Quality="2" ShowStar ="2" EquipAttr="3,12,4,24" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="13004" ItemType="2" EquipType="4" Quality="2" ShowStar ="2" EquipAttr="3,24,4,48" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="13005" ItemType="2" EquipType="4" Quality="3" ShowStar ="3" EquipAttr="3,36,4,72" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="13006" ItemType="2" EquipType="4" Quality="3" ShowStar ="3" EquipAttr="3,48,4,96" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="13007" ItemType="2" EquipType="4" Quality="3" ShowStar ="3" EquipAttr="3,60,4,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15001" ItemType="2" EquipType="6" Quality="1" ShowStar ="1" EquipAttr="1,100,4,12" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15002" ItemType="2" EquipType="6" Quality="1" ShowStar ="2" EquipAttr="1,150,4,18" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15003" ItemType="2" EquipType="6" Quality="1" ShowStar ="3" EquipAttr="1,200,4,24" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15004" ItemType="2" EquipType="6" Quality="1" ShowStar ="4" EquipAttr="1,250,4,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15005" ItemType="2" EquipType="6" Quality="1" ShowStar ="5" EquipAttr="1,300,4,36" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15006" ItemType="2" EquipType="6" Quality="1" ShowStar ="1" EquipAttr="3,32" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15007" ItemType="2" EquipType="6" Quality="1" ShowStar ="2" EquipAttr="3,48" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15008" ItemType="2" EquipType="6" Quality="1" ShowStar ="3" EquipAttr="3,64" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15009" ItemType="2" EquipType="6" Quality="1" ShowStar ="4" EquipAttr="3,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="15010" ItemType="2" EquipType="6" Quality="1" ShowStar ="5" EquipAttr="3,96" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="20001" ItemType="2" EquipType="2" Quality="0" ShowStar ="0" EquipAttr="36,20000" EquipSkill="60021,60022" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="20002" ItemType="2" EquipType="2" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60023" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="20011" ItemType="2" EquipType="2" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60001,60002,60003,60004" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="20012" ItemType="2" EquipType="2" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60005,60006,60007,60008" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="20013" ItemType="2" EquipType="2" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60009,60010,60011,60012" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21001" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,10,20,10" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21002" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,20,20,20" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21003" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,30,20,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21004" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,40,20,40" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21005" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,50,20,50" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21006" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,60,20,60" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21007" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,70,20,70" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21008" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,80,20,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21009" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,90,20,90" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21010" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,100,20,100" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21011" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,110,20,110" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21012" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,120,20,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21013" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,130,20,130" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21014" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,140,20,140" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21015" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,150,20,150" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21016" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,160,20,160" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21017" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,170,20,170" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21018" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,180,20,180" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21019" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,190,20,190" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21020" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,200,20,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21021" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,210,20,210" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21022" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,220,20,220" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21023" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,230,20,230" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21024" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,240,20,240" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21025" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,250,20,250" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21026" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,260,20,260" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21027" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,270,20,270" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21028" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,280,20,280" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21029" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,290,20,290" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21030" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,300,20,300" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21031" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,310,20,310" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21032" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,320,20,320" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21033" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,330,20,330" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21034" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,340,20,340" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21035" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,350,20,350" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21036" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,360,20,360" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21037" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,370,20,370" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21038" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,380,20,380" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21039" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,390,20,390" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21040" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,400,20,400" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21041" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,410,20,410" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21042" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,420,20,420" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21043" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,430,20,430" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21044" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,440,20,440" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21045" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,450,20,450" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21046" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,460,20,460" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21047" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,470,20,470" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21048" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,480,20,480" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21049" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,490,20,490" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21050" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,500,20,500" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21051" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,510,20,510" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21052" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,520,20,520" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21053" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,530,20,530" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21054" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,540,20,540" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21055" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,550,20,550" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21056" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,560,20,560" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21057" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,570,20,570" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21058" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,580,20,580" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21059" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,590,20,590" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21060" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,600,20,600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21061" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,610,20,610" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21062" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,620,20,620" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21063" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,630,20,630" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21064" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,640,20,640" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21065" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,650,20,650" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21066" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,660,20,660" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21067" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,670,20,670" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21068" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,680,20,680" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21069" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,690,20,690" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21070" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,700,20,700" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21071" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,710,20,710" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21072" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,720,20,720" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21073" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,730,20,730" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21074" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,740,20,740" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21075" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,750,20,750" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21076" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,760,20,760" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21077" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,770,20,770" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21078" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,780,20,780" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21079" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,790,20,790" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21080" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,800,20,800" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21081" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,810,20,810" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21082" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,820,20,820" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21083" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,830,20,830" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21084" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,840,20,840" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21085" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,850,20,850" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21086" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,860,20,860" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21087" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,870,20,870" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21088" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,880,20,880" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21089" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,890,20,890" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21090" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,900,20,900" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21091" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,910,20,910" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21092" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,920,20,920" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21093" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,930,20,930" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21094" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,940,20,940" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21095" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,950,20,950" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21096" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,960,20,960" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21097" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,970,20,970" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21098" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,980,20,980" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21099" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,990,20,990" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
+     <item ID="21100" ItemType="2" EquipType="1" Quality="0" ShowStar ="0" EquipAttr="15,1000,20,1000" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
 </Config>

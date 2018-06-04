@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+const (
+	USE_CONN_TIMER_WHEEL = 1
+)
+
 type conn_op_data struct {
 	op        int32
 	player_id int32
@@ -96,7 +100,8 @@ func (this *ConnTimerWheel) Run() {
 
 	for {
 		// 处理操作队列
-		for {
+		is_break := false
+		for !is_break {
 			select {
 			case d, ok := <-this.op_chan:
 				{
@@ -113,12 +118,10 @@ func (this *ConnTimerWheel) Run() {
 				}
 			default:
 				{
-					break
+					is_break = true
 				}
 			}
 		}
-
-		var players []*Player
 
 		now_time := int32(time.Now().Unix())
 		if this.last_check_time == 0 {
@@ -147,8 +150,9 @@ func (this *ConnTimerWheel) Run() {
 					for t != nil {
 						p := player_mgr.GetPlayerById(t.player_id)
 						if p != nil {
-							players = append(players, p)
 							log.Debug("############### to offline player[%v]", t.player_id)
+							this.remove(p.Id)
+							p.OnLogout()
 						}
 						t = t.next
 					}
@@ -161,15 +165,6 @@ func (this *ConnTimerWheel) Run() {
 			}
 			this.curr_timer_index = idx
 			this.last_check_time = now_time
-		}
-
-		if players != nil {
-			for i := 0; i < len(players); i++ {
-				if players[i] != nil {
-					this.remove(players[i].Id)
-					players[i].OnLogout()
-				}
-			}
 		}
 
 		time.Sleep(time.Second * 1)
