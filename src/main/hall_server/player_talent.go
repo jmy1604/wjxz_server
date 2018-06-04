@@ -52,7 +52,7 @@ func (this *Player) add_talent_attr(team *BattleTeam) {
 		return
 	}
 
-	for i := 0; i < len(team.members); i++ {
+	for i := 0; i < len(all_tid); i++ {
 		lvl, _ := this.db.Talents.GetLevel(all_tid[i])
 		t := talent_table_mgr.GetByIdLevel(all_tid[i], lvl)
 		if t == nil {
