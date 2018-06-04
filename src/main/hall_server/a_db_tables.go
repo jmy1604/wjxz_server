@@ -632,52 +632,6 @@ func (this* dbPlayerNotifyStateData)clone_to(d *dbPlayerNotifyStateData){
 	d.ModuleType = this.ModuleType
 	return
 }
-type dbPlayerShopItemData struct{
-	Id int32
-	LeftNum int32
-}
-func (this* dbPlayerShopItemData)from_pb(pb *db.PlayerShopItem){
-	if pb == nil {
-		return
-	}
-	this.Id = pb.GetId()
-	this.LeftNum = pb.GetLeftNum()
-	return
-}
-func (this* dbPlayerShopItemData)to_pb()(pb *db.PlayerShopItem){
-	pb = &db.PlayerShopItem{}
-	pb.Id = proto.Int32(this.Id)
-	pb.LeftNum = proto.Int32(this.LeftNum)
-	return
-}
-func (this* dbPlayerShopItemData)clone_to(d *dbPlayerShopItemData){
-	d.Id = this.Id
-	d.LeftNum = this.LeftNum
-	return
-}
-type dbPlayerShopLimitedInfoData struct{
-	LimitedDays int32
-	LastSaveTime int32
-}
-func (this* dbPlayerShopLimitedInfoData)from_pb(pb *db.PlayerShopLimitedInfo){
-	if pb == nil {
-		return
-	}
-	this.LimitedDays = pb.GetLimitedDays()
-	this.LastSaveTime = pb.GetLastSaveTime()
-	return
-}
-func (this* dbPlayerShopLimitedInfoData)to_pb()(pb *db.PlayerShopLimitedInfo){
-	pb = &db.PlayerShopLimitedInfo{}
-	pb.LimitedDays = proto.Int32(this.LimitedDays)
-	pb.LastSaveTime = proto.Int32(this.LastSaveTime)
-	return
-}
-func (this* dbPlayerShopLimitedInfoData)clone_to(d *dbPlayerShopLimitedInfoData){
-	d.LimitedDays = this.LimitedDays
-	d.LastSaveTime = this.LastSaveTime
-	return
-}
 type dbPlayerMailCommonData struct{
 	CurrId int32
 	FirstId int32
@@ -806,6 +760,75 @@ func (this* dbPlayerBattleSaveData)clone_to(d *dbPlayerBattleSaveData){
 	d.Id = this.Id
 	d.Side = this.Side
 	d.SaveTime = this.SaveTime
+	return
+}
+type dbPlayerTalentData struct{
+	Id int32
+	Level int32
+}
+func (this* dbPlayerTalentData)from_pb(pb *db.PlayerTalent){
+	if pb == nil {
+		return
+	}
+	this.Id = pb.GetId()
+	this.Level = pb.GetLevel()
+	return
+}
+func (this* dbPlayerTalentData)to_pb()(pb *db.PlayerTalent){
+	pb = &db.PlayerTalent{}
+	pb.Id = proto.Int32(this.Id)
+	pb.Level = proto.Int32(this.Level)
+	return
+}
+func (this* dbPlayerTalentData)clone_to(d *dbPlayerTalentData){
+	d.Id = this.Id
+	d.Level = this.Level
+	return
+}
+type dbPlayerShopItemData struct{
+	Id int32
+	LeftNum int32
+}
+func (this* dbPlayerShopItemData)from_pb(pb *db.PlayerShopItem){
+	if pb == nil {
+		return
+	}
+	this.Id = pb.GetId()
+	this.LeftNum = pb.GetLeftNum()
+	return
+}
+func (this* dbPlayerShopItemData)to_pb()(pb *db.PlayerShopItem){
+	pb = &db.PlayerShopItem{}
+	pb.Id = proto.Int32(this.Id)
+	pb.LeftNum = proto.Int32(this.LeftNum)
+	return
+}
+func (this* dbPlayerShopItemData)clone_to(d *dbPlayerShopItemData){
+	d.Id = this.Id
+	d.LeftNum = this.LeftNum
+	return
+}
+type dbPlayerShopLimitedInfoData struct{
+	LimitedDays int32
+	LastSaveTime int32
+}
+func (this* dbPlayerShopLimitedInfoData)from_pb(pb *db.PlayerShopLimitedInfo){
+	if pb == nil {
+		return
+	}
+	this.LimitedDays = pb.GetLimitedDays()
+	this.LastSaveTime = pb.GetLastSaveTime()
+	return
+}
+func (this* dbPlayerShopLimitedInfoData)to_pb()(pb *db.PlayerShopLimitedInfo){
+	pb = &db.PlayerShopLimitedInfo{}
+	pb.LimitedDays = proto.Int32(this.LimitedDays)
+	pb.LastSaveTime = proto.Int32(this.LastSaveTime)
+	return
+}
+func (this* dbPlayerShopLimitedInfoData)clone_to(d *dbPlayerShopLimitedInfoData){
+	d.LimitedDays = this.LimitedDays
+	d.LastSaveTime = this.LastSaveTime
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -3130,316 +3153,6 @@ func (this *dbPlayerNotifyStateColumn)NumAll()(n int32){
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
 }
-type dbPlayerShopItemColumn struct{
-	m_row *dbPlayerRow
-	m_data map[int32]*dbPlayerShopItemData
-	m_changed bool
-}
-func (this *dbPlayerShopItemColumn)load(data []byte)(err error){
-	if data == nil || len(data) == 0 {
-		this.m_changed = false
-		return nil
-	}
-	pb := &db.PlayerShopItemList{}
-	err = proto.Unmarshal(data, pb)
-	if err != nil {
-		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	for _, v := range pb.List {
-		d := &dbPlayerShopItemData{}
-		d.from_pb(v)
-		this.m_data[int32(d.Id)] = d
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerShopItemColumn)save( )(data []byte,err error){
-	pb := &db.PlayerShopItemList{}
-	pb.List=make([]*db.PlayerShopItem,len(this.m_data))
-	i:=0
-	for _, v := range this.m_data {
-		pb.List[i] = v.to_pb()
-		i++
-	}
-	data, err = proto.Marshal(pb)
-	if err != nil {
-		log.Error("Marshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerShopItemColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.HasIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	_, has = this.m_data[id]
-	return
-}
-func (this *dbPlayerShopItemColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetAllIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]int32, len(this.m_data))
-	i := 0
-	for k, _ := range this.m_data {
-		list[i] = k
-		i++
-	}
-	return
-}
-func (this *dbPlayerShopItemColumn)GetAll()(list []dbPlayerShopItemData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbPlayerShopItemData, len(this.m_data))
-	i := 0
-	for _, v := range this.m_data {
-		v.clone_to(&list[i])
-		i++
-	}
-	return
-}
-func (this *dbPlayerShopItemColumn)Get(id int32)(v *dbPlayerShopItemData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.Get")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return nil
-	}
-	v=&dbPlayerShopItemData{}
-	d.clone_to(v)
-	return
-}
-func (this *dbPlayerShopItemColumn)Set(v dbPlayerShopItemData)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Set")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.Id)]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Id)
-		return false
-	}
-	v.clone_to(d)
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerShopItemColumn)Add(v *dbPlayerShopItemData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Add")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.Id)]
-	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
-		return false
-	}
-	d:=&dbPlayerShopItemData{}
-	v.clone_to(d)
-	this.m_data[int32(v.Id)]=d
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerShopItemColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Remove")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[id]
-	if has {
-		delete(this.m_data,id)
-	}
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerShopItemColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Clear")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbPlayerShopItemData)
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerShopItemColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.NumAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	return int32(len(this.m_data))
-}
-func (this *dbPlayerShopItemColumn)GetLeftNum(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetLeftNum")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.LeftNum
-	return v,true
-}
-func (this *dbPlayerShopItemColumn)SetLeftNum(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.SetLeftNum")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.LeftNum = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerShopItemColumn)IncbyLeftNum(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.IncbyLeftNum")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		d = &dbPlayerShopItemData{}
-		this.m_data[id] = d
-	}
-	d.LeftNum +=  v
-	this.m_changed = true
-	return d.LeftNum
-}
-type dbPlayerShopLimitedInfoColumn struct{
-	m_row *dbPlayerRow
-	m_data map[int32]*dbPlayerShopLimitedInfoData
-	m_changed bool
-}
-func (this *dbPlayerShopLimitedInfoColumn)load(data []byte)(err error){
-	if data == nil || len(data) == 0 {
-		this.m_changed = false
-		return nil
-	}
-	pb := &db.PlayerShopLimitedInfoList{}
-	err = proto.Unmarshal(data, pb)
-	if err != nil {
-		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	for _, v := range pb.List {
-		d := &dbPlayerShopLimitedInfoData{}
-		d.from_pb(v)
-		this.m_data[int32(d.LimitedDays)] = d
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerShopLimitedInfoColumn)save( )(data []byte,err error){
-	pb := &db.PlayerShopLimitedInfoList{}
-	pb.List=make([]*db.PlayerShopLimitedInfo,len(this.m_data))
-	i:=0
-	for _, v := range this.m_data {
-		pb.List[i] = v.to_pb()
-		i++
-	}
-	data, err = proto.Marshal(pb)
-	if err != nil {
-		log.Error("Marshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerShopLimitedInfoColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.HasIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	_, has = this.m_data[id]
-	return
-}
-func (this *dbPlayerShopLimitedInfoColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.GetAllIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]int32, len(this.m_data))
-	i := 0
-	for k, _ := range this.m_data {
-		list[i] = k
-		i++
-	}
-	return
-}
-func (this *dbPlayerShopLimitedInfoColumn)GetAll()(list []dbPlayerShopLimitedInfoData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.GetAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbPlayerShopLimitedInfoData, len(this.m_data))
-	i := 0
-	for _, v := range this.m_data {
-		v.clone_to(&list[i])
-		i++
-	}
-	return
-}
-func (this *dbPlayerShopLimitedInfoColumn)Get(id int32)(v *dbPlayerShopLimitedInfoData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.Get")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return nil
-	}
-	v=&dbPlayerShopLimitedInfoData{}
-	d.clone_to(v)
-	return
-}
-func (this *dbPlayerShopLimitedInfoColumn)Set(v dbPlayerShopLimitedInfoData)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.Set")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.LimitedDays)]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.LimitedDays)
-		return false
-	}
-	v.clone_to(d)
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerShopLimitedInfoColumn)Add(v *dbPlayerShopLimitedInfoData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.Add")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.LimitedDays)]
-	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.LimitedDays)
-		return false
-	}
-	d:=&dbPlayerShopLimitedInfoData{}
-	v.clone_to(d)
-	this.m_data[int32(v.LimitedDays)]=d
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerShopLimitedInfoColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.Remove")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[id]
-	if has {
-		delete(this.m_data,id)
-	}
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerShopLimitedInfoColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.Clear")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbPlayerShopLimitedInfoData)
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerShopLimitedInfoColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.NumAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	return int32(len(this.m_data))
-}
-func (this *dbPlayerShopLimitedInfoColumn)GetLastSaveTime(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.GetLastSaveTime")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.LastSaveTime
-	return v,true
-}
-func (this *dbPlayerShopLimitedInfoColumn)SetLastSaveTime(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.SetLastSaveTime")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.LastSaveTime = v
-	this.m_changed = true
-	return true
-}
 type dbPlayerMailCommonColumn struct{
 	m_row *dbPlayerRow
 	m_data *dbPlayerMailCommonData
@@ -4038,6 +3751,465 @@ func (this *dbPlayerBattleSaveColumn)SetSaveTime(id int32,v int32)(has bool){
 		return
 	}
 	d.SaveTime = v
+	this.m_changed = true
+	return true
+}
+type dbPlayerTalentColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerTalentData
+	m_changed bool
+}
+func (this *dbPlayerTalentColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerTalentList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerTalentData{}
+		d.from_pb(v)
+		this.m_data[int32(d.Id)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerTalentColumn)save( )(data []byte,err error){
+	pb := &db.PlayerTalentList{}
+	pb.List=make([]*db.PlayerTalent,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerTalentColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTalentColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerTalentColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTalentColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerTalentColumn)GetAll()(list []dbPlayerTalentData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTalentColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerTalentData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerTalentColumn)Get(id int32)(v *dbPlayerTalentData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTalentColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerTalentData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerTalentColumn)Set(v dbPlayerTalentData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerTalentColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.Id)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Id)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerTalentColumn)Add(v *dbPlayerTalentData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerTalentColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.Id)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
+		return false
+	}
+	d:=&dbPlayerTalentData{}
+	v.clone_to(d)
+	this.m_data[int32(v.Id)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerTalentColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerTalentColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerTalentColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerTalentColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerTalentData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerTalentColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTalentColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerTalentColumn)GetLevel(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerTalentColumn.GetLevel")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Level
+	return v,true
+}
+func (this *dbPlayerTalentColumn)SetLevel(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerTalentColumn.SetLevel")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.Level = v
+	this.m_changed = true
+	return true
+}
+type dbPlayerShopItemColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerShopItemData
+	m_changed bool
+}
+func (this *dbPlayerShopItemColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerShopItemList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerShopItemData{}
+		d.from_pb(v)
+		this.m_data[int32(d.Id)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerShopItemColumn)save( )(data []byte,err error){
+	pb := &db.PlayerShopItemList{}
+	pb.List=make([]*db.PlayerShopItem,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerShopItemColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerShopItemColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerShopItemColumn)GetAll()(list []dbPlayerShopItemData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerShopItemData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerShopItemColumn)Get(id int32)(v *dbPlayerShopItemData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerShopItemData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerShopItemColumn)Set(v dbPlayerShopItemData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.Id)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Id)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerShopItemColumn)Add(v *dbPlayerShopItemData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.Id)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
+		return false
+	}
+	d:=&dbPlayerShopItemData{}
+	v.clone_to(d)
+	this.m_data[int32(v.Id)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerShopItemColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerShopItemColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerShopItemData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerShopItemColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerShopItemColumn)GetLeftNum(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetLeftNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.LeftNum
+	return v,true
+}
+func (this *dbPlayerShopItemColumn)SetLeftNum(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.SetLeftNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.LeftNum = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerShopItemColumn)IncbyLeftNum(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.IncbyLeftNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerShopItemData{}
+		this.m_data[id] = d
+	}
+	d.LeftNum +=  v
+	this.m_changed = true
+	return d.LeftNum
+}
+type dbPlayerShopLimitedInfoColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerShopLimitedInfoData
+	m_changed bool
+}
+func (this *dbPlayerShopLimitedInfoColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerShopLimitedInfoList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerShopLimitedInfoData{}
+		d.from_pb(v)
+		this.m_data[int32(d.LimitedDays)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerShopLimitedInfoColumn)save( )(data []byte,err error){
+	pb := &db.PlayerShopLimitedInfoList{}
+	pb.List=make([]*db.PlayerShopLimitedInfo,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerShopLimitedInfoColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerShopLimitedInfoColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerShopLimitedInfoColumn)GetAll()(list []dbPlayerShopLimitedInfoData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerShopLimitedInfoData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerShopLimitedInfoColumn)Get(id int32)(v *dbPlayerShopLimitedInfoData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerShopLimitedInfoData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerShopLimitedInfoColumn)Set(v dbPlayerShopLimitedInfoData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.LimitedDays)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.LimitedDays)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerShopLimitedInfoColumn)Add(v *dbPlayerShopLimitedInfoData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.LimitedDays)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.LimitedDays)
+		return false
+	}
+	d:=&dbPlayerShopLimitedInfoData{}
+	v.clone_to(d)
+	this.m_data[int32(v.LimitedDays)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerShopLimitedInfoColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerShopLimitedInfoColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerShopLimitedInfoData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerShopLimitedInfoColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbPlayerShopLimitedInfoColumn)GetLastSaveTime(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopLimitedInfoColumn.GetLastSaveTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.LastSaveTime
+	return v,true
+}
+func (this *dbPlayerShopLimitedInfoColumn)SetLastSaveTime(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopLimitedInfoColumn.SetLastSaveTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.LastSaveTime = v
 	this.m_changed = true
 	return true
 }
@@ -6885,11 +7057,12 @@ type dbPlayerRow struct {
 	CampaignStaticIncomes dbPlayerCampaignStaticIncomeColumn
 	CampaignRandomIncomes dbPlayerCampaignRandomIncomeColumn
 	NotifyStates dbPlayerNotifyStateColumn
-	ShopItems dbPlayerShopItemColumn
-	ShopLimitedInfos dbPlayerShopLimitedInfoColumn
 	MailCommon dbPlayerMailCommonColumn
 	Mails dbPlayerMailColumn
 	BattleSaves dbPlayerBattleSaveColumn
+	Talents dbPlayerTalentColumn
+	ShopItems dbPlayerShopItemColumn
+	ShopLimitedInfos dbPlayerShopLimitedInfoColumn
 	DialyTasks dbPlayerDialyTaskColumn
 	Achieves dbPlayerAchieveColumn
 	FinishedAchieves dbPlayerFinishedAchieveColumn
@@ -6937,16 +7110,18 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.CampaignRandomIncomes.m_data=make(map[int32]*dbPlayerCampaignRandomIncomeData)
 	this.NotifyStates.m_row=this
 	this.NotifyStates.m_data=make(map[int32]*dbPlayerNotifyStateData)
-	this.ShopItems.m_row=this
-	this.ShopItems.m_data=make(map[int32]*dbPlayerShopItemData)
-	this.ShopLimitedInfos.m_row=this
-	this.ShopLimitedInfos.m_data=make(map[int32]*dbPlayerShopLimitedInfoData)
 	this.MailCommon.m_row=this
 	this.MailCommon.m_data=&dbPlayerMailCommonData{}
 	this.Mails.m_row=this
 	this.Mails.m_data=make(map[int32]*dbPlayerMailData)
 	this.BattleSaves.m_row=this
 	this.BattleSaves.m_data=make(map[int32]*dbPlayerBattleSaveData)
+	this.Talents.m_row=this
+	this.Talents.m_data=make(map[int32]*dbPlayerTalentData)
+	this.ShopItems.m_row=this
+	this.ShopItems.m_data=make(map[int32]*dbPlayerShopItemData)
+	this.ShopLimitedInfos.m_row=this
+	this.ShopLimitedInfos.m_data=make(map[int32]*dbPlayerShopLimitedInfoData)
 	this.DialyTasks.m_row=this
 	this.DialyTasks.m_data=make(map[int32]*dbPlayerDialyTaskData)
 	this.Achieves.m_row=this
@@ -6994,7 +7169,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(37)
+		db_args:=new_db_args(38)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
@@ -7058,18 +7233,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dNotifyStates)
-		dShopItems,db_err:=this.ShopItems.save()
-		if db_err!=nil{
-			log.Error("insert save ShopItem failed")
-			return db_err,false,0,"",nil
-		}
-		db_args.Push(dShopItems)
-		dShopLimitedInfos,db_err:=this.ShopLimitedInfos.save()
-		if db_err!=nil{
-			log.Error("insert save ShopLimitedInfo failed")
-			return db_err,false,0,"",nil
-		}
-		db_args.Push(dShopLimitedInfos)
 		dMailCommon,db_err:=this.MailCommon.save()
 		if db_err!=nil{
 			log.Error("insert save MailCommon failed")
@@ -7088,6 +7251,24 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dBattleSaves)
+		dTalents,db_err:=this.Talents.save()
+		if db_err!=nil{
+			log.Error("insert save Talent failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dTalents)
+		dShopItems,db_err:=this.ShopItems.save()
+		if db_err!=nil{
+			log.Error("insert save ShopItem failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dShopItems)
+		dShopLimitedInfos,db_err:=this.ShopLimitedInfos.save()
+		if db_err!=nil{
+			log.Error("insert save ShopLimitedInfo failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dShopLimitedInfos)
 		dDialyTasks,db_err:=this.DialyTasks.save()
 		if db_err!=nil{
 			log.Error("insert save DialyTask failed")
@@ -7205,9 +7386,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(37)
+			db_args:=new_db_args(38)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -7306,24 +7487,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dNotifyStates)
 			}
-			if this.ShopItems.m_changed{
-				update_string+="ShopItems=?,"
-				dShopItems,err:=this.ShopItems.save()
-				if err!=nil{
-					log.Error("insert save ShopItem failed")
-					return err,false,0,"",nil
-				}
-				db_args.Push(dShopItems)
-			}
-			if this.ShopLimitedInfos.m_changed{
-				update_string+="ShopLimitedInfos=?,"
-				dShopLimitedInfos,err:=this.ShopLimitedInfos.save()
-				if err!=nil{
-					log.Error("insert save ShopLimitedInfo failed")
-					return err,false,0,"",nil
-				}
-				db_args.Push(dShopLimitedInfos)
-			}
 			if this.MailCommon.m_changed{
 				update_string+="MailCommon=?,"
 				dMailCommon,err:=this.MailCommon.save()
@@ -7350,6 +7513,33 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 					return err,false,0,"",nil
 				}
 				db_args.Push(dBattleSaves)
+			}
+			if this.Talents.m_changed{
+				update_string+="Talents=?,"
+				dTalents,err:=this.Talents.save()
+				if err!=nil{
+					log.Error("insert save Talent failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dTalents)
+			}
+			if this.ShopItems.m_changed{
+				update_string+="ShopItems=?,"
+				dShopItems,err:=this.ShopItems.save()
+				if err!=nil{
+					log.Error("insert save ShopItem failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dShopItems)
+			}
+			if this.ShopLimitedInfos.m_changed{
+				update_string+="ShopLimitedInfos=?,"
+				dShopLimitedInfos,err:=this.ShopLimitedInfos.save()
+				if err!=nil{
+					log.Error("insert save ShopLimitedInfo failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dShopLimitedInfos)
 			}
 			if this.DialyTasks.m_changed{
 				update_string+="DialyTasks=?,"
@@ -7542,11 +7732,12 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.CampaignStaticIncomes.m_changed = false
 	this.CampaignRandomIncomes.m_changed = false
 	this.NotifyStates.m_changed = false
-	this.ShopItems.m_changed = false
-	this.ShopLimitedInfos.m_changed = false
 	this.MailCommon.m_changed = false
 	this.Mails.m_changed = false
 	this.BattleSaves.m_changed = false
+	this.Talents.m_changed = false
+	this.ShopItems.m_changed = false
+	this.ShopLimitedInfos.m_changed = false
 	this.DialyTasks.m_changed = false
 	this.Achieves.m_changed = false
 	this.FinishedAchieves.m_changed = false
@@ -7761,22 +7952,6 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasShopItem := columns["ShopItems"]
-	if !hasShopItem {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ShopItems LONGBLOB")
-		if err != nil {
-			log.Error("ADD COLUMN ShopItems failed")
-			return
-		}
-	}
-	_, hasShopLimitedInfo := columns["ShopLimitedInfos"]
-	if !hasShopLimitedInfo {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ShopLimitedInfos LONGBLOB")
-		if err != nil {
-			log.Error("ADD COLUMN ShopLimitedInfos failed")
-			return
-		}
-	}
 	_, hasMailCommon := columns["MailCommon"]
 	if !hasMailCommon {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN MailCommon LONGBLOB")
@@ -7798,6 +7973,30 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN BattleSaves LONGBLOB")
 		if err != nil {
 			log.Error("ADD COLUMN BattleSaves failed")
+			return
+		}
+	}
+	_, hasTalent := columns["Talents"]
+	if !hasTalent {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Talents LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN Talents failed")
+			return
+		}
+	}
+	_, hasShopItem := columns["ShopItems"]
+	if !hasShopItem {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ShopItems LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ShopItems failed")
+			return
+		}
+	}
+	_, hasShopLimitedInfo := columns["ShopLimitedInfos"]
+	if !hasShopLimitedInfo {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN ShopLimitedInfos LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN ShopLimitedInfos failed")
 			return
 		}
 	}
@@ -7956,7 +8155,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,ShopItems,ShopLimitedInfos,MailCommon,Mails,BattleSaves,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,ShopItems,ShopLimitedInfos,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -7964,7 +8163,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,ShopItems,ShopLimitedInfos,MailCommon,Mails,BattleSaves,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,ShopItems,ShopLimitedInfos,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -8021,11 +8220,12 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dCampaignStaticIncomes []byte
 	var dCampaignRandomIncomes []byte
 	var dNotifyStates []byte
-	var dShopItems []byte
-	var dShopLimitedInfos []byte
 	var dMailCommon []byte
 	var dMails []byte
 	var dBattleSaves []byte
+	var dTalents []byte
+	var dShopItems []byte
+	var dShopLimitedInfos []byte
 	var dDialyTasks []byte
 	var dAchieves []byte
 	var dFinishedAchieves []byte
@@ -8047,7 +8247,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dFirstDrawCards []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dGlobal,&dItems,&dRoles,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dShopItems,&dShopLimitedInfos,&dMailCommon,&dMails,&dBattleSaves,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dGlobal,&dItems,&dRoles,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dShopItems,&dShopLimitedInfos,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
 		if err != nil {
 			log.Error("Scan")
 			return
@@ -8108,16 +8308,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 			log.Error("NotifyStates %v", PlayerId)
 			return
 		}
-		err = row.ShopItems.load(dShopItems)
-		if err != nil {
-			log.Error("ShopItems %v", PlayerId)
-			return
-		}
-		err = row.ShopLimitedInfos.load(dShopLimitedInfos)
-		if err != nil {
-			log.Error("ShopLimitedInfos %v", PlayerId)
-			return
-		}
 		err = row.MailCommon.load(dMailCommon)
 		if err != nil {
 			log.Error("MailCommon %v", PlayerId)
@@ -8131,6 +8321,21 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.BattleSaves.load(dBattleSaves)
 		if err != nil {
 			log.Error("BattleSaves %v", PlayerId)
+			return
+		}
+		err = row.Talents.load(dTalents)
+		if err != nil {
+			log.Error("Talents %v", PlayerId)
+			return
+		}
+		err = row.ShopItems.load(dShopItems)
+		if err != nil {
+			log.Error("ShopItems %v", PlayerId)
+			return
+		}
+		err = row.ShopLimitedInfos.load(dShopLimitedInfos)
+		if err != nil {
+			log.Error("ShopLimitedInfos %v", PlayerId)
 			return
 		}
 		err = row.DialyTasks.load(dDialyTasks)

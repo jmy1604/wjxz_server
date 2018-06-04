@@ -215,30 +215,6 @@
 					]
 				},
 				{
-					"DBColumnName":"ShopItem",
-					"InUse":true,
-					"ColumnName":"ShopItem",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Id"},
-						{"Type":"int32","Index":2,"Name":"LeftNum","Incby":true}						
-					]
-				},
-				{
-					"DBColumnName":"ShopLimitedInfo",
-					"InUse":true,
-					"ColumnName":"ShopLimitedInfo",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"LimitedDays"},
-						{"Type":"int32","Index":2,"Name":"LastSaveTime"}
-					]
-				},
-				{
 					"DBColumnName":"MailCommon",
 					"InUse":true,
 					"ColumnName":"MailCommon",
@@ -282,6 +258,42 @@
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"Side"},
 						{"Type":"int32","Index":3,"Name":"SaveTime"}
+					]
+				},
+				{
+					"DBColumnName":"Talent",
+					"InUse":true,
+					"ColumnName":"Talent",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"Level"}
+					]
+				},
+				{
+					"DBColumnName":"ShopItem",
+					"InUse":true,
+					"ColumnName":"ShopItem",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"LeftNum","Incby":true}						
+					]
+				},
+				{
+					"DBColumnName":"ShopLimitedInfo",
+					"InUse":true,
+					"ColumnName":"ShopLimitedInfo",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"LimitedDays"},
+						{"Type":"int32","Index":2,"Name":"LastSaveTime"}
 					]
 				},
 				{

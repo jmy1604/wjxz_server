@@ -382,7 +382,11 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 		log.Error("Player[%v] is offline", p.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_IS_OFFLINE)
 	}
-	conn_timer_mgr.Insert(p.Id)
+	if USE_CONN_TIMER_WHEEL == 0 {
+		conn_timer_mgr.Insert(p.Id)
+	} else {
+		conn_timer_wheel.Insert(p.Id)
+	}
 	p.send_notify_state()
 	return 1
 }

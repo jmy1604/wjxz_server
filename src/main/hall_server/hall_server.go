@@ -79,9 +79,6 @@ func (this *HallServer) OnInit() (err error) {
 	msg_battle_round_reports_pool.Init()
 	delay_skill_pool.Init()
 
-	reg_player_guide_msg()
-	reg_player_friend_msg()
-
 	player_mgr.RegMsgHandler()
 
 	if !position_table.Init() {
@@ -90,87 +87,12 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("position_table init succeed")
 	}
 
-	/*if !item_table_mgr.Init() {
-		return errors.New("item_table_mgr init failed!")
-	} else {
-		log.Info("item_table_mgr init succeed!")
-	}*/
-
-	/*if stage_table_mgr.Init() {
-		return errors.New("cfg_stage_mgr init failed !")
-	} else {
-		log.Info("cfg_stage_mgr init succeed !")
-	}
-
-	if !task_table_mgr.Init() {
-		log.Error("task_mgr init failed")
-		return errors.New("task_mgr init failed !")
-	} else {
-		log.Info("task_mgr init succeed !")
-	}
-
-	if !extract_table_mgr.Init() {
-		return errors.New("extract_table_mgr init failed")
-	} else {
-		log.Info("extract_table_mgr init succeed")
-	}*/
-
 	if !gm_command_mgr.Init() {
 		log.Error("gm_command_mgr init failed")
 		return errors.New("gm_command_mgr init failed !")
 	} else {
 		log.Info("gm_command_mgr init succeed !")
 	}
-
-	/*if !shop_table_mgr.Init() {
-		log.Error("shop_mgr init failed")
-		return errors.New("shop_mgr init failed")
-	} else {
-		log.Info("shop_mgr init succeed!")
-	}
-
-	if !box_table_mgr.Init() {
-		log.Error("box_mgr init failed")
-		return errors.New("box_mgr init failed")
-	} else {
-		log.Info("box_mgr init succeed!")
-	}
-
-	if !level_table_mgr.Init() {
-		log.Error("level_table_mgr init failed")
-		return errors.New("level_table_mgr init failed")
-	} else {
-		log.Info("level_table_mgr init succeed")
-	}
-
-	if !handbook_table_mgr.Init() {
-		log.Error("handbook_table_mgr init failed")
-		return errors.New("handbook_table_mgr init failed")
-	} else {
-		log.Info("handbook_table_mgr init succeed")
-	}
-
-	if !suit_table_mgr.Init() {
-		log.Error("suit_table_mgr init failed")
-		return errors.New("suit_table_mgr init failed")
-	} else {
-		log.Info("suit_table_mgr init succeed")
-	}
-
-	pay_mgr.init()
-	if !pay_mgr.load_google_pay_pub() {
-		return errors.New("load google pay pub failed")
-	} else {
-		log.Info("google pay pub load succeed")
-	}
-
-	if !pay_mgr.load_google_pay_db() {
-		return errors.New("load google pay db failed")
-	} else {
-		log.Info("google pay db load succeed")
-	}
-
-	os_player_mgr.Init()*/
 
 	if !card_table_mgr.Init() {
 		log.Error("card_table_mgr init failed")
@@ -242,7 +164,18 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("fusion_table_mgr init succeed")
 	}
 
-	conn_timer_mgr.Init()
+	if !talent_table_mgr.Init() {
+		log.Error("talent_table_mgr init failed")
+		return errors.New("talent_table_mgr init failed")
+	} else {
+		log.Info("talent_table_mgr init success")
+	}
+
+	if USE_CONN_TIMER_WHEEL == 0 {
+		conn_timer_mgr.Init()
+	} else {
+		conn_timer_wheel.Init()
+	}
 
 	return
 }
@@ -276,7 +209,11 @@ func (this *HallServer) Run() {
 	defer this.ticker.Stop()
 
 	go this.redis_conn.Run(100)
-	go conn_timer_mgr.Run()
+	if USE_CONN_TIMER_WHEEL == 0 {
+		go conn_timer_mgr.Run()
+	} else {
+		go conn_timer_wheel.Run()
+	}
 
 	for {
 		select {
@@ -399,6 +336,7 @@ var campaign_table_mgr table_config.CampaignTableMgr
 var levelup_table_mgr table_config.LevelUpTableMgr
 var rankup_table_mgr table_config.RankUpTableMgr
 var fusion_table_mgr table_config.FusionTableMgr
+var talent_table_mgr table_config.TalentTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

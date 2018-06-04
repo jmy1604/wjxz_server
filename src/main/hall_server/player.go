@@ -274,7 +274,11 @@ func (this *Player) OnCreate() {
 }
 
 func (this *Player) OnLogin() {
-	conn_timer_mgr.Insert(this.Id)
+	if USE_CONN_TIMER_WHEEL == 0 {
+		conn_timer_mgr.Insert(this.Id)
+	} else {
+		conn_timer_wheel.Insert(this.Id)
+	}
 
 	gm_command_mgr.OnPlayerLogin(this)
 	this.ChkPlayerDialyTask()
@@ -284,7 +288,11 @@ func (this *Player) OnLogin() {
 }
 
 func (this *Player) OnLogout() {
-	conn_timer_mgr.Remove(this.Id)
+	if USE_CONN_TIMER_WHEEL == 0 {
+		conn_timer_mgr.Remove(this.Id)
+	} else {
+		conn_timer_wheel.Remove(this.Id)
+	}
 
 	// 离线收益时间开始
 	this.db.Info.SetLastLogout(int32(time.Now().Unix()))
@@ -684,6 +692,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		log.Error("Player[%v] init attack team failed", this.Id)
 		return -1
 	}
+	this.add_talent_attr(this.attack_team)
 
 	if p.defense_team == nil {
 		p.defense_team = &BattleTeam{}
@@ -692,6 +701,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		log.Error("Player[%v] init defense team failed", player_id)
 		return -1
 	}
+	p.add_talent_attr(p.defense_team)
 
 	my_team := this.attack_team._format_members_for_msg()
 	target_team := p.defense_team._format_members_for_msg()
