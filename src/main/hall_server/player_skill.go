@@ -836,7 +836,7 @@ func skill_effect_add_buff(self_mem *TeamMember, target_mem *TeamMember, effect 
 
 // 召唤
 func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_pos int32, effect []int32) (mem *TeamMember) {
-	new_card := card_table_mgr.GetRankCard(effect[1], self_mem.card.Rank)
+	new_card := card_table_mgr.GetRankCard(effect[1], 1)
 	if new_card == nil {
 		log.Error("summon skill role[%v] not found", effect[1])
 		return
@@ -845,10 +845,10 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_po
 	mem = team_member_pool.Get()
 	mem.init_with_summon(self_mem, target_team, self_mem.team.temp_curr_id, self_mem.level, new_card, empty_pos)
 	self_mem.team.temp_curr_id += 1
-	mem.hp = mem.hp * effect[2] / 10000
+	mem.hp = self_mem.hp * effect[2] / 10000
 	mem.attrs[ATTR_HP] = mem.hp
 	mem.attrs[ATTR_HP_MAX] = mem.hp
-	mem.attack = mem.attack
+	mem.attack = self_mem.attack
 	mem.attrs[ATTR_ATTACK] = mem.attack
 	mem.attrs[ATTR_DAMAGE_PERCENT_BONUS] += effect[3]
 	target_team.members[empty_pos] = mem
