@@ -459,7 +459,6 @@ message C2SItemSellRequest {
 message S2CItemSellResponse {
 	int32 ItemId                            = 1; // 出售物品ID
 	int32 ItemNum                           = 2; // 出售物品数量
-	int32 Gold                              = 3; // 获得金币
 }
 
 // ----------------------------------- 角色 ------------------------------------
