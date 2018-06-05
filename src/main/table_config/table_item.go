@@ -15,10 +15,11 @@ type XmlItemItem struct {
 	EquipSkillStr string `xml:"EquipSkill,attr"`
 	EquipAttr     []int32
 	EquipSkill    []int32
-	ComposeNum    int32 `xml:"ComposeNum,attr"`
-	ComposeType   int32 `xml:"ComposeType,attr"`
-	ComposeDropID int32 `xml:"ComposeDropID,attr"`
-	SellPrice     int32 `xml:"SellPrice,attr"`
+	ComposeNum    int32  `xml:"ComposeNum,attr"`
+	ComposeType   int32  `xml:"ComposeType,attr"`
+	ComposeDropID int32  `xml:"ComposeDropID,attr"`
+	SellRewardStr string `xml:"SellReward,attr"`
+	SellReward    []int32
 }
 
 type XmlItemConfig struct {
@@ -80,6 +81,15 @@ func (this *ItemTableMgr) Load() bool {
 				tmp_item.EquipSkill = make([]int32, 0)
 			} else {
 				tmp_item.EquipSkill = a
+			}
+		}
+
+		if tmp_item.SellRewardStr != "" {
+			a := parse_xml_str_arr2(tmp_item.SellRewardStr, ",")
+			if a == nil || len(a) == 0 {
+				tmp_item.SellReward = make([]int32, 0)
+			} else {
+				tmp_item.SellReward = a
 			}
 		}
 

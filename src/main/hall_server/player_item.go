@@ -370,16 +370,19 @@ func (this *Player) sell_item(item_id, item_num int32) int32 {
 	}
 
 	this.del_item(item_id, item_num)
-	this.add_gold(item.SellPrice)
+	if item.SellReward != nil {
+		for i := 0; i < len(item.SellReward)/2; i++ {
+			this.add_resource(item.SellReward[2*i], item.SellReward[2*i+1])
+		}
+	}
 
 	response := &msg_client_message.S2CItemSellResponse{
 		ItemId:  item_id,
 		ItemNum: item_num,
-		Gold:    item.SellPrice,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_SELL_RESPONSE), response)
 
-	log.Debug("Player[%v] sell item[%v,%v], get gold[%v]", this.Id, item_id, item_num, item.SellPrice)
+	log.Debug("Player[%v] sell item[%v,%v], get items[%v]", this.Id, item_id, item_num, item.SellReward)
 
 	return 1
 }
