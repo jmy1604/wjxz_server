@@ -425,6 +425,8 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			return 0
 		}
 
+		mem.act_done()
+
 		if mem.is_disable_attack() {
 			return 0
 		}

@@ -1424,9 +1424,6 @@ func (this *BuffList) remove_buff(buff *Buff) bool {
 	}
 
 	if this.owner != nil {
-		/*if len(buff.buff.Effect) >= 2 && buff.buff.Effect[0] == BUFF_EFFECT_TYPE_MODIFY_ATTR {
-			this.owner.add_attr(buff.buff.Effect[1], -buff.param)
-		}*/
 		this.owner.remove_buff_effect(buff)
 	}
 

@@ -715,6 +715,12 @@ func (this *TeamMember) get_use_skill() (skill_id int32) {
 	return
 }
 
+func (this *TeamMember) act_done() {
+	if this.act_num > 0 {
+		this.act_num -= 1
+	}
+}
+
 func (this *TeamMember) used_skill() {
 	max_energy := global_config_mgr.GetGlobalConfig().MaxEnergy
 	if max_energy == 0 {
@@ -722,9 +728,6 @@ func (this *TeamMember) used_skill() {
 	}
 	if this.energy >= max_energy {
 		this.energy -= max_energy
-	}
-	if this.act_num > 0 {
-		this.act_num -= 1
 	}
 }
 
