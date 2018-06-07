@@ -7,7 +7,6 @@ import (
 	_ "net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
-	_ "public_message/gen_go/player_cache"
 	"sync"
 	"sync/atomic"
 	"time"
