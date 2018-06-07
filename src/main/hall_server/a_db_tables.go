@@ -1584,6 +1584,30 @@ func (this *dbPlayerRow)SetName(v string){
 	this.m_Name_changed=true
 	return
 }
+func (this *dbPlayerRow)GetToken( )(r string ){
+	this.m_lock.UnSafeRLock("dbPlayerRow.GetdbPlayerTokenColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return string(this.m_Token)
+}
+func (this *dbPlayerRow)SetToken(v string){
+	this.m_lock.UnSafeLock("dbPlayerRow.SetdbPlayerTokenColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_Token=string(v)
+	this.m_Token_changed=true
+	return
+}
+func (this *dbPlayerRow)GetCurrReplyMsgNum( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbPlayerRow.GetdbPlayerCurrReplyMsgNumColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_CurrReplyMsgNum)
+}
+func (this *dbPlayerRow)SetCurrReplyMsgNum(v int32){
+	this.m_lock.UnSafeLock("dbPlayerRow.SetdbPlayerCurrReplyMsgNumColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_CurrReplyMsgNum=int32(v)
+	this.m_CurrReplyMsgNum_changed=true
+	return
+}
 type dbPlayerInfoColumn struct{
 	m_row *dbPlayerRow
 	m_data *dbPlayerInfoData
@@ -7047,6 +7071,10 @@ type dbPlayerRow struct {
 	m_Account string
 	m_Name_changed bool
 	m_Name string
+	m_Token_changed bool
+	m_Token string
+	m_CurrReplyMsgNum_changed bool
+	m_CurrReplyMsgNum int32
 	Info dbPlayerInfoColumn
 	Global dbPlayerGlobalColumn
 	Items dbPlayerItemColumn
@@ -7090,6 +7118,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.m_lock = NewRWMutex()
 	this.m_Account_changed=true
 	this.m_Name_changed=true
+	this.m_Token_changed=true
+	this.m_CurrReplyMsgNum_changed=true
 	this.Info.m_row=this
 	this.Info.m_data=&dbPlayerInfoData{}
 	this.Global.m_row=this
@@ -7169,10 +7199,12 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(38)
+		db_args:=new_db_args(40)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
+		db_args.Push(this.m_Token)
+		db_args.Push(this.m_CurrReplyMsgNum)
 		dInfo,db_err:=this.Info.save()
 		if db_err!=nil{
 			log.Error("insert save Info failed")
@@ -7386,9 +7418,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.ShopItems.m_changed||this.ShopLimitedInfos.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HandbookItems.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(38)
+			db_args:=new_db_args(40)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -7396,6 +7428,14 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			if this.m_Name_changed{
 				update_string+="Name=?,"
 				db_args.Push(this.m_Name)
+			}
+			if this.m_Token_changed{
+				update_string+="Token=?,"
+				db_args.Push(this.m_Token)
+			}
+			if this.m_CurrReplyMsgNum_changed{
+				update_string+="CurrReplyMsgNum=?,"
+				db_args.Push(this.m_CurrReplyMsgNum)
 			}
 			if this.Info.m_changed{
 				update_string+="Info=?,"
@@ -7722,6 +7762,8 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_new = false
 	this.m_Account_changed = false
 	this.m_Name_changed = false
+	this.m_Token_changed = false
+	this.m_CurrReplyMsgNum_changed = false
 	this.Info.m_changed = false
 	this.Global.m_changed = false
 	this.Items.m_changed = false
@@ -7869,6 +7911,22 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Name varchar(45)")
 		if err != nil {
 			log.Error("ADD COLUMN Name failed")
+			return
+		}
+	}
+	_, hasToken := columns["Token"]
+	if !hasToken {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN Token varchar(45) DEFAULT ''")
+		if err != nil {
+			log.Error("ADD COLUMN Token failed")
+			return
+		}
+	}
+	_, hasCurrReplyMsgNum := columns["CurrReplyMsgNum"]
+	if !hasCurrReplyMsgNum {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN CurrReplyMsgNum int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN CurrReplyMsgNum failed")
 			return
 		}
 	}
@@ -8155,7 +8213,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,ShopItems,ShopLimitedInfos,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,ShopItems,ShopLimitedInfos,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -8163,7 +8221,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,ShopItems,ShopLimitedInfos,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,ShopItems,ShopLimitedInfos,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HandbookItems,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -8210,6 +8268,8 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var PlayerId int32
 	var dAccount string
 	var dName string
+	var dToken string
+	var dCurrReplyMsgNum int32
 	var dInfo []byte
 	var dGlobal []byte
 	var dItems []byte
@@ -8247,9 +8307,9 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dFirstDrawCards []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dInfo,&dGlobal,&dItems,&dRoles,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dShopItems,&dShopLimitedInfos,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dShopItems,&dShopLimitedInfos,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHandbookItems,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
 		if err != nil {
-			log.Error("Scan")
+			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		if PlayerId>this.m_preload_max_id{
@@ -8258,6 +8318,8 @@ func (this *dbPlayerTable) Preload() (err error) {
 		row := new_dbPlayerRow(this,PlayerId)
 		row.m_Account=dAccount
 		row.m_Name=dName
+		row.m_Token=dToken
+		row.m_CurrReplyMsgNum=dCurrReplyMsgNum
 		err = row.Info.load(dInfo)
 		if err != nil {
 			log.Error("Info %v", PlayerId)
@@ -8435,6 +8497,8 @@ func (this *dbPlayerTable) Preload() (err error) {
 		}
 		row.m_Account_changed=false
 		row.m_Name_changed=false
+		row.m_Token_changed=false
+		row.m_CurrReplyMsgNum_changed=false
 		row.m_valid = true
 		this.m_rows[PlayerId]=row
 	}
@@ -9011,7 +9075,7 @@ func (this *dbBattleSaveTable) Preload() (err error) {
 	for r.Next() {
 		err = r.Scan(&Id,&dData,&dSaveTime,&dAttacker,&dDefenser,&dDeleteState)
 		if err != nil {
-			log.Error("Scan")
+			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		if Id>this.m_max_id{
@@ -9263,7 +9327,7 @@ func (this *dbGooglePayRecordRow) Load() (err error) {
 	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_KeyId)
 	err = r.Scan(&dBid,&dPlayerId,&dPayTime)
 	if err != nil {
-		log.Error("scan")
+		log.Error("Scan err[%v]", err.Error())
 		return
 	}
 		this.m_Bid=dBid
@@ -9557,7 +9621,7 @@ func (this *dbGooglePayRecordTable) Preload() (err error) {
 	for r.Next() {
 		err = r.Scan(&KeyId,&dSn)
 		if err != nil {
-			log.Error("Scan")
+			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		if KeyId>this.m_max_id{
@@ -9840,7 +9904,7 @@ func (this *dbApplePayRecordRow) Load() (err error) {
 	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_KeyId)
 	err = r.Scan(&dBid,&dPlayerId,&dPayTime)
 	if err != nil {
-		log.Error("scan")
+		log.Error("Scan err[%v]", err.Error())
 		return
 	}
 		this.m_Bid=dBid
@@ -10134,7 +10198,7 @@ func (this *dbApplePayRecordTable) Preload() (err error) {
 	for r.Next() {
 		err = r.Scan(&KeyId,&dSn)
 		if err != nil {
-			log.Error("Scan")
+			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		if KeyId>this.m_max_id{
@@ -10417,7 +10481,7 @@ func (this *dbFaceBPayRecordRow) Load() (err error) {
 	r := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_KeyId)
 	err = r.Scan(&dBid,&dPlayerId,&dPayTime)
 	if err != nil {
-		log.Error("scan")
+		log.Error("Scan err[%v]", err.Error())
 		return
 	}
 		this.m_Bid=dBid
@@ -10711,7 +10775,7 @@ func (this *dbFaceBPayRecordTable) Preload() (err error) {
 	for r.Next() {
 		err = r.Scan(&KeyId,&dSn)
 		if err != nil {
-			log.Error("Scan")
+			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		if KeyId>this.m_max_id{
@@ -11495,7 +11559,7 @@ func (this *dbPlayerLoginTable) Preload() (err error) {
 	for r.Next() {
 		err = r.Scan(&KeyId,&dPlayerAccount,&dPlayerId,&dPlayerName,&dLoginTime)
 		if err != nil {
-			log.Error("Scan")
+			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		if KeyId>this.m_max_id{
@@ -11968,7 +12032,7 @@ func (this *dbOtherServerPlayerTable) Preload() (err error) {
 	for r.Next() {
 		err = r.Scan(&PlayerId,&dAccount,&dName,&dLevel,&dHead)
 		if err != nil {
-			log.Error("Scan")
+			log.Error("Scan err[%v]", err.Error())
 			return
 		}
 		if PlayerId>this.m_preload_max_id{

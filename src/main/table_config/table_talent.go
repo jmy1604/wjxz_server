@@ -78,12 +78,12 @@ func (this *TalentTableMgr) Load() bool {
 			tmp_item.TalentEffectCond = make([]int32, 0)
 		}
 
-		tmp_item.TalentAttr = parse_xml_str_arr2(tmp_item.TalentAttrStr, "|")
+		tmp_item.TalentAttr = parse_xml_str_arr2(tmp_item.TalentAttrStr, ",")
 		if tmp_item.TalentAttr == nil {
 			tmp_item.TalentAttr = make([]int32, 0)
 		}
 
-		tmp_item.TalentSkillList = parse_xml_str_arr2(tmp_item.TalentSkillListStr, "|")
+		tmp_item.TalentSkillList = parse_xml_str_arr2(tmp_item.TalentSkillListStr, ",")
 		if tmp_item.TalentSkillList == nil {
 			tmp_item.TalentSkillList = make([]int32, 0)
 		}

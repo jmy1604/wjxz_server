@@ -183,7 +183,7 @@ func L2HSyncAccountTokenHandler(conn *server_conn.ServerConn, msg proto.Message)
 	}
 
 	login_token_mgr.AddToAcc2Token(req.GetAccount(), req.GetToken(), int32(req.GetPlayerId()))
-	log.Info("ID_L2HSyncAccountTokenHandler ", req.GetAccount(), req.GetToken(), req.GetPlayerId())
+	log.Info("ID_L2HSyncAccountTokenHandler Account[%v] Token[%v] PlayerId[%v]", req.GetAccount(), req.GetToken(), req.GetPlayerId())
 }
 
 func L2HDissconnectNotifyHandler(conn *server_conn.ServerConn, msg proto.Message) {

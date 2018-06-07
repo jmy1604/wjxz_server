@@ -78,6 +78,32 @@
 					]		
 				},
 				{
+					"ColumnName":"Token",
+					"DBColumnName":"Token",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"CurrReplyMsgNum",
+					"DBColumnName":"CurrReplyMsgNum",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[
+					]
+				},
+				{
 					"DBColumnName":"Info",
 					"InUse":true,
 					"ColumnName":"Info",

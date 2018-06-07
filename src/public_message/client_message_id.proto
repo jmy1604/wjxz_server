@@ -7,6 +7,7 @@ enum MSGID {
 	C2S_TEST_COMMAND 						= 1; // 测试 C2S_TEST_COMMAND
 	C2S_HEARTBEAT 							= 2; // 心跳
 	S2C_STATE_NOTIFY						= 3; // 红点状态通知
+	C2S_DATA_SYNC_REQUEST					= 4; // 请求数据同步
 	
 	C2S_LOGIN_REQUEST 						= 10000; // 登陆请求
 	S2C_LOGIN_RESPONSE 						= 10001; // 登陆请求返回  S2CLoginResponse
@@ -21,16 +22,17 @@ enum MSGID {
 	S2C_LEAVE_GAME_RESPONSE					= 11004; // 离开游戏返回 S2CLeaveGameResponse
 	S2C_PLAYER_INFO_RESPONSE				= 11005; // 玩家信息 S2CPlayerInfoResponse
 	
-	S2C_ROLES_RESPONSE						= 11050; // 角色请求 S2CRolesRequest
-	S2C_ROLES_CHANGE_NOTIFY					= 11151; // 角色更新 S2CRolesChangeNotify
-	C2S_ROLE_LEVELUP_REQUEST			    = 11152; // 请求角色升级 C2SRoleLevelUpRequest
-	S2C_ROLE_LEVELUP_RESPONSE				= 11153; // 请求角色升级返回 S2CRoleLevelUpResponse
-	C2S_ROLE_RANKUP_REQUEST					= 11154; // 请求角色升阶 C2SRoleRankUpRequest
-	S2C_ROLE_RANKUP_RESPONSE				= 11155; // 请求角色升阶返回 S2CRoleRankUpResponse
-	C2S_ROLE_DECOMPOSE_REQUEST				= 11156; // 请求角色分解 C2SRoleDecomposeRequest
-	S2C_ROLE_DECOMPOSE_RESPONSE				= 11157; // 请求角色分解返回 S2CRoleDecomposeResponse
-	C2S_ROLE_FUSION_REQUEST					= 11158; // 请求角色合成 C2SRoleFusionRequest
-	S2C_ROLE_FUSION_RESPONSE				= 11159; // 请求角色合成返回 S2CRoleFusionResponse
+	C2S_ROLES_REQUEST						= 11050; // 角色请求同步 C2SRolesRequest
+	S2C_ROLES_RESPONSE						= 11051; // 角色请求不同返回 S2CRolesResponse
+	S2C_ROLES_CHANGE_NOTIFY					= 11152; // 角色更新 S2CRolesChangeNotify
+	C2S_ROLE_LEVELUP_REQUEST			    = 11153; // 请求角色升级 C2SRoleLevelUpRequest
+	S2C_ROLE_LEVELUP_RESPONSE				= 11154; // 请求角色升级返回 S2CRoleLevelUpResponse
+	C2S_ROLE_RANKUP_REQUEST					= 11155; // 请求角色升阶 C2SRoleRankUpRequest
+	S2C_ROLE_RANKUP_RESPONSE				= 11156; // 请求角色升阶返回 S2CRoleRankUpResponse
+	C2S_ROLE_DECOMPOSE_REQUEST				= 11157; // 请求角色分解 C2SRoleDecomposeRequest
+	S2C_ROLE_DECOMPOSE_RESPONSE				= 11158; // 请求角色分解返回 S2CRoleDecomposeResponse
+	C2S_ROLE_FUSION_REQUEST					= 11159; // 请求角色合成 C2SRoleFusionRequest
+	S2C_ROLE_FUSION_RESPONSE				= 11160; // 请求角色合成返回 S2CRoleFusionResponse
 	
 	C2S_BATTLE_RESULT_REQUEST				= 10100; // 战斗结果请求 C2SBattleResultRequest
 	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse
@@ -45,12 +47,13 @@ enum MSGID {
 	S2C_SET_TEAM_RESPONSE					= 10201; // 设置阵营返回 S2CSetTeamResponse
 	S2C_TEAMS_RESPONSE						= 10202; // 所有阵容列表返回 S2CTeamsResponse
 	
-	S2C_ITEMS_SYNC							= 10300; // 进入游戏物品同步 S2CItemsSync
-	S2C_ITEMS_UPDATE						= 10301; // 物品更新 S2CItemsUpdate
-	C2S_ITEM_FUSION_REQUEST					= 10302; // 物品合成 C2SItemFusionRequest
-	S2C_ITEM_FUSION_RESPONSE				= 10303; // 物品合成返回 S2CItemFusionResponse
-	C2S_ITEM_SELL_REQUEST					= 10304; // 出售物品 C2SItemSellRequest
-	S2C_ITEM_SELL_RESPONSE					= 10305; // 出售物品返回 S2CItemSellResponse
+	C2S_ITEMS_SYNC_REQUEST					= 10300; // 请求物品同步 C2SItemsSyncRequest
+	S2C_ITEMS_SYNC							= 10301; // 进入游戏物品同步 S2CItemsSync
+	S2C_ITEMS_UPDATE						= 10302; // 物品更新 S2CItemsUpdate
+	C2S_ITEM_FUSION_REQUEST					= 10303; // 物品合成 C2SItemFusionRequest
+	S2C_ITEM_FUSION_RESPONSE				= 10304; // 物品合成返回 S2CItemFusionResponse
+	C2S_ITEM_SELL_REQUEST					= 10305; // 出售物品 C2SItemSellRequest
+	S2C_ITEM_SELL_RESPONSE					= 10306; // 出售物品返回 S2CItemSellResponse
 	
 	C2S_CAMPAIGN_DATA_REQUEST				= 10400; // 请求战役数据 C2SCampaignDataRequest
 	S2C_CAMPAIGN_DATA_RESPONSE				= 10401; // 战役数据返回 S2CCampaignDataResponse
