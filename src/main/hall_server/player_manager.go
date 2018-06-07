@@ -249,6 +249,7 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_LEAVE_GAME_REQUEST), C2SLeaveGameRequestHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), C2STestCommandHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), C2SHeartbeatHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_DATA_SYNC_REQUEST), C2SDataSyncHandler)
 
 	// 战役
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RESULT_REQUEST), C2SFightHandler)
@@ -278,6 +279,15 @@ func (this *PlayerManager) RegMsgHandler() {
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RECORD_LIST_REQUEST), C2SBattleRecordListHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RECORD_REQUEST), C2SBattleRecordHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_BATTLE_RECORD_DELETE_REQUEST), C2SBattleRecordDeleteHandler)
+
+	// 天赋
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TALENT_UP_REQUEST), C2STalentListHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TALENT_LIST_REQUEST), C2STalentListHandler)
+
+	// 爬塔
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TOWER_DATA_REQUEST), C2STowerDataHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TOWER_RECORDS_INFO_REQUEST), C2STowerRecordsInfoHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_TOWER_RECORD_DATA_REQUEST), C2STowerRecordDataHandler)
 }
 
 func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data []byte) (int32, *Player) {
@@ -295,7 +305,7 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 		return -1, p
 	}
 
-	token_info := login_token_mgr.GetTockenByAcc(acc)
+	token_info := login_token_mgr.GetTokenByAcc(acc)
 	if nil == token_info {
 		log.Error("PlayerEnterGameHandler account[%v] no token info!", acc)
 		return -2, p
@@ -319,22 +329,26 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 			log.Error("player_db_to_msg AddRow pid(%d) failed !", player_id)
 			return -4, p
 		}
-
 		pdb.SetAccount(token_info.acc)
+		pdb.SetToken(token_info.token)
+		pdb.SetCurrReplyMsgNum(0)
 		p = new_player(player_id, token_info.acc, token_info.token, pdb)
-
 		p.OnCreate()
-
-		log.Info("player_db_to_msg new player(%d) !", player_id)
 		//} else {
 		//	p = new_player(p.Id, token_info.acc, token_info.token, pdb)
 		//}
 		player_mgr.Add2AccMap(p)
 		player_mgr.Add2IdMap(p)
 		is_new = true
+		log.Info("player_db_to_msg new player(%d) !", player_id)
 	} else {
 		p.Account = token_info.acc
 		p.Token = token_info.token
+		pdb := dbc.Players.GetRow(p.Id)
+		if pdb != nil {
+			pdb.SetToken(token_info.token)
+			pdb.SetCurrReplyMsgNum(0)
+		}
 	}
 
 	ip_port := strings.Split(r.RemoteAddr, ":")
@@ -388,5 +402,30 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 		conn_timer_wheel.Insert(p.Id)
 	}
 	p.send_notify_state()
+	return 1
+}
+
+func C2SDataSyncHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SDataSyncRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	if req.Base {
+		p.send_info()
+	}
+	if req.Items {
+		p.send_items()
+	}
+	if req.Roles {
+		p.send_roles()
+	}
+	if req.Teams {
+		p.send_teams()
+	}
+	if req.Campaigns {
+		p.send_campaigns()
+	}
 	return 1
 }

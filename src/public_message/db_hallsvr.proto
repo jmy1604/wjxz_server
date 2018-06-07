@@ -146,6 +146,18 @@ message PlayerTalentList{
 	repeated PlayerTalent List=1;
 }
 
+message PlayerTowerCommon{
+	optional int32 CurrId=1;
+}
+
+message PlayerTower{
+	optional int32 Id=1;
+}
+
+message PlayerTowerList{
+	repeated PlayerTower List=1;
+}
+
 message PlayerShopItem{
 	optional int32 Id=1;
 	optional int32 LeftNum=2;
@@ -330,6 +342,10 @@ message PlayerFirstDrawCardList{
 }
 
 message BattleSaveData{
+	optional bytes Data=1;
+}
+
+message TowerFightSaveData{
 	optional bytes Data=1;
 }
 

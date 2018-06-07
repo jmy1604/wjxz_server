@@ -203,7 +203,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		tokeninfo := login_token_mgr.GetTockenByAcc(p.Account)
+		tokeninfo := login_token_mgr.GetTokenByAcc(p.Account)
 		if nil == tokeninfo || tokeninfo.token != tmp_msg.GetToken() {
 			ret_code = int32(msg_client_message.E_ERR_PLAYER_OTHER_PLACE_LOGIN)
 			if tokeninfo == nil {
@@ -214,6 +214,9 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			p.bhandling = true
 			p.b_base_prop_chg = false
+			if !p.is_login {
+				p.OnLogin()
+			}
 			ret_code = handlerinfo.player_msg_handler(w, r, p /*req*/, tmp_msg.GetData())
 		}
 
@@ -221,10 +224,28 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		ret_code, p = handlerinfo.msg_handler(w, r /*req*/, tmp_msg.GetData())
 	}
 
+	var old_msg_num, msg_num int32
+	if p != nil {
+		row := dbc.Players.GetRow(p.Id)
+		if row != nil {
+			old_msg_num = row.GetCurrReplyMsgNum()
+			msg_num = old_msg_num
+			if msg_num < 10000 {
+				msg_num += 1
+			} else {
+				msg_num = 1
+			}
+			row.SetCurrReplyMsgNum(msg_num)
+		}
+	}
+
 	if ret_code <= 0 {
 		log.Error("client_msg_handler exec msg_handler ret error_code %d", ret_code)
 		res2cli := &msg_client_message.S2C_MSG_DATA{}
 		res2cli.ErrorCode = ret_code
+		if msg_num > 0 {
+			res2cli.CurrMsgNum = msg_num
+		}
 
 		final_data, err := proto.Marshal(res2cli)
 		if nil != err {
@@ -238,7 +259,6 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		//log.Info("write http resp data error %v", final_data)
-		return
 	} else {
 		if nil == p {
 			log.Error("client_msg_handler after handle p nil")
@@ -256,6 +276,10 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 			res2cli.Data = data
 		}
 
+		if msg_num > 0 {
+			res2cli.CurrMsgNum = msg_num
+		}
+
 		final_data, err := proto.Marshal(res2cli)
 		if nil != err {
 			log.Error("client_msg_handler marshal 2 client msg failed err(%s)", err.Error())
@@ -268,14 +292,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		test_msg := &msg_client_message.S2C_MSG_DATA{}
-
-		err = proto.Unmarshal(final_data, test_msg)
-		if nil != err {
-			log.Error("test unmarshal failed err[%d]", err.Error())
-		}
 		//log.Info("write http resp data normal %v len", final_data, len(final_data))
-
 	}
 
 	return

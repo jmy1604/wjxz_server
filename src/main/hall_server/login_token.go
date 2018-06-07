@@ -1,18 +1,29 @@
 package main
 
 import (
+	"encoding/json"
 	"libs/log"
-	"libs/socket"
 	"sync"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
 )
+
+const (
+	ACCOUNT_TOKEN_KEY = "ih:account_token_key"
+)
+
+type RedisLoginTokenInfo struct {
+	Token      string
+	PlayerId   int32
+	CreateTime int32
+}
 
 type LoginTokenInfo struct {
 	acc         string
 	token       string
 	playerid    int32
-	create_time int64
-	conn        *socket.TcpConn
+	create_time int32
 }
 
 type LoginTokenMgr struct {
@@ -34,6 +45,29 @@ func (this *LoginTokenMgr) Init() bool {
 	return true
 }
 
+func (this *LoginTokenMgr) LoadRedisData() int32 {
+	string_map, err := redis.StringMap(hall_server.redis_conn.Do("HGETALL", ACCOUNT_TOKEN_KEY))
+	if err != nil {
+		log.Error("redis获取集合[%v]数据失败[%v]", ACCOUNT_TOKEN_KEY, err.Error())
+		return -1
+	}
+
+	for k, item := range string_map {
+		jitem := &RedisLoginTokenInfo{}
+		if err := json.Unmarshal([]byte(item), jitem); err != nil {
+			log.Error("##### Load RedisLoginTokenInfo item[%v] error[%v]", item, err.Error())
+			return -1
+		}
+		this.acc2token[k] = &LoginTokenInfo{
+			acc:         k,
+			token:       jitem.Token,
+			create_time: jitem.CreateTime,
+			playerid:    jitem.PlayerId,
+		}
+	}
+	return 1
+}
+
 func (this *LoginTokenMgr) AddToAcc2Token(acc, token string, playerid int32) {
 	if "" == acc {
 		log.Error("LoginTokenMgr AddToAcc2Token acc empty")
@@ -43,8 +77,25 @@ func (this *LoginTokenMgr) AddToAcc2Token(acc, token string, playerid int32) {
 	this.acc2token_lock.Lock()
 	defer this.acc2token_lock.Unlock()
 
-	this.acc2token[acc] = &LoginTokenInfo{acc: acc, token: token, create_time: time.Now().Unix(), playerid: playerid}
-	return
+	now_time := int32(time.Now().Unix())
+	this.acc2token[acc] = &LoginTokenInfo{acc: acc, token: token, create_time: now_time, playerid: playerid}
+
+	// serialize to redis
+	item := &RedisLoginTokenInfo{
+		Token:      token,
+		CreateTime: now_time,
+		PlayerId:   playerid,
+	}
+	bytes, err := json.Marshal(item)
+	if err != nil {
+		log.Error("##### Serialize item[%v] error[%v]", *item, err.Error())
+		return
+	}
+	err = hall_server.redis_conn.Post("HSET", ACCOUNT_TOKEN_KEY, acc, string(bytes))
+	if err != nil {
+		log.Error("redis设置集合[%v]数据失败[%v]", ACCOUNT_TOKEN_KEY, err.Error())
+		return
+	}
 }
 
 func (this *LoginTokenMgr) RemoveFromAcc2Token(acc string) {
@@ -63,7 +114,7 @@ func (this *LoginTokenMgr) RemoveFromAcc2Token(acc string) {
 	return
 }
 
-func (this *LoginTokenMgr) GetTockenByAcc(acc string) *LoginTokenInfo {
+func (this *LoginTokenMgr) GetTokenByAcc(acc string) *LoginTokenInfo {
 	if "" == acc {
 		log.Error("LoginTokenMgr GetTockenByAcc acc empty")
 		return nil

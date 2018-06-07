@@ -1527,7 +1527,7 @@ namespace DBCompiler_sql
                 code.AppendLine("\tr := this.m_table.m_dbc.StmtQueryRow(this.m_table.m_load_select_stmt, this.m_" + table.PrimaryKeyName + ")");
                 code.AppendLine("\terr = r.Scan(" + load_scan_string + ")");
                 code.AppendLine("\tif err != nil {");
-                code.AppendLine("\t\tlog.Error(\"scan\")");
+                code.AppendLine("\t\tlog.Error(\"Scan err[%v]\", err.Error())");
                 code.AppendLine("\t\treturn");
                 code.AppendLine("\t}");
                 foreach (var c in table.Columns)
@@ -2444,7 +2444,7 @@ namespace DBCompiler_sql
                 code.AppendLine("\tfor r.Next() {");
                 code.AppendLine("\t\terr = r.Scan(" + preload_scan_string + ")");
                 code.AppendLine("\t\tif err != nil {");
-                code.AppendLine("\t\t\tlog.Error(\"Scan\")");
+                code.AppendLine("\t\t\tlog.Error(\"Scan err[%v]\", err.Error())");
                 code.AppendLine("\t\t\treturn");
                 code.AppendLine("\t\t}");
                 if (table.PrimaryKeyType == "int32")

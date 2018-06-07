@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"compress/flate"
+	"io"
 	"libs/log"
 	"net/http"
 	"public_message/gen_go/client_message"
@@ -17,6 +18,46 @@ type BattleSaveManager struct {
 }
 
 var battle_record_mgr BattleSaveManager
+
+func compress_battle_record_data(data []byte) []byte {
+	var b bytes.Buffer
+	w, err := flate.NewWriter(&b, 1)
+	if err != nil {
+		log.Error("flate.NewWriter failed: %v", err.Error())
+		return nil
+	}
+	_, err = w.Write(data)
+	if err != nil {
+		log.Error("write_msgs flate.Write failed: %v", err.Error())
+		return nil
+	}
+	err = w.Close()
+	if err != nil {
+		log.Error("flate.Close failed: %v", err.Error())
+		return nil
+	}
+	data = b.Bytes()
+	return data
+}
+
+func decompress_battle_record_data(data []byte) []byte {
+	b := new(bytes.Buffer)
+	reader := bytes.NewReader(data)
+	r := flate.NewReader(reader)
+	_, err := io.Copy(b, r)
+	if err != nil {
+		defer r.Close()
+		log.Error("decompress copy failed %v", err)
+		return nil
+	}
+	err = r.Close()
+	if err != nil {
+		log.Error("flate Close failed %v", err)
+		return nil
+	}
+	data = b.Bytes()
+	return data
+}
 
 func (this *BattleSaveManager) Init() {
 	this.saves = dbc.BattleSaves
@@ -36,24 +77,10 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 	if row != nil {
 		row.SetAttacker(attacker_id)
 		row.SetDefenser(defenser_id)
-		var b bytes.Buffer
-		w, err := flate.NewWriter(&b, 1)
-		if err != nil {
-			log.Error("flate.NewWriter failed: %v", err.Error())
+		data = compress_battle_record_data(data)
+		if data == nil {
 			return false
 		}
-		_, err = w.Write(data)
-		if err != nil {
-			log.Error("write_msgs flate.Write failed: %v", err.Error())
-			return false
-		}
-		err = w.Close()
-		if err != nil {
-			log.Error("flate.Close failed: %v", err.Error())
-			return false
-		}
-		data = b.Bytes()
-
 		now_time := int32(time.Now().Unix())
 		row.Data.SetData(data)
 		row.SetSaveTime(now_time)
@@ -289,6 +316,11 @@ func (this *Player) GetBattleRecord(record_id int32) int32 {
 	defenser := player_mgr.GetPlayerById(defenser_id)
 	if defenser != nil {
 		defenser_name = defenser.db.GetName()
+	}
+
+	record_data = decompress_battle_record_data(record_data)
+	if record_data == nil {
+		return int32(msg_client_message.E_ERR_PLAYER_BATTLE_RECORD_DATA_INVALID)
 	}
 
 	response := &msg_client_message.S2CBattleRecordResponse{

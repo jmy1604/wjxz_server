@@ -129,16 +129,16 @@ func main() {
 		log.Info("player_mgr init succeed !")
 	}
 
+	if !login_token_mgr.Init() {
+		log.Error("启动login_token_mgr失败")
+		return
+	}
+
 	if nil != dbc.Preload() {
 		log.Error("dbc Preload Failed !!")
 		return
 	} else {
 		log.Info("dbc Preload succeed !!")
-	}
-
-	if !login_token_mgr.Init() {
-		log.Error("启动login_token_mgr失败")
-		return
 	}
 
 	if !login_conn_mgr.Init() {

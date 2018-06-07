@@ -16,11 +16,7 @@ import (
 
 const (
 	INIT_PLAYER_MSG_NUM = 10
-
-	MSG_ITEM_HEAD_LEN = 4
-
-	BUILDING_ADD_MSG_INIT_LEN = 5
-	BUILDING_ADD_MSG_ADD_STEP = 2
+	MSG_ITEM_HEAD_LEN   = 4
 )
 
 type PlayerMsgItem struct {
@@ -90,10 +86,9 @@ type Player struct {
 	total_msg_data_len int32
 	b_base_prop_chg    bool
 
-	new_unlock_chapter_id int32
-	used_drop_ids         map[int32]int32       // 抽卡掉落ID统计
-	world_chat_data       PlayerWorldChatData   // 世界聊天缓存数据
-	anouncement_data      PlayerAnouncementData // 公告缓存数据
+	used_drop_ids    map[int32]int32       // 抽卡掉落ID统计
+	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
+	anouncement_data PlayerAnouncementData // 公告缓存数据
 
 	team_member_mgr map[int32]*TeamMember // 成员map
 	attack_team     *BattleTeam           // 进攻阵营
@@ -110,9 +105,7 @@ type Player struct {
 	items_changed_info   map[int32]int32 // 物品增删更新
 	tmp_cache_items      map[int32]int32
 
-	msg_acts_lock    *sync.Mutex
-	cur_msg_acts_len int32
-	max_msg_acts_len int32
+	is_login bool
 }
 
 func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
@@ -128,7 +121,7 @@ func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
 	ret_p.msg_items_lock = &sync.Mutex{}
 	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
 
-	ret_p.msg_acts_lock = &sync.Mutex{}
+	//ret_p.msg_acts_lock = &sync.Mutex{}
 
 	return ret_p
 }
@@ -150,7 +143,7 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	ret_p.msg_items_lock = &sync.Mutex{}
 	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
 
-	ret_p.msg_acts_lock = &sync.Mutex{}
+	//ret_p.msg_acts_lock = &sync.Mutex{}
 
 	return ret_p
 }
@@ -274,6 +267,9 @@ func (this *Player) OnCreate() {
 }
 
 func (this *Player) OnLogin() {
+	if this.is_login {
+		return
+	}
 	if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Insert(this.Id)
 	} else {
@@ -285,6 +281,7 @@ func (this *Player) OnLogin() {
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	this.team_member_mgr = make(map[int32]*TeamMember)
 	this.init_battle_record_list()
+	this.is_login = true
 }
 
 func (this *Player) OnLogout() {
@@ -296,6 +293,7 @@ func (this *Player) OnLogout() {
 
 	// 离线收益时间开始
 	this.db.Info.SetLastLogout(int32(time.Now().Unix()))
+	this.is_login = false
 	log.Info("玩家[%d] 登出 ！！", this.Id)
 }
 

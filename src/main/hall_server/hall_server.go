@@ -42,6 +42,7 @@ func (this *HallServer) Init() (ok bool) {
 	if !this.redis_conn.Connect(config.RedisServerIP) {
 		return
 	}
+	login_token_mgr.LoadRedisData()
 
 	// rpc初始化
 	if !this.init_rpc_service() {
@@ -208,7 +209,7 @@ func (this *HallServer) Run() {
 	this.ticker.Start()
 	defer this.ticker.Stop()
 
-	go this.redis_conn.Run(100)
+	go this.redis_conn.Run(1000)
 	if USE_CONN_TIMER_WHEEL == 0 {
 		go conn_timer_mgr.Run()
 	} else {
