@@ -72,4 +72,16 @@ enum MSGID {
 	S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE	= 10507; // 邮件附件获取返回 S2CMailGetAttachedItemsResponse
 	C2S_MAIL_DELETE_REQUEST					= 10508; // 请求删除邮件 C2SMailDeleteRequest
 	S2C_MAIL_DELETE_RESPONSE				= 10509; // 删除邮件返回 S2CMailDeleteResponse
+	
+	C2S_TALENT_UP_REQUEST					= 10600; // 请求天赋升级 C2STalentUpRequest
+	S2C_TALENT_UP_RESPONSE					= 10601; // 天赋升级返回 S2CTalentUpResponse
+	C2S_TALENT_LIST_REQUEST					= 10602; // 请求天赋列表 C2STalentListRequest
+	S2C_TALENT_LIST_RESPONSE				= 10603; // 天赋列表返回 S2CTalentListResponse
+	
+	C2S_TOWER_DATA_REQUEST					= 10700; // 爬塔数据请求 C2STowerDataRequest
+	S2C_TOWER_DATA_RESPONSE					= 10701; // 爬塔数据返回 S2CTowerDataResponse
+	C2S_TOWER_RECORDS_INFO_REQUEST			= 10702; // 爬塔录像信息请求 C2STowerRecordsInfoRequest
+	S2C_TOWER_RECORDS_INFO_RESPONSE			= 10703; // 爬塔录像信息返回 S2CTowerRecordsInfoResponse
+	C2S_TOWER_RECORD_DATA_REQUEST			= 10704; // 爬塔录像具体数据 C2STowerRecordDataRequest
+	S2C_TOWER_RECORD_DATA_RESPONSE			= 10705; // 爬塔录像具体数据返回 S2CTowerRecordDataResponse
 }

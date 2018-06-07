@@ -22,6 +22,7 @@ enum E_ERR {
 	PLAYER_IS_DEFENSING						= -10002; // 对方正在战斗
 	PLAYER_BATTLE_RECORD_NOT_FOUND			= -10003; // 战斗录像不存在
 	PLAYER_BATTLE_RECORD_FORBIDDEN_DELETE   = -10004; // 不能删除录像
+	PLAYER_BATTLE_RECORD_DATA_INVALID		= -10005; // 录像数据错误
 	
 	// 物品装备
 	PLAYER_ITEM_NOT_FOUND					= -11000; // 物品找不到
@@ -67,6 +68,12 @@ enum E_ERR {
 	PLAYER_TALENT_NOT_FOUND					= -15000; // 没有该天赋
 	PLAYER_TALENT_LEVEL_IS_MAX				= -15001; // 天赋等级已满
 	PLAYER_TALENT_UP_NOT_ENOUGH_RESOURCE	= -15002; // 天赋升级没有足够资源
+	
+	// 爬塔
+	PLAYER_TOWER_ALREADY_FIGHTED			= -16000; // 已经打过塔层
+	PLAYER_TOWER_NOT_FOUND					= -16001; // 不存在的塔层
+	PLAYER_TOWER_NOT_ENOUGH_STAMINA			= -16002; // 爬塔体力不够
+	PLAYER_TOWER_FIGHT_RECORD_NOT_FOUND		= -16003; // 爬塔录像不存在
 		
 	// 玩家
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -355,6 +362,8 @@ message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
 	int32 CampaignId						= 3; // 战役ID
+	int32 BattleType						= 4; // 战斗类型   1 玩家ID  2 战役ID  3 塔层ID
+	int32 BattleParam						= 5; // 战斗参数
 }
 message S2CBattleResultResponse {
 	bool IsWin								= 1; // true 赢  false 输
@@ -577,6 +586,58 @@ message C2SMailDeleteRequest {
 }
 message S2CMailDeleteResponse {
 	repeated int32 MailIds					= 1; // 邮件ID
+}
+
+// -------------------------------- 玩家 -------------------------------------
+// 天赋升级
+message C2STalentUpRequest {
+	int32 TalentId 							= 1;	
+}
+message S2CTalentUpResponse {
+	int32 TalentId							= 1;
+	int32 Level								= 2;
+}
+
+// 请求天赋列表
+message C2STalentListRequest {
+}
+message TalentInfo {
+	int32 Id								= 1;
+	int32 Level								= 2;
+}
+message S2CTalentListResponse {
+	repeated TalentInfo Talents				= 1;
+}
+
+// --------------------------------- 爬塔 ------------------------------------
+// 请求爬塔数据
+message C2STowerDataRequest {
+}
+message S2CTowerDataResponse {
+	int32 CurrTowerId 						= 1;
+	repeated int32 TowerIds					= 2;
+}
+
+// 请求爬塔某层录像
+message C2STowerRecordsInfoRequest {
+	int32 TowerId                           = 1;
+}
+message TowerFightRecord {
+	int32 TowerFightId						= 1;
+	int32 AttackerId						= 2;
+	string AttackerName						= 3;
+	int32 CreateTime						= 4;
+}
+message S2CTowerRecordsInfoResponse {
+	repeated TowerFightRecord Records		= 1;
+}
+
+// 请求爬塔的某个录像具体数据
+message C2STowerRecordDataRequest {
+	int32 TowerFightId					 	= 1;
+}
+message S2CTowerRecordDataResponse {
+	bytes RecordData						= 1; // 对应S2CBattleResultResponse的pb序列化数据
 }
 
 //////////////////////////////////////////////////////////////////////////////

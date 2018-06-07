@@ -268,6 +268,9 @@ func (this *Player) OnCreate() {
 }
 
 func (this *Player) OnLogin() {
+	if this.is_login {
+		return
+	}
 	if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Insert(this.Id)
 	} else {

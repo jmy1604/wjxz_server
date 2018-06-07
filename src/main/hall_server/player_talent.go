@@ -2,8 +2,32 @@ package main
 
 import (
 	"libs/log"
+	"net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
+
+	"github.com/golang/protobuf/proto"
 )
+
+func (this *Player) get_talent_list() []*msg_client_message.TalentInfo {
+	all := this.db.Talents.GetAllIndex()
+	if all == nil || len(all) == 0 {
+		return make([]*msg_client_message.TalentInfo, 0)
+	}
+
+	var talents []*msg_client_message.TalentInfo
+	for i := 0; i < len(all); i++ {
+		lvl, o := this.db.Talents.GetLevel(all[i])
+		if !o {
+			continue
+		}
+		talents = append(talents, &msg_client_message.TalentInfo{
+			Id:    all[i],
+			Level: lvl,
+		})
+	}
+	return talents
+}
 
 func (this *Player) up_talent(talent_id int32) int32 {
 	level, _ := this.db.Talents.GetLevel(talent_id)
@@ -31,13 +55,21 @@ func (this *Player) up_talent(talent_id int32) int32 {
 	}
 
 	if level == 0 {
+		level += 1
 		this.db.Talents.Add(&dbPlayerTalentData{
 			Id:    talent_id,
-			Level: level + 1,
+			Level: level,
 		})
 	} else {
-		this.db.Talents.SetLevel(talent_id, level+1)
+		level += 1
+		this.db.Talents.SetLevel(talent_id, level)
 	}
+
+	response := &msg_client_message.S2CTalentUpResponse{
+		TalentId: talent_id,
+		Level:    level,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_UP_RESPONSE), response)
 
 	return 1
 }
@@ -71,4 +103,30 @@ func (this *Player) add_talent_attr(team *BattleTeam) {
 			}
 		}
 	}
+}
+
+func C2STalentListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2STalentListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+
+	talents := p.get_talent_list()
+	response := &msg_client_message.S2CTalentListResponse{
+		Talents: talents,
+	}
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_LIST_RESPONSE), response)
+	return 1
+}
+
+func C2STalentUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2STalentUpRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.up_talent(req.GetTalentId())
 }

@@ -209,7 +209,7 @@ func (this *HallServer) Run() {
 	this.ticker.Start()
 	defer this.ticker.Stop()
 
-	go this.redis_conn.Run(100)
+	go this.redis_conn.Run(1000)
 	if USE_CONN_TIMER_WHEEL == 0 {
 		go conn_timer_mgr.Run()
 	} else {

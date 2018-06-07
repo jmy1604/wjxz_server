@@ -1253,35 +1253,92 @@ func delete_mail_cmd(p *Player, args []string) int32 {
 	return p.DeleteMails(mail_ids)
 }
 
+func up_talent_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var talent_id int
+	var err error
+	talent_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("天赋ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.up_talent(int32(talent_id))
+}
+
+func tower_data_cmd(p *Player, args []string) int32 {
+	return p.get_tower_data()
+}
+
+func tower_records_info_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var tower_id int
+	var err error
+	tower_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("爬塔ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.get_tower_records_info(int32(tower_id))
+}
+
+func tower_record_data_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var tower_fight_id int
+	var err error
+	if err != nil {
+		log.Error("爬塔战斗ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.get_tower_record_data(int32(tower_fight_id))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
-	"test_lua":         test_lua_cmd,
-	"rand_role":        rand_role_cmd,
-	"new_role":         new_role_cmd,
-	"list_role":        list_role_cmd,
-	"set_attack_team":  set_attack_team_cmd,
-	"set_defense_team": set_defense_team_cmd,
-	"list_teams":       list_teams_cmd,
-	"pvp":              pvp_cmd,
-	"fight_stage":      fight_stage_cmd,
-	"fight_campaign":   fight_campaign_cmd,
-	"start_hangup":     start_hangup_cmd,
-	"hangup_income":    hangup_income_cmd,
-	"campaign_data":    campaign_data_cmd,
-	"leave_game":       leave_game_cmd,
-	"add_item":         add_item_cmd,
-	"role_levelup":     role_levelup_cmd,
-	"role_rankup":      role_rankup_cmd,
-	"role_decompose":   role_decompose_cmd,
-	"item_fusion":      item_fusion_cmd,
-	"fusion_role":      fusion_role_cmd,
-	"item_sell":        item_sell_cmd,
-	"send_mail":        send_mail_cmd,
-	"mail_list":        mail_list_cmd,
-	"mail_detail":      mail_detail_cmd,
-	"mail_items":       mail_items_cmd,
-	"delete_mail":      delete_mail_cmd,
+	"test_lua":           test_lua_cmd,
+	"rand_role":          rand_role_cmd,
+	"new_role":           new_role_cmd,
+	"list_role":          list_role_cmd,
+	"set_attack_team":    set_attack_team_cmd,
+	"set_defense_team":   set_defense_team_cmd,
+	"list_teams":         list_teams_cmd,
+	"pvp":                pvp_cmd,
+	"fight_stage":        fight_stage_cmd,
+	"fight_campaign":     fight_campaign_cmd,
+	"start_hangup":       start_hangup_cmd,
+	"hangup_income":      hangup_income_cmd,
+	"campaign_data":      campaign_data_cmd,
+	"leave_game":         leave_game_cmd,
+	"add_item":           add_item_cmd,
+	"role_levelup":       role_levelup_cmd,
+	"role_rankup":        role_rankup_cmd,
+	"role_decompose":     role_decompose_cmd,
+	"item_fusion":        item_fusion_cmd,
+	"fusion_role":        fusion_role_cmd,
+	"item_sell":          item_sell_cmd,
+	"send_mail":          send_mail_cmd,
+	"mail_list":          mail_list_cmd,
+	"mail_detail":        mail_detail_cmd,
+	"mail_items":         mail_items_cmd,
+	"delete_mail":        delete_mail_cmd,
+	"up_talent":          up_talent_cmd,
+	"tower_records_info": tower_records_info_cmd,
+	"tower_record_data":  tower_record_data_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

@@ -299,6 +299,28 @@
 					]
 				},
 				{
+					"DBColumnName":"TowerCommon",
+					"InUse":true,
+					"ColumnName":"TowerCommon",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"CurrId"}
+					]
+				},
+				{
+					"DBColumnName":"Tower",
+					"InUse":true,
+					"ColumnName":"Tower",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"}
+					]
+				},
+				{
 					"DBColumnName":"ShopItem",
 					"InUse":true,
 					"ColumnName":"ShopItem",
@@ -617,7 +639,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[				
+					"Fields":[
 					]
 				},
 				{
@@ -632,6 +654,54 @@
 					"Fields":[
 					]
 				},
+			]
+		},
+		{
+			"TableName":"TowerFightSave",
+			"DBTableName":"TowerFightSave",
+			"SingleRow":false,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"TowerFightId",
+			"PrimaryKeyType":"int32",
+			"PrimaryKeySize":11,
+			"Columns":[
+				{
+					"ColumnName":"Data",
+					"DBColumnName":"Data",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"bytes","Index":1,"Name":"Data"}
+					]
+				},
+				{
+					"ColumnName":"SaveTime",
+					"DBColumnName":"SaveTime",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"Attacker",
+					"DBColumnName":"Attacker",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+					]
+				}
 			]
 		},
 		{
