@@ -148,6 +148,8 @@ message PlayerTalentList{
 
 message PlayerTowerCommon{
 	optional int32 CurrId=1;
+	optional int32 Keys=2;
+	optional int32 LastGetNewKeyTime=3;
 }
 
 message PlayerTower{
@@ -347,5 +349,9 @@ message BattleSaveData{
 
 message TowerFightSaveData{
 	optional bytes Data=1;
+}
+
+message TowerRankingListPlayers{
+	repeated int32 Ids=1;
 }
 

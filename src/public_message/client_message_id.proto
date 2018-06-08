@@ -84,4 +84,6 @@ enum MSGID {
 	S2C_TOWER_RECORDS_INFO_RESPONSE			= 10703; // 爬塔录像信息返回 S2CTowerRecordsInfoResponse
 	C2S_TOWER_RECORD_DATA_REQUEST			= 10704; // 爬塔录像具体数据 C2STowerRecordDataRequest
 	S2C_TOWER_RECORD_DATA_RESPONSE			= 10705; // 爬塔录像具体数据返回 S2CTowerRecordDataResponse
+	C2S_TOWER_RANKING_LIST_REQUEST			= 10706; // 爬塔排行榜请求 C2STowerRankingListRequest
+	S2C_TOWER_RANKING_LIST_RESPONSE			= 10707; // 爬塔排行榜请求返回 S2CTowerRankingListResponse
 }
