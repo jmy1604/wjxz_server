@@ -103,6 +103,9 @@ func (this *Player) del_item(id int32, count int32) bool {
 	} else {
 		this.db.Items.IncbyCount(id, -count)
 	}
+	if this.items_changed_info == nil {
+		this.items_changed_info = make(map[int32]int32)
+	}
 	if d, o := this.items_changed_info[id]; !o {
 		this.items_changed_info[id] = -count
 	} else {
