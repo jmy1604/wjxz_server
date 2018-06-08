@@ -329,7 +329,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
 	}
 
-	if piece.ComposeType != 2 {
+	if piece.ComposeType != 2 && piece.ComposeType != 1 {
 		log.Error("Cant fusion item with piece[%v]", piece_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
 	}
