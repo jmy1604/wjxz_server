@@ -27,8 +27,9 @@ func (this *Player) send_tower_data(check bool) int32 {
 		this.check_tower_keys()
 	}
 	response := &msg_client_message.S2CTowerDataResponse{
-		CurrTowerId: this.db.TowerCommon.GetCurrId(),
-		TowerKeys:   this.db.TowerCommon.GetKeys(),
+		CurrTowerId:    this.db.TowerCommon.GetCurrId(),
+		TowerKeys:      this.db.TowerCommon.GetKeys(),
+		LastGetKeyTime: this.db.TowerCommon.GetLastGetNewKeyTime(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_DATA_RESPONSE), response)
 	return 1
@@ -45,8 +46,8 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32) {
 		last_time = now_time
 		this.db.TowerCommon.SetLastGetNewKeyTime(now_time)
 	}
-	keys_num := (now_time - last_time) / 1800
-	y := (now_time - last_time) % 1800
+	keys_num := (now_time - last_time) / TOWER_KEY_GET_INTERVAL
+	y := (now_time - last_time) % TOWER_KEY_GET_INTERVAL
 	if keys_num == 0 {
 		return
 	}
