@@ -355,7 +355,7 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_FUSION_RESPONSE), response)
 
-	log.Debug("Player[%v] fusioned item[%v] with piece[%v,%v]", this.Id, item.ItemCfgId)
+	log.Debug("Player[%v] fusioned item[%v] with piece[%v,%v]", this.Id, item.ItemCfgId, piece_id, fusion_num)
 
 	return 1
 }

@@ -106,10 +106,6 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 	if keys >= TOWER_KEY_MAX {
 		this.db.TowerCommon.SetLastGetNewKeyTime(int32(time.Now().Unix()))
 	}
-	/*this.db.Towers.Add(&dbPlayerTowerData{
-		Id: tower_id,
-	})*/
-
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:        is_win,
 		MyTeam:       my_team,
@@ -118,7 +114,6 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		Rounds:       rounds,
 	}
 	data := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
-	this.send_tower_data(false)
 
 	if is_win {
 		this.db.TowerCommon.SetCurrId(tower_id)
@@ -141,6 +136,8 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 			}
 		}
 	}
+
+	this.send_tower_data(false)
 
 	return 1
 }
