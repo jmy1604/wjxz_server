@@ -306,7 +306,9 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"CurrId"}
+						{"Type":"int32","Index":1,"Name":"CurrId"},
+						{"Type":"int32","Index":2,"Name":"Keys"},
+						{"Type":"int32","Index":3,"Name":"LastGetNewKeyTime"}
 					]
 				},
 				{
@@ -700,6 +702,30 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
+					]
+				}
+			]
+		},
+		{
+			"TableName":"TowerRankingList",
+			"DBTableName":"TowerRankingList",
+			"SingleRow":true,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"Id",
+			"PrimaryKeyType":"int32",
+			"PrimaryKeySize":11,
+			"Columns":[
+				{
+					"ColumnName":"Players",
+					"DBColumnName":"Players",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Ids","Repeated":true}
 					]
 				}
 			]

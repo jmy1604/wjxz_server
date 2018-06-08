@@ -55,6 +55,7 @@ func (this *HallServer) Init() (ok bool) {
 	world_chat_mgr.Init()
 	anouncement_mgr.Init()
 	battle_record_mgr.Init()
+	tower_ranking_list.LoadDB()
 
 	err := this.OnInit()
 	if err != nil {
@@ -170,6 +171,13 @@ func (this *HallServer) OnInit() (err error) {
 		return errors.New("talent_table_mgr init failed")
 	} else {
 		log.Info("talent_table_mgr init success")
+	}
+
+	if !tower_table_mgr.Init() {
+		log.Error("tower_table_mgr init failed")
+		return errors.New("tower_table_mgr init failed")
+	} else {
+		log.Info("tower_table_mgr init success")
 	}
 
 	if USE_CONN_TIMER_WHEEL == 0 {
@@ -338,6 +346,7 @@ var levelup_table_mgr table_config.LevelUpTableMgr
 var rankup_table_mgr table_config.RankUpTableMgr
 var fusion_table_mgr table_config.FusionTableMgr
 var talent_table_mgr table_config.TalentTableMgr
+var tower_table_mgr table_config.TowerTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

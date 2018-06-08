@@ -74,6 +74,8 @@ enum E_ERR {
 	PLAYER_TOWER_NOT_FOUND					= -16001; // 不存在的塔层
 	PLAYER_TOWER_NOT_ENOUGH_STAMINA			= -16002; // 爬塔体力不够
 	PLAYER_TOWER_FIGHT_RECORD_NOT_FOUND		= -16003; // 爬塔录像不存在
+	PLAYER_TOWER_ALREADY_HIGHEST			= -16004; // 爬塔已达最高层
+	PLAYER_TOWER_CANT_FIGHT					= -16005; // 不能打该层塔
 		
 	// 玩家
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -614,8 +616,9 @@ message S2CTalentListResponse {
 message C2STowerDataRequest {
 }
 message S2CTowerDataResponse {
-	int32 CurrTowerId 						= 1;
-	repeated int32 TowerIds					= 2;
+	int32 CurrTowerId 						= 1; // 当前层
+	int32 TowerKeys							= 2; // 钥匙数
+	int32 LastGetKeyTime					= 3; // 上次获取钥匙的时间点
 }
 
 // 请求爬塔某层录像
@@ -638,6 +641,18 @@ message C2STowerRecordDataRequest {
 }
 message S2CTowerRecordDataResponse {
 	bytes RecordData						= 1; // 对应S2CBattleResultResponse的pb序列化数据
+}
+
+// 请求爬塔排行榜
+message C2STowerRankingListRequest {
+}
+message TowerRankInfo {
+	int32 PlayerId 							= 1;
+	string PlayerName						= 2;
+	int32 TowerId							= 3;
+}
+message S2CTowerRankingListResponse {
+	repeated TowerRankInfo Ranks			= 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
