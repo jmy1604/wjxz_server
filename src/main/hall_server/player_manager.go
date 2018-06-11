@@ -352,7 +352,6 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 			return -4, p
 		}
 		pdb.SetAccount(token_info.acc)
-		pdb.SetToken(token_info.token)
 		pdb.SetCurrReplyMsgNum(0)
 		p = new_player(player_id, token_info.acc, token_info.token, pdb)
 		p.OnCreate()
@@ -368,7 +367,6 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 		p.Token = token_info.token
 		pdb := dbc.Players.GetRow(p.Id)
 		if pdb != nil {
-			pdb.SetToken(token_info.token)
 			pdb.SetCurrReplyMsgNum(0)
 		}
 	}

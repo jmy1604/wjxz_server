@@ -40,7 +40,7 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 	return
 }
 
-func get_items_info_from(item_ids, item_nums []int32) (items []*msg_client_message.ItemInfo) {
+func _get_items_info_from(item_ids, item_nums []int32) (items []*msg_client_message.ItemInfo) {
 	if item_ids != nil && item_nums != nil {
 		ids_len := len(item_ids)
 		nums_len := len(item_nums)
@@ -68,10 +68,22 @@ func (this *dbPlayerMailColumn) GetMailDetail(mail_id int32) (attached_items []*
 		return
 	}
 
-	attached_items = get_items_info_from(d.AttachItemIds, d.AttachItemNums)
+	attached_items = _get_items_info_from(d.AttachItemIds, d.AttachItemNums)
 	content = d.Content
 
 	return
+}
+
+func (this *dbPlayerMailColumn) HasUnreadMail() bool {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.HasUnreadMail")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	for _, v := range this.m_data {
+		if v.IsRead > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *Player) new_mail(typ int32, title, content string) int32 {
@@ -229,7 +241,7 @@ func (this *Player) GetMailAttachedItems(mail_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_NOT_FOUND)
 	}
 	item_nums, _ := this.db.Mails.GetAttachItemNums(mail_id)
-	items := get_items_info_from(item_ids, item_nums)
+	items := _get_items_info_from(item_ids, item_nums)
 	if items == nil {
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_NO_ATTACHED_ITEM)
 	}
