@@ -123,6 +123,7 @@ enum E_ERR {
 enum MODULE {
 	STATE_NONE								= 0;
 	STATE_HANGUP_RANDOM_INCOME				= 1; // 挂机随机收益
+	STATE_NEW_MAIL							= 2; // 新邮件
 }
 
 // 红点提示通知

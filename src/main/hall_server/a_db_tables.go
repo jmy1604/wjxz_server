@@ -634,7 +634,6 @@ func (this* dbPlayerNotifyStateData)clone_to(d *dbPlayerNotifyStateData){
 }
 type dbPlayerMailCommonData struct{
 	CurrId int32
-	FirstId int32
 	LastSendTribeMailTime int32
 }
 func (this* dbPlayerMailCommonData)from_pb(pb *db.PlayerMailCommon){
@@ -642,20 +641,17 @@ func (this* dbPlayerMailCommonData)from_pb(pb *db.PlayerMailCommon){
 		return
 	}
 	this.CurrId = pb.GetCurrId()
-	this.FirstId = pb.GetFirstId()
 	this.LastSendTribeMailTime = pb.GetLastSendTribeMailTime()
 	return
 }
 func (this* dbPlayerMailCommonData)to_pb()(pb *db.PlayerMailCommon){
 	pb = &db.PlayerMailCommon{}
 	pb.CurrId = proto.Int32(this.CurrId)
-	pb.FirstId = proto.Int32(this.FirstId)
 	pb.LastSendTribeMailTime = proto.Int32(this.LastSendTribeMailTime)
 	return
 }
 func (this* dbPlayerMailCommonData)clone_to(d *dbPlayerMailCommonData){
 	d.CurrId = this.CurrId
-	d.FirstId = this.FirstId
 	d.LastSendTribeMailTime = this.LastSendTribeMailTime
 	return
 }
@@ -3340,19 +3336,6 @@ func (this *dbPlayerMailCommonColumn)IncbyCurrId(v int32)(r int32){
 	this.m_data.CurrId += v
 	this.m_changed = true
 	return this.m_data.CurrId
-}
-func (this *dbPlayerMailCommonColumn)GetFirstId( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerMailCommonColumn.GetFirstId")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.FirstId
-	return
-}
-func (this *dbPlayerMailCommonColumn)SetFirstId(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerMailCommonColumn.SetFirstId")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.FirstId = v
-	this.m_changed = true
-	return
 }
 func (this *dbPlayerMailCommonColumn)GetLastSendTribeMailTime( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerMailCommonColumn.GetLastSendTribeMailTime")
