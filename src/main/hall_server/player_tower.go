@@ -13,11 +13,6 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-const (
-	TOWER_KEY_MAX          = 10
-	TOWER_KEY_GET_INTERVAL = 1800
-)
-
 func get_tower_fight_id(tower_id, i int32) int32 {
 	return tower_id*10 + i
 }
@@ -36,8 +31,10 @@ func (this *Player) send_tower_data(check bool) int32 {
 }
 
 func (this *Player) check_tower_keys() (is_update bool, keys int32) {
+	tower_key_max := global_config_mgr.GetGlobalConfig().TowerKeyMax
+	tower_key_get_interval := global_config_mgr.GetGlobalConfig().TowerKeyGetInterval
 	keys = this.db.TowerCommon.GetKeys()
-	if keys >= TOWER_KEY_MAX {
+	if keys >= tower_key_max {
 		return
 	}
 	now_time := int32(time.Now().Unix())
@@ -46,19 +43,26 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32) {
 		last_time = now_time
 		this.db.TowerCommon.SetLastGetNewKeyTime(now_time)
 	}
-	keys_num := (now_time - last_time) / TOWER_KEY_GET_INTERVAL
-	y := (now_time - last_time) % TOWER_KEY_GET_INTERVAL
+	keys_num := (now_time - last_time) / tower_key_get_interval
+	y := (now_time - last_time) % tower_key_get_interval
 	if keys_num == 0 {
 		return
 	}
 	keys += keys_num
-	if keys > TOWER_KEY_MAX {
-		keys = TOWER_KEY_MAX
+	if keys > tower_key_max {
+		keys = tower_key_max
 	}
 	this.db.TowerCommon.SetKeys(keys)
 	this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
 	is_update = true
 	return
+}
+
+func (this *Player) check_and_send_tower_data() {
+	is_update, _ := this.check_tower_keys()
+	if is_update {
+		this.send_tower_data(false)
+	}
 }
 
 func (this *Player) fight_tower(tower_id int32) int32 {
@@ -103,7 +107,8 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 
 	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(stage)
 	this.db.TowerCommon.SetKeys(keys - 1)
-	if keys >= TOWER_KEY_MAX {
+	tower_key_max := global_config_mgr.GetGlobalConfig().TowerKeyMax
+	if keys >= tower_key_max {
 		this.db.TowerCommon.SetLastGetNewKeyTime(int32(time.Now().Unix()))
 	}
 	response := &msg_client_message.S2CBattleResultResponse{

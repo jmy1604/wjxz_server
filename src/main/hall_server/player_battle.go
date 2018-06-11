@@ -795,8 +795,19 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 	} else if req.CampaignId > 0 {
 		res = p.FightInCampaign(req.CampaignId)
 	} else {
+
+	}
+
+	if req.BattleParam == 1 {
+		res = p.Fight2Player(req.BattleParam)
+	} else if req.BattleParam == 2 {
+		res = p.FightInCampaign(req.BattleParam)
+	} else if req.BattleParam == 3 {
+		res = p.fight_tower(req.BattleParam)
+	} else {
 		res = -1
 	}
+
 	return res
 }
 

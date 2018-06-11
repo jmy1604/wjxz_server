@@ -105,7 +105,7 @@ type Player struct {
 	items_changed_info   map[int32]int32 // 物品增删更新
 	tmp_cache_items      map[int32]int32
 
-	is_login bool
+	inited bool
 }
 
 func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
@@ -266,10 +266,17 @@ func (this *Player) OnCreate() {
 	return
 }
 
-func (this *Player) OnLogin() {
-	if this.is_login {
+func (this *Player) OnInit() {
+	if this.inited {
 		return
 	}
+	this.team_member_mgr = make(map[int32]*TeamMember)
+	this.init_battle_record_list()
+	this.inited = true
+}
+
+func (this *Player) OnLogin() {
+	this.OnInit()
 	if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Insert(this.Id)
 	} else {
@@ -279,9 +286,6 @@ func (this *Player) OnLogin() {
 	gm_command_mgr.OnPlayerLogin(this)
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
-	this.team_member_mgr = make(map[int32]*TeamMember)
-	this.init_battle_record_list()
-	this.is_login = true
 }
 
 func (this *Player) OnLogout() {
@@ -293,7 +297,6 @@ func (this *Player) OnLogout() {
 
 	// 离线收益时间开始
 	this.db.Info.SetLastLogout(int32(time.Now().Unix()))
-	this.is_login = false
 	log.Info("玩家[%d] 登出 ！！", this.Id)
 }
 
