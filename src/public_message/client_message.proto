@@ -330,6 +330,7 @@ message BattleFighter {
 	bool IsBlock							= 8; // 是否格挡
 	bool IsAbsorb							= 9; // 是否吸收
 	int32 AntiType							= 10; // 克制类型  1 克制 0 无克制 -1 被克制
+	int32 Shield							= 11; // 护盾
 }
 
 message BattleMemberBuff {

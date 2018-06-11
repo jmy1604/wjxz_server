@@ -1322,6 +1322,7 @@ func tower_record_data_cmd(p *Player, args []string) int32 {
 
 	var tower_fight_id int
 	var err error
+	tower_fight_id, err = strconv.Atoi(args[0])
 	if err != nil {
 		log.Error("爬塔战斗ID[%v]转换失败[%v]", args[0], err.Error())
 		return -1
@@ -1334,6 +1335,27 @@ func tower_ranklist_cmd(p *Player, args []string) int32 {
 	rank_list := tower_ranking_list.player_list[:tower_ranking_list.player_num]
 	log.Debug("TowerRankList: %v", rank_list)
 	return 1
+}
+
+func battle_recordlist_cmd(p *Player, args []string) int32 {
+	return p.GetBattleRecordList()
+}
+
+func battle_record_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var record_id int
+	var err error
+	record_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("战斗录像ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.GetBattleRecord(int32(record_id))
 }
 
 type test_cmd_func func(*Player, []string) int32
@@ -1372,6 +1394,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"tower_records_info": tower_records_info_cmd,
 	"tower_record_data":  tower_record_data_cmd,
 	"tower_ranklist":     tower_ranklist_cmd,
+	"battle_recordlist":  battle_recordlist_cmd,
+	"battle_record":      battle_record_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

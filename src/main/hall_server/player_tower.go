@@ -58,6 +58,13 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32) {
 	return
 }
 
+func (this *Player) check_and_send_tower_data() {
+	is_update, _ := this.check_tower_keys()
+	if is_update {
+		this.send_tower_data(false)
+	}
+}
+
 func (this *Player) fight_tower(tower_id int32) int32 {
 	// 是否时当前层的下一层
 	var tower *table_config.XmlTowerItem

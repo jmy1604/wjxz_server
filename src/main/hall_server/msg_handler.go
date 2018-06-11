@@ -214,9 +214,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			p.bhandling = true
 			p.b_base_prop_chg = false
-			if !p.is_login {
-				p.OnLogin()
-			}
+			p.OnInit()
 			ret_code = handlerinfo.player_msg_handler(w, r, p /*req*/, tmp_msg.GetData())
 		}
 

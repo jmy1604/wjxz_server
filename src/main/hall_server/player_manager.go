@@ -403,7 +403,7 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 		conn_timer_wheel.Insert(p.Id)
 	}
 	p.send_notify_state()
-	p.send_tower_data(true)
+	p.check_and_send_tower_data()
 
 	return 1
 }

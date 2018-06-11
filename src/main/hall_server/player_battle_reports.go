@@ -13,6 +13,7 @@ func (this *TeamMember) build_battle_fighter(damage int32) *msg_client_message.B
 	item.MaxHP = this.attrs[ATTR_HP_MAX]
 	item.Energy = this.energy
 	item.Damage = damage
+	item.Shield = this.attrs[ATTR_SHIELD]
 	return item
 }
 
