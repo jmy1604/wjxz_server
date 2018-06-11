@@ -16,6 +16,9 @@
 	
 	"PlayerBattleRecordMaxCount":10,
 	
+	"TowerKeyMax": 10,
+	"TowerKeyGetInterval": 1800,
+	
 	"MaxFriendNum":200,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

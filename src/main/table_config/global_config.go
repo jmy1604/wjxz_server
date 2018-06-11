@@ -44,6 +44,8 @@ type GlobalConfig struct {
 	MailExistDays              int32      // 邮件保留天数
 	MailTribeSendCooldown      int32      // 部落邮件发送间隔
 	PlayerBattleRecordMaxCount int32      // 玩家战斗录像最大数量
+	TowerKeyMax                int32      // 爬塔钥匙最大值
+	TowerKeyGetInterval        int32      // 爬塔获取钥匙的时间间隔(秒)
 
 	MaxFriendNum int32
 

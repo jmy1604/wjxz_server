@@ -1292,7 +1292,8 @@ func fight_tower_cmd(p *Player, args []string) int32 {
 }
 
 func get_tower_key_cmd(p *Player, args []string) int32 {
-	p.db.TowerCommon.SetKeys(TOWER_KEY_MAX)
+	tower_key_max := global_config_mgr.GetGlobalConfig().TowerKeyMax
+	p.db.TowerCommon.SetKeys(tower_key_max)
 	return p.send_tower_data(false)
 }
 
