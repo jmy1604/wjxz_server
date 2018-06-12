@@ -7,8 +7,8 @@ import (
 )
 
 type XmlTowerItem struct {
-	Id      int32 `xml:"Id,attr"`
-	StageId int32 `xml:"StageId,attr"`
+	Id      int32 `xml:"TowerID,attr"`
+	StageId int32 `xml:"StageID,attr"`
 	Next    *XmlTowerItem
 }
 
