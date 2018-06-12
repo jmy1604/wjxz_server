@@ -475,7 +475,7 @@ message C2SItemFusionRequest {
 }
 
 message S2CItemFusionResponse {
-	ItemInfo Item                           = 1; // 合成的物品
+	repeated ItemInfo Items                 = 1; // 合成的物品或角色
 }
 
 // 出售物品
