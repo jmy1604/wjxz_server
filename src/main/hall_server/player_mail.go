@@ -40,7 +40,7 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 	return
 }
 
-func get_items_info_from(item_ids, item_nums []int32) (items []*msg_client_message.ItemInfo) {
+func _get_items_info_from(item_ids, item_nums []int32) (items []*msg_client_message.ItemInfo) {
 	if item_ids != nil && item_nums != nil {
 		ids_len := len(item_ids)
 		nums_len := len(item_nums)
@@ -68,16 +68,39 @@ func (this *dbPlayerMailColumn) GetMailDetail(mail_id int32) (attached_items []*
 		return
 	}
 
-	attached_items = get_items_info_from(d.AttachItemIds, d.AttachItemNums)
+	attached_items = _get_items_info_from(d.AttachItemIds, d.AttachItemNums)
 	content = d.Content
 
 	return
 }
 
+func (this *dbPlayerMailColumn) HasUnreadMail() bool {
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.HasUnreadMail")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+
+	for _, v := range this.m_data {
+		if v.IsRead > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *Player) new_mail(typ int32, title, content string) int32 {
-	if this.db.Mails.NumAll() >= global_config_mgr.GetGlobalConfig().MailMaxCount {
-		min_id := this.db.MailCommon.GetFirstId()
-		this.db.Mails.Remove(min_id)
+	mail_max := global_config_mgr.GetGlobalConfig().MailMaxCount
+	if this.db.Mails.NumAll() >= mail_max {
+		first_id := int32(0)
+		all_ids := this.db.Mails.GetAllIndex()
+		if all_ids != nil {
+			for i := 0; i < len(all_ids); i++ {
+				if all_ids[i] < first_id || first_id == 0 {
+					first_id = all_ids[i]
+				}
+			}
+			if first_id > 0 {
+				this.db.Mails.Remove(first_id)
+			}
+		}
 	}
 	new_id := this.db.MailCommon.IncbyCurrId(1)
 	this.db.Mails.Add(&dbPlayerMailData{
@@ -87,6 +110,7 @@ func (this *Player) new_mail(typ int32, title, content string) int32 {
 		Content:  content,
 		SendUnix: int32(time.Now().Unix()),
 	})
+
 	return new_id
 }
 
@@ -146,6 +170,13 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 		sender.db.MailCommon.SetLastSendTribeMailTime(int32(time.Now().Unix()))
 	}
 
+	if !receiver.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
+		receiver.db.NotifyStates.Add(&dbPlayerNotifyStateData{
+			ModuleType: int32(msg_client_message.MODULE_STATE_NEW_MAIL),
+		})
+		receiver.notify_state_changed(int32(msg_client_message.MODULE_STATE_NEW_MAIL), 1)
+	}
+
 	if sender != nil {
 		log.Debug("Player[%v] send mail[%v] type[%v] title[%v] content[%v]", sender.Id, mail_id, mail_type, title, content)
 	}
@@ -162,6 +193,12 @@ func (this *Player) GetMailList() int32 {
 		Mails: basic,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_LIST_RESPONSE), response)
+
+	if this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
+		this.db.NotifyStates.Remove(int32(msg_client_message.MODULE_STATE_NEW_MAIL))
+		this.notify_state_changed(int32(msg_client_message.MODULE_STATE_NEW_MAIL), 2)
+	}
+
 	return 1
 }
 
@@ -176,6 +213,7 @@ func (this *Player) GetMailDetail(mail_ids []int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_MAIL_NOT_FOUND)
 		}
 
+		this.db.Mails.SetIsRead(mail_ids[i], 1)
 		attached_items, content := this.db.Mails.GetMailDetail(mail_ids[i])
 		if attached_items == nil {
 			attached_items = make([]*msg_client_message.ItemInfo, 0)
@@ -203,7 +241,7 @@ func (this *Player) GetMailAttachedItems(mail_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_NOT_FOUND)
 	}
 	item_nums, _ := this.db.Mails.GetAttachItemNums(mail_id)
-	items := get_items_info_from(item_ids, item_nums)
+	items := _get_items_info_from(item_ids, item_nums)
 	if items == nil {
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_NO_ATTACHED_ITEM)
 	}

@@ -123,6 +123,7 @@ enum E_ERR {
 enum MODULE {
 	STATE_NONE								= 0;
 	STATE_HANGUP_RANDOM_INCOME				= 1; // 挂机随机收益
+	STATE_NEW_MAIL							= 2; // 新邮件
 }
 
 // 红点提示通知
@@ -438,7 +439,7 @@ message C2SCampaignHangupIncomeRequest {
 
 // 关卡战斗结果奖励
 message S2CCampaignHangupIncomeResponse {
-	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战斗奖励
+	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战斗奖励  3 爬塔奖励
 	repeated ItemInfo Rewards				= 2; // 奖励
 }
 
@@ -474,7 +475,7 @@ message C2SItemFusionRequest {
 }
 
 message S2CItemFusionResponse {
-	ItemInfo Item                           = 1; // 合成的物品
+	repeated ItemInfo Items                 = 1; // 合成的物品或角色
 }
 
 // 出售物品

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ACCOUNT_TOKEN_KEY = "ih:account_token_key"
+	ACCOUNT_TOKEN_KEY = "ih:hall_server:account_token_key"
 )
 
 type RedisLoginTokenInfo struct {

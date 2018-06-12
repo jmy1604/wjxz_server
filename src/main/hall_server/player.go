@@ -86,9 +86,7 @@ type Player struct {
 	total_msg_data_len int32
 	b_base_prop_chg    bool
 
-	used_drop_ids    map[int32]int32       // 抽卡掉落ID统计
-	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
-	anouncement_data PlayerAnouncementData // 公告缓存数据
+	used_drop_ids map[int32]int32 // 抽卡掉落ID统计
 
 	team_member_mgr map[int32]*TeamMember // 成员map
 	attack_team     *BattleTeam           // 进攻阵营
@@ -104,6 +102,11 @@ type Player struct {
 	roles_id_change_info IdChangeInfo    // 角色增删更新
 	items_changed_info   map[int32]int32 // 物品增删更新
 	tmp_cache_items      map[int32]int32
+
+	states_changed map[int32]int32 // 提示状态变化
+
+	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
+	anouncement_data PlayerAnouncementData // 公告缓存数据
 
 	inited bool
 }

@@ -144,6 +144,22 @@ func (this *Player) FightInStage(stage *table_config.XmlPassItem) (is_win bool, 
 	return
 }
 
+func (this *Player) send_stage_reward(stage *table_config.XmlPassItem, reward_type int32) {
+	rewards_msg := &msg_client_message.S2CCampaignHangupIncomeResponse{}
+	// 奖励
+	for i := 0; i < len(stage.RewardList)/2; i++ {
+		item_id := stage.RewardList[2*i]
+		item_num := stage.RewardList[2*i+1]
+		this.add_resource(item_id, item_num)
+		rewards_msg.Rewards = append(rewards_msg.Rewards, &msg_client_message.ItemInfo{
+			ItemCfgId: item_id,
+			ItemNum:   item_num,
+		})
+	}
+	rewards_msg.IncomeType = reward_type
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), rewards_msg)
+}
+
 func (this *Player) FightInCampaign(campaign_id int32) int32 {
 	stage := get_stage_by_campaign(campaign_id)
 	if stage == nil {
@@ -205,19 +221,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	if is_win && !has_next_wave {
-		rewards_msg := &msg_client_message.S2CCampaignHangupIncomeResponse{}
-		// 奖励
-		for i := 0; i < len(stage.RewardList)/2; i++ {
-			item_id := stage.RewardList[2*i]
-			item_num := stage.RewardList[2*i+1]
-			this.add_resource(item_id, item_num)
-			rewards_msg.Rewards = append(rewards_msg.Rewards, &msg_client_message.ItemInfo{
-				ItemCfgId: item_id,
-				ItemNum:   item_num,
-			})
-		}
-		rewards_msg.IncomeType = 2
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), rewards_msg)
+		this.send_stage_reward(stage, 2)
 	}
 
 	Output_S2CBattleResult(this, response)

@@ -342,20 +342,24 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_COUNT_NOT_ENOUGH_TO_FUSION)
 	}
 
-	o, item := this.drop_item_by_id(piece.ComposeDropID, true, true)
-	if !o {
-		log.Error("Player[%v] fusion item with piece[%v] failed", this.Id, piece_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
+	var items []*msg_client_message.ItemInfo
+	for i := int32(0); i < fusion_num; i++ {
+		o, item := this.drop_item_by_id(piece.ComposeDropID, true, true)
+		if !o {
+			log.Error("Player[%v] fusion item with piece[%v] failed", this.Id, piece_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
+		}
+		items = append(items, item)
 	}
 
 	this.del_item(piece_id, fusion_num*piece.ComposeNum)
 
 	response := &msg_client_message.S2CItemFusionResponse{
-		Item: item,
+		Items: items,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_FUSION_RESPONSE), response)
 
-	log.Debug("Player[%v] fusioned item[%v] with piece[%v,%v]", this.Id, item.ItemCfgId, piece_id, fusion_num)
+	log.Debug("Player[%v] fusioned items[%v] with piece[%v,%v]", this.Id, items, piece_id, fusion_num)
 
 	return 1
 }
