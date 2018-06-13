@@ -11,6 +11,6 @@ nohup `pwd`/rpc_server &
 sleep 1s
 nohup `pwd`/hall_server &
 sleep 1s 
-nohup `pwd`/hall_server -f `pwd`/../conf/hall_server2.cfg &
+nohup `pwd`/hall_server -f `pwd`/../conf/hall_server2.json &
 sleep 1s
 nohup `pwd`/login_server &
