@@ -393,7 +393,7 @@ func (this *Player) sell_item(item_id, item_num int32) int32 {
 	this.del_item(item_id, item_num)
 	if item.SellReward != nil {
 		for i := 0; i < len(item.SellReward)/2; i++ {
-			this.add_resource(item.SellReward[2*i], item.SellReward[2*i+1])
+			this.add_resource(item.SellReward[2*i], item_num*item.SellReward[2*i+1])
 		}
 	}
 
