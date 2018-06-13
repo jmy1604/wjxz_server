@@ -153,7 +153,7 @@ func L2CGetPlayerAccInfoHandler(conn *server_conn.ServerConn, m proto.Message) {
 		res.ForbidEndTime = end_t.Format("2006-01-02 15:04:05.999999999")
 	}*/
 
-	hall_cfg := hall_group_mgr.GetHallCfgByPlayerId(player_id)
+	/*hall_cfg := hall_group_mgr.GetHallCfgByPlayerId(player_id)
 	if nil == hall_cfg {
 		log.Trace("L2CGetPlayerAccInfoHandler gethall by player id failed !")
 		return
@@ -161,7 +161,7 @@ func L2CGetPlayerAccInfoHandler(conn *server_conn.ServerConn, m proto.Message) {
 	res.PlayerId = int64(player_id)
 	res.HallId = hall_cfg.ServerId
 	res.HallIP = hall_cfg.ServerIP
-	conn.Send(uint16(msg_server_message.MSGID_C2L_PLAYER_ACC_INFO), res, true)
+	conn.Send(uint16(msg_server_message.MSGID_C2L_PLAYER_ACC_INFO), res, true)*/
 
 	return
 }

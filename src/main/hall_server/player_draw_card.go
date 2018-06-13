@@ -22,8 +22,6 @@ func (this *Player) drop_item_by_id(id int32, check_same bool, add bool) (bool, 
 }
 
 func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, badd bool) (item *msg_client_message.ItemInfo) {
-	log.Info("当前抽取库 总数目%d 总权重%d 详细%v", drop_lib.TotalCount, drop_lib.TotalWeight, drop_lib)
-
 	if check_same {
 		if this.used_drop_ids == nil || len(this.used_drop_ids) == int(drop_lib.TotalCount) {
 			this.used_drop_ids = make(map[int32]int32)

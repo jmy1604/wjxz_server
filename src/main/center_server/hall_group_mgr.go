@@ -29,7 +29,7 @@ type HallGroupMgr struct {
 	hall_groups *HallGroups
 }
 
-var hall_group_mgr HallGroupMgr
+//var hall_group_mgr HallGroupMgr
 
 func (this *HallGroupMgr) Init() bool {
 

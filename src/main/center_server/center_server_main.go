@@ -62,12 +62,12 @@ func g_init() bool {
 		log.Event("初始化：signal mgr init succeed ！", nil)
 	}
 
-	if !hall_group_mgr.Init() {
+	/*if !hall_group_mgr.Init() {
 		log.Error("hall_group_mgr init failed !")
 		return false
 	} else {
 		log.Event("初始化：hall_group_mgr init succeed !", nil)
-	}
+	}*/
 
 	if !hall_agent_mgr.Init() {
 		log.Error("hall_agent_mgr init failed")
@@ -113,7 +113,7 @@ func main() {
 		time.Sleep(time.Second * 5)
 	}()
 
-	config_file := "../conf/center_server.cfg"
+	config_file := "../conf/center_server.json"
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
 		if nil != arg_config_file && "" != *arg_config_file {
