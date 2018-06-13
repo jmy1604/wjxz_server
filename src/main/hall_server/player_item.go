@@ -349,7 +349,21 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 			log.Error("Player[%v] fusion item with piece[%v] failed", this.Id, piece_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
 		}
-		items = append(items, item)
+		if items != nil || len(items) > 0 {
+			item_data := item_table_mgr.Get(item.ItemCfgId)
+			j := 0
+			for ; j < len(items); j++ {
+				if item_data != nil && items[j].ItemCfgId == item.ItemCfgId {
+					items[j].ItemNum += item.ItemNum
+					break
+				}
+			}
+			if j >= len(items) {
+				items = append(items, item)
+			}
+		} else {
+			items = []*msg_client_message.ItemInfo{item}
+		}
 	}
 
 	this.del_item(piece_id, fusion_num*piece.ComposeNum)
