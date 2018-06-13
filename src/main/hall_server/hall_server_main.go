@@ -66,7 +66,7 @@ func main() {
 
 	var temp_i int32
 
-	config_file := "../conf/hall_server.cfg"
+	config_file := "../conf/hall_server.json"
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
 		if arg_config_file != nil && *arg_config_file == "" {

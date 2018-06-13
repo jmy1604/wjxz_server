@@ -31,7 +31,7 @@ func main() {
 		log.Close()
 	}()
 
-	config_file := "../conf/rpc_server.cfg"
+	config_file := "../conf/rpc_server.json"
 	if len(os.Args) > 1 {
 		arg_config_file := flag.String("f", "", "config file path")
 		if nil != arg_config_file && "" != *arg_config_file {

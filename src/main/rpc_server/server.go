@@ -3,7 +3,6 @@ package main
 import (
 	_ "encoding/json"
 	"errors"
-	"fmt"
 	_ "io/ioutil"
 	"libs/log"
 	"libs/rpc"
@@ -55,18 +54,15 @@ func (this *RpcServer) load_config() bool {
 }
 
 func (this *RpcServer) OnInit() bool {
-	fmt.Println("================4")
 	if !this.load_config() {
 		log.Error("load config failed")
 		return false
 	}
-	fmt.Println("================5")
 
-	if !hall_group_mgr.Init() {
+	/*if !hall_group_mgr.Init() {
 		log.Error("hall group manager init failed")
 		return false
-	}
-	fmt.Println("================6")
+	}*/
 
 	if !this.init_proc_service() {
 		log.Error("init rpc service failed")
