@@ -138,19 +138,19 @@ message C2SHeartbeat {
 
 // 请求数据同步
 message C2SDataSyncRequest {
-	bool Base				= 1;
-	bool Items 				= 2;
-	bool Roles				= 3;
-	bool Teams				= 4;
-	bool Campaigns			= 5;
+	bool Base								= 1;
+	bool Items 								= 2;
+	bool Roles								= 3;
+	bool Teams								= 4;
+	bool Campaigns							= 5;
 }
 
 ////////////////////////////////////end////////////////////////////////////////
 
 // 测试用消息
 message C2S_TEST_COMMAND {
-	string cmd 				= 1;
-	repeated string args 	= 2;
+	string cmd 								= 1;
+	repeated string args 					= 2;
 }
 
 ///////////////////////////////////////end////////////////////////////////////
@@ -383,6 +383,8 @@ message S2CBattleResultResponse {
 	map<int32, int32> TargetMemberCures   	= 9; // 敌方治疗统计
 	bool HasNextWave						= 10; // 关卡是否有下一波战斗
 	int32 NextCampaignId					= 11; // 下一个战役ID
+	int32 BattleType						= 12; // 战斗类型
+	int32 BattleParam						= 13; // 战斗参数
 }
 
 // 请求录像列表
