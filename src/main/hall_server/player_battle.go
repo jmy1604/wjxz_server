@@ -389,8 +389,8 @@ func (this *BattleTeam) UseSkillOnce(self_index int32, target_team *BattleTeam, 
 		target_team = this
 	}
 
-	self.used_skill()
 	skill_effect(this, self_index, target_team, target_pos, skill)
+	self.used_skill(skill)
 
 	// 清除临时技能
 	if self.use_temp_skill {
