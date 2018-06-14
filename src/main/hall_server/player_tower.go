@@ -111,12 +111,20 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 	if keys >= tower_key_max {
 		this.db.TowerCommon.SetLastGetNewKeyTime(int32(time.Now().Unix()))
 	}
+	member_damages := this.attack_team.common_data.members_damage
+	member_cures := this.attack_team.common_data.members_cure
 	response := &msg_client_message.S2CBattleResultResponse{
-		IsWin:        is_win,
-		MyTeam:       my_team,
-		TargetTeam:   target_team,
-		EnterReports: enter_reports,
-		Rounds:       rounds,
+		IsWin:               is_win,
+		MyTeam:              my_team,
+		TargetTeam:          target_team,
+		EnterReports:        enter_reports,
+		Rounds:              rounds,
+		MyMemberDamages:     member_damages[this.attack_team.side],
+		TargetMemberDamages: member_damages[this.stage_team.side],
+		MyMemberCures:       member_cures[this.attack_team.side],
+		TargetMemberCures:   member_cures[this.stage_team.side],
+		BattleType:          3,
+		BattleParam:         tower_id,
 	}
 	data := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

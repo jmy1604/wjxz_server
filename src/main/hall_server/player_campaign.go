@@ -217,6 +217,8 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		TargetMemberCures:   member_cures[this.stage_team.side],
 		HasNextWave:         has_next_wave,
 		NextCampaignId:      next_campaign_id,
+		BattleType:          2,
+		BattleParam:         campaign_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

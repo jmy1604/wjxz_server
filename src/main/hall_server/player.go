@@ -733,6 +733,8 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		TargetMemberDamages: members_damage[p.defense_team.side],
 		MyMemberCures:       members_cure[this.attack_team.side],
 		TargetMemberCures:   members_cure[p.defense_team.side],
+		BattleType:          1,
+		BattleParam:         player_id,
 	}
 	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
