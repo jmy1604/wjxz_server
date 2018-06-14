@@ -389,6 +389,7 @@ func (this *BattleTeam) UseSkillOnce(self_index int32, target_team *BattleTeam, 
 		target_team = this
 	}
 
+	self.used_skill()
 	skill_effect(this, self_index, target_team, target_pos, skill)
 
 	// 清除临时技能
@@ -451,7 +452,7 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 			log.Debug("@@@@@@!!!!!! Team[%v] member[%v] will use combo skill[%v]", this.side, self_index, skill.ComboSkill)
 			this.UseSkillOnce(self_index, target_team, skill.ComboSkill)
 		}
-		mem.used_skill()
+		//mem.used_skill()
 		this.DelaySkillEffect()
 	}
 
