@@ -393,7 +393,7 @@ func (this *Player) sell_item(item_id, item_num int32) int32 {
 	this.del_item(item_id, item_num)
 	if item.SellReward != nil {
 		for i := 0; i < len(item.SellReward)/2; i++ {
-			this.add_resource(item.SellReward[2*i], item.SellReward[2*i+1])
+			this.add_resource(item.SellReward[2*i], item_num*item.SellReward[2*i+1])
 		}
 	}
 
@@ -440,111 +440,6 @@ func (this *Player) AddHead(item_id int32) {
 	msg := &msg_client_message.S2CNewHeadNotify{}
 	msg.ItemId = proto.Int32(item_id)
 	this.Send(msg)
-}
-
-func (this *Player) use_item(item_id int32, item_count int32) int32 {
-	if item_count <= 0 {
-		return -1
-	}
-
-	item := item_table_mgr.Map[item_id]
-	if item == nil {
-		log.Error("没有ID为%v的物品配置", item_id)
-		return -1
-	}
-
-	num, o := this.db.Items.GetItemNum(item_id)
-	if !o {
-		log.Error("没有物品[%v]", item_id)
-		return -1
-	}
-
-	if num < item_count {
-		log.Error("物品[%v]数量[%v]不够", item_id, item_count)
-		return -1
-	}
-
-	// 先判断是否为限时道具
-	if item.ValidTime > 0 {
-		item_data := this.db.Items.Get(item_id)
-		if item_data != nil {
-			if get_time_item_remain_seconds(item_data) == 0 {
-				log.Error("玩家[%v]限时道具[%v]已过期", this.Id, item_id)
-				return -1
-			}
-		}
-	}
-
-	// 体力道具
-	if item.Type == ITEM_TYPE_STAMINA {
-		if len(item.Numbers) < 2 {
-			log.Error("物品[%v]数据配置错误", item_id)
-			return -1
-		}
-		//this.AddSpirit(item.Numbers[1], "use_spirit_item", "use_item")
-		this.RemoveItem(item_id, item_count, false)
-		this.AddItemResource(item.Numbers[0], item.Numbers[1]*item_count, "use_spirit_item", "use_item")
-	}
-
-	// 发送物品变化
-	this.item_change_info.send_items_update(this)
-
-	msg := &msg_client_message.S2CUseItem{}
-	msg.CostItem = &msg_client_message.ItemInfo{}
-	msg.CostItem.ItemCfgId = proto.Int32(item_id)
-	msg.CostItem.ItemNum = proto.Int32(item_count)
-	this.Send(msg)
-
-	return 1
-}
-
-func (this *Player) sell_item(item_id int32, item_count int32) int32 {
-	item := item_table_mgr.Map[item_id]
-	if item == nil {
-		log.Error("没有ID为%v的物品", item_id)
-		return -1
-	}
-
-	if this.RemoveItem(item_id, item_count, false) == nil {
-		return -1
-	}
-
-	// 发送物品变化
-	this.item_change_info.send_items_update(this)
-
-	this.AddCoin(item.SaleCoin*item_count, "sell item", "item")
-
-	msg := &msg_client_message.S2CSellItemResult{}
-	msg.ItemId = proto.Int32(item_id)
-	msg.ItemNum = proto.Int32(item_count)
-	this.Send(msg)
-
-	return 1
-}
-
-func (this *Player) ChkItemsEnough(itemidnums []int32) bool {
-	tmp_len := int32(len(itemidnums))
-	var item_id, item_num, db_num int32
-	for idx := int32(0); idx < tmp_len; idx += 2 {
-		item_id = itemidnums[idx]
-		item_num = itemidnums[idx+1]
-		db_num, _ = this.db.Items.GetItemNum(item_id)
-		if db_num < item_num {
-			return false
-		}
-	}
-	return true
-}
-
-func (this *Player) RemoveItems(itemidnums []int32, reason, mod string) {
-	tmp_len := int32(len(itemidnums))
-	var item_id, item_num int32
-	for idx := int32(0); idx < tmp_len; idx += 2 {
-		item_id = itemidnums[idx]
-		item_num = itemidnums[idx+1]
-		this.RemoveItem(item_id, item_num, true)
-	}
-	return
 }
 */
 

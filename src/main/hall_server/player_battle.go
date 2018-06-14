@@ -590,6 +590,16 @@ func (this *BattleTeam) MembersNum() (num int32) {
 	return
 }
 
+func (this *BattleTeam) GetMembersEnergy() (energy map[int32]int32) {
+	energy = make(map[int32]int32)
+	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		if this.members[i] != nil && !this.members[i].is_dead() {
+			energy[i] = this.members[i].energy
+		}
+	}
+	return
+}
+
 // 开打
 func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) (is_win bool, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports) {
 	round_max := end_param
@@ -626,6 +636,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.DoRound(target_team)
 
 		round := msg_battle_round_reports_pool.Get()
+		round.MyMembersEnergy = this.GetMembersEnergy()
+		round.TargetMembersEnergy = target_team.GetMembersEnergy()
 		round.Reports = this.common_data.reports
 		round.RemoveBuffs = this.common_data.remove_buffs
 		round.ChangedFighters = this.common_data.changed_fighters
