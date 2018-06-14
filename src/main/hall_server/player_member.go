@@ -721,7 +721,10 @@ func (this *TeamMember) act_done() {
 	}
 }
 
-func (this *TeamMember) used_skill() {
+func (this *TeamMember) used_skill(skill *table_config.XmlSkillItem) {
+	if skill.Type != SKILL_TYPE_SUPER {
+		return
+	}
 	max_energy := global_config_mgr.GetGlobalConfig().MaxEnergy
 	if max_energy == 0 {
 		max_energy = BATTLE_TEAM_MEMBER_MAX_ENERGY
