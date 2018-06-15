@@ -461,8 +461,12 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 		if len(effect_cond) >= 1 {
 			if len(effect_cond) >= 2 {
 				if effect_cond[0] == SKILL_COND_TYPE_HAS_LABEL {
-					if mem.card.Label != effect_cond[1] {
-						return true
+					if mem.card.Label != nil {
+						for i := 0; i < len(mem.card.Label); i++ {
+							if mem.card.Label[i] == effect_cond[1] {
+								return true
+							}
+						}
 					}
 				} else if effect_cond[0] == SKILL_COND_TYPE_HAS_BUFF {
 					if mem.has_buff(effect_cond[1]) {
@@ -505,7 +509,13 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 						return true
 					}
 				} else if effect_cond[0] == SKILL_COND_TYPE_NO_LABEL {
-
+					if mem.card.Label != nil {
+						for i := 0; i < len(mem.card.Label); i++ {
+							if mem.card.Label[i] == effect_cond[1] {
+								return false
+							}
+						}
+					}
 				} else if effect_cond[0] == SKILL_COND_TYPE_NO_BUFF {
 					if !mem.has_buff(effect_cond[1]) {
 						return true

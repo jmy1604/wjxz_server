@@ -95,56 +95,68 @@ func (this *SkillTableMgr) Load() bool {
 		tmp_item = &tmp_cfg.Items[idx]
 		tmp_item.SkillAttr = parse_xml_str_arr2(tmp_item.SkillAttrStr, ",")
 		if tmp_item.SkillAttr == nil {
-			tmp_item.SkillAttr = make([]int32, 0)
+			log.Error("SkillTableMgr parse SkillAttrStr with [%v] failed", tmp_item.SkillAttrStr)
+			return false
 		}
 
 		tmp_item.TriggerCondition1 = parse_xml_str_arr2(tmp_item.TriggerCondition1Str, "|")
 		if tmp_item.TriggerCondition1 == nil {
-			tmp_item.TriggerCondition1 = make([]int32, 0)
+			log.Error("SkillTableMgr parse TriggerCondition1Str with [%v] failed", tmp_item.TriggerCondition1Str)
+			return false
 		}
 
 		tmp_item.TriggerCondition2 = parse_xml_str_arr2(tmp_item.TriggerCondition2Str, "|")
 		if tmp_item.TriggerCondition2 == nil {
-			tmp_item.TriggerCondition2 = make([]int32, 0)
+			log.Error("SkillTableMgr parse TriggerCondition2Str with [%v] failed", tmp_item.TriggerCondition2Str)
+			return false
 		}
 
 		tmp_item.Effect1Cond1 = parse_xml_str_arr2(tmp_item.Effect1Cond1Str, "|")
 		if tmp_item.Effect1Cond1 == nil {
-			tmp_item.Effect1Cond1 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect1Cond1Str with [%v] failed", tmp_item.Effect1Cond1Str)
+			return false
 		}
 		tmp_item.Effect1Cond2 = parse_xml_str_arr2(tmp_item.Effect1Cond2Str, "|")
 		if tmp_item.Effect1Cond2 == nil {
-			tmp_item.Effect1Cond2 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect1Cond2Str with [%v] failed", tmp_item.Effect1Cond2Str)
+			return false
 		}
 		tmp_item.Effect1 = parse_xml_str_arr2(tmp_item.Effect1Str, "|")
 		if tmp_item.Effect1 == nil {
-			tmp_item.Effect1 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect1Str with [%v] failed", tmp_item.Effect1Str)
+			return false
 		}
 
 		tmp_item.Effect2Cond1 = parse_xml_str_arr2(tmp_item.Effect2Cond1Str, "|")
 		if tmp_item.Effect2Cond1 == nil {
-			tmp_item.Effect2Cond1 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect2Cond1Str with [%v] failed", tmp_item.Effect2Cond1Str)
+			return false
 		}
 		tmp_item.Effect2Cond2 = parse_xml_str_arr2(tmp_item.Effect2Cond2Str, "|")
 		if tmp_item.Effect2Cond2 == nil {
-			tmp_item.Effect2Cond2 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect2Cond2Str with [%v] failed", tmp_item.Effect2Cond2Str)
+			return false
 		}
 		tmp_item.Effect2 = parse_xml_str_arr2(tmp_item.Effect2Str, "|")
 		if tmp_item.Effect2 == nil {
-			tmp_item.Effect2 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect2Str with [%v] failed", tmp_item.Effect2Str)
+			return false
 		}
 
 		tmp_item.Effect3Cond1 = parse_xml_str_arr2(tmp_item.Effect3Cond1Str, "|")
 		if tmp_item.Effect3Cond1 == nil {
-			tmp_item.Effect3Cond1 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect3Cond1Str with [%v] failed", tmp_item.Effect3Cond1Str)
+			return false
 		}
 		tmp_item.Effect3Cond2 = parse_xml_str_arr2(tmp_item.Effect3Cond2Str, "|")
 		if tmp_item.Effect3Cond2 == nil {
-			tmp_item.Effect3Cond2 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect3Cond2Str with [%v] failed", tmp_item.Effect3Cond2Str)
+			return false
 		}
 		tmp_item.Effect3 = parse_xml_str_arr2(tmp_item.Effect3Str, "|")
 		if tmp_item.Effect3 == nil {
-			tmp_item.Effect3 = make([]int32, 0)
+			log.Error("SkillTableMgr parse Effect3Str with [%v] failed", tmp_item.Effect3Str)
+			return false
 		}
 
 		tmp_item.Effects = [][]int32{
