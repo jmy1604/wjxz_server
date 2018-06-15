@@ -863,20 +863,20 @@ func (this *TeamMember) set_dead(attacker *TeamMember, skill_data *table_config.
 }
 
 func (this *TeamMember) on_will_dead(attacker *TeamMember) {
-	if passive_skill_effect_with_self_pos(EVENT_BEFORE_TARGET_DEAD, attacker, this.team, this.pos, nil, nil, true) {
+	if passive_skill_effect_with_self_pos(EVENT_BEFORE_TARGET_DEAD, this.team, this.pos, nil, nil, true) {
 		log.Debug("Team[%v] member[%v] 触发了死亡前被动技能", attacker.team.side, attacker.pos)
 	}
 }
 
 func (this *TeamMember) on_after_will_dead(attacker *TeamMember) {
-	passive_skill_effect_with_self_pos(EVENT_AFTER_TARGET_DEAD, attacker, this.team, this.pos, attacker.team, nil, true)
+	passive_skill_effect_with_self_pos(EVENT_AFTER_TARGET_DEAD, this.team, this.pos, attacker.team, nil, true)
 	log.Debug("+++++++++++++ Team[%v] member[%v] 触发死亡后触发器", this.team.side, this.pos)
 }
 
 func (this *TeamMember) on_dead(attacker *TeamMember, skill_data *table_config.XmlSkillItem) {
 	// 被动技，被主动技杀死时触发
 	if skill_data != nil && (skill_data.Type == SKILL_TYPE_NORMAL || skill_data.Type == SKILL_TYPE_SUPER) {
-		passive_skill_effect_with_self_pos(EVENT_KILL_ENEMY, attacker, attacker.team, attacker.pos, this.team, []int32{this.pos}, true)
+		passive_skill_effect_with_self_pos(EVENT_KILL_ENEMY, attacker.team, attacker.pos, this.team, []int32{this.pos}, true)
 	}
 
 	// 队友死亡触发
@@ -886,7 +886,7 @@ func (this *TeamMember) on_dead(attacker *TeamMember, skill_data *table_config.X
 			continue
 		}
 		if pos != this.pos {
-			passive_skill_effect_with_self_pos(EVENT_AFTER_TEAMMATE_DEAD, attacker, this.team, pos, this.team, []int32{this.pos}, true)
+			passive_skill_effect_with_self_pos(EVENT_AFTER_TEAMMATE_DEAD, this.team, pos, this.team, []int32{this.pos}, true)
 		}
 	}
 	// 相对于敌方死亡时触发
@@ -895,7 +895,7 @@ func (this *TeamMember) on_dead(attacker *TeamMember, skill_data *table_config.X
 		if team_mem == nil || team_mem.is_dead() {
 			continue
 		}
-		passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, attacker, attacker.team, pos, this.team, []int32{this.pos}, true)
+		passive_skill_effect_with_self_pos(EVENT_AFTER_ENEMY_DEAD, attacker.team, pos, this.team, []int32{this.pos}, true)
 	}
 }
 

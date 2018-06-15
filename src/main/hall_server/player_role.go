@@ -467,6 +467,17 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		return int32(msg_client_message.E_ERR_PLAYER_FUSION_ROLE_TABLE_DATA_NOT_FOUND)
 	}
 
+	// 资源是否足够
+	for i := 0; i < len(fusion.ResCondition)/2; i++ {
+		res_id := fusion.ResCondition[2*i]
+		res_num := fusion.ResCondition[2*i+1]
+		rn := this.get_resource(res_id)
+		if rn < res_num {
+			log.Error("Player[%v] fusion[%v] resource[%v] num[%v] not enough, need %v", this.Id, fusion_id, res_id, rn, res_num)
+			return int32(msg_client_message.E_ERR_PLAYER_FUSION_NEED_RESOURCE_NOT_ENOUGH)
+		}
+	}
+
 	// 固定配方
 	if fusion.FusionType == 1 {
 		if !this.db.Roles.HasIndex(main_role_id) {
@@ -476,7 +487,13 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 
 		main_card_id, _ := this.db.Roles.GetTableId(main_role_id)
 		if main_card_id != fusion.MainCardID {
-			log.Error("Player[%v] fusion[%v] main card id[%v] is invalid", this.Id, main_card_id)
+			log.Error("Player[%v] fusion[%v] main card id[%v] is invalid", this.Id, fusion_id, main_card_id)
+			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_CARD_INVALID)
+		}
+
+		main_role_level, _ := this.db.Roles.GetLevel(main_role_id)
+		if main_role_level < fusion.MainCardLevelCond {
+			log.Error("Player[%v] fusion[%v] main card id[%v] level[%v] not enough, need level[%v]", this.Id, fusion_id, main_card_id, main_role_level, fusion.MainCardLevelCond)
 			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_CARD_INVALID)
 		}
 	}
@@ -510,6 +527,12 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		for j := 0; j < len(cost_role_ids[i]); j++ {
 			this.delete_role(cost_role_ids[i][j])
 		}
+	}
+
+	for i := 0; i < len(fusion.ResCondition)/2; i++ {
+		res_id := fusion.ResCondition[2*i]
+		res_num := fusion.ResCondition[2*i+1]
+		this.add_resource(res_id, -res_num)
 	}
 
 	new_role_id := int32(0)

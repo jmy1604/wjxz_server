@@ -435,12 +435,12 @@ func (this *BattleTeam) UseSkill(self_index int32, target_team *BattleTeam) int3
 		if mem.energy >= BATTLE_TEAM_MEMBER_MAX_ENERGY {
 			// 被动技，怒气攻击前
 			if mem.temp_super_skill == 0 {
-				passive_skill_effect_with_self_pos(EVENT_BEFORE_RAGE_ATTACK, nil, this, self_index, target_team, nil, true)
+				passive_skill_effect_with_self_pos(EVENT_BEFORE_RAGE_ATTACK, this, self_index, target_team, nil, true)
 			}
 		} else {
 			// 被动技，普通攻击前
 			if mem.temp_normal_skill == 0 {
-				passive_skill_effect_with_self_pos(EVENT_BEFORE_NORMAL_ATTACK, nil, this, self_index, target_team, nil, true)
+				passive_skill_effect_with_self_pos(EVENT_BEFORE_NORMAL_ATTACK, this, self_index, target_team, nil, true)
 			}
 		}
 
@@ -465,8 +465,8 @@ func (this *BattleTeam) DoRound(target_team *BattleTeam) {
 
 	// 被动技，回合行动前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, nil, this, i, target_team, nil, false)
-		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, nil, target_team, i, this, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, this, i, target_team, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_BEFORE_ROUND, target_team, i, this, nil, false)
 	}
 
 	var self_index, target_index int32
@@ -619,8 +619,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	// 被动技，进场前触发
 	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
-		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, this, i, target_team, nil, false)
-		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, nil, target_team, i, this, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, this, i, target_team, nil, false)
+		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, target_team, i, this, nil, false)
 	}
 
 	if this.common_data.reports != nil {
@@ -746,11 +746,11 @@ func (this *BattleTeam) DelaySkillEffect() {
 	c := 0
 	d := dl.head
 	for d != nil {
-		log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] To Delay Skill[%v] Effect trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
-			c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
+		//log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] To Delay Skill[%v] Effect trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
+		//	c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
 		one_passive_skill_effect(d.trigger_event, d.skill, d.user, d.target_team, d.trigger_pos, true)
-		log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] Delay Skill[%v] Effected trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
-			c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
+		//.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] Delay Skill[%v] Effected trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
+		//	c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
 
 		n := d.next
 		delay_skill_pool.Put(d)
