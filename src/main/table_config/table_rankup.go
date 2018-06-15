@@ -68,24 +68,27 @@ func (this *RankUpTableMgr) Load() bool {
 
 		if tmp_item.Type1RankUpResStr != "" {
 			a := parse_xml_str_arr2(tmp_item.Type1RankUpResStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.Type1RankUpRes = make([]int32, 0)
+			if a == nil {
+				log.Error("RankUpTableMgr parse Type1RankUpResStr with [%v] failed", tmp_item.Type1RankUpResStr)
+				return false
 			} else {
 				tmp_item.Type1RankUpRes = a
 			}
 		}
 		if tmp_item.Type2RankUpResStr != "" {
 			a := parse_xml_str_arr2(tmp_item.Type2RankUpResStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.Type2RankUpRes = make([]int32, 0)
+			if a == nil {
+				log.Error("RankUpTableMgr parse Type2RankUpResStr with [%v] failed", tmp_item.Type2RankUpResStr)
+				return false
 			} else {
 				tmp_item.Type2RankUpRes = a
 			}
 		}
 		if tmp_item.Type3RankUpResStr != "" {
 			a := parse_xml_str_arr2(tmp_item.Type3RankUpResStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.Type3RankUpRes = make([]int32, 0)
+			if a == nil {
+				log.Error("RankUpTableMgr parse Type3RankUpResStr with [%v] failed", tmp_item.Type3RankUpResStr)
+				return false
 			} else {
 				tmp_item.Type3RankUpRes = a
 			}
@@ -93,24 +96,27 @@ func (this *RankUpTableMgr) Load() bool {
 
 		if tmp_item.Type1DecomposeResStr != "" {
 			a := parse_xml_str_arr2(tmp_item.Type1DecomposeResStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.Type1DecomposeRes = make([]int32, 0)
+			if a == nil {
+				log.Error("RankUpTableMgr parse Type1DecomposeResStr with [%v] failed", tmp_item.Type1DecomposeResStr)
+				return false
 			} else {
 				tmp_item.Type1DecomposeRes = a
 			}
 		}
 		if tmp_item.Type2DecomposeResStr != "" {
 			a := parse_xml_str_arr2(tmp_item.Type2DecomposeResStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.Type2DecomposeRes = make([]int32, 0)
+			if a == nil {
+				log.Error("RankUpTableMgr parse Type2DecomposeResStr with [%v] failed", tmp_item.Type2DecomposeResStr)
+				return false
 			} else {
 				tmp_item.Type2DecomposeRes = a
 			}
 		}
 		if tmp_item.Type3DecomposeResStr != "" {
 			a := parse_xml_str_arr2(tmp_item.Type3DecomposeResStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.Type3DecomposeRes = make([]int32, 0)
+			if a == nil {
+				log.Error("RankUpTableMgr parse Type3DecomposeResStr with [%v] failed", tmp_item.Type3DecomposeResStr)
+				return false
 			} else {
 				tmp_item.Type3DecomposeRes = a
 			}

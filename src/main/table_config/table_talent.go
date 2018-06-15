@@ -70,22 +70,26 @@ func (this *TalentTableMgr) Load() bool {
 		tmp_item = &tmp_cfg.Items[idx]
 		tmp_item.UpgradeCost = parse_xml_str_arr2(tmp_item.UpgradeCostStr, ",")
 		if tmp_item.UpgradeCost == nil {
-			tmp_item.UpgradeCost = make([]int32, 0)
+			log.Error("TalentTableMgr parse UpgradeCostStr with [%v] failed", tmp_item.UpgradeCostStr)
+			return false
 		}
 
 		tmp_item.TalentEffectCond = parse_xml_str_arr2(tmp_item.TalentEffectCondStr, "|")
 		if tmp_item.TalentEffectCond == nil {
-			tmp_item.TalentEffectCond = make([]int32, 0)
+			log.Error("TalentTableMgr parse TalentEffectCondStr with [%v] failed", tmp_item.TalentEffectCondStr)
+			return false
 		}
 
 		tmp_item.TalentAttr = parse_xml_str_arr2(tmp_item.TalentAttrStr, ",")
 		if tmp_item.TalentAttr == nil {
-			tmp_item.TalentAttr = make([]int32, 0)
+			log.Error("TalentTableMgr parse TalentAttrStr with [%v] failed", tmp_item.TalentAttrStr)
+			return false
 		}
 
 		tmp_item.TalentSkillList = parse_xml_str_arr2(tmp_item.TalentSkillListStr, ",")
 		if tmp_item.TalentSkillList == nil {
-			tmp_item.TalentSkillList = make([]int32, 0)
+			log.Error("TalentTableMgr parse TalentSkillListStr with [%v] failed", tmp_item.TalentSkillListStr)
+			return false
 		}
 
 		if prev != nil && prev.LevelId == tmp_item.LevelId && prev.Level+1 == tmp_item.Level {

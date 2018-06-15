@@ -73,11 +73,13 @@ func (this *CampaignTableMgr) Load() bool {
 		tmp_item = &tmp_cfg.Items[idx]
 		tmp_item.StaticRewardItem = parse_xml_str_arr2(tmp_item.StaticRewardItemStr, ",")
 		if tmp_item.StaticRewardItem == nil {
-			tmp_item.StaticRewardItem = make([]int32, 0)
+			log.Error("CampaignTableMgr parse StaticRewardItemStr with [%v] failed", tmp_item.StaticRewardItemStr)
+			return false
 		}
 		tmp_item.RandomDropIDList = parse_xml_str_arr2(tmp_item.RandomDropIDListStr, ",")
 		if tmp_item.RandomDropIDList == nil {
-			tmp_item.RandomDropIDList = make([]int32, 0)
+			log.Error("CampaignTableMgr parse RandomDropIDListStr with [%v] failed", tmp_item.RandomDropIDListStr)
+			return false
 		}
 
 		this.Map[tmp_item.Id] = tmp_item

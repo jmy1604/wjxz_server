@@ -69,23 +69,28 @@ func (this *StatusTableMgr) Load() bool {
 
 		tmp_item.Effect = parse_xml_str_arr2(tmp_item.EffectStr, "|")
 		if tmp_item.Effect == nil {
-			tmp_item.Effect = make([]int32, 0)
+			log.Error("StatusTableMgr parse EffectStr with [%v] failed", tmp_item.EffectStr)
+			return false
 		}
 		tmp_item.ResistMutexTypes = parse_xml_str_arr2(tmp_item.ResistMutexType, ",")
 		if tmp_item.ResistMutexTypes == nil {
-			tmp_item.ResistMutexTypes = make([]int32, 0)
+			log.Error("StatusTableMgr parse ResistMutexType with [%v] failed", tmp_item.ResistMutexType)
+			return false
 		}
 		tmp_item.CancelMutexTypes = parse_xml_str_arr2(tmp_item.CancelMutexType, ",")
 		if tmp_item.CancelMutexTypes == nil {
-			tmp_item.CancelMutexTypes = make([]int32, 0)
+			log.Error("StatusTableMgr parse CancelMutexType with [%v] failed", tmp_item.CancelMutexType)
+			return false
 		}
 		tmp_item.ResistMutexIDs = parse_xml_str_arr2(tmp_item.ResistMutexID, ",")
 		if tmp_item.ResistMutexIDs == nil {
-			tmp_item.ResistMutexIDs = make([]int32, 0)
+			log.Error("StatusTableMgr parse ResistMutexID with [%v] failed", tmp_item.ResistMutexID)
+			return false
 		}
 		tmp_item.CancelMutexIDs = parse_xml_str_arr2(tmp_item.CancelMutexID, ",")
 		if tmp_item.CancelMutexIDs == nil {
-			tmp_item.CancelMutexIDs = make([]int32, 0)
+			log.Error("StatusTableMgr parse CancelMutexID with [%v] failed", tmp_item.CancelMutexID)
+			return false
 		}
 
 		this.Map[tmp_item.Id] = tmp_item

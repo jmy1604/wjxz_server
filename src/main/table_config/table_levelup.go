@@ -61,8 +61,9 @@ func (this *LevelUpTableMgr) Load() bool {
 
 		if tmp_item.CardLevelUpResStr != "" {
 			a := parse_xml_str_arr2(tmp_item.CardLevelUpResStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.CardLevelUpRes = make([]int32, 0)
+			if a == nil {
+				log.Error("ItemTableMgr parse CardLevelUpResStr with [%v] failed", tmp_item.CardLevelUpResStr)
+				return false
 			} else {
 				tmp_item.CardLevelUpRes = a
 			}
@@ -70,8 +71,9 @@ func (this *LevelUpTableMgr) Load() bool {
 
 		if tmp_item.CardDecomposeResStr != "" {
 			a := parse_xml_str_arr2(tmp_item.CardDecomposeResStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.CardDecomposeRes = make([]int32, 0)
+			if a == nil {
+				log.Error("ItemTableMgr parse CardDecomposeResStr with [%v] failed", tmp_item.CardDecomposeResStr)
+				return false
 			} else {
 				tmp_item.CardDecomposeRes = a
 			}
