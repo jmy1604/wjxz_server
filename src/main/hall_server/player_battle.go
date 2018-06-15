@@ -746,11 +746,11 @@ func (this *BattleTeam) DelaySkillEffect() {
 	c := 0
 	d := dl.head
 	for d != nil {
-		log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] To Delay Skill[%v] Effect trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
-			c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
+		//log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] To Delay Skill[%v] Effect trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
+		//	c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
 		one_passive_skill_effect(d.trigger_event, d.skill, d.user, d.target_team, d.trigger_pos, true)
-		log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] Delay Skill[%v] Effected trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
-			c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
+		//.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] Delay Skill[%v] Effected trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
+		//	c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
 
 		n := d.next
 		delay_skill_pool.Put(d)

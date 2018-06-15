@@ -1084,9 +1084,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 					// -------------------------------------------
 					// 被动技，治疗时触发
-					//if skill_data.Type != SKILL_TYPE_PASSIVE {
 					passive_skill_effect_with_self_pos(EVENT_ON_CURE, target_team, target_pos[j], self_team, []int32{self_pos}, true)
-					//}
 				}
 
 				used = true

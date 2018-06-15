@@ -15,26 +15,29 @@ type FusionCostCond struct {
 }
 
 type XmlFusionItem struct {
-	Id            int32 `xml:"FormulaID,attr"`
-	FusionType    int32 `xml:"FusionType,attr"`
-	ResultDropID  int32 `xml:"ResultDropID,attr"`
-	MainCardID    int32 `xml:"MainCardID,attr"`
-	Cost1IDCond   int32 `xml:"Cost1IDCond,attr"`
-	Cost1CampCond int32 `xml:"Cost1CampCond,attr"`
-	Cost1TypeCond int32 `xml:"Cost1TypeCond,attr"`
-	Cost1StarCond int32 `xml:"Cost1StarCond,attr"`
-	Cost1NumCond  int32 `xml:"Cost1NumCond,attr"`
-	Cost2IDCond   int32 `xml:"Cost2IDCond,attr"`
-	Cost2CampCond int32 `xml:"Cost2CampCond,attr"`
-	Cost2TypeCond int32 `xml:"Cost2TypeCond,attr"`
-	Cost2StarCond int32 `xml:"Cost2StarCond,attr"`
-	Cost2NumCond  int32 `xml:"Cost2NumCond,attr"`
-	Cost3IDCond   int32 `xml:"Cost3IDCond,attr"`
-	Cost3CampCond int32 `xml:"Cost3CampCond,attr"`
-	Cost3TypeCond int32 `xml:"Cost3TypeCond,attr"`
-	Cost3StarCond int32 `xml:"Cost3StarCond,attr"`
-	Cost3NumCond  int32 `xml:"Cost3NumCond,attr"`
-	CostConds     []*FusionCostCond
+	Id                int32  `xml:"FormulaID,attr"`
+	FusionType        int32  `xml:"FusionType,attr"`
+	ResultDropID      int32  `xml:"ResultDropID,attr"`
+	MainCardID        int32  `xml:"MainCardID,attr"`
+	MainCardLevelCond int32  `xml:"MainCardLevelCond,attr"`
+	ResConditionStr   string `xml:"ResCondtion,attr"`
+	ResCondition      []int32
+	Cost1IDCond       int32 `xml:"Cost1IDCond,attr"`
+	Cost1CampCond     int32 `xml:"Cost1CampCond,attr"`
+	Cost1TypeCond     int32 `xml:"Cost1TypeCond,attr"`
+	Cost1StarCond     int32 `xml:"Cost1StarCond,attr"`
+	Cost1NumCond      int32 `xml:"Cost1NumCond,attr"`
+	Cost2IDCond       int32 `xml:"Cost2IDCond,attr"`
+	Cost2CampCond     int32 `xml:"Cost2CampCond,attr"`
+	Cost2TypeCond     int32 `xml:"Cost2TypeCond,attr"`
+	Cost2StarCond     int32 `xml:"Cost2StarCond,attr"`
+	Cost2NumCond      int32 `xml:"Cost2NumCond,attr"`
+	Cost3IDCond       int32 `xml:"Cost3IDCond,attr"`
+	Cost3CampCond     int32 `xml:"Cost3CampCond,attr"`
+	Cost3TypeCond     int32 `xml:"Cost3TypeCond,attr"`
+	Cost3StarCond     int32 `xml:"Cost3StarCond,attr"`
+	Cost3NumCond      int32 `xml:"Cost3NumCond,attr"`
+	CostConds         []*FusionCostCond
 }
 
 type XmlFusionConfig struct {
@@ -80,6 +83,12 @@ func (this *FusionTableMgr) Load() bool {
 	var tmp_item *XmlFusionItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
+
+		tmp_item.ResCondition = parse_xml_str_arr2(tmp_item.ResConditionStr, ",")
+		if tmp_item.ResCondition == nil || len(tmp_item.ResCondition)%2 != 0 {
+			log.Error("FusionTableMgr parse ResCondition with %v failed", tmp_item.ResConditionStr)
+			return false
+		}
 
 		tmp_item.CostConds = make([]*FusionCostCond, 3)
 		tmp_item.CostConds[0] = &FusionCostCond{}
