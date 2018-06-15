@@ -79,7 +79,8 @@ func (this *PassTableMgr) Load() bool {
 		}
 		tmp_item.RewardList = parse_xml_str_arr2(tmp_item.RewardListStr, ",")
 		if tmp_item.RewardList == nil {
-			tmp_item.RewardList = make([]int32, 0)
+			log.Error("PassTableMgr parse RewardListStr with [%v] failed", tmp_item.RewardListStr)
+			return false
 		}
 		this.Map[tmp_item.Id] = tmp_item
 		this.Array = append(this.Array, tmp_item)

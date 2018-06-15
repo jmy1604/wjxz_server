@@ -68,8 +68,9 @@ func (this *ItemTableMgr) Load() bool {
 
 		if tmp_item.EquipAttrStr != "" {
 			a := parse_xml_str_arr2(tmp_item.EquipAttrStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.EquipAttr = make([]int32, 0)
+			if a == nil {
+				log.Error("ItemTableMgr parse EquipAttrStr with [%v] failed", tmp_item.EquipAttrStr)
+				return false
 			} else {
 				tmp_item.EquipAttr = a
 			}
@@ -77,8 +78,9 @@ func (this *ItemTableMgr) Load() bool {
 
 		if tmp_item.EquipSkillStr != "" {
 			a := parse_xml_str_arr2(tmp_item.EquipSkillStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.EquipSkill = make([]int32, 0)
+			if a == nil {
+				log.Error("ItemTableMgr parse EquipSkillStr with [%v] failed", tmp_item.EquipSkillStr)
+				return false
 			} else {
 				tmp_item.EquipSkill = a
 			}
@@ -86,8 +88,9 @@ func (this *ItemTableMgr) Load() bool {
 
 		if tmp_item.SellRewardStr != "" {
 			a := parse_xml_str_arr2(tmp_item.SellRewardStr, ",")
-			if a == nil || len(a) == 0 {
-				tmp_item.SellReward = make([]int32, 0)
+			if a == nil {
+				log.Error("ItemTableMgr parse SellRewardStr with [%v] failed", tmp_item.SellRewardStr)
+				return false
 			} else {
 				tmp_item.SellReward = a
 			}
