@@ -14,7 +14,7 @@ type ItemInfo struct {
 // 解析 [...] 格式的字符串数组
 func parse_xml_str_arr(instr string, spe_str string) (ret_ivals []int32) {
 	if "" == instr {
-		return nil
+		return make([]int32, 0)
 	}
 
 	if "[]" == instr {
@@ -39,7 +39,7 @@ func parse_xml_str_arr(instr string, spe_str string) (ret_ivals []int32) {
 		for tmp_i := int32(0); tmp_i < tmp_len; tmp_i++ {
 			ival, err = strconv.Atoi(strs[tmp_i])
 			if nil != err {
-				log.Error("parse_xml_str_arr failed to convrt[%s] err [%s] strslen[%d] tmp_i[%d]!", strs[tmp_i], err.Error(), tmp_len, tmp_i)
+				log.Error("parse_xml_str_arr parse string[%v] with split[%v] failed to convrt[%s] err [%s] strslen[%d] tmp_i[%d]!", instr, spe_str, strs[tmp_i], err.Error(), tmp_len, tmp_i)
 				return nil
 			}
 
@@ -53,7 +53,7 @@ func parse_xml_str_arr(instr string, spe_str string) (ret_ivals []int32) {
 // 解析 数字,数字... 格式的字符串数组
 func parse_xml_str_arr2(instr string, spe_str string) (ret_ivals []int32) {
 	if "" == instr {
-		return nil
+		return make([]int32, 0)
 	}
 
 	strs := strings.Split(instr, spe_str)
@@ -67,7 +67,7 @@ func parse_xml_str_arr2(instr string, spe_str string) (ret_ivals []int32) {
 		for tmp_i := int32(0); tmp_i < tmp_len; tmp_i++ {
 			ival, err = strconv.Atoi(strs[tmp_i])
 			if nil != err {
-				log.Error("parse_xml_str_arr failed to convrt[%s] err [%s] strslen[%d] tmp_i[%d]!", strs[tmp_i], err.Error(), tmp_len, tmp_i)
+				log.Error("parse_xml_str_arr parse string[%v] with spit[%v] failed to convrt[%s] err [%s] strslen[%d] tmp_i[%d]!", instr, spe_str, strs[tmp_i], err.Error(), tmp_len, tmp_i)
 				return nil
 			}
 

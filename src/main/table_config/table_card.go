@@ -21,7 +21,8 @@ type XmlCardItem struct {
 	Rarity            int32  `xml:"Rarity,attr"`
 	Type              int32  `xml:"Type,attr"`
 	Camp              int32  `xml:"Camp,attr"`
-	Label             int32  `xml:"Label,attr"`
+	LabelStr          string `xml:"Label,attr"`
+	Label             []int32
 	BaseHP            int32  `xml:"BaseHP,attr"`
 	BaseAttack        int32  `xml:"BaseAttack,attr"`
 	BaseDefence       int32  `xml:"BaseDefence,attr"`
@@ -86,13 +87,20 @@ func (this *CardTableMgr) Load() bool {
 
 		pids := parse_xml_str_arr2(tmp_item.PassiveSkillIDStr, ",")
 		if pids == nil {
-			tmp_item.PassiveSkillIds = make([]int32, 0)
+			log.Error("CardTableMgr parse PassiveSkillIDStr with [%v] failed", tmp_item.PassiveSkillIDStr)
+			return false
 		} else {
 			tmp_item.PassiveSkillIds = pids
 		}
 		tmp_item.DecomposeRes = parse_xml_str_arr2(tmp_item.DecomposeResStr, ",")
 		if tmp_item.DecomposeRes == nil {
-			tmp_item.DecomposeRes = make([]int32, 0)
+			log.Error("CardTableMgr parse DecomposeResStr with [%v] failed", tmp_item.DecomposeResStr)
+			return false
+		}
+		tmp_item.Label = parse_xml_str_arr2(tmp_item.LabelStr, ",")
+		if tmp_item.Label == nil {
+			log.Error("CardTableMgr parse LabelStr with [%v] failed", tmp_item.LabelStr)
+			return false
 		}
 
 		this.Map[tmp_item.Id] = tmp_item
