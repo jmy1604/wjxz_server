@@ -47,6 +47,7 @@ message PlayerRole{
 	optional int32 Level=4;
 	repeated int32 Attr=5;
 	repeated int32 Equip=6;
+	optional int32 IsLock=7;
 }
 
 message PlayerRoleList{

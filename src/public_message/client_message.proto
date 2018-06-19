@@ -275,6 +275,7 @@ message Role {
 	int32 Rank						= 3;
 	int32 Level						= 4;
 	repeated int32 Attrs			= 5;
+	bool IsLock						= 6; // 锁定
 }
 // 请求角色返回
 message S2CRolesResponse {
@@ -538,6 +539,18 @@ message S2CRoleFusionResponse {
 	int32 NewCardId							= 1; // 生成的新卡，配置ID
 	int32 RoleId							= 2; // 新卡的角色ID
 }
+
+// 请求锁定角色
+message C2SRoleLockRequest {
+	int32 RoleId					= 1;
+	bool IsLock						= 2;
+}
+
+message S2CRoleLockResponse {
+	int32 RoleId					= 1;
+	bool IsLock						= 2;
+}
+
 
 // --------------------------------- 邮件 -------------------------------------
 // 发送邮件
