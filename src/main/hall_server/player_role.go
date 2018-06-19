@@ -18,12 +18,17 @@ func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
 	defer this.m_row.m_lock.UnSafeRUnlock()
 
 	for _, v := range this.m_data {
+		is_lock := false
+		if v.IsLock > 0 {
+			is_lock = true
+		}
 		role := &msg_client_message.Role{
 			Id:      v.Id,
 			TableId: v.TableId,
 			Rank:    v.Rank,
 			Level:   v.Level,
 			Attrs:   v.Attr,
+			IsLock:  is_lock,
 		}
 		roles = append(roles, role)
 	}
@@ -40,12 +45,17 @@ func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_m
 			return
 		}
 
+		is_lock := false
+		if v.IsLock > 0 {
+			is_lock = true
+		}
 		role := &msg_client_message.Role{
 			Id:      v.Id,
 			TableId: v.TableId,
 			Rank:    v.Rank,
 			Level:   v.Level,
 			Attrs:   v.Attr,
+			IsLock:  is_lock,
 		}
 		roles = append(roles, role)
 	}
@@ -172,6 +182,24 @@ func (this *Player) send_roles() {
 	msg := &msg_client_message.S2CRolesResponse{}
 	msg.Roles = this.db.Roles.BuildMsg()
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLES_RESPONSE), msg)
+}
+
+func (this *Player) lock_role(role_id int32, is_lock bool) int32 {
+	if !this.db.Roles.HasIndex(role_id) {
+		log.Error("Player[%v] not found role[%v], lock failed", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+	if is_lock {
+		this.db.Roles.SetIsLock(role_id, 1)
+	} else {
+		this.db.Roles.SetIsLock(role_id, 0)
+	}
+	response := &msg_client_message.S2CRoleLockResponse{
+		RoleId: role_id,
+		IsLock: is_lock,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LOCK_RESPONSE), response)
+	return 1
 }
 
 func (this *Player) levelup_role(role_id int32) int32 {
@@ -553,6 +581,16 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 	log.Debug("Player[%v] fusion[%v] main_card[%v] get new role[%v] new card[%v], cost cards[%v]", this.Id, fusion_id, main_role_id, new_role_id, item.ItemCfgId, cost_role_ids)
 
 	return 1
+}
+
+func C2SRoleLockHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleLockRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.lock_role(req.GetRoleId(), req.GetIsLock())
 }
 
 func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

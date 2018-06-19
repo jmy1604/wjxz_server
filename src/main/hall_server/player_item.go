@@ -36,13 +36,13 @@ const (
 
 // 装备类型
 const (
-	EQUIP_TYPE_WEAPON   = 1 // 武器
-	EQUIP_TYPE_BODY     = 2 // 衣服
-	EQUIP_TYPE_LEG      = 3 // 腿
-	EQUIP_TYPE_ACCESORY = 4 // 饰品
-	EQUIP_TYPE_GEM      = 5 // 宝石 不能卸
-	EQUIP_TYPE_RELIC    = 6 // 神器 不能强化
-	EQUIP_TYPE_MAX      = 7 //
+	EQUIP_TYPE_HEAD      = 1 // 头
+	EQUIP_TYPE_WEAPON    = 2 // 武器
+	EQUIP_TYPE_CHEST     = 3 // 胸
+	EQUIP_TYPE_BOOT      = 4 // 鞋
+	EQUIP_TYPE_LEFT_SLOT = 5 // 左槽
+	EQUIP_TYPE_RELIC     = 6 // 神器 不能强化
+	EQUIP_TYPE_MAX       = 7 //
 )
 
 func (this *dbPlayerItemColumn) BuildMsg() (items []*msg_client_message.ItemInfo) {

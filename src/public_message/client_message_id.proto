@@ -33,6 +33,8 @@ enum MSGID {
 	S2C_ROLE_DECOMPOSE_RESPONSE				= 11158; // 请求角色分解返回 S2CRoleDecomposeResponse
 	C2S_ROLE_FUSION_REQUEST					= 11159; // 请求角色合成 C2SRoleFusionRequest
 	S2C_ROLE_FUSION_RESPONSE				= 11160; // 请求角色合成返回 S2CRoleFusionResponse
+	C2S_ROLE_LOCK_REQUEST				 	= 11161; // 请求角色锁定 C2SRoleLockRequest
+	S2C_ROLE_LOCK_RESPONSE					= 11162; // 请求角色锁定返回 S2CRoleLockResponse
 	
 	C2S_BATTLE_RESULT_REQUEST				= 10100; // 战斗结果请求 C2SBattleResultRequest
 	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse

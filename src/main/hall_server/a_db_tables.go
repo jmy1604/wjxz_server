@@ -402,6 +402,7 @@ type dbPlayerRoleData struct{
 	Level int32
 	Attr []int32
 	Equip []int32
+	IsLock int32
 }
 func (this* dbPlayerRoleData)from_pb(pb *db.PlayerRole){
 	if pb == nil {
@@ -421,6 +422,7 @@ func (this* dbPlayerRoleData)from_pb(pb *db.PlayerRole){
 	for i, v := range pb.GetEquip() {
 		this.Equip[i] = v
 	}
+	this.IsLock = pb.GetIsLock()
 	return
 }
 func (this* dbPlayerRoleData)to_pb()(pb *db.PlayerRole){
@@ -437,6 +439,7 @@ func (this* dbPlayerRoleData)to_pb()(pb *db.PlayerRole){
 	for i, v := range this.Equip {
 		pb.Equip[i]=v
 	}
+	pb.IsLock = proto.Int32(this.IsLock)
 	return
 }
 func (this* dbPlayerRoleData)clone_to(d *dbPlayerRoleData){
@@ -452,6 +455,7 @@ func (this* dbPlayerRoleData)clone_to(d *dbPlayerRoleData){
 	for _ii, _vv := range this.Equip {
 		d.Equip[_ii]=_vv
 	}
+	d.IsLock = this.IsLock
 	return
 }
 type dbPlayerBattleTeamData struct{
@@ -2387,6 +2391,28 @@ func (this *dbPlayerRoleColumn)SetEquip(id int32,v []int32)(has bool){
 	for _ii, _vv := range v {
 		d.Equip[_ii]=_vv
 	}
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerRoleColumn)GetIsLock(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.GetIsLock")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.IsLock
+	return v,true
+}
+func (this *dbPlayerRoleColumn)SetIsLock(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerRoleColumn.SetIsLock")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.IsLock = v
 	this.m_changed = true
 	return true
 }

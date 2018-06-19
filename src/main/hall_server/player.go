@@ -302,6 +302,9 @@ func (this *Player) OnLogout() {
 
 	// 离线收益时间开始
 	this.db.Info.SetLastLogout(int32(time.Now().Unix()))
+	// 离线时结算挂机收益
+	this.hangup_income_get(0, true)
+	this.hangup_income_get(1, true)
 	log.Info("玩家[%d] 登出 ！！", this.Id)
 }
 
