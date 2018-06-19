@@ -220,17 +220,17 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		rounds = make([]*msg_client_message.BattleRoundReports, 0)
 	}
 
-	member_damages := this.attack_team.common_data.members_damage
-	member_cures := this.attack_team.common_data.members_cure
+	member_damages := this.campaign_team.common_data.members_damage
+	member_cures := this.campaign_team.common_data.members_cure
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:               is_win,
 		EnterReports:        enter_reports,
 		Rounds:              rounds,
 		MyTeam:              my_team,
 		TargetTeam:          target_team,
-		MyMemberDamages:     member_damages[this.attack_team.side],
+		MyMemberDamages:     member_damages[this.campaign_team.side],
 		TargetMemberDamages: member_damages[this.target_stage_team.side],
-		MyMemberCures:       member_cures[this.attack_team.side],
+		MyMemberCures:       member_cures[this.campaign_team.side],
 		TargetMemberCures:   member_cures[this.target_stage_team.side],
 		HasNextWave:         has_next_wave,
 		NextCampaignId:      next_campaign_id,
