@@ -153,18 +153,19 @@ func (this *Player) check_and_send_roles_change() {
 }
 
 func (this *Player) add_init_roles() {
-	var teams []int32
+	var team []int32
 	init_roles := global_config_mgr.GetGlobalConfig().InitRoles
 	for i := 0; i < len(init_roles)/3; i++ {
 		iid := this.new_role(init_roles[3*i], init_roles[3*i+1], init_roles[3*i+2])
-		if teams == nil {
-			teams = []int32{iid}
-		} else if len(teams) < BATTLE_TEAM_MEMBER_MAX_NUM {
-			teams = append(teams, iid)
+		if team == nil {
+			team = []int32{iid}
+		} else if len(team) < BATTLE_TEAM_MEMBER_MAX_NUM {
+			team = append(team, iid)
 		}
 	}
-	this.db.BattleTeam.SetAttackMembers(teams)
-	this.db.BattleTeam.SetDefenseMembers(teams)
+	this.db.BattleTeam.SetAttackMembers(team)
+	this.db.BattleTeam.SetDefenseMembers(team)
+	this.db.BattleTeam.SetCampaignMembers(team)
 }
 
 func (this *Player) send_roles() {
