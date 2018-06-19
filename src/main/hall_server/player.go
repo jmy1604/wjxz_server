@@ -618,6 +618,9 @@ func (this *Player) SetAttackTeam(team []int32) int32 {
 
 	used_id := make(map[int32]bool)
 	for i := 0; i < len(team); i++ {
+		if team[i] <= 0 {
+			continue
+		}
 		if _, o := used_id[team[i]]; o {
 			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
 		}
@@ -650,6 +653,9 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 
 	used_id := make(map[int32]bool)
 	for i := 0; i < len(team); i++ {
+		if team[i] <= 0 {
+			continue
+		}
 		if _, o := used_id[team[i]]; o {
 			return int32(msg_client_message.E_ERR_PLAYER_SET_DEFENSE_MEMBERS_FAILED)
 		}
