@@ -870,6 +870,7 @@ func set_defense_team_cmd(p *Player, args []string) int32 {
 func list_teams_cmd(p *Player, args []string) int32 {
 	log.Debug("attack team: %v", p.db.BattleTeam.GetAttackMembers())
 	log.Debug("defense team: %v", p.db.BattleTeam.GetDefenseMembers())
+	log.Debug("campaign team: %v", p.db.BattleTeam.GetCampaignMembers())
 	return 1
 }
 

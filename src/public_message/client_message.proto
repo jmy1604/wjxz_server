@@ -291,7 +291,7 @@ message S2CRolesChangeNotify {
 //----------------------------------- 战斗 -----------------------------------
 // 设置阵容
 message C2SSetTeamRequest {
-	int32 TeamType							= 1; // 0 进攻阵容  1 防守阵容
+	int32 TeamType							= 1; // 0 pvp阵容  1 防守阵容  2 pve阵容
 	repeated int32 TeamMembers				= 2;
 }
 message S2CSetTeamResponse {

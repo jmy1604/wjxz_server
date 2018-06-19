@@ -327,7 +327,11 @@ func (this *Player) send_teams() {
 		TeamType:    1,
 		TeamMembers: this.db.BattleTeam.GetDefenseMembers(),
 	}
-	msg.Teams = []*msg_client_message.TeamData{attack_team, defense_team}
+	campaign_team := &msg_client_message.TeamData{
+		TeamType:    2,
+		TeamMembers: this.db.BattleTeam.GetCampaignMembers(),
+	}
+	msg.Teams = []*msg_client_message.TeamData{attack_team, defense_team, campaign_team}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TEAMS_RESPONSE), msg)
 }
 
@@ -645,6 +649,37 @@ func (this *Player) SetAttackTeam(team []int32) int32 {
 	//if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 	//	log.Warn("Player[%v] init attack team failed", this.Id)
 	//}
+	return 1
+}
+
+func (this *Player) SetCampaignTeam(team []int32) int32 {
+	if team == nil {
+		return -1
+	}
+
+	used_id := make(map[int32]bool)
+	for i := 0; i < len(team); i++ {
+		if team[i] <= 0 {
+			continue
+		}
+		if _, o := used_id[team[i]]; o {
+			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
+		}
+		used_id[team[i]] = true
+	}
+	for i := 0; i < len(team); i++ {
+		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
+			break
+		}
+		if team[i] <= 0 {
+			continue
+		}
+		if !this.db.Roles.HasIndex(team[i]) {
+			log.Warn("Player[%v] not has role[%v] for set campaign team", this.Id, team[i])
+			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
+		}
+	}
+	this.db.BattleTeam.SetCampaignMembers(team)
 	return 1
 }
 

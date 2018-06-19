@@ -794,10 +794,18 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 	}
 
 	if req.GetAttackMembers() != nil && len(req.GetAttackMembers()) > 0 {
-		res := p.SetAttackTeam(req.AttackMembers)
-		if res < 0 {
-			log.Error("Player[%v] set attack members[%v] failed", p.Id, req.AttackMembers)
-			return res
+		if req.BattleType == 1 {
+			res := p.SetAttackTeam(req.AttackMembers)
+			if res < 0 {
+				log.Error("Player[%v] set attack members[%v] failed", p.Id, req.AttackMembers)
+				return res
+			}
+		} else if req.BattleType == 2 {
+			res := p.SetCampaignTeam(req.AttackMembers)
+			if res < 0 {
+				log.Error("Player[%v] set campaign members[%v] failed", p.Id, req.AttackMembers)
+				return res
+			}
 		}
 	}
 
