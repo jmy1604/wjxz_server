@@ -79,8 +79,10 @@ const (
 
 // 阵容类型
 const (
-	BATTLE_ATTACK_TEAM  = 1
-	BATTLE_DEFENSE_TEAM = 2
+	BATTLE_ATTACK_TEAM  = 1 // pvp attack
+	BATTLE_DEFENSE_TEAM = 2 // pvp defense
+	BATTLE_CAMPAIN_TEAM = 3 // campaign
+	BATTLE_TOWER_TEAM   = 4 // tower
 	BATTLE_STAGE_TEAM   = 99
 )
 
@@ -707,7 +709,7 @@ func (this *TeamMember) get_use_skill() (skill_id int32) {
 	}
 
 	// 能量满用绝杀
-	if this.energy >= max_energy {
+	if this.energy >= max_energy && this.card.SuperSkillID > 0 {
 		skill_id = this.card.SuperSkillID
 	} else {
 		skill_id = this.card.NormalSkillID

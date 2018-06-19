@@ -918,7 +918,7 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 		log.Error("关卡[%v]不存在", stage_id)
 		return -1
 	}
-	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(stage)
+	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(1, stage)
 	response := &msg_client_message.S2CBattleResultResponse{}
 	response.IsWin = is_win
 	response.MyTeam = my_team

@@ -99,39 +99,56 @@ func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int
 	return true, next_campaign.Difficulty
 }
 
-func (this *Player) FightInStage(stage *table_config.XmlPassItem) (is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
-	if this.attack_team == nil {
-		this.attack_team = &BattleTeam{}
+func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem) (is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
+	var attack_team *BattleTeam
+	if stage_type == 1 {
+		if this.attack_team == nil {
+			this.attack_team = &BattleTeam{}
+		}
+		attack_team = this.attack_team
+	} else if stage_type == 2 {
+		if this.campaign_team == nil {
+			this.campaign_team = &BattleTeam{}
+		}
+		attack_team = this.campaign_team
+	} else if stage_type == 3 {
+		if this.tower_team == nil {
+			this.tower_team = &BattleTeam{}
+		}
+		attack_team = this.tower_team
+	} else {
+		log.Error("Stage type %v invalid", stage_type)
+		return
 	}
 
-	if this.stage_team == nil {
-		this.stage_team = &BattleTeam{}
+	if this.target_stage_team == nil {
+		this.target_stage_team = &BattleTeam{}
 	}
 
 	// 新的关卡初始化
 	if stage.Id != this.stage_id {
 		this.stage_wave = 0
-		if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+		if !attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 			log.Error("Player[%v] init attack team failed", this.Id)
 			return
 		}
 	} else {
 		if this.stage_wave == 0 {
-			if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+			if !attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
 				log.Error("Player[%v] init attack team failed", this.Id)
 				return
 			}
 		}
 	}
 
-	if !this.stage_team.InitWithStage(1, stage.Id, this.stage_wave) {
+	if !this.target_stage_team.InitWithStage(1, stage.Id, this.stage_wave) {
 		log.Error("Player[%v] init stage[%v] wave[%v] team failed", this.Id, stage.Id, this.stage_wave)
 		return
 	}
 
-	my_team = this.attack_team._format_members_for_msg()
-	target_team = this.stage_team._format_members_for_msg()
-	is_win, enter_reports, rounds = this.attack_team.Fight(this.stage_team, BATTLE_END_BY_ROUND_OVER, stage.MaxRound)
+	my_team = attack_team._format_members_for_msg()
+	target_team = this.target_stage_team._format_members_for_msg()
+	is_win, enter_reports, rounds = attack_team.Fight(this.target_stage_team, BATTLE_END_BY_ROUND_OVER, stage.MaxRound)
 
 	this.stage_id = stage.Id
 	this.stage_wave += 1
@@ -183,7 +200,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(stage)
+	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage)
 
 	next_campaign_id := int32(0)
 	if is_win && !has_next_wave {
@@ -212,9 +229,9 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		MyTeam:              my_team,
 		TargetTeam:          target_team,
 		MyMemberDamages:     member_damages[this.attack_team.side],
-		TargetMemberDamages: member_damages[this.stage_team.side],
+		TargetMemberDamages: member_damages[this.target_stage_team.side],
 		MyMemberCures:       member_cures[this.attack_team.side],
-		TargetMemberCures:   member_cures[this.stage_team.side],
+		TargetMemberCures:   member_cures[this.target_stage_team.side],
 		HasNextWave:         has_next_wave,
 		NextCampaignId:      next_campaign_id,
 		BattleType:          2,

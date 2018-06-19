@@ -807,18 +807,29 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 	} else if req.CampaignId > 0 {
 		res = p.FightInCampaign(req.CampaignId)
 	} else {
-		if req.BattleParam == 1 {
+		if req.BattleType == 1 {
 			res = p.Fight2Player(req.BattleParam)
-		} else if req.BattleParam == 2 {
+		} else if req.BattleType == 2 {
 			res = p.FightInCampaign(req.BattleParam)
-		} else if req.BattleParam == 3 {
+		} else if req.BattleType == 3 {
 			res = p.fight_tower(req.BattleParam)
 		} else {
 			res = -1
 		}
 	}
 
+	if res > 0 {
+		p.send_battle_team(BATTLE_ATTACK_TEAM, req.GetAttackMembers())
+	}
+
 	return res
+}
+
+func (this *Player) send_battle_team(tt int32, team_members []int32) {
+	response := &msg_client_message.S2CSetTeamResponse{}
+	response.TeamType = tt
+	response.TeamMembers = team_members
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_SET_TEAM_RESPONSE), response)
 }
 
 func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
@@ -839,10 +850,7 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_da
 		log.Warn("Unknown team type[%v] to player[%v]", tt, p.Id)
 	}
 
-	response := &msg_client_message.S2CSetTeamResponse{}
-	response.TeamType = tt
-	response.TeamMembers = req.TeamMembers
-	p.Send(uint16(msg_client_message_id.MSGID_S2C_SET_TEAM_RESPONSE), response)
+	p.send_battle_team(tt, req.TeamMembers)
 
 	return res
 }
