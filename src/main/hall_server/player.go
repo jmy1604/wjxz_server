@@ -628,6 +628,9 @@ func (this *Player) SetAttackTeam(team []int32) int32 {
 		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
 			break
 		}
+		if team[i] <= 0 {
+			continue
+		}
 		if !this.db.Roles.HasIndex(team[i]) {
 			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
 			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
@@ -656,6 +659,9 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 	for i := 0; i < len(team); i++ {
 		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
 			break
+		}
+		if team[i] <= 0 {
+			continue
 		}
 		if !this.db.Roles.HasIndex(team[i]) {
 			log.Warn("Player[%v] not has role[%v] for set defense team", this.Id, team[i])

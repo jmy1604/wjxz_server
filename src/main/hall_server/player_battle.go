@@ -829,11 +829,12 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_da
 		return -1
 	}
 
+	var res int32
 	tt := req.GetTeamType()
 	if tt == 0 {
-		p.SetAttackTeam(req.TeamMembers)
+		res = p.SetAttackTeam(req.TeamMembers)
 	} else if tt == 1 {
-		p.SetDefenseTeam(req.TeamMembers)
+		res = p.SetDefenseTeam(req.TeamMembers)
 	} else {
 		log.Warn("Unknown team type[%v] to player[%v]", tt, p.Id)
 	}
@@ -843,7 +844,7 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_da
 	response.TeamMembers = req.TeamMembers
 	p.Send(uint16(msg_client_message_id.MSGID_S2C_SET_TEAM_RESPONSE), response)
 
-	return 1
+	return res
 }
 
 func C2SSetHangupCampaignHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
