@@ -640,9 +640,9 @@ func (this *Player) SetAttackTeam(team []int32) int32 {
 		}
 	}
 	this.db.BattleTeam.SetAttackMembers(team)
-	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
-		log.Warn("Player[%v] init attack team failed", this.Id)
-	}
+	//if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+	//	log.Warn("Player[%v] init attack team failed", this.Id)
+	//}
 	return 1
 }
 
@@ -675,9 +675,9 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 		}
 	}
 	this.db.BattleTeam.SetDefenseMembers(team)
-	if !this.defense_team.Init(this, BATTLE_DEFENSE_TEAM, 1) {
-		log.Warn("Player[%v] init defense team failed", this.Id)
-	}
+	//if !this.defense_team.Init(this, BATTLE_DEFENSE_TEAM, 1) {
+	//	log.Warn("Player[%v] init defense team failed", this.Id)
+	//}
 	return 1
 }
 
