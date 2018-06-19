@@ -88,13 +88,15 @@ type Player struct {
 
 	used_drop_ids map[int32]int32 // 抽卡掉落ID统计
 
-	team_member_mgr map[int32]*TeamMember // 成员map
-	attack_team     *BattleTeam           // 进攻阵营
-	defense_team    *BattleTeam           // 防守阵营
-	use_defense     int32                 // 是否防守阵容
-	stage_team      *BattleTeam           // 关卡阵营
-	stage_id        int32
-	stage_wave      int32
+	team_member_mgr   map[int32]*TeamMember // 成员map
+	attack_team       *BattleTeam           // 进攻阵型
+	campaign_team     *BattleTeam           // 战役阵型
+	tower_team        *BattleTeam           // 爬塔阵型
+	defense_team      *BattleTeam           // 防守阵型
+	use_defense       int32                 // 是否正在使用防守阵型
+	target_stage_team *BattleTeam           // 关卡阵型
+	stage_id          int32
+	stage_wave        int32
 
 	battle_record_list  []int32 // 战斗录像，按时间排序
 	battle_record_count int32   // 录像数

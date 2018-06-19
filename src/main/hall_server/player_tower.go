@@ -105,7 +105,7 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TOWER_NOT_ENOUGH_STAMINA)
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(stage)
+	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(3, stage)
 	this.db.TowerCommon.SetKeys(keys - 1)
 	tower_key_max := global_config_mgr.GetGlobalConfig().TowerKeyMax
 	if keys >= tower_key_max {
@@ -120,9 +120,9 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		EnterReports:        enter_reports,
 		Rounds:              rounds,
 		MyMemberDamages:     member_damages[this.attack_team.side],
-		TargetMemberDamages: member_damages[this.stage_team.side],
+		TargetMemberDamages: member_damages[this.target_stage_team.side],
 		MyMemberCures:       member_cures[this.attack_team.side],
-		TargetMemberCures:   member_cures[this.stage_team.side],
+		TargetMemberCures:   member_cures[this.target_stage_team.side],
 		BattleType:          3,
 		BattleParam:         tower_id,
 	}
