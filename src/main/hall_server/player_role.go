@@ -13,6 +13,10 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+const (
+	ROLE_MAX_COUNT = 300
+)
+
 func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
 	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.BuildMsg")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -65,6 +69,12 @@ func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_m
 }
 
 func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
+	if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+		item_info := &msg_client_message.ItemInfo{ItemCfgId: role_id, ItemNum: 1}
+		SendMail(nil, this.Id, MAIL_TYPE_SYSTEM, "", "", []*msg_client_message.ItemInfo{item_info})
+		return -1
+	}
+
 	card := card_table_mgr.GetRankCard(role_id, rank)
 	if card == nil {
 		log.Error("Cant get role card by id[%v] rank[%v]", role_id, rank)

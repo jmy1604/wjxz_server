@@ -330,7 +330,19 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 		for i := 0; i < len(items); i++ {
 			item_id := items[i].ItemCfgId
 			item_num := items[i].ItemNum
-			this.add_resource(item_id, item_num)
+			item := item_table_mgr.Get(item_id)
+			if item != nil {
+				this.add_resource(item_id, item_num)
+			} else {
+				if card_table_mgr.GetRankCard(item_id, 1) == nil {
+					continue
+				}
+				if this.db.Roles.NumAll() >= ROLE_MAX_COUNT {
+					continue
+				}
+				this.new_role(item_id, 1, 1)
+			}
+
 			if attached_items[item_id] == 0 {
 				attached_items[item_id] = item_num
 			} else {
