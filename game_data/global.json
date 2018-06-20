@@ -19,6 +19,8 @@
 	"TowerKeyMax": 10,
 	"TowerKeyGetInterval": 1800,
 	
+	"ItemLeftSlotOpenLevel": 1,
+	
 	"MaxFriendNum":200,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

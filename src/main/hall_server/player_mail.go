@@ -171,6 +171,14 @@ func (this *Player) cache_new_mail(mail_id int32) {
 	}
 }
 
+func (this *Player) clear_cache_new_mails() {
+	this.new_mail_list_locker.Lock()
+	defer this.new_mail_list_locker.Unlock()
+	if this.new_mail_ids != nil {
+		this.new_mail_ids = nil
+	}
+}
+
 func (this *Player) get_and_clear_cache_new_mails() (mails []*msg_client_message.MailBasicData) {
 	this.new_mail_list_locker.Lock()
 	defer this.new_mail_list_locker.Unlock()
@@ -242,10 +250,13 @@ func (this *Player) CheckNewMail() int32 {
 		Mails: mails,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAILS_NEW_NOTIFY), response)
+	log.Debug("Player[%v] get new mails[%v] notify", this.Id, mails)
 	return 1
 }
 
 func (this *Player) GetMailList() int32 {
+	this.clear_cache_new_mails()
+
 	basic := this.db.Mails.GetMailList()
 	if basic == nil {
 		basic = make([]*msg_client_message.MailBasicData, 0)
@@ -254,6 +265,8 @@ func (this *Player) GetMailList() int32 {
 		Mails: basic,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_LIST_RESPONSE), response)
+
+	log.Debug("Player[%v] mail list: %v", this.Id, response)
 
 	if this.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
 		this.db.NotifyStates.Remove(int32(msg_client_message.MODULE_STATE_NEW_MAIL))
@@ -293,6 +306,8 @@ func (this *Player) GetMailDetail(mail_ids []int32) int32 {
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_DETAIL_RESPONSE), response)
 
+	log.Debug("Player[%v] mails[%v] detail: %v", this.Id, mail_ids, response)
+
 	return 1
 }
 
@@ -330,6 +345,9 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 		AttachedItems: attached_items,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE), response)
+
+	log.Debug("Player[%v] mails[%v] attached items: %v", this.Id, mail_ids, attached_items)
+
 	return 1
 }
 

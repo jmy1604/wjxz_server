@@ -28,7 +28,7 @@ func (this *MsgHttpHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		act_str = string([]byte(url_str)[:idx])
 	}
-	log.Info("hall msg handler ServeHTTP actstr(%s)", act_str)
+	//log.Debug("hall msg handler ServeHTTP actstr(%s)", act_str)
 	if h, ok := msg_handler_http_mux[act_str]; ok {
 		h(w, r)
 	}
@@ -154,7 +154,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		log.Error("client_msg_handler ReadAll err[%s]", err.Error())
 		return
 	}
-	log.Info("客户端发送过来的二进制流  %v", data)
+	//log.Debug("客户端发送过来的二进制流  %v", data)
 
 	tmp_msg := &msg_client_message.C2S_MSG_DATA{}
 	err = proto.Unmarshal(data, tmp_msg)
@@ -180,7 +180,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}*/
 
-	log.Info("[接收] [玩家%d:%v] [%s] ", tmp_msg.GetPlayerId(), tmp_msg.GetMsgCode() /*req.String()*/, tmp_msg.GetData())
+	//log.Debug("[接收] [玩家%d:%v] [%s] ", tmp_msg.GetPlayerId(), tmp_msg.GetMsgCode() /*req.String()*/, tmp_msg.GetData())
 
 	/*
 		pid := tmp_msg.GetPlayerId()

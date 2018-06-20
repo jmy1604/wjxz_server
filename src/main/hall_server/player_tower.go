@@ -153,6 +153,8 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 
 	this.send_tower_data(false)
 
+	Output_S2CBattleResult(this, response)
+
 	return 1
 }
 
