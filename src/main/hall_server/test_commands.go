@@ -1233,15 +1233,19 @@ func mail_items_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	var mail_id int
-	var err error
-	mail_id, err = strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("邮件ID[%v]转换失败[%v]", args[0], err.Error())
-		return -1
+	var mail_ids []int32
+	for i := 0; i < len(args); i++ {
+		var mail_id int
+		var err error
+		mail_id, err = strconv.Atoi(args[0])
+		if err != nil {
+			log.Error("邮件ID[%v]转换失败[%v]", args[0], err.Error())
+			return -1
+		}
+		mail_ids = append(mail_ids, int32(mail_id))
 	}
 
-	return p.GetMailAttachedItems(int32(mail_id))
+	return p.GetMailAttachedItems(mail_ids)
 }
 
 func delete_mail_cmd(p *Player, args []string) int32 {

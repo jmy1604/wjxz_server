@@ -283,14 +283,23 @@ func (this *Player) equip(role_id, equip_id int32) int32 {
 
 	if equips == nil || len(equips) == 0 {
 		equips = make([]int32, EQUIP_TYPE_MAX)
-		this.db.Roles.SetEquip(role_id, equips)
+		//this.db.Roles.SetEquip(role_id, equips)
 	}
 
 	if equips[item_tdata.EquipType] > 0 {
 		this.add_item(equips[item_tdata.EquipType], 1)
 	}
 	equips[item_tdata.EquipType] = equip_id
+	this.db.Roles.SetEquip(role_id, equips)
 	this.del_item(equip_id, 1)
+
+	response := &msg_client_message.S2CItemEquipResponse{
+		RoleId:    role_id,
+		ItemId:    equip_id,
+		EquipSlot: item_tdata.EquipType,
+	}
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_EQUIP_RESPONSE), response)
 
 	return 1
 }
@@ -315,6 +324,13 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 	this.add_item(equips[equip_type], 1)
 	equips[equip_type] = 0
 	this.db.Roles.SetEquip(role_id, equips)
+
+	response := &msg_client_message.S2CItemUnequipResponse{
+		RoleId:    role_id,
+		EquipSlot: equip_type,
+	}
+
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_UNEQUIP_RESPONSE), response)
 
 	return 1
 }
@@ -461,4 +477,24 @@ func C2SItemSellHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 		return -1
 	}
 	return p.sell_item(req.GetItemId(), req.GetItemNum())
+}
+
+func C2SItemEquipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SItemEquipRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.equip(req.GetRoleId(), req.GetItemId())
+}
+
+func C2SItemUnequipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SItemUnequipRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.unequip(req.GetRoleId(), req.GetEquipSlot())
 }
