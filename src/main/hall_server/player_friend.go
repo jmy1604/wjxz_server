@@ -36,7 +36,7 @@ func reg_player_friend_msg() {
 }
 
 func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CRetFriendListResult) {
-	var tmp_info *msg_client_message.FriendInfo
+	//var tmp_info *msg_client_message.FriendInfo
 	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.FillAllListMsg")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	msg.FriendList = make([]*msg_client_message.FriendInfo, 0, len(this.m_data))
@@ -45,7 +45,7 @@ func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CRetF
 			continue
 		}
 
-		tmp_info = &msg_client_message.FriendInfo{}
+		/*tmp_info = &msg_client_message.FriendInfo{}
 		tmp_info.PlayerId = val.FriendId
 		tmp_info.Name = val.FriendName
 		tmp_info.Level = val.Level
@@ -54,7 +54,7 @@ func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CRetF
 		tmp_info.Head = val.Head
 		tmp_info.IsOnline = true
 		log.Info("附加值到好友列表 %v", tmp_info)
-		msg.FriendList = append(msg.FriendList, tmp_info)
+		msg.FriendList = append(msg.FriendList, tmp_info)*/
 	}
 
 	return
@@ -117,12 +117,12 @@ func send_search_player_msg(p *Player, players_info []*rpc_common.H2R_SearchPlay
 		results = make([]*msg_client_message.FriendInfo, len(players_info))
 		for i := 0; i < len(players_info); i++ {
 			r := &msg_client_message.FriendInfo{
-				PlayerId:  players_info[i].Id,
-				Name:      players_info[i].Nick,
-				Head:      players_info[i].Head,
-				Level:     players_info[i].Level,
-				VipLevel:  players_info[i].VipLevel,
-				LastLogin: players_info[i].LastLogin,
+			/*PlayerId:  players_info[i].Id,
+			Name:      players_info[i].Nick,
+			Head:      players_info[i].Head,
+			Level:     players_info[i].Level,
+			VipLevel:  players_info[i].VipLevel,
+			LastLogin: players_info[i].LastLogin,*/
 			}
 			results[i] = r
 		}
@@ -187,12 +187,12 @@ func (this *dbPlayerFriendColumn) GetFriendInfoMsg(friend_id int32) *msg_client_
 	}
 
 	return &msg_client_message.FriendInfo{
-		PlayerId:  d.FriendId,
-		Name:      d.FriendName,
-		Head:      d.Head,
-		Level:     d.Level,
-		VipLevel:  d.VipLevel,
-		LastLogin: d.LastLogin,
+	/*PlayerId:  d.FriendId,
+	Name:      d.FriendName,
+	Head:      d.Head,
+	Level:     d.Level,
+	VipLevel:  d.VipLevel,
+	LastLogin: d.LastLogin,*/
 	}
 }
 
@@ -511,16 +511,16 @@ func (this *Player) check_friends_give_points_refresh() (remain_seconds int32) {
 }
 
 func (this *Player) get_friend_list(get_foster bool) int32 {
-	remain_seconds := this.check_friends_give_points_refresh()
+	//remain_seconds := this.check_friends_give_points_refresh()
 
 	response := &msg_client_message.S2CRetFriendListResult{}
 	this.db.Friends.FillAllListMsg(response)
 	this.db.FriendReqs.FillAllListMsg(response)
 
-	rt := &global_config_mgr.GetGlobalConfig().FriendGivePointsRefreshTime
+	//rt := &global_config_mgr.GetGlobalConfig().FriendGivePointsRefreshTime
 	//now_time := time.Now()
 	for i := 0; i < len(response.FriendList); i++ {
-		fid := response.FriendList[i].GetPlayerId()
+		/*fid := response.FriendList[i].GetPlayerId()
 		name, level, head := GetPlayerBaseInfo(fid)
 		response.FriendList[i].Name = name
 		response.FriendList[i].Head = head
@@ -531,12 +531,9 @@ func (this *Player) get_friend_list(get_foster bool) int32 {
 			response.FriendList[i].LeftGiveSeconds = remain_seconds
 			response.FriendList[i].UnreadMessageNum = this.db.FriendChatUnreadIds.GetUnreadMessageNum(fid)
 		}
-		//zan, _ := this.db.Zans.GetZanNum(fid)
-		//response.FriendList[i].Zan = zan
-		//response.FriendList[i].IsZanToday = this.is_today_zan(fid, now_time)
 		last_save, _ := this.db.Friends.GetLastGivePointsTime(fid)
 		remain_seconds := utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, last_save)
-		response.FriendList[i].LeftGiveSeconds = remain_seconds
+		response.FriendList[i].LeftGiveSeconds = remain_seconds*/
 	}
 	for i := 0; i < len(response.Reqs); i++ {
 		fid := response.Reqs[i].GetPlayerId()

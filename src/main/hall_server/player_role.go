@@ -29,6 +29,7 @@ func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
 			Level:   v.Level,
 			Attrs:   v.Attr,
 			IsLock:  is_lock,
+			Equips:  v.Equip,
 		}
 		roles = append(roles, role)
 	}
@@ -56,6 +57,7 @@ func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_m
 			Level:   v.Level,
 			Attrs:   v.Attr,
 			IsLock:  is_lock,
+			Equips:  v.Equip,
 		}
 		roles = append(roles, role)
 	}
@@ -76,6 +78,29 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 	this.db.Roles.Add(&role)
 
 	this.roles_id_change_info.id_add(role.Id)
+
+	handbook := this.db.RoleHandbook.GetRole()
+	if handbook == nil {
+		this.db.RoleHandbook.SetRole([]int32{role_id})
+		if !this.is_handbook_adds {
+			this.is_handbook_adds = true
+		}
+	} else {
+		found := false
+		for i := 0; i < len(handbook); i++ {
+			if handbook[i] == role_id {
+				if !this.is_handbook_adds {
+					this.is_handbook_adds = true
+				}
+				found = true
+				break
+			}
+		}
+		if !found {
+			handbook = append(handbook, role_id)
+			this.db.RoleHandbook.SetRole(handbook)
+		}
+	}
 
 	return role.Id
 }
@@ -583,6 +608,61 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 	return 1
 }
 
+func (this *Player) get_role_handbook() int32 {
+	response := &msg_client_message.S2CRoleHandbookResponse{
+		Roles: this.db.RoleHandbook.GetRole(),
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_HANDBOOK_RESPONSE), response)
+	return 1
+}
+
+func (this *Player) open_role_left_slot(role_id int32) int32 {
+	open, ok := this.db.Roles.GetLeftSlotIsOpen(role_id)
+	if !ok {
+		log.Error("Player[%v] not found role[%v]", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+	if open > 0 {
+		log.Warn("Player[%v] role[%v] left slot already opened", this.Id, role_id)
+	}
+	this.db.Roles.SetLeftSlotIsOpen(role_id, 1)
+	response := &msg_client_message.S2CRoleLeftSlotOpenResponse{
+		RoleId: role_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEFTSLOT_OPEN_RESPONSE), response)
+	return 1
+}
+
+func (this *Player) role_one_key_equip(role_id int32) int32 {
+	return 1
+}
+
+func (this *Player) role_one_key_unequip(role_id int32) int32 {
+	equips, o := this.db.Roles.GetEquip(role_id)
+	if !o {
+		log.Error("Player[%v] not found role[%v], one key equip failed", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	if equips != nil {
+		for i := 0; i < len(equips); i++ {
+			if i == EQUIP_TYPE_LEFT_SLOT || equips[i] == 0 {
+				continue
+			}
+			this.add_item(equips[i], 1)
+			equips[i] = 0
+		}
+		this.db.Roles.SetEquip(role_id, equips)
+	}
+
+	response := &msg_client_message.S2CRoleOneKeyUnequipResponse{
+		RoleId: role_id,
+		Equips: equips,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_ONEKEY_UNEQUIP_RESPONSE), response)
+	return 1
+}
+
 func C2SRoleLockHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SRoleLockRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -631,4 +711,45 @@ func C2SRoleFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 		return -1
 	}
 	return p.fusion_role(req.GetFusionId(), req.GetMainCardId(), [][]int32{req.GetCost1CardIds(), req.GetCost2CardIds(), req.GetCost3CardIds()})
+}
+
+func C2SRoleHandbookHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleHandbookRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+
+	return p.get_role_handbook()
+}
+
+func C2SRoleLeftSlotOpenHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleLeftSlotOpenRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.open_role_left_slot(req.GetRoleId())
+}
+
+func C2SRoleOneKeyEquipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleOneKeyEquipRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.role_one_key_equip(req.GetRoleId())
+}
+
+func C2SRoleOneKeyUnequipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleOnekeyUnequipRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.role_one_key_unequip(req.GetRoleId())
 }

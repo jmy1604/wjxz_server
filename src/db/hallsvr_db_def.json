@@ -160,7 +160,19 @@
 						{"Type":"int32","Index":4,"Name":"Level"},
 						{"Type":"int32","Index":5,"Name":"Attr","Repeated":true},
 						{"Type":"int32","Index":6,"Name":"Equip","Repeated":true},
-						{"Type":"int32","Index":7,"Name":"IsLock"}
+						{"Type":"int32","Index":7,"Name":"IsLock"},
+						{"Type":"int32","Index":8,"Name":"LeftSlotIsOpen"}
+					]
+				},
+				{
+					"DBColumnName":"RoleHandbook",
+					"InUse":true,
+					"ColumnName":"RoleHandbook",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Role","Repeated":true}
 					]
 				},
 				{

@@ -46,6 +46,7 @@ type GlobalConfig struct {
 	PlayerBattleRecordMaxCount int32      // 玩家战斗录像最大数量
 	TowerKeyMax                int32      // 爬塔钥匙最大值
 	TowerKeyGetInterval        int32      // 爬塔获取钥匙的时间间隔(秒)
+	ItemLeftSlotOpenLevel      int32      // 左槽开启等级
 
 	MaxFriendNum int32
 

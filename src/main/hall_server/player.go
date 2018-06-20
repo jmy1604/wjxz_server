@@ -103,9 +103,11 @@ type Player struct {
 
 	roles_id_change_info IdChangeInfo    // 角色增删更新
 	items_changed_info   map[int32]int32 // 物品增删更新
-	tmp_cache_items      map[int32]int32
-
-	states_changed map[int32]int32 // 提示状态变化
+	tmp_cache_items      map[int32]int32 // 用于临时缓存物品
+	is_handbook_adds     bool            // 是否新增角色图鉴
+	states_changed       map[int32]int32 // 提示状态变化
+	new_mail_list_locker *sync.Mutex     // 新邮件列表锁
+	new_mail_ids         []int32         // 新邮件ID列表
 
 	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data PlayerAnouncementData // 公告缓存数据
@@ -126,7 +128,7 @@ func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
 	ret_p.msg_items_lock = &sync.Mutex{}
 	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
 
-	//ret_p.msg_acts_lock = &sync.Mutex{}
+	ret_p.new_mail_list_locker = &sync.Mutex{}
 
 	return ret_p
 }
@@ -148,7 +150,7 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	ret_p.msg_items_lock = &sync.Mutex{}
 	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
 
-	//ret_p.msg_acts_lock = &sync.Mutex{}
+	ret_p.new_mail_list_locker = &sync.Mutex{}
 
 	return ret_p
 }
@@ -207,6 +209,11 @@ func (this *Player) PopCurMsgData() []byte {
 	this.check_and_send_roles_change()
 	this.check_and_send_items_change()
 	this.CheckAndAnouncement()
+	if this.is_handbook_adds {
+		this.get_role_handbook()
+		this.is_handbook_adds = false
+	}
+	this.CheckNewMail()
 
 	this.msg_items_lock.Lock()
 	defer this.msg_items_lock.Unlock()

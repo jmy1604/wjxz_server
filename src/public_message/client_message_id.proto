@@ -35,6 +35,14 @@ enum MSGID {
 	S2C_ROLE_FUSION_RESPONSE				= 11160; // 请求角色合成返回 S2CRoleFusionResponse
 	C2S_ROLE_LOCK_REQUEST				 	= 11161; // 请求角色锁定 C2SRoleLockRequest
 	S2C_ROLE_LOCK_RESPONSE					= 11162; // 请求角色锁定返回 S2CRoleLockResponse
+	C2S_ROLE_HANDBOOK_REQUEST				= 11163; // 请求角色图鉴 C2SRoleHandbookRequest
+	S2C_ROLE_HANDBOOK_RESPONSE				= 11164; // 请求角色图鉴返回 S2CRoleHandbookResponse
+	C2S_ROLE_LEFTSLOT_OPEN_REQUEST			= 11165; // 请求角色左槽开启 C2SRoleLeftSlotOpenRequest
+	S2C_ROLE_LEFTSLOT_OPEN_RESPONSE			= 11166; // 请求角色左槽开启返回 S2CRoleLeftSlotOpenResponse
+	C2S_ROLE_ONEKEY_EQUIP_REQUEST			= 11167; // 请求一键穿戴 C2SRoleOneKeyEquipRequest
+	S2C_ROLE_ONEKEY_EQUIP_RESPONSE			= 11168; // 请求一键穿戴返回 S2CRoleOneKeyEquipResponse
+	C2S_ROLE_ONEKEY_UNEQUIP_REQUEST			= 11169; // 请求一键脱装 C2SRoleOneKeyUnequipRequest
+	S2C_ROLE_ONEKEY_UNEQUIP_RESPONSE		= 11170; // 请求一键脱装返回 S2CRoleOneKeyUnequipResponse
 	
 	C2S_BATTLE_RESULT_REQUEST				= 10100; // 战斗结果请求 C2SBattleResultRequest
 	S2C_BATTLE_RESULT_RESPONSE				= 10101; // 战斗结果请求返回 S2CBattleResultResponse
@@ -56,6 +64,10 @@ enum MSGID {
 	S2C_ITEM_FUSION_RESPONSE				= 10304; // 物品合成返回 S2CItemFusionResponse
 	C2S_ITEM_SELL_REQUEST					= 10305; // 出售物品 C2SItemSellRequest
 	S2C_ITEM_SELL_RESPONSE					= 10306; // 出售物品返回 S2CItemSellResponse
+	C2S_ITEM_EQUIP_REQUEST				    = 10307; // 请求装备物品 C2SItemEquipRequest
+	S2C_ITEM_EQUIP_RESPONSE				 	= 10308; // 请求装备物品返回 S2CItemEquipResponse
+	C2S_ITEM_UNEQUIP_REQUEST			 	= 10309; // 请求卸载物品 C2SItemUnequipRequest
+	S2C_ITEM_UNEQUIP_RESPONSE				= 10310; // 请求卸载物品返回 S2CItemUnEquipResponse
 	
 	C2S_CAMPAIGN_DATA_REQUEST				= 10400; // 请求战役数据 C2SCampaignDataRequest
 	S2C_CAMPAIGN_DATA_RESPONSE				= 10401; // 战役数据返回 S2CCampaignDataResponse
@@ -74,6 +86,7 @@ enum MSGID {
 	S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE	= 10507; // 邮件附件获取返回 S2CMailGetAttachedItemsResponse
 	C2S_MAIL_DELETE_REQUEST					= 10508; // 请求删除邮件 C2SMailDeleteRequest
 	S2C_MAIL_DELETE_RESPONSE				= 10509; // 删除邮件返回 S2CMailDeleteResponse
+	S2C_MAILS_NEW_NOTIFY					= 10510; // 新邮件通知 S2CMailsNewNotify
 	
 	C2S_TALENT_UP_REQUEST					= 10600; // 请求天赋升级 C2STalentUpRequest
 	S2C_TALENT_UP_RESPONSE					= 10601; // 天赋升级返回 S2CTalentUpResponse

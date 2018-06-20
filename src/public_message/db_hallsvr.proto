@@ -48,10 +48,15 @@ message PlayerRole{
 	repeated int32 Attr=5;
 	repeated int32 Equip=6;
 	optional int32 IsLock=7;
+	optional int32 LeftSlotIsOpen=8;
 }
 
 message PlayerRoleList{
 	repeated PlayerRole List=1;
+}
+
+message PlayerRoleHandbook{
+	repeated int32 Role=1;
 }
 
 message PlayerBattleTeam{

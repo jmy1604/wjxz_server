@@ -40,6 +40,31 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 	return
 }
 
+func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg_client_message.MailBasicData) {
+	if mail_ids == nil {
+		return
+	}
+
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetMailListByIds")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	for i := 0; i < len(mail_ids); i++ {
+		md := this.m_data[mail_ids[i]]
+		is_read := false
+		if md.IsRead > 0 {
+			is_read = true
+		}
+		d := &msg_client_message.MailBasicData{
+			Id:       md.Id,
+			Type:     int32(md.Type),
+			Title:    md.Title,
+			SendTime: md.SendUnix,
+			IsRead:   is_read,
+		}
+		mails = append(mails, d)
+	}
+	return
+}
+
 func _get_items_info_from(item_ids, item_nums []int32) (items []*msg_client_message.ItemInfo) {
 	if item_ids != nil && item_nums != nil {
 		ids_len := len(item_ids)
@@ -135,6 +160,28 @@ func (this *Player) delete_mail(mail_id int32) int32 {
 	return 1
 }
 
+func (this *Player) cache_new_mail(mail_id int32) {
+	this.new_mail_list_locker.Lock()
+	defer this.new_mail_list_locker.Unlock()
+
+	if this.new_mail_ids == nil {
+		this.new_mail_ids = []int32{mail_id}
+	} else {
+		this.new_mail_ids = append(this.new_mail_ids, mail_id)
+	}
+}
+
+func (this *Player) get_and_clear_cache_new_mails() (mails []*msg_client_message.MailBasicData) {
+	this.new_mail_list_locker.Lock()
+	defer this.new_mail_list_locker.Unlock()
+
+	if this.new_mail_ids != nil {
+		mails = this.db.Mails.GetMailListByIds(this.new_mail_ids)
+		this.new_mail_ids = nil
+	}
+	return
+}
+
 func SendMail(sender *Player, receiver_id, mail_type int32, title string, content string, attached_items []*msg_client_message.ItemInfo) int32 {
 	if mail_type == MAIL_TYPE_TRIBE {
 		if sender == nil {
@@ -177,11 +224,25 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 		receiver.notify_state_changed(int32(msg_client_message.MODULE_STATE_NEW_MAIL), 1)
 	}
 
+	receiver.cache_new_mail(mail_id)
+
 	if sender != nil {
 		log.Debug("Player[%v] send mail[%v] type[%v] title[%v] content[%v]", sender.Id, mail_id, mail_type, title, content)
 	}
 
 	return mail_id
+}
+
+func (this *Player) CheckNewMail() int32 {
+	mails := this.get_and_clear_cache_new_mails()
+	if mails == nil {
+		return 1
+	}
+	response := &msg_client_message.S2CMailsNewNotify{
+		Mails: mails,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAILS_NEW_NOTIFY), response)
+	return 1
 }
 
 func (this *Player) GetMailList() int32 {
@@ -235,24 +296,38 @@ func (this *Player) GetMailDetail(mail_ids []int32) int32 {
 	return 1
 }
 
-func (this *Player) GetMailAttachedItems(mail_id int32) int32 {
-	item_ids, o := this.db.Mails.GetAttachItemIds(mail_id)
-	if !o {
-		return int32(msg_client_message.E_ERR_PLAYER_MAIL_NOT_FOUND)
+func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
+	if mail_ids == nil {
+		return -1
 	}
-	item_nums, _ := this.db.Mails.GetAttachItemNums(mail_id)
-	items := _get_items_info_from(item_ids, item_nums)
-	if items == nil {
-		return int32(msg_client_message.E_ERR_PLAYER_MAIL_NO_ATTACHED_ITEM)
+
+	attached_items := make(map[int32]int32)
+	for _, mail_id := range mail_ids {
+		item_ids, o := this.db.Mails.GetAttachItemIds(mail_id)
+		if !o {
+			return int32(msg_client_message.E_ERR_PLAYER_MAIL_NOT_FOUND)
+		}
+		item_nums, _ := this.db.Mails.GetAttachItemNums(mail_id)
+		items := _get_items_info_from(item_ids, item_nums)
+		if items == nil {
+			return int32(msg_client_message.E_ERR_PLAYER_MAIL_NO_ATTACHED_ITEM)
+		}
+		for i := 0; i < len(items); i++ {
+			item_id := items[i].ItemCfgId
+			item_num := items[i].ItemNum
+			this.add_resource(item_id, item_num)
+			if attached_items[item_id] == 0 {
+				attached_items[item_id] = item_num
+			} else {
+				attached_items[item_id] += item_num
+			}
+		}
+		this.db.Mails.SetAttachItemIds(mail_id, nil)
+		this.db.Mails.SetAttachItemNums(mail_id, nil)
 	}
-	for i := 0; i < len(items); i++ {
-		this.add_resource(items[i].ItemCfgId, items[i].ItemNum)
-	}
-	this.db.Mails.SetAttachItemIds(mail_id, nil)
-	this.db.Mails.SetAttachItemNums(mail_id, nil)
 	response := &msg_client_message.S2CMailGetAttachedItemsResponse{
-		MailId:        mail_id,
-		AttachedItems: items,
+		MailIds:       mail_ids,
+		AttachedItems: attached_items,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE), response)
 	return 1
@@ -324,7 +399,7 @@ func C2SMailGetAttachedItemsHandler(w http.ResponseWriter, r *http.Request, p *P
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.GetMailAttachedItems(req.GetMailId())
+	return p.GetMailAttachedItems(req.GetMailIds())
 }
 
 func C2SMailDeleteHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

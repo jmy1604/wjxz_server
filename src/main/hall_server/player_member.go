@@ -540,6 +540,9 @@ func (this *TeamMember) init_equip(equip_id int32) {
 }
 
 func (this *TeamMember) init_equips() {
+	if this.team == nil || this.team.player == nil {
+		return
+	}
 	equips, o := this.team.player.db.Roles.GetEquip(this.id)
 	if !o {
 		return
@@ -593,10 +596,7 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 	}
 
 	this.init_passive_data(role_card.PassiveSkillIds)
-	if this.team.team_type == BATTLE_STAGE_TEAM {
-	} else {
-		this.init_equips()
-	}
+	this.init_equips()
 
 	if extra_equips != nil {
 		for _, eid := range extra_equips {
