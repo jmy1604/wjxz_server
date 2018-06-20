@@ -249,7 +249,7 @@ func (this *Player) Send(msg_id uint16, msg proto.Message) (msg_data []byte) {
 		return
 	}
 
-	log.Info("[发送] [玩家%d:%v] [%s] !", this.Id, msg_id, msg.String())
+	//log.Debug("[发送] [玩家%d:%v] [%s] !", this.Id, msg_id, msg.String())
 
 	var err error
 	msg_data, err = proto.Marshal(msg)

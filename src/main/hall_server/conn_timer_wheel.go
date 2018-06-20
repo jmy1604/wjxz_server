@@ -73,7 +73,7 @@ func (this *ConnTimerWheel) insert(player_id int32) bool {
 		p.timer = timer
 		this.players[player_id] = p
 	}
-	log.Debug("Player[%v] conn insert in index[%v] list", player_id, insert_list_index)
+	//log.Debug("Player[%v] conn insert in index[%v] list", player_id, insert_list_index)
 	return true
 }
 
