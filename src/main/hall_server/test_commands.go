@@ -3,7 +3,7 @@ package main
 import (
 	"libs/log"
 	_ "libs/timer"
-	_ "libs/utils"
+	"libs/utils"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
@@ -1363,6 +1363,18 @@ func battle_record_cmd(p *Player, args []string) int32 {
 	return p.GetBattleRecord(int32(record_id))
 }
 
+func tw_func1(param interface{}) int32 {
+	p := param.(int32)
+	log.Debug("tw_func1 param %v", p)
+	return 1
+}
+
+func test_stw_cmd(p *Player, args []string) int32 {
+	stw := utils.NewSimpleTimeWheel()
+	stw.Run()
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1401,6 +1413,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"tower_ranklist":     tower_ranklist_cmd,
 	"battle_recordlist":  battle_recordlist_cmd,
 	"battle_record":      battle_record_cmd,
+	"test_stw":           test_stw_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

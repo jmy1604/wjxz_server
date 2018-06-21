@@ -7,27 +7,33 @@ import (
 )
 
 const (
-	SIMPLE_TIMER_CHAN_LENGTH        = 4096
-	DEFAULT_TIMER_INTERVAL_MSECONDS = 10
-	DEFAULT_TIME_PERIOD_SECONDS     = 24 * 3600
+	SIMPLE_TIMER_CHAN_LENGTH        = 4096      // 计时器插入缓冲队列长度
+	DEFAULT_TIMER_INTERVAL_MSECONDS = 10        // 默认计时器间隔作用时间
+	DEFAULT_TIME_PERIOD_SECONDS     = 24 * 3600 // 默认计时器总时间
 )
 
 type SimpleTimerFunc func(interface{}) int32
 
+type SimpleTimerData struct {
+	timer_id   int32           // 计时器ID
+	timer_func SimpleTimerFunc // 处理函数
+	param      interface{}     // 参数
+	begin_now  bool            // 是否马上开始
+	interval   int32           // 作用时间间隔(毫秒)
+	total_num  int32           // 总作用次数
+	curr_num   int32           // 当前已作用次数
+}
+
 type SimpleTimerOpData struct {
-	op         int32
-	timer_id   int32
-	timer_func SimpleTimerFunc
-	param      interface{}
+	op   int32            // 1 插入  2 删除
+	data *SimpleTimerData // 数据
 }
 
 type SimpleTimer struct {
-	timer_id    int32
-	timer_func  SimpleTimerFunc
-	param       interface{}
-	next        *SimpleTimer
-	prev        *SimpleTimer
-	parent_list *SimpleTimerList
+	data        *SimpleTimerData // 数据
+	next        *SimpleTimer     // 下一个
+	prev        *SimpleTimer     // 上一个
+	parent_list *SimpleTimerList // 计时器链表
 }
 
 type SimpleTimerList struct {
@@ -35,12 +41,9 @@ type SimpleTimerList struct {
 	tail *SimpleTimer
 }
 
-func (this *SimpleTimerList) add(timer_id int32, timer_func SimpleTimerFunc, param interface{}) *SimpleTimer {
+func (this *SimpleTimerList) add(data *SimpleTimerData) *SimpleTimer {
 	node := &SimpleTimer{
-		timer_id:    timer_id,
-		timer_func:  timer_func,
-		param:       param,
-		parent_list: this,
+		data: data,
 	}
 	if this.head == nil {
 		this.head = node
@@ -78,6 +81,14 @@ type SimpleTimeWheel struct {
 	id2timer                map[int32]*SimpleTimer
 }
 
+func NewSimpleTimeWheel() *SimpleTimeWheel {
+	stw := &SimpleTimeWheel{}
+	if !stw.Init(0, 0) {
+		return nil
+	}
+	return stw
+}
+
 func (this *SimpleTimeWheel) Init(timer_interval_mseconds, time_period_seconds int32) bool {
 	if timer_interval_mseconds == 0 {
 		timer_interval_mseconds = DEFAULT_TIMER_INTERVAL_MSECONDS
@@ -96,25 +107,37 @@ func (this *SimpleTimeWheel) Init(timer_interval_mseconds, time_period_seconds i
 	return true
 }
 
-func (this *SimpleTimeWheel) Insert(timer_func SimpleTimerFunc, param interface{}) int32 {
+func (this *SimpleTimeWheel) Insert(timer_func SimpleTimerFunc, param interface{}, begin_now bool, interval_mseconds, total_effect_mseconds int32) int32 {
+	if interval_mseconds == 0 || total_effect_mseconds == 0 {
+		log.Error("Insert new simple timer failed, interval_seconds or total_effect_mseconds cant to be set zero")
+		return -1
+	}
 	new_timer_id := atomic.AddInt32(&this.curr_timer_id, 1)
-	this.op_chan <- &SimpleTimerOpData{
-		op:         1,
+	data := &SimpleTimerData{
 		timer_id:   new_timer_id,
 		timer_func: timer_func,
 		param:      param,
+		begin_now:  begin_now,
+		interval:   interval_mseconds,
+		total_num:  total_effect_mseconds / interval_mseconds,
+	}
+	this.op_chan <- &SimpleTimerOpData{
+		op:   1,
+		data: data,
 	}
 	return new_timer_id
 }
 
 func (this *SimpleTimeWheel) Remove(timer_id int32) {
 	this.op_chan <- &SimpleTimerOpData{
-		op:       2,
-		timer_id: timer_id,
+		op: 2,
+		data: &SimpleTimerData{
+			timer_id: timer_id,
+		},
 	}
 }
 
-func (this *SimpleTimeWheel) insert(timer_id int32, timer_func SimpleTimerFunc, param interface{}) bool {
+func (this *SimpleTimeWheel) insert(data *SimpleTimerData) bool {
 	lists_len := int32(len(this.timer_lists))
 	insert_list_index := (this.curr_timer_index + int32(len(this.timer_lists))) % lists_len
 	list := this.timer_lists[insert_list_index]
@@ -122,20 +145,20 @@ func (this *SimpleTimeWheel) insert(timer_id int32, timer_func SimpleTimerFunc, 
 		list = &SimpleTimerList{}
 		this.timer_lists[insert_list_index] = list
 	}
-	timer := list.add(timer_id, timer_func, param)
-	tmp_timer := this.id2timer[timer_id]
+	timer := list.add(data)
+	tmp_timer := this.id2timer[data.timer_id]
 	if tmp_timer != nil {
 		this.remove(tmp_timer)
-		log.Warn("SimpleTimeWheel already exists timer[%v], remove it", timer_id)
+		log.Warn("SimpleTimeWheel already exists timer[%v], remove it", data.timer_id)
 	}
-	this.id2timer[timer_id] = timer
+	this.id2timer[data.timer_id] = timer
 	//log.Debug("Player[%v] conn insert in index[%v] list", player_id, insert_list_index)
 	return true
 }
 
 func (this *SimpleTimeWheel) remove(timer *SimpleTimer) bool {
 	timer.parent_list.remove(timer)
-	delete(this.id2timer, timer.timer_id)
+	delete(this.id2timer, timer.data.timer_id)
 	return true
 }
 
@@ -168,9 +191,9 @@ func (this *SimpleTimeWheel) Run() {
 					}
 
 					if d.op == 1 {
-						this.insert(d.timer_id, d.timer_func, d.param)
+						this.insert(d.data)
 					} else if d.op == 2 {
-						this.remove_by_id(d.timer_id)
+						this.remove_by_id(d.data.timer_id)
 					}
 				}
 			default:
@@ -207,7 +230,7 @@ func (this *SimpleTimeWheel) Run() {
 					t := list.head
 					for t != nil {
 						// execute timer function
-						t.timer_func(t.param)
+						t.data.timer_func(t.data.param)
 						this.remove(t)
 						t = t.next
 					}

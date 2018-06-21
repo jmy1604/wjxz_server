@@ -10,9 +10,11 @@
 	
 	"HeartbeatInterval":60,
 	
-	"MailMaxCount":300,
-	"MailExistDays":14,
-	"MailTribeSendCooldown":12,
+	"MailContentBytes":240,
+	"MailMaxCount":100,
+	"MailNormalExistDays":7,
+	"MailAttachExistDays":15,
+	"MailPlayerSendCooldown":30,
 	
 	"PlayerBattleRecordMaxCount":10,
 	

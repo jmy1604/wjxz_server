@@ -63,7 +63,7 @@ enum E_ERR {
 	PLAYER_MAIL_NO_ATTACHED_ITEM			= -14002; // 邮件没有附加物品
 	PLAYER_MAIL_SEND_FAILED					= -14003; // 发送邮件失败
 	PLAYER_MAIL_RECEIVER_NOT_FOUND			= -14004; // 邮件接受者不存在
-	PLAYER_MAIL_TRIBE_IS_COOLDOWN			= -14005; // 部落邮件发送冷却中
+	PLAYER_MAIL_PLAYER_IS_COOLDOWN			= -14005; // 个人邮件发送冷却中
 	
 	// 天赋
 	PLAYER_TALENT_NOT_FOUND					= -15000; // 没有该天赋
@@ -612,7 +612,7 @@ message C2SMailListRequest {
 }
 message MailBasicData {
 	int32 Id								= 1; // 邮件ID
-	int32 Type								= 2; // 邮件类型   1 系统  2 奖励  3 公会
+	int32 Type								= 2; // 邮件类型   1 系统  2 个人
 	string Title							= 3; // 邮件标题
 	string SenderName						= 4; // 发送者
 	int32 SendTime							= 5; // 发送时间

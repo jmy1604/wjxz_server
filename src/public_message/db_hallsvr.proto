@@ -113,7 +113,7 @@ message PlayerNotifyStateList{
 
 message PlayerMailCommon{
 	optional int32 CurrId=1;
-	optional int32 LastSendTribeMailTime=3;
+	optional int32 LastSendPlayerMailTime=2;
 }
 
 message PlayerMail{

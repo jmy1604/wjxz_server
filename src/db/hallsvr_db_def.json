@@ -262,7 +262,7 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"CurrId","Incby":true},
-						{"Type":"int32","Index":3,"Name":"LastSendTribeMailTime"}
+						{"Type":"int32","Index":2,"Name":"LastSendPlayerMailTime"}
 					]
 				},
 				{

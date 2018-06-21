@@ -15,8 +15,7 @@ import (
 
 const (
 	MAIL_TYPE_SYSTEM = 1
-	MAIL_TYPE_REWARD = 2
-	MAIL_TYPE_TRIBE  = 3
+	MAIL_TYPE_PLAYER = 2
 )
 
 func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailBasicData) {
@@ -191,15 +190,15 @@ func (this *Player) get_and_clear_cache_new_mails() (mails []*msg_client_message
 }
 
 func SendMail(sender *Player, receiver_id, mail_type int32, title string, content string, attached_items []*msg_client_message.ItemInfo) int32 {
-	if mail_type == MAIL_TYPE_TRIBE {
+	if mail_type == MAIL_TYPE_PLAYER {
 		if sender == nil {
 			return -1
 		}
-		last_send := sender.db.MailCommon.GetLastSendTribeMailTime()
+		last_send := sender.db.MailCommon.GetLastSendPlayerMailTime()
 		now_time := int32(time.Now().Unix())
-		if now_time-last_send < 3600*global_config_mgr.GetGlobalConfig().MailTribeSendCooldown {
+		if now_time-last_send < 3600*global_config_mgr.GetGlobalConfig().MailPlayerSendCooldown {
 			log.Error("Player[%v] tribe mail is cooldown", sender.Id)
-			return int32(msg_client_message.E_ERR_PLAYER_MAIL_TRIBE_IS_COOLDOWN)
+			return int32(msg_client_message.E_ERR_PLAYER_MAIL_PLAYER_IS_COOLDOWN)
 		}
 	}
 	receiver := player_mgr.GetPlayerById(receiver_id)
@@ -221,8 +220,8 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 		}
 	}
 
-	if mail_type == MAIL_TYPE_TRIBE && sender != nil {
-		sender.db.MailCommon.SetLastSendTribeMailTime(int32(time.Now().Unix()))
+	if mail_type == MAIL_TYPE_PLAYER && sender != nil {
+		sender.db.MailCommon.SetLastSendPlayerMailTime(int32(time.Now().Unix()))
 	}
 
 	if !receiver.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
