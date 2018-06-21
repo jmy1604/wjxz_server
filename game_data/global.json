@@ -10,6 +10,7 @@
 	
 	"HeartbeatInterval":60,
 	
+	"MailTitleBytes":32,
 	"MailContentBytes":240,
 	"MailMaxCount":100,
 	"MailNormalExistDays":7,

@@ -1,230 +1,374 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item ID="1" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="2" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="3" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="4" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="5" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="6" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="7" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="8" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="9" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10" ItemType="3" EquipType="0" SellReward="" Quality="1" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10001" ItemType="2" EquipType="1" SellReward="1,1000" Quality="1" ShowStar ="1" EquipAttr="4,10" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10002" ItemType="2" EquipType="1" SellReward="1,2000" Quality="1" ShowStar ="1" EquipAttr="4,20" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10003" ItemType="2" EquipType="1" SellReward="1,4000" Quality="2" ShowStar ="2" EquipAttr="4,40" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10004" ItemType="2" EquipType="1" SellReward="1,8000" Quality="2" ShowStar ="2" EquipAttr="4,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10005" ItemType="2" EquipType="1" SellReward="1,20000" Quality="3" ShowStar ="3" EquipAttr="4,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10006" ItemType="2" EquipType="1" SellReward="1,40000" Quality="3" ShowStar ="3" EquipAttr="4,160" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="10007" ItemType="2" EquipType="1" SellReward="1,80000" Quality="3" ShowStar ="3" EquipAttr="4,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11001" ItemType="2" EquipType="2" SellReward="1,1000" Quality="1" ShowStar ="1" EquipAttr="1,100" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11002" ItemType="2" EquipType="2" SellReward="1,2000" Quality="1" ShowStar ="1" EquipAttr="1,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11003" ItemType="2" EquipType="2" SellReward="1,4000" Quality="2" ShowStar ="2" EquipAttr="1,400" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11004" ItemType="2" EquipType="2" SellReward="1,8000" Quality="2" ShowStar ="2" EquipAttr="1,800" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11005" ItemType="2" EquipType="2" SellReward="1,20000" Quality="3" ShowStar ="3" EquipAttr="1,1200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11006" ItemType="2" EquipType="2" SellReward="1,40000" Quality="3" ShowStar ="3" EquipAttr="1,1600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="11007" ItemType="2" EquipType="2" SellReward="1,80000" Quality="3" ShowStar ="3" EquipAttr="1,2000" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12001" ItemType="2" EquipType="3" SellReward="1,1000" Quality="1" ShowStar ="1" EquipAttr="4,4,1,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12002" ItemType="2" EquipType="3" SellReward="1,2000" Quality="1" ShowStar ="1" EquipAttr="4,6,1,60" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12003" ItemType="2" EquipType="3" SellReward="1,4000" Quality="2" ShowStar ="2" EquipAttr="4,12,1,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12004" ItemType="2" EquipType="3" SellReward="1,8000" Quality="2" ShowStar ="2" EquipAttr="4,25,1,240" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12005" ItemType="2" EquipType="3" SellReward="1,20000" Quality="3" ShowStar ="3" EquipAttr="4,36,1,360" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12006" ItemType="2" EquipType="3" SellReward="1,40000" Quality="3" ShowStar ="3" EquipAttr="4,48,1,480" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="12007" ItemType="2" EquipType="3" SellReward="1,80000" Quality="3" ShowStar ="3" EquipAttr="4,60,1,600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13001" ItemType="2" EquipType="4" SellReward="1,1000" Quality="1" ShowStar ="1" EquipAttr="4,4,5,6" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13002" ItemType="2" EquipType="4" SellReward="1,2000" Quality="1" ShowStar ="1" EquipAttr="4,6,5,12" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13003" ItemType="2" EquipType="4" SellReward="1,4000" Quality="2" ShowStar ="2" EquipAttr="4,12,5,24" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13004" ItemType="2" EquipType="4" SellReward="1,8000" Quality="2" ShowStar ="2" EquipAttr="4,25,5,48" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13005" ItemType="2" EquipType="4" SellReward="1,20000" Quality="3" ShowStar ="3" EquipAttr="4,36,5,72" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13006" ItemType="2" EquipType="4" SellReward="1,40000" Quality="3" ShowStar ="3" EquipAttr="4,48,5,96" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="13007" ItemType="2" EquipType="4" SellReward="1,80000" Quality="3" ShowStar ="3" EquipAttr="4,60,5,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15001" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="1" EquipAttr="1,100,5,12" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15002" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="2" EquipAttr="1,150,5,18" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15003" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="3" EquipAttr="1,200,5,24" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15004" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="4" EquipAttr="1,250,5,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15005" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="5" EquipAttr="1,300,5,36" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15006" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="1" EquipAttr="4,32" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15007" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="2" EquipAttr="4,48" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15008" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="3" EquipAttr="4,64" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15009" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="4" EquipAttr="4,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="15010" ItemType="2" EquipType="6" SellReward="1,1000" Quality="1" ShowStar ="5" EquipAttr="4,96" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20001" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="36,20000" EquipSkill="60021,60022" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20002" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60023" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20011" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60001,60002,60003,60004" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20012" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60005,60006,60007,60008" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="20013" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60009,60010,60011,60012" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21001" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,10,20,10" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21002" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,20,20,20" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21003" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,30,20,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21004" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,40,20,40" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21005" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,50,20,50" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21006" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,60,20,60" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21007" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,70,20,70" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21008" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,80,20,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21009" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,90,20,90" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21010" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,100,20,100" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21011" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,110,20,110" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21012" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,120,20,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21013" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,130,20,130" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21014" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,140,20,140" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21015" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,150,20,150" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21016" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,160,20,160" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21017" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,170,20,170" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21018" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,180,20,180" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21019" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,190,20,190" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21020" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,200,20,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21021" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,210,20,210" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21022" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,220,20,220" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21023" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,230,20,230" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21024" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,240,20,240" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21025" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,250,20,250" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21026" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,260,20,260" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21027" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,270,20,270" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21028" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,280,20,280" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21029" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,290,20,290" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21030" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,300,20,300" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21031" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,310,20,310" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21032" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,320,20,320" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21033" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,330,20,330" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21034" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,340,20,340" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21035" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,350,20,350" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21036" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,360,20,360" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21037" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,370,20,370" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21038" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,380,20,380" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21039" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,390,20,390" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21040" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,400,20,400" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21041" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,410,20,410" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21042" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,420,20,420" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21043" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,430,20,430" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21044" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,440,20,440" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21045" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,450,20,450" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21046" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,460,20,460" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21047" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,470,20,470" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21048" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,480,20,480" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21049" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,490,20,490" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21050" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,500,20,500" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21051" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,510,20,510" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21052" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,520,20,520" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21053" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,530,20,530" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21054" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,540,20,540" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21055" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,550,20,550" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21056" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,560,20,560" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21057" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,570,20,570" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21058" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,580,20,580" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21059" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,590,20,590" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21060" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,600,20,600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21061" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,610,20,610" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21062" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,620,20,620" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21063" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,630,20,630" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21064" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,640,20,640" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21065" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,650,20,650" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21066" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,660,20,660" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21067" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,670,20,670" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21068" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,680,20,680" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21069" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,690,20,690" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21070" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,700,20,700" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21071" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,710,20,710" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21072" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,720,20,720" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21073" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,730,20,730" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21074" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,740,20,740" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21075" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,750,20,750" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21076" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,760,20,760" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21077" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,770,20,770" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21078" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,780,20,780" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21079" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,790,20,790" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21080" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,800,20,800" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21081" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,810,20,810" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21082" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,820,20,820" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21083" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,830,20,830" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21084" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,840,20,840" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21085" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,850,20,850" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21086" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,860,20,860" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21087" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,870,20,870" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21088" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,880,20,880" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21089" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,890,20,890" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21090" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,900,20,900" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21091" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,910,20,910" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21092" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,920,20,920" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21093" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,930,20,930" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21094" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,940,20,940" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21095" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,950,20,950" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21096" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,960,20,960" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21097" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,970,20,970" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21098" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,980,20,980" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21099" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,990,20,990" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="21100" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,1000,20,1000" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" />
-     <item ID="51001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="1001" />
-     <item ID="51011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="1011" />
-     <item ID="51021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="1021" />
-     <item ID="51031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="1031" />
-     <item ID="51032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="1032" />
-     <item ID="51033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="1033" />
-     <item ID="51051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1051" />
-     <item ID="51052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1052" />
-     <item ID="51053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1053" />
-     <item ID="51054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1054" />
-     <item ID="51055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1055" />
-     <item ID="51056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1056" />
-     <item ID="52001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="2001" />
-     <item ID="52011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="2011" />
-     <item ID="52021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="2021" />
-     <item ID="52031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="2031" />
-     <item ID="52032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="2032" />
-     <item ID="52033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="2033" />
-     <item ID="52051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2051" />
-     <item ID="52052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2052" />
-     <item ID="52053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2053" />
-     <item ID="52054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2054" />
-     <item ID="52055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2055" />
-     <item ID="52056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2056" />
-     <item ID="53001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="3001" />
-     <item ID="53011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="3011" />
-     <item ID="53021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="3021" />
-     <item ID="53031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="3031" />
-     <item ID="53032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="3032" />
-     <item ID="53033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="3033" />
-     <item ID="53051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3051" />
-     <item ID="53052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3052" />
-     <item ID="53053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3053" />
-     <item ID="53054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3054" />
-     <item ID="53055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3055" />
-     <item ID="53056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3056" />
-     <item ID="54001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="4001" />
-     <item ID="54011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="4011" />
-     <item ID="54021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="4021" />
-     <item ID="54031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="4031" />
-     <item ID="54032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="4032" />
-     <item ID="54033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="4033" />
-     <item ID="54051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4051" />
-     <item ID="54052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4052" />
-     <item ID="54053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4053" />
-     <item ID="54054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4054" />
-     <item ID="54055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4055" />
-     <item ID="54056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4056" />
-     <item ID="55001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="5001" />
-     <item ID="55011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="5011" />
-     <item ID="55021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="5021" />
-     <item ID="55031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="5031" />
-     <item ID="55032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="5032" />
-     <item ID="55033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="5033" />
-     <item ID="55051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5051" />
-     <item ID="55052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5052" />
-     <item ID="55053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5053" />
-     <item ID="55054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5054" />
-     <item ID="55055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5055" />
-     <item ID="55056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5056" />
-     <item ID="56001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="6001" />
-     <item ID="56011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="6011" />
-     <item ID="56021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="6021" />
-     <item ID="56031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="6031" />
-     <item ID="56032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="6032" />
-     <item ID="56033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="6033" />
-     <item ID="56051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6051" />
-     <item ID="56052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6052" />
-     <item ID="56053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6053" />
-     <item ID="56054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6054" />
-     <item ID="56055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6055" />
-     <item ID="56056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6056" />
+     <item ID="1" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="2" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="3" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="4" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="5" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="6" ItemType="3" EquipType="0" SellReward="" Quality="2" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="7" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="8" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="9" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="10" ItemType="3" EquipType="0" SellReward="" Quality="1" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="11" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="12" ItemType="1" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="13" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14" ItemType="3" EquipType="0" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="10001" ItemType="2" EquipType="1" SellReward="1,10" Quality="1" ShowStar ="1" EquipAttr="4,38" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="24" SuitID="0" />
+     <item ID="10002" ItemType="2" EquipType="1" SellReward="1,20" Quality="2" ShowStar ="1" EquipAttr="4,76" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="49" SuitID="0" />
+     <item ID="10003" ItemType="2" EquipType="1" SellReward="1,50" Quality="2" ShowStar ="2" EquipAttr="4,124" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="80" SuitID="0" />
+     <item ID="10004" ItemType="2" EquipType="1" SellReward="1,100" Quality="3" ShowStar ="1" EquipAttr="4,183" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="119" SuitID="0" />
+     <item ID="10005" ItemType="2" EquipType="1" SellReward="1,200" Quality="3" ShowStar ="2" EquipAttr="4,258" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="167" SuitID="0" />
+     <item ID="10006" ItemType="2" EquipType="1" SellReward="1,500" Quality="4" ShowStar ="1" EquipAttr="4,351" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="228" SuitID="10006" />
+     <item ID="10007" ItemType="2" EquipType="1" SellReward="1,1000" Quality="4" ShowStar ="2" EquipAttr="4,467" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="303" SuitID="10007" />
+     <item ID="10008" ItemType="2" EquipType="1" SellReward="1,2000" Quality="4" ShowStar ="3" EquipAttr="4,612" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="398" SuitID="10008" />
+     <item ID="10009" ItemType="2" EquipType="1" SellReward="1,5000" Quality="5" ShowStar ="1" EquipAttr="4,794" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="516" SuitID="10009" />
+     <item ID="10010" ItemType="2" EquipType="1" SellReward="1,10000" Quality="5" ShowStar ="2" EquipAttr="4,1021" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="664" SuitID="10010" />
+     <item ID="10011" ItemType="2" EquipType="1" SellReward="1,20000" Quality="5" ShowStar ="3" EquipAttr="4,1305" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="848" SuitID="10011" />
+     <item ID="10012" ItemType="2" EquipType="1" SellReward="1,50000" Quality="6" ShowStar ="1" EquipAttr="4,1660" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1079" SuitID="10012" />
+     <item ID="10013" ItemType="2" EquipType="1" SellReward="1,100000" Quality="6" ShowStar ="2" EquipAttr="4,2103" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1367" SuitID="10013" />
+     <item ID="10014" ItemType="2" EquipType="1" SellReward="1,200000" Quality="6" ShowStar ="3" EquipAttr="4,2657" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1727" SuitID="10014" />
+     <item ID="10015" ItemType="2" EquipType="1" SellReward="1,500000" Quality="6" ShowStar ="4" EquipAttr="4,3350" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="2178" SuitID="10015" />
+     <item ID="10016" ItemType="2" EquipType="1" SellReward="1,1000000" Quality="6" ShowStar ="5" EquipAttr="4,4216" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="2741" SuitID="10016" />
+     <item ID="11001" ItemType="2" EquipType="2" SellReward="1,10" Quality="1" ShowStar ="1" EquipAttr="1,183,5,11" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="24" SuitID="0" />
+     <item ID="11002" ItemType="2" EquipType="2" SellReward="1,20" Quality="2" ShowStar ="1" EquipAttr="1,367,5,23" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="49" SuitID="0" />
+     <item ID="11003" ItemType="2" EquipType="2" SellReward="1,50" Quality="2" ShowStar ="2" EquipAttr="1,596,5,38" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="80" SuitID="0" />
+     <item ID="11004" ItemType="2" EquipType="2" SellReward="1,100" Quality="3" ShowStar ="1" EquipAttr="1,883,5,56" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="119" SuitID="0" />
+     <item ID="11005" ItemType="2" EquipType="2" SellReward="1,200" Quality="3" ShowStar ="2" EquipAttr="1,1241,5,79" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="167" SuitID="0" />
+     <item ID="11006" ItemType="2" EquipType="2" SellReward="1,500" Quality="4" ShowStar ="1" EquipAttr="1,1688,5,107" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="228" SuitID="10006" />
+     <item ID="11007" ItemType="2" EquipType="2" SellReward="1,1000" Quality="4" ShowStar ="2" EquipAttr="1,2248,5,143" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="303" SuitID="10007" />
+     <item ID="11008" ItemType="2" EquipType="2" SellReward="1,2000" Quality="4" ShowStar ="3" EquipAttr="1,2947,5,188" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="398" SuitID="10008" />
+     <item ID="11009" ItemType="2" EquipType="2" SellReward="1,5000" Quality="5" ShowStar ="1" EquipAttr="1,3821,5,244" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="516" SuitID="10009" />
+     <item ID="11010" ItemType="2" EquipType="2" SellReward="1,10000" Quality="5" ShowStar ="2" EquipAttr="1,4913,5,313" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="664" SuitID="10010" />
+     <item ID="11011" ItemType="2" EquipType="2" SellReward="1,20000" Quality="5" ShowStar ="3" EquipAttr="1,6278,5,401" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="848" SuitID="10011" />
+     <item ID="11012" ItemType="2" EquipType="2" SellReward="1,50000" Quality="6" ShowStar ="1" EquipAttr="1,7985,5,510" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1079" SuitID="10012" />
+     <item ID="11013" ItemType="2" EquipType="2" SellReward="1,100000" Quality="6" ShowStar ="2" EquipAttr="1,10118,5,646" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1367" SuitID="10013" />
+     <item ID="11014" ItemType="2" EquipType="2" SellReward="1,200000" Quality="6" ShowStar ="3" EquipAttr="1,12784,5,816" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1727" SuitID="10014" />
+     <item ID="11015" ItemType="2" EquipType="2" SellReward="1,500000" Quality="6" ShowStar ="4" EquipAttr="1,16117,5,1029" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="2178" SuitID="10015" />
+     <item ID="11016" ItemType="2" EquipType="2" SellReward="1,1000000" Quality="6" ShowStar ="5" EquipAttr="1,20283,5,1295" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="2741" SuitID="10016" />
+     <item ID="12001" ItemType="2" EquipType="3" SellReward="1,10" Quality="1" ShowStar ="1" EquipAttr="1,69,4,13" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="15" SuitID="0" />
+     <item ID="12002" ItemType="2" EquipType="3" SellReward="1,20" Quality="2" ShowStar ="1" EquipAttr="1,138,4,26" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="30" SuitID="0" />
+     <item ID="12003" ItemType="2" EquipType="3" SellReward="1,50" Quality="2" ShowStar ="2" EquipAttr="1,224,4,42" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="49" SuitID="0" />
+     <item ID="12004" ItemType="2" EquipType="3" SellReward="1,100" Quality="3" ShowStar ="1" EquipAttr="1,332,4,62" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="73" SuitID="0" />
+     <item ID="12005" ItemType="2" EquipType="3" SellReward="1,200" Quality="3" ShowStar ="2" EquipAttr="1,466,4,87" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="102" SuitID="0" />
+     <item ID="12006" ItemType="2" EquipType="3" SellReward="1,500" Quality="4" ShowStar ="1" EquipAttr="1,634,4,119" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="139" SuitID="10006" />
+     <item ID="12007" ItemType="2" EquipType="3" SellReward="1,1000" Quality="4" ShowStar ="2" EquipAttr="1,845,4,159" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="186" SuitID="10007" />
+     <item ID="12008" ItemType="2" EquipType="3" SellReward="1,2000" Quality="4" ShowStar ="3" EquipAttr="1,1108,4,208" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="244" SuitID="10008" />
+     <item ID="12009" ItemType="2" EquipType="3" SellReward="1,5000" Quality="5" ShowStar ="1" EquipAttr="1,1437,4,270" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="316" SuitID="10009" />
+     <item ID="12010" ItemType="2" EquipType="3" SellReward="1,10000" Quality="5" ShowStar ="2" EquipAttr="1,1847,4,348" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="406" SuitID="10010" />
+     <item ID="12011" ItemType="2" EquipType="3" SellReward="1,20000" Quality="5" ShowStar ="3" EquipAttr="1,2360,4,444" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="520" SuitID="10011" />
+     <item ID="12012" ItemType="2" EquipType="3" SellReward="1,50000" Quality="6" ShowStar ="1" EquipAttr="1,3002,4,565" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="661" SuitID="10012" />
+     <item ID="12013" ItemType="2" EquipType="3" SellReward="1,100000" Quality="6" ShowStar ="2" EquipAttr="1,3804,4,716" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="838" SuitID="10013" />
+     <item ID="12014" ItemType="2" EquipType="3" SellReward="1,200000" Quality="6" ShowStar ="3" EquipAttr="1,4807,4,905" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1058" SuitID="10014" />
+     <item ID="12015" ItemType="2" EquipType="3" SellReward="1,500000" Quality="6" ShowStar ="4" EquipAttr="1,6060,4,1141" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1334" SuitID="10015" />
+     <item ID="12016" ItemType="2" EquipType="3" SellReward="1,1000000" Quality="6" ShowStar ="5" EquipAttr="1,7627,4,1437" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1679" SuitID="10016" />
+     <item ID="13001" ItemType="2" EquipType="4" SellReward="1,10" Quality="1" ShowStar ="1" EquipAttr="4,13,5,12" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="15" SuitID="0" />
+     <item ID="13002" ItemType="2" EquipType="4" SellReward="1,20" Quality="2" ShowStar ="1" EquipAttr="4,26,5,25" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="30" SuitID="0" />
+     <item ID="13003" ItemType="2" EquipType="4" SellReward="1,50" Quality="2" ShowStar ="2" EquipAttr="4,42,5,40" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="49" SuitID="0" />
+     <item ID="13004" ItemType="2" EquipType="4" SellReward="1,100" Quality="3" ShowStar ="1" EquipAttr="4,62,5,60" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="73" SuitID="0" />
+     <item ID="13005" ItemType="2" EquipType="4" SellReward="1,200" Quality="3" ShowStar ="2" EquipAttr="4,87,5,84" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="102" SuitID="0" />
+     <item ID="13006" ItemType="2" EquipType="4" SellReward="1,500" Quality="4" ShowStar ="1" EquipAttr="4,119,5,115" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="139" SuitID="10006" />
+     <item ID="13007" ItemType="2" EquipType="4" SellReward="1,1000" Quality="4" ShowStar ="2" EquipAttr="4,159,5,153" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="186" SuitID="10007" />
+     <item ID="13008" ItemType="2" EquipType="4" SellReward="1,2000" Quality="4" ShowStar ="3" EquipAttr="4,208,5,201" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="244" SuitID="10008" />
+     <item ID="13009" ItemType="2" EquipType="4" SellReward="1,5000" Quality="5" ShowStar ="1" EquipAttr="4,270,5,261" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="316" SuitID="10009" />
+     <item ID="13010" ItemType="2" EquipType="4" SellReward="1,10000" Quality="5" ShowStar ="2" EquipAttr="4,348,5,335" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="406" SuitID="10010" />
+     <item ID="13011" ItemType="2" EquipType="4" SellReward="1,20000" Quality="5" ShowStar ="3" EquipAttr="4,444,5,429" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="520" SuitID="10011" />
+     <item ID="13012" ItemType="2" EquipType="4" SellReward="1,50000" Quality="6" ShowStar ="1" EquipAttr="4,565,5,545" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="661" SuitID="10012" />
+     <item ID="13013" ItemType="2" EquipType="4" SellReward="1,100000" Quality="6" ShowStar ="2" EquipAttr="4,716,5,691" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="838" SuitID="10013" />
+     <item ID="13014" ItemType="2" EquipType="4" SellReward="1,200000" Quality="6" ShowStar ="3" EquipAttr="4,905,5,874" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1058" SuitID="10014" />
+     <item ID="13015" ItemType="2" EquipType="4" SellReward="1,500000" Quality="6" ShowStar ="4" EquipAttr="4,1141,5,1101" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1334" SuitID="10015" />
+     <item ID="13016" ItemType="2" EquipType="4" SellReward="1,1000000" Quality="6" ShowStar ="5" EquipAttr="4,1437,5,1386" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="1679" SuitID="10016" />
+     <item ID="14001" ItemType="2" EquipType="5" SellReward="" Quality="3" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14002" ItemType="2" EquipType="5" SellReward="" Quality="3" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14011" ItemType="2" EquipType="5" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14012" ItemType="2" EquipType="5" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14021" ItemType="2" EquipType="5" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14022" ItemType="2" EquipType="5" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14031" ItemType="2" EquipType="5" SellReward="" Quality="3" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14032" ItemType="2" EquipType="5" SellReward="" Quality="3" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14041" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14042" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14043" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14044" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14045" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14046" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14051" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14052" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14053" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14054" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14055" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14056" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14061" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14062" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14063" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14064" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14065" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14066" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14071" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14072" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14073" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14074" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14075" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14076" ItemType="2" EquipType="5" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14081" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14082" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14083" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14084" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14085" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14086" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14091" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14092" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14093" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14094" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14095" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14096" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14101" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14102" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14103" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14104" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14105" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14106" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14111" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14112" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14113" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14114" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14115" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="14116" ItemType="2" EquipType="5" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15001" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15002" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15003" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15004" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15005" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15011" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15012" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15013" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15014" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15015" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15021" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15022" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15023" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15024" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15025" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15031" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15032" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15033" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15034" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15035" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15041" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15042" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15043" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15044" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15045" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15051" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15052" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15053" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15054" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15055" ItemType="2" EquipType="6" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15101" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15102" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15103" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15104" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15105" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15111" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15112" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15113" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15114" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15115" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15121" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15122" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15123" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15124" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15125" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15131" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15132" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15133" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15134" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15135" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15141" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15142" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15143" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15144" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15145" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15151" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15152" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15153" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15154" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="15155" ItemType="2" EquipType="6" SellReward="" Quality="5" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="20001" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="36,20000" EquipSkill="60021,60022" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="20002" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60023" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="20011" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60001,60002,60003,60004" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="20012" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60005,60006,60007,60008" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="20013" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="" EquipSkill="60009,60010,60011,60012" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21001" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,10,20,10" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21002" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,20,20,20" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21003" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,30,20,30" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21004" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,40,20,40" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21005" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,50,20,50" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21006" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,60,20,60" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21007" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,70,20,70" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21008" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,80,20,80" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21009" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,90,20,90" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21010" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,100,20,100" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21011" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,110,20,110" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21012" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,120,20,120" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21013" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,130,20,130" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21014" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,140,20,140" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21015" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,150,20,150" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21016" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,160,20,160" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21017" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,170,20,170" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21018" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,180,20,180" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21019" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,190,20,190" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21020" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,200,20,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21021" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,210,20,210" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21022" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,220,20,220" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21023" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,230,20,230" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21024" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,240,20,240" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21025" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,250,20,250" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21026" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,260,20,260" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21027" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,270,20,270" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21028" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,280,20,280" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21029" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,290,20,290" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21030" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,300,20,300" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21031" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,310,20,310" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21032" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,320,20,320" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21033" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,330,20,330" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21034" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,340,20,340" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21035" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,350,20,350" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21036" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,360,20,360" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21037" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,370,20,370" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21038" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,380,20,380" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21039" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,390,20,390" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21040" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,400,20,400" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21041" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,410,20,410" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21042" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,420,20,420" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21043" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,430,20,430" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21044" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,440,20,440" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21045" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,450,20,450" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21046" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,460,20,460" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21047" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,470,20,470" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21048" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,480,20,480" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21049" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,490,20,490" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21050" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,500,20,500" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21051" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,510,20,510" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21052" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,520,20,520" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21053" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,530,20,530" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21054" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,540,20,540" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21055" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,550,20,550" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21056" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,560,20,560" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21057" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,570,20,570" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21058" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,580,20,580" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21059" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,590,20,590" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21060" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,600,20,600" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21061" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,610,20,610" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21062" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,620,20,620" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21063" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,630,20,630" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21064" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,640,20,640" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21065" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,650,20,650" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21066" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,660,20,660" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21067" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,670,20,670" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21068" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,680,20,680" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21069" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,690,20,690" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21070" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,700,20,700" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21071" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,710,20,710" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21072" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,720,20,720" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21073" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,730,20,730" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21074" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,740,20,740" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21075" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,750,20,750" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21076" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,760,20,760" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21077" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,770,20,770" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21078" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,780,20,780" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21079" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,790,20,790" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21080" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,800,20,800" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21081" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,810,20,810" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21082" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,820,20,820" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21083" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,830,20,830" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21084" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,840,20,840" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21085" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,850,20,850" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21086" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,860,20,860" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21087" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,870,20,870" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21088" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,880,20,880" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21089" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,890,20,890" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21090" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,900,20,900" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21091" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,910,20,910" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21092" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,920,20,920" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21093" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,930,20,930" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21094" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,940,20,940" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21095" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,950,20,950" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21096" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,960,20,960" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21097" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,970,20,970" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21098" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,980,20,980" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21099" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,990,20,990" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="21100" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,1000,20,1000" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="51001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="1001" BattlePower="0" SuitID="0" />
+     <item ID="51011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="1011" BattlePower="0" SuitID="0" />
+     <item ID="51021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="1021" BattlePower="0" SuitID="0" />
+     <item ID="51031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="1031" BattlePower="0" SuitID="0" />
+     <item ID="51032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="1032" BattlePower="0" SuitID="0" />
+     <item ID="51033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="1033" BattlePower="0" SuitID="0" />
+     <item ID="51051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1051" BattlePower="0" SuitID="0" />
+     <item ID="51052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1052" BattlePower="0" SuitID="0" />
+     <item ID="51053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1053" BattlePower="0" SuitID="0" />
+     <item ID="51054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1054" BattlePower="0" SuitID="0" />
+     <item ID="51055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1055" BattlePower="0" SuitID="0" />
+     <item ID="51056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="1056" BattlePower="0" SuitID="0" />
+     <item ID="52001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="2001" BattlePower="0" SuitID="0" />
+     <item ID="52011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="2011" BattlePower="0" SuitID="0" />
+     <item ID="52021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="2021" BattlePower="0" SuitID="0" />
+     <item ID="52031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="2031" BattlePower="0" SuitID="0" />
+     <item ID="52032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="2032" BattlePower="0" SuitID="0" />
+     <item ID="52033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="2033" BattlePower="0" SuitID="0" />
+     <item ID="52051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2051" BattlePower="0" SuitID="0" />
+     <item ID="52052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2052" BattlePower="0" SuitID="0" />
+     <item ID="52053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2053" BattlePower="0" SuitID="0" />
+     <item ID="52054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2054" BattlePower="0" SuitID="0" />
+     <item ID="52055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2055" BattlePower="0" SuitID="0" />
+     <item ID="52056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="2056" BattlePower="0" SuitID="0" />
+     <item ID="53001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="3001" BattlePower="0" SuitID="0" />
+     <item ID="53011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="3011" BattlePower="0" SuitID="0" />
+     <item ID="53021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="3021" BattlePower="0" SuitID="0" />
+     <item ID="53031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="3031" BattlePower="0" SuitID="0" />
+     <item ID="53032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="3032" BattlePower="0" SuitID="0" />
+     <item ID="53033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="3033" BattlePower="0" SuitID="0" />
+     <item ID="53051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3051" BattlePower="0" SuitID="0" />
+     <item ID="53052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3052" BattlePower="0" SuitID="0" />
+     <item ID="53053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3053" BattlePower="0" SuitID="0" />
+     <item ID="53054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3054" BattlePower="0" SuitID="0" />
+     <item ID="53055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3055" BattlePower="0" SuitID="0" />
+     <item ID="53056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="3056" BattlePower="0" SuitID="0" />
+     <item ID="54001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="4001" BattlePower="0" SuitID="0" />
+     <item ID="54011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="4011" BattlePower="0" SuitID="0" />
+     <item ID="54021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="4021" BattlePower="0" SuitID="0" />
+     <item ID="54031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="4031" BattlePower="0" SuitID="0" />
+     <item ID="54032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="4032" BattlePower="0" SuitID="0" />
+     <item ID="54033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="4033" BattlePower="0" SuitID="0" />
+     <item ID="54051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4051" BattlePower="0" SuitID="0" />
+     <item ID="54052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4052" BattlePower="0" SuitID="0" />
+     <item ID="54053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4053" BattlePower="0" SuitID="0" />
+     <item ID="54054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4054" BattlePower="0" SuitID="0" />
+     <item ID="54055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4055" BattlePower="0" SuitID="0" />
+     <item ID="54056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="4056" BattlePower="0" SuitID="0" />
+     <item ID="55001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="5001" BattlePower="0" SuitID="0" />
+     <item ID="55011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="5011" BattlePower="0" SuitID="0" />
+     <item ID="55021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="5021" BattlePower="0" SuitID="0" />
+     <item ID="55031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="5031" BattlePower="0" SuitID="0" />
+     <item ID="55032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="5032" BattlePower="0" SuitID="0" />
+     <item ID="55033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="5033" BattlePower="0" SuitID="0" />
+     <item ID="55051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5051" BattlePower="0" SuitID="0" />
+     <item ID="55052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5052" BattlePower="0" SuitID="0" />
+     <item ID="55053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5053" BattlePower="0" SuitID="0" />
+     <item ID="55054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5054" BattlePower="0" SuitID="0" />
+     <item ID="55055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5055" BattlePower="0" SuitID="0" />
+     <item ID="55056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="5056" BattlePower="0" SuitID="0" />
+     <item ID="56001" ItemType="4" EquipType="0" SellReward="" Quality="2" ShowStar ="1" EquipAttr="" EquipSkill="" ComposeNum="10" ComposeType="1" ComposeDropID="6001" BattlePower="0" SuitID="0" />
+     <item ID="56011" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="2" EquipAttr="" EquipSkill="" ComposeNum="20" ComposeType="1" ComposeDropID="6011" BattlePower="0" SuitID="0" />
+     <item ID="56021" ItemType="4" EquipType="0" SellReward="" Quality="3" ShowStar ="3" EquipAttr="" EquipSkill="" ComposeNum="30" ComposeType="1" ComposeDropID="6021" BattlePower="0" SuitID="0" />
+     <item ID="56031" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="6031" BattlePower="0" SuitID="0" />
+     <item ID="56032" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="6032" BattlePower="0" SuitID="0" />
+     <item ID="56033" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="4" EquipAttr="" EquipSkill="" ComposeNum="40" ComposeType="1" ComposeDropID="6033" BattlePower="0" SuitID="0" />
+     <item ID="56051" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6051" BattlePower="0" SuitID="0" />
+     <item ID="56052" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6052" BattlePower="0" SuitID="0" />
+     <item ID="56053" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6053" BattlePower="0" SuitID="0" />
+     <item ID="56054" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6054" BattlePower="0" SuitID="0" />
+     <item ID="56055" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6055" BattlePower="0" SuitID="0" />
+     <item ID="56056" ItemType="4" EquipType="0" SellReward="" Quality="4" ShowStar ="5" EquipAttr="" EquipSkill="" ComposeNum="50" ComposeType="1" ComposeDropID="6056" BattlePower="0" SuitID="0" />
 </Config>
