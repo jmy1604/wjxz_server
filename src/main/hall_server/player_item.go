@@ -2,7 +2,6 @@ package main
 
 import (
 	"libs/log"
-	_ "main/table_config"
 	"math"
 	"net/http"
 	"public_message/gen_go/client_message"
@@ -16,12 +15,11 @@ import (
 
 // 物品类型
 const (
-	ITEM_TYPE_NONE              = iota
-	ITEM_TYPE_RESOURCE          = 1  // 资源类
-	ITEM_TYPE_DRAW              = 2  // 抽卡券
-	ITEM_TYPE_STAMINA           = 8  // 体力道具
-	ITEM_TYPE_GIFT              = 12 // 礼包
-	ITEM_TYPE_DECORATION_RECIPE = 13 // 装饰物配方
+	ITEM_TYPE_NONE     = iota
+	ITEM_TYPE_RESOURCE = 1 // 资源类
+	ITEM_TYPE_EQUIP    = 2 // 装备
+	ITEM_TYPE_COST     = 3 // 消耗品
+	ITEM_TYPE_PIECE    = 4 // 碎片
 )
 
 // 其他属性
@@ -41,7 +39,7 @@ const (
 	EQUIP_TYPE_CHEST     = 3 // 胸
 	EQUIP_TYPE_BOOT      = 4 // 鞋
 	EQUIP_TYPE_LEFT_SLOT = 5 // 左槽
-	EQUIP_TYPE_RELIC     = 6 // 神器 不能强化
+	EQUIP_TYPE_RELIC     = 6 // 神器
 	EQUIP_TYPE_MAX       = 7 //
 )
 
@@ -271,7 +269,7 @@ func (this *Player) equip(role_id, equip_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
 	}
 
-	if item_tdata.EquipType < EQUIP_TYPE_WEAPON || item_tdata.EquipType >= EQUIP_TYPE_MAX {
+	if item_tdata.EquipType < 1 || item_tdata.EquipType >= EQUIP_TYPE_MAX {
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_TYPE_NOT_MATCH)
 	}
 
@@ -300,6 +298,8 @@ func (this *Player) equip(role_id, equip_id int32) int32 {
 	}
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_EQUIP_RESPONSE), response)
+
+	log.Debug("Player[%v] equip role[%v] item[%v] on equip type[%v]", this.Id, role_id, equip_id, item_tdata.EquipType)
 
 	return 1
 }
@@ -331,6 +331,8 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 	}
 
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_UNEQUIP_RESPONSE), response)
+
+	log.Debug("Player[%v] unequip role[%v] equip type[%v]", this.Id, role_id, equip_type)
 
 	return 1
 }
@@ -424,40 +426,95 @@ func (this *Player) sell_item(item_id, item_num int32) int32 {
 	return 1
 }
 
-/*
-func (this *Player) add_handbook_data(item_id int32) {
-	var d dbPlayerHandbookItemData
-	d.Id = item_id
-	this.db.HandbookItems.Add(&d)
-
-	msg := &msg_client_message.S2CNewHandbookItemNotify{}
-	msg.ItemId = proto.Int32(item_id)
-	this.Send(msg)
-}
-
-func (this *Player) AddHandbookItem(item_id int32) {
-	if handbook_table_mgr.Get(item_id) == nil {
-		return
-	}
-	if this.db.HandbookItems.HasIndex(item_id) {
-		return
+func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
+	item := item_table_mgr.Get(item_id)
+	if item.Type != ITEM_TYPE_EQUIP {
+		log.Error("Player[%v] upgrade item[%v] invalid", this.Id, item_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_TYPE_INVALID)
 	}
 
-	this.add_handbook_data(item_id)
-}
-
-func (this *Player) AddHead(item_id int32) {
-	if this.db.HeadItems.HasIndex(item_id) {
-		return
+	// 左槽 右槽
+	var equips []int32
+	if item.EquipType == EQUIP_TYPE_LEFT_SLOT || item.EquipType == EQUIP_TYPE_RELIC {
+		if !this.db.Roles.HasIndex(role_id) {
+			log.Error("Player[%v] upgrade left slot equip[%v] failed, role[%v] not found", this.Id, item_id, role_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+		}
+		equips, _ = this.db.Roles.GetEquip(role_id)
+		if equips == nil || len(equips) < EQUIP_TYPE_MAX {
+			log.Error("Player[%v] role[%v] no equips", this.Id, role_id)
+			return -1
+		}
+		if equips[item.EquipType] != item_id {
+			log.Error("Player[%v] equip pos[%v] no item[%v]", this.Id, item.EquipType, item_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_TYPE_INVALID)
+		}
+	} else {
+		if this.get_resource(item_id) < 1 {
+			log.Error("Player[%v] upgrade item[%v] failed, item[%] not found", this.Id, item_id, item_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_NOT_FOUND)
+		}
 	}
-	var d dbPlayerHeadItemData
-	d.Id = item_id
-	this.db.HeadItems.Add(&d)
-	msg := &msg_client_message.S2CNewHeadNotify{}
-	msg.ItemId = proto.Int32(item_id)
-	this.Send(msg)
+
+	item_upgrade := item_upgrade_table_mgr.GetByItemId(item_id)
+	if item_upgrade == nil {
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_DATA_NOT_FOUND)
+	}
+
+	// 检测消耗物品
+	for i := 0; i < len(item_upgrade.ResCondtion)/2; i++ {
+		res_id := item_upgrade.ResCondtion[2*i]
+		res_num := item_upgrade.ResCondtion[2*i+1]
+		if this.get_resource(res_id) < res_num {
+			log.Error("Player[%v] upgrade item[%v] failed, res[%v] not enough", this.Id, item_id, res_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_RES_NOT_ENOUGH)
+		}
+	}
+
+	new_item_id := int32(0)
+	if item.EquipType == EQUIP_TYPE_LEFT_SLOT || item.EquipType == EQUIP_TYPE_RELIC {
+		if item.EquipType == EQUIP_TYPE_LEFT_SLOT {
+			for item_upgrade.Next != nil {
+				if item_upgrade.UpgradeType == upgrade_type {
+					break
+				}
+				item_upgrade = item_upgrade.Next
+			}
+		}
+		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, false)
+		if !o {
+			log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
+		}
+		equips[item.EquipType] = new_item.ItemCfgId
+		new_item_id = new_item.ItemCfgId
+	} else {
+		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, true)
+		if !o {
+			log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
+		}
+		this.add_resource(item_id, -1)
+		new_item_id = new_item.ItemCfgId
+	}
+
+	// 消耗物品
+	for i := 0; i < len(item_upgrade.ResCondtion)/2; i++ {
+		res_id := item_upgrade.ResCondtion[2*i]
+		res_num := item_upgrade.ResCondtion[2*i+1]
+		this.add_resource(res_id, -res_num)
+	}
+
+	response := &msg_client_message.S2CItemUpgradeResponse{
+		RoleId:    role_id,
+		NewItemId: new_item_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_UPGRADE_RESPONSE), response)
+
+	log.Debug("Player[%v] upgraded item[%v] to new item[%v]", this.Id, item_id, new_item_id)
+
+	return 1
 }
-*/
 
 func C2SItemFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SItemFusionRequest
@@ -497,4 +554,14 @@ func C2SItemUnequipHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 		return -1
 	}
 	return p.unequip(req.GetRoleId(), req.GetEquipSlot())
+}
+
+func C2SItemUpgradeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SItemUpgradeRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.item_upgrade(req.GetRoleId(), req.GetItemId(), req.GetUpgradeType())
 }

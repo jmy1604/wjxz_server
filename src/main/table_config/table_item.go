@@ -8,7 +8,7 @@ import (
 
 type XmlItemItem struct {
 	Id            int32  `xml:"ID,attr"`
-	Type          int32  `xml:"Type,attr"`
+	Type          int32  `xml:"ItemType,attr"`
 	MaxCount      string `xml:"MaxCount,attr"`
 	EquipType     int32  `xml:"EquipType,attr"`
 	EquipAttrStr  string `xml:"EquipAttr,attr"`
@@ -20,6 +20,8 @@ type XmlItemItem struct {
 	ComposeDropID int32  `xml:"ComposeDropID,attr"`
 	SellRewardStr string `xml:"SellReward,attr"`
 	SellReward    []int32
+	BattlePower   int32 `xml:"BattlePower,attr"`
+	SuitId        int32 `xml:"SuitID,attr"`
 }
 
 type XmlItemConfig struct {

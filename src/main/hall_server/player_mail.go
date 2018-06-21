@@ -22,11 +22,28 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetMailList")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 
+	now_time := int32(time.Now().Unix())
+
+	var to_delete_mail []int32
+
 	for _, v := range this.m_data {
 		is_read := false
 		if v.IsRead > 0 {
 			is_read = true
 		}
+
+		if v.AttachItemIds != nil && len(v.AttachItemIds) > 0 {
+			if now_time-v.SendUnix >= global_config_mgr.GetGlobalConfig().MailAttachExistDays*24*3600 {
+				to_delete_mail = append(to_delete_mail, v.Id)
+				continue
+			}
+		} else {
+			if now_time-v.SendUnix >= global_config_mgr.GetGlobalConfig().MailNormalExistDays*24*3600 {
+				to_delete_mail = append(to_delete_mail, v.Id)
+				continue
+			}
+		}
+
 		d := &msg_client_message.MailBasicData{
 			Id:       v.Id,
 			Type:     int32(v.Type),
@@ -36,6 +53,13 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 		}
 		mails = append(mails, d)
 	}
+
+	if to_delete_mail != nil {
+		for _, v := range to_delete_mail {
+			delete(this.m_data, v)
+		}
+	}
+
 	return
 }
 
@@ -190,6 +214,23 @@ func (this *Player) get_and_clear_cache_new_mails() (mails []*msg_client_message
 }
 
 func SendMail(sender *Player, receiver_id, mail_type int32, title string, content string, attached_items []*msg_client_message.ItemInfo) int32 {
+	if int32(len(title)) > global_config_mgr.GetGlobalConfig().MailTitleBytes {
+		if sender != nil {
+			log.Error("Player[%v] send Mail title[%v] too long", sender.Id, title)
+		} else {
+			log.Error("Mail type[%v] title[%v] too long", mail_type, title)
+		}
+		return int32(msg_client_message.E_ERR_PLAYER_MAIL_TITLE_TOO_LONG)
+	}
+	if int32(len(content)) > global_config_mgr.GetGlobalConfig().MailContentBytes {
+		if sender != nil {
+			log.Error("Player[%v] send mail content[%v] too long", sender.Id, content)
+		} else {
+			log.Error("Mail type[%v] content[%v] too long", mail_type, content)
+		}
+		return int32(msg_client_message.E_ERR_PLAYER_MAIL_CONTENT_TOO_LONG)
+	}
+
 	if mail_type == MAIL_TYPE_PLAYER {
 		if sender == nil {
 			return -1

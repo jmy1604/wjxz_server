@@ -788,7 +788,9 @@ func list_role_cmd(p *Player, args []string) int32 {
 			if star > 0 && card.Rarity != int32(star) {
 				continue
 			}
-			log.Debug("role_id:%v, table_id:%v, level:%v, rank:%v, camp:%v, type:%v, star:%v", all[i], table_id, level, rank, card.Camp, card.Type, card.Rarity)
+
+			equips, _ := p.db.Roles.GetEquip(all[i])
+			log.Debug("role_id:%v, table_id:%v, level:%v, rank:%v, camp:%v, type:%v, star:%v, equips:%v", all[i], table_id, level, rank, card.Camp, card.Type, card.Rarity, equips)
 		}
 	}
 	return 1
@@ -1375,6 +1377,108 @@ func test_stw_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func item_upgrade_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var item_id int
+	var err error
+	item_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("物品ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.item_upgrade(0, int32(item_id), 0)
+}
+
+func role_item_upgrade_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var role_id, item_id, upgrade_type int
+	var err error
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("角色ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+	item_id, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("物品ID[%v]转换失败[%v]", args[1], err.Error())
+		return -1
+	}
+	if len(args) > 2 {
+		upgrade_type, err = strconv.Atoi(args[2])
+		if err != nil {
+			log.Error("升级类型[%v]转换失败[%v]", args[2], err.Error())
+			return -1
+		}
+	}
+
+	return p.item_upgrade(int32(role_id), int32(item_id), int32(upgrade_type))
+}
+
+func equip_item_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var role_id, equip_id int
+	var err error
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("角色ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+	equip_id, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("物品ID[%v]转换失败[%v]", args[1], err.Error())
+		return -1
+	}
+	return p.equip(int32(role_id), int32(equip_id))
+}
+
+func unequip_item_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var role_id, equip_type int
+	var err error
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("角色ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+	equip_type, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("装备类型[%v]转换失败[%v]", args[1], err.Error())
+		return -1
+	}
+	return p.equip(int32(role_id), int32(equip_type))
+}
+
+func list_items_cmd(p *Player, args []string) int32 {
+	items := p.db.Items.GetAllIndex()
+	if items == nil {
+		return 0
+	}
+
+	log.Debug("Player[%v] Items:")
+	for _, item := range items {
+		c, _ := p.db.Items.GetCount(item)
+		log.Debug("    item: %v,  num: %v", item, c)
+	}
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1414,6 +1518,11 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"battle_recordlist":  battle_recordlist_cmd,
 	"battle_record":      battle_record_cmd,
 	"test_stw":           test_stw_cmd,
+	"item_upgrade":       item_upgrade_cmd,
+	"role_item_up":       role_item_upgrade_cmd,
+	"equip_item":         equip_item_cmd,
+	"unequip_item":       unequip_item_cmd,
+	"list_item":          list_items_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

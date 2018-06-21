@@ -170,6 +170,13 @@ func (this *Player) delete_role(role_id int32) bool {
 		return false
 	}
 	this.db.Roles.Remove(role_id)
+	if this.team_member_mgr != nil {
+		m := this.team_member_mgr[role_id]
+		if m != nil {
+			delete(this.team_member_mgr, role_id)
+			team_member_pool.Put(m)
+		}
+	}
 	this.roles_id_change_info.id_remove(role_id)
 	return true
 }
@@ -229,10 +236,14 @@ func (this *Player) lock_role(role_id int32, is_lock bool) int32 {
 	} else {
 		this.db.Roles.SetIsLock(role_id, 0)
 	}
+
+	this.roles_id_change_info.id_update(role_id)
+
 	response := &msg_client_message.S2CRoleLockResponse{
 		RoleId: role_id,
 		IsLock: is_lock,
 	}
+
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LOCK_RESPONSE), response)
 	return 1
 }
@@ -272,6 +283,8 @@ func (this *Player) levelup_role(role_id int32) int32 {
 		this.db.Roles.SetLevel(role_id, lvl+1)
 		lvl += 1
 	}
+
+	this.roles_id_change_info.id_update(role_id)
 
 	response := &msg_client_message.S2CRoleLevelUpResponse{
 		RoleId: role_id,
@@ -339,6 +352,7 @@ func (this *Player) rankup_role(role_id int32) int32 {
 
 	rank += 1
 	this.db.Roles.SetRank(role_id, rank)
+	this.roles_id_change_info.id_update(role_id)
 
 	response := &msg_client_message.S2CRoleRankUpResponse{
 		RoleId: role_id,
@@ -399,6 +413,12 @@ func (this *Player) decompose_role(role_id int32) int32 {
 	if !o {
 		log.Error("Player[%v] not have role[%v]", this.Id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	is_lock, _ := this.db.Roles.GetIsLock(role_id)
+	if is_lock > 0 {
+		log.Error("Player[%v] role[%v] is locked, cant decompose", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
 	}
 
 	/*if this.team_member_mgr[role_id] != nil {
@@ -463,7 +483,7 @@ func (this *Player) decompose_role(role_id int32) int32 {
 		}
 	}
 
-	this.db.Roles.Remove(role_id)
+	this.delete_role(role_id)
 	role := this.team_member_mgr[role_id]
 	if role != nil {
 		team_member_pool.Put(role)
@@ -494,6 +514,12 @@ func (this *Player) check_fusion_role_cond(cost_role_ids []int32, cost_cond *tab
 		if !this.db.Roles.HasIndex(cost_role_ids[i]) {
 			log.Error("Player[%v] fusion role need role[%v] not found", this.Id, cost_role_ids[i])
 			return int32(msg_client_message.E_ERR_PLAYER_FUSION_NEED_ROLE_NOT_FOUND)
+		}
+
+		is_lock, _ := this.db.Roles.GetIsLock(cost_role_ids[i])
+		if is_lock > 0 {
+			log.Error("Player[%v] role[%v] is locked, fusion check role cond failed", this.Id, cost_role_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
 		}
 
 		table_id, _ := this.db.Roles.GetTableId(cost_role_ids[i])
@@ -547,6 +573,12 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		if !this.db.Roles.HasIndex(main_role_id) {
 			log.Error("Player[%v] fusion[%v] not found main role[%v]", this.Id, fusion_id, main_role_id)
 			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_ROLE_NOT_FOUND)
+		}
+
+		is_lock, _ := this.db.Roles.GetIsLock(main_role_id)
+		if is_lock > 0 {
+			log.Error("Player[%v] role[%v] is locked, cant fusion", this.Id, main_role_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
 		}
 
 		main_card_id, _ := this.db.Roles.GetTableId(main_role_id)
@@ -626,7 +658,7 @@ func (this *Player) get_role_handbook() int32 {
 	return 1
 }
 
-func (this *Player) open_role_left_slot(role_id int32) int32 {
+func (this *Player) role_open_left_slot(role_id int32) int32 {
 	open, ok := this.db.Roles.GetLeftSlotIsOpen(role_id)
 	if !ok {
 		log.Error("Player[%v] not found role[%v]", this.Id, role_id)
@@ -635,11 +667,16 @@ func (this *Player) open_role_left_slot(role_id int32) int32 {
 	if open > 0 {
 		log.Warn("Player[%v] role[%v] left slot already opened", this.Id, role_id)
 	}
+
 	this.db.Roles.SetLeftSlotIsOpen(role_id, 1)
+
+	this.roles_id_change_info.id_update(role_id)
+
 	response := &msg_client_message.S2CRoleLeftSlotOpenResponse{
 		RoleId: role_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEFTSLOT_OPEN_RESPONSE), response)
+
 	return 1
 }
 
@@ -664,6 +701,8 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 		}
 		this.db.Roles.SetEquip(role_id, equips)
 	}
+
+	this.roles_id_change_info.id_update(role_id)
 
 	response := &msg_client_message.S2CRoleOneKeyUnequipResponse{
 		RoleId: role_id,
@@ -741,7 +780,7 @@ func C2SRoleLeftSlotOpenHandler(w http.ResponseWriter, r *http.Request, p *Playe
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.open_role_left_slot(req.GetRoleId())
+	return p.role_open_left_slot(req.GetRoleId())
 }
 
 func C2SRoleOneKeyEquipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item SuitID="10006" AttrSuit2="38,200" AttrSuit3="36,200" AttrSuit4="37,200" BpowerSuit2="5" BpowerSuit3="8" BpowerSuit4="14" />
+     <item SuitID="10007" AttrSuit2="38,250" AttrSuit3="36,250" AttrSuit4="37,250" BpowerSuit2="9" BpowerSuit3="14" BpowerSuit4="24" />
+     <item SuitID="10008" AttrSuit2="38,300" AttrSuit3="36,300" AttrSuit4="37,300" BpowerSuit2="15" BpowerSuit3="23" BpowerSuit4="38" />
+     <item SuitID="10009" AttrSuit2="38,350" AttrSuit3="36,350" AttrSuit4="37,350" BpowerSuit2="23" BpowerSuit3="34" BpowerSuit4="58" />
+     <item SuitID="10010" AttrSuit2="38,400" AttrSuit3="36,400" AttrSuit4="37,400" BpowerSuit2="34" BpowerSuit3="51" BpowerSuit4="85" />
+     <item SuitID="10011" AttrSuit2="38,450" AttrSuit3="36,450" AttrSuit4="37,450" BpowerSuit2="49" BpowerSuit3="73" BpowerSuit4="123" />
+     <item SuitID="10012" AttrSuit2="38,500" AttrSuit3="36,500" AttrSuit4="37,500" BpowerSuit2="69" BpowerSuit3="104" BpowerSuit4="174" />
+     <item SuitID="10013" AttrSuit2="38,550" AttrSuit3="36,550" AttrSuit4="37,550" BpowerSuit2="97" BpowerSuit3="145" BpowerSuit4="242" />
+     <item SuitID="10014" AttrSuit2="38,600" AttrSuit3="36,600" AttrSuit4="37,600" BpowerSuit2="133" BpowerSuit3="200" BpowerSuit4="334" />
+     <item SuitID="10015" AttrSuit2="38,650" AttrSuit3="36,650" AttrSuit4="37,650" BpowerSuit2="182" BpowerSuit3="274" BpowerSuit4="456" />
+     <item SuitID="10016" AttrSuit2="38,700" AttrSuit3="36,700" AttrSuit4="37,700" BpowerSuit2="247" BpowerSuit3="371" BpowerSuit4="618" />
+</Config>

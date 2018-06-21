@@ -40,6 +40,7 @@ type GlobalConfig struct {
 	MaxEnergy                  int32      // 最大怒气
 	EnergyAdd                  int32      // 怒气增量
 	HeartbeatInterval          int32      // 心跳间隔
+	MailTitleBytes             int32      // 邮件标题最大字节数
 	MailContentBytes           int32      // 邮件内容最大字节数
 	MailMaxCount               int32      // 邮件最大数量
 	MailNormalExistDays        int32      // 最大无附件邮件保存天数
