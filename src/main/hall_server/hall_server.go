@@ -180,6 +180,20 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("tower_table_mgr init success")
 	}
 
+	if !item_upgrade_table_mgr.Init() {
+		log.Error("item_upgrade_table_mgr init failed")
+		return errors.New("item_upgrade_table_mgr init failed")
+	} else {
+		log.Info("item_upgrade_table_mgr init success")
+	}
+
+	if !suit_table_mgr.Init() {
+		log.Error("suit_table_mgr init failed")
+		return errors.New("suit_table_mgr init failed")
+	} else {
+		log.Info("suit_table_mgr init success")
+	}
+
 	if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Init()
 	} else {
@@ -347,6 +361,7 @@ var rankup_table_mgr table_config.RankUpTableMgr
 var fusion_table_mgr table_config.FusionTableMgr
 var talent_table_mgr table_config.TalentTableMgr
 var tower_table_mgr table_config.TowerTableMgr
+var item_upgrade_table_mgr table_config.ItemUpgradeTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

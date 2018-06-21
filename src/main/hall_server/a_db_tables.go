@@ -685,25 +685,25 @@ func (this* dbPlayerNotifyStateData)clone_to(d *dbPlayerNotifyStateData){
 }
 type dbPlayerMailCommonData struct{
 	CurrId int32
-	LastSendTribeMailTime int32
+	LastSendPlayerMailTime int32
 }
 func (this* dbPlayerMailCommonData)from_pb(pb *db.PlayerMailCommon){
 	if pb == nil {
 		return
 	}
 	this.CurrId = pb.GetCurrId()
-	this.LastSendTribeMailTime = pb.GetLastSendTribeMailTime()
+	this.LastSendPlayerMailTime = pb.GetLastSendPlayerMailTime()
 	return
 }
 func (this* dbPlayerMailCommonData)to_pb()(pb *db.PlayerMailCommon){
 	pb = &db.PlayerMailCommon{}
 	pb.CurrId = proto.Int32(this.CurrId)
-	pb.LastSendTribeMailTime = proto.Int32(this.LastSendTribeMailTime)
+	pb.LastSendPlayerMailTime = proto.Int32(this.LastSendPlayerMailTime)
 	return
 }
 func (this* dbPlayerMailCommonData)clone_to(d *dbPlayerMailCommonData){
 	d.CurrId = this.CurrId
-	d.LastSendTribeMailTime = this.LastSendTribeMailTime
+	d.LastSendPlayerMailTime = this.LastSendPlayerMailTime
 	return
 }
 type dbPlayerMailData struct{
@@ -3517,16 +3517,16 @@ func (this *dbPlayerMailCommonColumn)IncbyCurrId(v int32)(r int32){
 	this.m_changed = true
 	return this.m_data.CurrId
 }
-func (this *dbPlayerMailCommonColumn)GetLastSendTribeMailTime( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerMailCommonColumn.GetLastSendTribeMailTime")
+func (this *dbPlayerMailCommonColumn)GetLastSendPlayerMailTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailCommonColumn.GetLastSendPlayerMailTime")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.LastSendTribeMailTime
+	v = this.m_data.LastSendPlayerMailTime
 	return
 }
-func (this *dbPlayerMailCommonColumn)SetLastSendTribeMailTime(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerMailCommonColumn.SetLastSendTribeMailTime")
+func (this *dbPlayerMailCommonColumn)SetLastSendPlayerMailTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailCommonColumn.SetLastSendPlayerMailTime")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.LastSendTribeMailTime = v
+	this.m_data.LastSendPlayerMailTime = v
 	this.m_changed = true
 	return
 }

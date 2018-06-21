@@ -555,7 +555,17 @@ func (this *TeamMember) init_equips() {
 	}
 }
 
-func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, extra_equips []int32) {
+func (this *TeamMember) _calculate_hp_attack_defense() {
+	this.hp = (this.card.BaseHP + (this.level-1)*this.card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
+	this.attack = (this.card.BaseAttack + (this.level-1)*this.card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
+	this.defense = (this.card.BaseDefence + (this.level-1)*this.card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
+	this.attrs[ATTR_HP_MAX] = this.hp
+	this.attrs[ATTR_HP] = this.hp
+	this.attrs[ATTR_ATTACK] = this.attack
+	this.attrs[ATTR_DEFENSE] = this.defense
+}
+
+func (this *TeamMember) _init_attrs_equips_skills(level int32, role_card *table_config.XmlCardItem, extra_equips []int32) {
 	if this.attrs == nil {
 		this.attrs = make([]int32, ATTR_COUNT_MAX)
 	} else {
@@ -564,25 +574,10 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 		}
 	}
 
-	if this.bufflist_arr != nil {
-		for i := 0; i < len(this.bufflist_arr); i++ {
-			this.bufflist_arr[i].clear()
-			this.bufflist_arr[i].owner = this
-		}
-	}
-
 	this.passive_skills = make(map[int32]int32)
 
-	this.team = team
-	this.id = id
-	this.pos = pos
 	this.level = level
 	this.card = role_card
-	this.energy = global_config_mgr.GetGlobalConfig().InitEnergy
-	if this.energy == 0 {
-		this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
-	}
-	this.act_num = 0
 
 	// 技能增加属性
 	if role_card.NormalSkillID > 0 {
@@ -604,13 +599,27 @@ func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card 
 		}
 	}
 
-	this.hp = (role_card.BaseHP + (level-1)*role_card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
-	this.attack = (role_card.BaseAttack + (level-1)*role_card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
-	this.defense = (role_card.BaseDefence + (level-1)*role_card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
-	this.attrs[ATTR_HP_MAX] = this.hp
-	this.attrs[ATTR_HP] = this.hp
-	this.attrs[ATTR_ATTACK] = this.attack
-	this.attrs[ATTR_DEFENSE] = this.defense
+	this._calculate_hp_attack_defense()
+}
+
+func (this *TeamMember) init(team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32, extra_equips []int32) {
+	if this.bufflist_arr != nil {
+		for i := 0; i < len(this.bufflist_arr); i++ {
+			this.bufflist_arr[i].clear()
+			this.bufflist_arr[i].owner = this
+		}
+	}
+
+	this.team = team
+	this.id = id
+	this.pos = pos
+	this.energy = global_config_mgr.GetGlobalConfig().InitEnergy
+	if this.energy == 0 {
+		this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
+	}
+	this.act_num = 0
+
+	this._init_attrs_equips_skills(level, role_card, extra_equips)
 }
 
 func (this *TeamMember) init_with_summon(user *TeamMember, team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
