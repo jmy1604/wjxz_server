@@ -2,7 +2,7 @@ package main
 
 import (
 	"libs/log"
-	_ "main/table_config"
+	"main/table_config"
 	_ "math/rand"
 	_ "net/http"
 	"public_message/gen_go/client_message"
@@ -88,16 +88,17 @@ type Player struct {
 
 	used_drop_ids map[int32]int32 // 抽卡掉落ID统计
 
-	team_member_mgr   map[int32]*TeamMember // 成员map
-	attack_team       *BattleTeam           // 进攻阵型
-	campaign_team     *BattleTeam           // 战役阵型
-	tower_team        *BattleTeam           // 爬塔阵型
-	defense_team      *BattleTeam           // 防守阵型
-	use_defense       int32                 // 是否正在使用防守阵型
-	target_stage_team *BattleTeam           // 关卡阵型
-	stage_id          int32                 // 关卡ID
-	stage_wave        int32                 // 当前关卡怪物第几波
-	roles_power       map[int32]int32       // 角色战力
+	team_member_mgr      map[int32]*TeamMember                 // 成员map
+	attack_team          *BattleTeam                           // 进攻阵型
+	campaign_team        *BattleTeam                           // 战役阵型
+	tower_team           *BattleTeam                           // 爬塔阵型
+	defense_team         *BattleTeam                           // 防守阵型
+	use_defense          int32                                 // 是否正在使用防守阵型
+	target_stage_team    *BattleTeam                           // 关卡阵型
+	stage_id             int32                                 // 关卡ID
+	stage_wave           int32                                 // 当前关卡怪物第几波
+	roles_power          map[int32]int32                       // 角色战力
+	roles_power_max_data map[int32][]*table_config.XmlItemItem // 角色战力最高的装备
 
 	battle_record_list  []int32 // 战斗录像，按时间排序
 	battle_record_count int32   // 录像数
@@ -287,6 +288,7 @@ func (this *Player) OnInit() {
 	}
 	this.team_member_mgr = make(map[int32]*TeamMember)
 	this.roles_power = make(map[int32]int32)
+	this.roles_power_max_data = make(map[int32][]*table_config.XmlItemItem)
 	this.init_battle_record_list()
 	this.inited = true
 }

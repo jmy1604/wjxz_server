@@ -1496,6 +1496,40 @@ func get_role_attrs_cmd(p *Player, args []string) int32 {
 	return p.send_role_attrs(int32(role_id))
 }
 
+func onekey_equip_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var role_id int
+	var err error
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("角色id[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.role_one_key_equip(int32(role_id), nil)
+}
+
+func onekey_unequip_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var role_id int
+	var err error
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("角色id[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.role_one_key_unequip(int32(role_id))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1541,6 +1575,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"unequip_item":       unequip_item_cmd,
 	"list_item":          list_items_cmd,
 	"role_attrs":         get_role_attrs_cmd,
+	"onekey_equip":       onekey_equip_cmd,
+	"onekey_unequip":     onekey_unequip_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
