@@ -622,6 +622,9 @@ func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_c
 		}
 	}
 	this.init_attrs_equips_skills(level, role_card, extra_equips)
+	if team.player != nil {
+		team.player.role_update_equips_attr(id, this, false)
+	}
 }
 
 func (this *TeamMember) init_for_summon(user *TeamMember, team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {

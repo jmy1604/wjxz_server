@@ -163,6 +163,10 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		}
 
 		m := p.get_team_member(members[i], this, int32(i))
+		if m == nil {
+			log.Error("Player[%v] init battle team get member with role_id[%v] error", p.Id, members[i])
+			continue
+		}
 		this.members[i] = m
 		// 装备BUFF增加属性
 		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)

@@ -95,8 +95,9 @@ type Player struct {
 	defense_team      *BattleTeam           // 防守阵型
 	use_defense       int32                 // 是否正在使用防守阵型
 	target_stage_team *BattleTeam           // 关卡阵型
-	stage_id          int32
-	stage_wave        int32
+	stage_id          int32                 // 关卡ID
+	stage_wave        int32                 // 当前关卡怪物第几波
+	roles_power       map[int32]int32       // 角色战力
 
 	battle_record_list  []int32 // 战斗录像，按时间排序
 	battle_record_count int32   // 录像数
@@ -285,6 +286,7 @@ func (this *Player) OnInit() {
 		return
 	}
 	this.team_member_mgr = make(map[int32]*TeamMember)
+	this.roles_power = make(map[int32]int32)
 	this.init_battle_record_list()
 	this.inited = true
 }

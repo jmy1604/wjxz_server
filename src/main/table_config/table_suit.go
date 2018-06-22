@@ -106,3 +106,7 @@ func (this *SuitTableMgr) Has(id int32) bool {
 	}
 	return true
 }
+
+func (this *SuitTableMgr) Get(id int32) *XmlSuitItem {
+	return this.Map[id]
+}
