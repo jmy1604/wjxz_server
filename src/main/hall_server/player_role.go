@@ -258,6 +258,7 @@ func (this *Player) get_team_member(role_id int32, team *BattleTeam, pos int32) 
 	}
 	if team == nil {
 		m.init_attrs_equips_skills(level, role_card, nil)
+		this.role_update_equips_attr(role_id, m, true)
 	} else {
 		m.init_all(team, role_id, level, role_card, pos, nil)
 	}
@@ -275,11 +276,15 @@ func (this *Player) send_role_attrs(role_id int32) int32 {
 		log.Error("Player[%v] get team member with role[%v] failed, cant send role attrs", this.Id, role_id)
 		return -1
 	}
+
+	power := this.roles_power[role_id]
 	response := &msg_client_message.S2CRoleAttrsResponse{
-		Attrs: m.attrs,
+		RoleId: role_id,
+		Attrs:  m.attrs,
+		Power:  power,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_ATTRS_RESPONSE), response)
-	log.Debug("Player[%v] send role[%v] attrs: %v", this.Id, role_id, m.attrs)
+	log.Debug("Player[%v] send role[%v] attrs: %v  power: %v", this.Id, role_id, m.attrs, power)
 	return 1
 }
 
@@ -767,6 +772,93 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_ONEKEY_UNEQUIP_RESPONSE), response)
 	return 1
+}
+
+func (this *Player) add_power(role_id, pow int32) {
+	if this.roles_power == nil {
+		return
+	}
+	role_power := this.roles_power[role_id]
+	if role_power == 0 {
+		this.roles_power[role_id] = pow
+	} else {
+		this.roles_power[role_id] = role_power + pow
+	}
+}
+
+func (this *Player) role_update_equips_attr(role_id int32, mem *TeamMember, get_power bool) int32 {
+	equips, o := this.db.Roles.GetEquip(role_id)
+	if !o {
+		log.Error("Player[%v] not found role[%v], update suits failed", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	if equips == nil {
+		return -1
+	}
+
+	power := int32(0)
+	suits := make(map[*table_config.XmlSuitItem]int32)
+	for _, e := range equips {
+		if e <= 0 {
+			continue
+		}
+		equip := item_table_mgr.Get(e)
+		if equip == nil {
+			log.Warn("Player[%v] role[%v] equip[%v] table data not found", this.Id, role_id, e)
+			continue
+		}
+
+		if get_power {
+			power += equip.BattlePower
+		}
+
+		if equip.SuitId <= 0 {
+			continue
+		}
+
+		suit_data := suit_table_mgr.Get(equip.SuitId)
+		if suit_data == nil {
+			log.Warn("Suit id[%v] not found", equip.SuitId)
+			continue
+		}
+
+		sn := suits[suit_data]
+		if sn == 0 {
+			suits[suit_data] = 1
+		} else {
+			suits[suit_data] = sn + 1
+		}
+	}
+
+	for s, n := range suits {
+		attrs := s.SuitAddAttrs[n]
+		if attrs != nil {
+			mem.add_attrs(attrs)
+		}
+		if get_power {
+			pow := s.SuitPowers[n]
+			if pow > 0 {
+				power += pow
+			}
+		}
+	}
+
+	if get_power {
+		this.add_power(role_id, power)
+	}
+
+	return 1
+}
+
+func C2SRoleAttrsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleAttrsRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.send_role_attrs(req.GetRoleId())
 }
 
 func C2SRoleLockHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

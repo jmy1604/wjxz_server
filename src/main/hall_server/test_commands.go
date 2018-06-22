@@ -1471,7 +1471,7 @@ func list_items_cmd(p *Player, args []string) int32 {
 		return 0
 	}
 
-	log.Debug("Player[%v] Items:")
+	log.Debug("Player[%v] Items:", p.Id)
 	for _, item := range items {
 		c, _ := p.db.Items.GetCount(item)
 		log.Debug("    item: %v,  num: %v", item, c)
