@@ -290,6 +290,7 @@ func (this *Player) equip(role_id, equip_id int32) int32 {
 	equips[item_tdata.EquipType] = equip_id
 	this.db.Roles.SetEquip(role_id, equips)
 	this.del_item(equip_id, 1)
+	this.roles_id_change_info.id_update(role_id)
 
 	response := &msg_client_message.S2CItemEquipResponse{
 		RoleId:    role_id,
@@ -324,6 +325,7 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 	this.add_item(equips[equip_type], 1)
 	equips[equip_type] = 0
 	this.db.Roles.SetEquip(role_id, equips)
+	this.roles_id_change_info.id_update(role_id)
 
 	response := &msg_client_message.S2CItemUnequipResponse{
 		RoleId:    role_id,
@@ -428,6 +430,10 @@ func (this *Player) sell_item(item_id, item_num int32) int32 {
 
 func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
 	item := item_table_mgr.Get(item_id)
+	if item == nil {
+		log.Error("Player[%v] upgrade role[%v] item[%v] with upgrade_type[%v] failed, because item[%v] table data not found", this.Id, role_id, item_id, upgrade_type, item_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
+	}
 	if item.Type != ITEM_TYPE_EQUIP {
 		log.Error("Player[%v] upgrade item[%v] invalid", this.Id, item_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_TYPE_INVALID)
@@ -474,13 +480,21 @@ func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
 	new_item_id := int32(0)
 	if item.EquipType == EQUIP_TYPE_LEFT_SLOT || item.EquipType == EQUIP_TYPE_RELIC {
 		if item.EquipType == EQUIP_TYPE_LEFT_SLOT {
-			for item_upgrade.Next != nil {
+			for {
 				if item_upgrade.UpgradeType == upgrade_type {
 					break
 				}
 				item_upgrade = item_upgrade.Next
+				if item_upgrade == nil {
+					break
+				}
+			}
+			if item_upgrade == nil {
+				log.Error("Player[%v] no upgrade table data for role[%v] item[%v] upgrade_type[%v]", this.Id, role_id, item_id, upgrade_type)
+				return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
 			}
 		}
+
 		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, false)
 		if !o {
 			log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
