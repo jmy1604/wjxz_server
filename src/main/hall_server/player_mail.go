@@ -231,13 +231,13 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_CONTENT_TOO_LONG)
 	}
 
+	now_time := int32(time.Now().Unix())
 	if mail_type == MAIL_TYPE_PLAYER {
 		if sender == nil {
 			return -1
 		}
 		last_send := sender.db.MailCommon.GetLastSendPlayerMailTime()
-		now_time := int32(time.Now().Unix())
-		if now_time-last_send < 3600*global_config_mgr.GetGlobalConfig().MailPlayerSendCooldown {
+		if now_time-last_send < global_config_mgr.GetGlobalConfig().MailPlayerSendCooldown {
 			log.Error("Player[%v] tribe mail is cooldown", sender.Id)
 			return int32(msg_client_message.E_ERR_PLAYER_MAIL_PLAYER_IS_COOLDOWN)
 		}
@@ -262,7 +262,7 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 	}
 
 	if mail_type == MAIL_TYPE_PLAYER && sender != nil {
-		sender.db.MailCommon.SetLastSendPlayerMailTime(int32(time.Now().Unix()))
+		sender.db.MailCommon.SetLastSendPlayerMailTime(now_time)
 	}
 
 	if !receiver.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
