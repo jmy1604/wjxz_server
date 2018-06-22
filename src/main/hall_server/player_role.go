@@ -742,7 +742,86 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	return 1
 }
 
-func (this *Player) role_one_key_equip(role_id int32) int32 {
+func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
+	role_equips, o := this.db.Roles.GetEquip(role_id)
+	if !o {
+		log.Error("Player[%v] no role[%v], one key equip failed", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	if equips == nil {
+		equips = make([]int32, EQUIP_TYPE_MAX)
+		all_item := this.db.Items.GetAllIndex()
+		for _, item_id := range all_item {
+			item := item_table_mgr.Get(item_id)
+			if item == nil || item.EquipType < 1 || item.EquipType >= EQUIP_TYPE_LEFT_SLOT {
+				continue
+			}
+			power := item.BattlePower
+			eq := item_table_mgr.Get(equips[item.EquipType])
+			if equips[item.EquipType] == 0 || (eq != nil && eq.BattlePower < power) {
+				equips[item.EquipType] = item_id
+			}
+
+			if role_equips != nil && item.EquipType < int32(len(role_equips)) {
+				if role_equips[item.EquipType] <= 0 {
+					continue
+				}
+				e := item_table_mgr.Get(role_equips[item.EquipType])
+				if e == nil {
+					log.Warn("Player[%v] role[%v] equip type %v item %v not found table data", this.Id, role_id, item.EquipType, role_equips[item.EquipType])
+					continue
+				}
+				// 已装备的大于背包中的，不替换
+				if eq != nil && e.BattlePower >= eq.BattlePower {
+					equips[item.EquipType] = 0
+				}
+			}
+		}
+
+		for i := 0; i < len(equips); i++ {
+			if equips[i] > 0 {
+				if role_equips != nil && i < len(role_equips) && role_equips[i] > 0 {
+					this.del_item(equips[i], 1)
+					this.add_item(role_equips[i], 1)
+				} else {
+					this.del_item(equips[i], 1)
+				}
+			} else {
+				if role_equips != nil && i < len(role_equips) && role_equips[i] > 0 {
+					equips[i] = role_equips[i]
+				}
+			}
+		}
+	} else {
+		for _, equip_id := range equips {
+			if !this.db.Items.HasIndex(equip_id) {
+				log.Error("Player[%v] no item[%v], role[%v] one key equip failed", this.Id, equip_id, role_id)
+				return int32(msg_client_message.E_ERR_PLAYER_ITEM_NOT_FOUND)
+			}
+		}
+		if role_equips != nil {
+			for i := 0; i < len(role_equips); i++ {
+				this.add_item(role_equips[i], 1)
+			}
+		}
+		for _, equip_id := range equips {
+			this.del_item(equip_id, 1)
+		}
+	}
+
+	this.db.Roles.SetEquip(role_id, equips)
+
+	this.roles_id_change_info.id_update(role_id)
+
+	response := &msg_client_message.S2CRoleOneKeyEquipResponse{
+		RoleId: role_id,
+		Equips: equips,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_ONEKEY_EQUIP_RESPONSE), response)
+
+	log.Debug("Player[%v] role[%v] one key equips[%v]", this.Id, role_id, equips)
+
 	return 1
 }
 
@@ -774,16 +853,11 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 	return 1
 }
 
-func (this *Player) add_power(role_id, pow int32) {
+func (this *Player) set_power(role_id, pow int32) {
 	if this.roles_power == nil {
 		return
 	}
-	role_power := this.roles_power[role_id]
-	if role_power == 0 {
-		this.roles_power[role_id] = pow
-	} else {
-		this.roles_power[role_id] = role_power + pow
-	}
+	this.roles_power[role_id] = pow
 }
 
 func (this *Player) role_update_equips_attr(role_id int32, mem *TeamMember, get_power bool) int32 {
@@ -845,7 +919,7 @@ func (this *Player) role_update_equips_attr(role_id int32, mem *TeamMember, get_
 	}
 
 	if get_power {
-		this.add_power(role_id, power)
+		this.set_power(role_id, power)
 	}
 
 	return 1
@@ -939,7 +1013,7 @@ func C2SRoleOneKeyEquipHandler(w http.ResponseWriter, r *http.Request, p *Player
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.role_one_key_equip(req.GetRoleId())
+	return p.role_one_key_equip(req.GetRoleId(), req.GetEquips())
 }
 
 func C2SRoleOneKeyUnequipHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

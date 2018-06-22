@@ -127,6 +127,7 @@ message PlayerMail{
 	optional int32 IsRead=8;
 	optional int32 PrevId=9;
 	optional int32 NextId=10;
+	optional int32 IsGetAttached=11;
 }
 
 message PlayerMailList{

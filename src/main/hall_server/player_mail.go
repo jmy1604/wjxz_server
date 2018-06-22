@@ -44,12 +44,18 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 			}
 		}
 
+		is_get_attached := false
+		if v.IsGetAttached > 0 {
+			is_get_attached = true
+		}
+
 		d := &msg_client_message.MailBasicData{
-			Id:       v.Id,
-			Type:     int32(v.Type),
-			Title:    v.Title,
-			SendTime: v.SendUnix,
-			IsRead:   is_read,
+			Id:            v.Id,
+			Type:          int32(v.Type),
+			Title:         v.Title,
+			SendTime:      v.SendUnix,
+			IsRead:        is_read,
+			IsGetAttached: is_get_attached,
 		}
 		mails = append(mails, d)
 	}
@@ -76,12 +82,17 @@ func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg
 		if md.IsRead > 0 {
 			is_read = true
 		}
+		is_get_attached := false
+		if md.IsGetAttached > 0 {
+			is_get_attached = true
+		}
 		d := &msg_client_message.MailBasicData{
-			Id:       md.Id,
-			Type:     int32(md.Type),
-			Title:    md.Title,
-			SendTime: md.SendUnix,
-			IsRead:   is_read,
+			Id:            md.Id,
+			Type:          int32(md.Type),
+			Title:         md.Title,
+			SendTime:      md.SendUnix,
+			IsRead:        is_read,
+			IsGetAttached: is_get_attached,
 		}
 		mails = append(mails, d)
 	}
@@ -391,6 +402,7 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 		}
 		this.db.Mails.SetAttachItemIds(mail_id, nil)
 		this.db.Mails.SetAttachItemNums(mail_id, nil)
+		this.db.Mails.SetIsGetAttached(mail_id, 1)
 	}
 	response := &msg_client_message.S2CMailGetAttachedItemsResponse{
 		MailIds:       mail_ids,

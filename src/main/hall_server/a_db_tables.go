@@ -717,6 +717,7 @@ type dbPlayerMailData struct{
 	IsRead int32
 	PrevId int32
 	NextId int32
+	IsGetAttached int32
 }
 func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 	if pb == nil {
@@ -740,6 +741,7 @@ func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 	this.IsRead = pb.GetIsRead()
 	this.PrevId = pb.GetPrevId()
 	this.NextId = pb.GetNextId()
+	this.IsGetAttached = pb.GetIsGetAttached()
 	return
 }
 func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
@@ -761,6 +763,7 @@ func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
 	pb.IsRead = proto.Int32(this.IsRead)
 	pb.PrevId = proto.Int32(this.PrevId)
 	pb.NextId = proto.Int32(this.NextId)
+	pb.IsGetAttached = proto.Int32(this.IsGetAttached)
 	return
 }
 func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
@@ -780,6 +783,7 @@ func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
 	d.IsRead = this.IsRead
 	d.PrevId = this.PrevId
 	d.NextId = this.NextId
+	d.IsGetAttached = this.IsGetAttached
 	return
 }
 type dbPlayerBattleSaveData struct{
@@ -3864,6 +3868,28 @@ func (this *dbPlayerMailColumn)SetNextId(id int32,v int32)(has bool){
 		return
 	}
 	d.NextId = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerMailColumn)GetIsGetAttached(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetIsGetAttached")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.IsGetAttached
+	return v,true
+}
+func (this *dbPlayerMailColumn)SetIsGetAttached(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetIsGetAttached")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.IsGetAttached = v
 	this.m_changed = true
 	return true
 }

@@ -282,7 +282,8 @@
 						{"Type":"int32","Index":7,"Name":"AttachItemNums","Repeated":true},
 						{"Type":"int32","Index":8,"Name":"IsRead"},
 						{"Type":"int32","Index":9,"Name":"PrevId"},
-						{"Type":"int32","Index":10,"Name":"NextId"}
+						{"Type":"int32","Index":10,"Name":"NextId"},
+						{"Type":"int32","Index":11,"Name":"IsGetAttached"}
 					]
 				},
 				{

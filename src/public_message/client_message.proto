@@ -607,7 +607,8 @@ message S2CRoleLeftSlotOpenResponse {
 
 // 一键穿戴
 message C2SRoleOneKeyEquipRequest {
-	int32 RoleId							= 1;
+	int32 RoleId							= 1; // 角色ID
+	repeated int32 Equips					= 2; // 待装备的物品
 }
 
 message S2CRoleOneKeyEquipResponse {
@@ -648,6 +649,7 @@ message MailBasicData {
 	string SenderName						= 4; // 发送者
 	int32 SendTime							= 5; // 发送时间
 	bool IsRead								= 6; // 是否已读
+	bool IsGetAttached						= 7; // 是否已领取附件
 }
 message S2CMailListResponse {
 	repeated MailBasicData Mails            = 1; //
