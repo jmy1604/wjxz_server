@@ -110,6 +110,8 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 		}
 	}
 
+	log.Debug("Player[%v] create new role[%v] table_id[%v]", this.Id, role.Id, role_id)
+
 	return role.Id
 }
 
