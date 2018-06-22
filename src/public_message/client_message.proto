@@ -254,34 +254,6 @@ message S2CPlayerInfoResponse {
 	int32 VipLevel					= 6; // VIP等级
 }
 
-// 请求角色
-message C2SRolesRequest {
-}
-message AttrData {
-	int32 AttrId 					= 1;
-	int32 Value						= 2;
-}
-message Role {
-	int32 Id						= 1;
-	int32 TableId					= 2;
-	int32 Rank						= 3;
-	int32 Level						= 4;
-	repeated int32 Attrs			= 5;
-	bool IsLock						= 6; // 锁定
-	repeated int32 Equips           = 7; // 装备
-}
-// 请求角色返回
-message S2CRolesResponse {
-	repeated Role Roles				= 1;
-}
-
-// 角色信息更新通知
-message S2CRolesChangeNotify {
-	repeated Role Adds 				= 1; // 增加
-	repeated int32 Removes          = 2; // 删除
-	repeated Role Updates			= 3; // 更新
-}
-
 //----------------------------------- 战斗 -----------------------------------
 // 设置阵容
 message C2SSetTeamRequest {
@@ -523,6 +495,45 @@ message S2CItemUpgradeResponse {
 }
 
 // ----------------------------------- 角色 ------------------------------------
+// 请求角色
+message C2SRolesRequest {
+}
+message AttrData {
+	int32 AttrId 					= 1;
+	int32 Value						= 2;
+}
+message Role {
+	int32 Id						= 1;
+	int32 TableId					= 2;
+	int32 Rank						= 3;
+	int32 Level						= 4;
+	bool IsLock						= 5; // 锁定
+	repeated int32 Equips           = 6; // 装备
+}
+// 请求角色返回
+message S2CRolesResponse {
+	repeated Role Roles				= 1;
+}
+
+// 角色信息更新通知
+message S2CRolesChangeNotify {
+	repeated Role Adds 				= 1; // 增加
+	repeated int32 Removes          = 2; // 删除
+	repeated Role Updates			= 3; // 更新
+}
+
+// 角色属性请求
+message C2SRoleAttrsRequest {
+	int32 RoleId					= 1; // 角色ID
+}
+
+// 角色属性返回
+message S2CRoleAttrsResponse {
+	int32 RoleId					= 1; // 角色Id
+	repeated int32 Attrs			= 2; // 角色属性
+	int32 Power						= 3; // 角色战力
+}
+
 // 角色升级
 message C2SRoleLevelUpRequest {
 	int32 RoleId							= 1; // 角色ID

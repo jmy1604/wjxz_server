@@ -100,7 +100,7 @@ func (this *Player) add_talent_attr(team *BattleTeam) {
 				for k := 0; k < len(t.TalentSkillList); k++ {
 					m.add_skill_attr(t.TalentSkillList[k])
 				}
-				m._calculate_hp_attack_defense()
+				m.calculate_hp_attack_defense()
 			}
 		}
 	}

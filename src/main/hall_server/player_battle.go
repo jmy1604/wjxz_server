@@ -162,40 +162,8 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 			continue
 		}
 
-		var table_id, rank, level int32
-		var o bool
-		table_id, o = p.db.Roles.GetTableId(members[i])
-		if !o {
-			log.Error("Cant get table id by battle team member id[%v]", members[i])
-			return false
-		}
-		rank, o = p.db.Roles.GetRank(members[i])
-		if !o {
-			log.Error("Cant get rank by battle team member id[%v]", members[i])
-			return false
-		}
-		level, o = p.db.Roles.GetLevel(members[i])
-		if !o {
-			log.Error("Cant get level by battle team member id[%v]", members[i])
-			return false
-		}
-		role_card := card_table_mgr.GetRankCard(table_id, rank)
-		if role_card == nil {
-			log.Error("Cant get card by role_id[%v] and rank[%v]", table_id, rank)
-			return false
-		}
-
-		if p.team_member_mgr == nil {
-			p.team_member_mgr = make(map[int32]*TeamMember)
-		}
-		m := p.team_member_mgr[members[i]]
-		if m == nil {
-			m = team_member_pool.Get()
-			p.team_member_mgr[members[i]] = m
-		}
-		m.init(this, members[i], level, role_card, int32(i), nil)
+		m := p.get_team_member(members[i], this, int32(i))
 		this.members[i] = m
-
 		// 装备BUFF增加属性
 		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
 	}
@@ -249,7 +217,7 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 
 			m := team_member_pool.Get()
 
-			m.init(this, 0, monster.Level, role_card, pos, monster.EquipID)
+			m.init_all(this, 0, monster.Level, role_card, pos, monster.EquipID)
 			this.members[pos] = m
 		}
 	}
