@@ -112,7 +112,8 @@ type Player struct {
 	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data PlayerAnouncementData // 公告缓存数据
 
-	inited bool
+	inited    bool // 是否已初始化
+	is_logout bool // 是否已下线
 }
 
 func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
@@ -279,6 +280,7 @@ func (this *Player) OnCreate() {
 }
 
 func (this *Player) OnInit() {
+	this.is_logout = false
 	if this.inited {
 		return
 	}
@@ -312,12 +314,12 @@ func (this *Player) OnLogout() {
 	// 离线时结算挂机收益
 	this.hangup_income_get(0, true)
 	this.hangup_income_get(1, true)
+	this.is_logout = true
 	log.Info("玩家[%d] 登出 ！！", this.Id)
 }
 
 func (this *Player) IsOffline() bool {
-	diff := this.db.Info.GetLastLogout() - this.db.Info.GetLastLogin()
-	return diff >= 0
+	return this.is_logout
 }
 
 func (this *Player) send_enter_game(acc string, id int32) {

@@ -31,7 +31,6 @@ func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
 			TableId: v.TableId,
 			Rank:    v.Rank,
 			Level:   v.Level,
-			Attrs:   v.Attr,
 			IsLock:  is_lock,
 			Equips:  v.Equip,
 		}
@@ -59,7 +58,6 @@ func (this *dbPlayerRoleColumn) BuildSomeMsg(ids []int32) (roles []*msg_client_m
 			TableId: v.TableId,
 			Rank:    v.Rank,
 			Level:   v.Level,
-			Attrs:   v.Attr,
 			IsLock:  is_lock,
 			Equips:  v.Equip,
 		}
@@ -224,6 +222,65 @@ func (this *Player) send_roles() {
 	msg := &msg_client_message.S2CRolesResponse{}
 	msg.Roles = this.db.Roles.BuildMsg()
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLES_RESPONSE), msg)
+}
+
+func (this *Player) get_team_member(role_id int32, team *BattleTeam, pos int32) (m *TeamMember) {
+	var table_id, rank, level int32
+	var o bool
+	table_id, o = this.db.Roles.GetTableId(role_id)
+	if !o {
+		log.Error("Cant get table id by role id[%v]", role_id)
+		return
+	}
+	rank, o = this.db.Roles.GetRank(role_id)
+	if !o {
+		log.Error("Cant get rank by role id[%v]", role_id)
+		return
+	}
+	level, o = this.db.Roles.GetLevel(role_id)
+	if !o {
+		log.Error("Cant get level by role id[%v]", role_id)
+		return
+	}
+	role_card := card_table_mgr.GetRankCard(table_id, rank)
+	if role_card == nil {
+		log.Error("Cant get card by role_id[%v] and rank[%v]", table_id, rank)
+		return
+	}
+
+	if this.team_member_mgr == nil {
+		this.team_member_mgr = make(map[int32]*TeamMember)
+	}
+	m = this.team_member_mgr[role_id]
+	if m == nil {
+		m = team_member_pool.Get()
+		this.team_member_mgr[role_id] = m
+	}
+	if team == nil {
+		m.init_attrs_equips_skills(level, role_card, nil)
+	} else {
+		m.init_all(team, role_id, level, role_card, pos, nil)
+	}
+	return
+}
+
+func (this *Player) send_role_attrs(role_id int32) int32 {
+	if !this.db.Roles.HasIndex(role_id) {
+		log.Error("Player[%v] no role[%v], send attrs failed", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	m := this.get_team_member(role_id, nil, -1)
+	if m == nil {
+		log.Error("Player[%v] get team member with role[%v] failed, cant send role attrs", this.Id, role_id)
+		return -1
+	}
+	response := &msg_client_message.S2CRoleAttrsResponse{
+		Attrs: m.attrs,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_ATTRS_RESPONSE), response)
+	log.Debug("Player[%v] send role[%v] attrs: %v", this.Id, role_id, m.attrs)
+	return 1
 }
 
 func (this *Player) lock_role(role_id int32, is_lock bool) int32 {

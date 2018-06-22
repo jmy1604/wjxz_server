@@ -96,7 +96,7 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 		})
 
 		attacker.push_battle_record(row.GetId())
-		//defenser.push_battle_record(row.GetId())
+		defenser.push_battle_record(row.GetId())
 
 		log.Debug("Battle Record[%v] saved with attacker[%v] and defenser[%v]", row.GetId(), attacker_id, defenser_id)
 	}
@@ -191,6 +191,10 @@ func (this *BattleSaveManager) DeleteRecord(requester_id, record_id int32) int32
 }
 
 func (this *Player) push_battle_record(record_id int32) (pushed bool, remove_record int32) {
+	// 未上线的玩家battle_record_list很可能为空，直接返回
+	if this.battle_record_list == nil {
+		return
+	}
 	rt, o := this.db.BattleSaves.GetSaveTime(record_id)
 	if !o {
 		return
