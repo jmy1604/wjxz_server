@@ -1220,7 +1220,24 @@ func send_mail_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return SendMail(p, int32(receiver_id), int32(mail_type), args[2], args[3], nil)
+	var attach_item_id int
+	if len(args) > 4 {
+		attach_item_id, err = strconv.Atoi(args[4])
+		if err != nil {
+			log.Error("邮件附件[%v]转换失败[%v]", attach_item_id, err.Error())
+			return -1
+		}
+	}
+
+	var items []*msg_client_message.ItemInfo
+	if attach_item_id > 0 {
+		item := &msg_client_message.ItemInfo{
+			ItemCfgId: int32(attach_item_id),
+			ItemNum:   1,
+		}
+		items = []*msg_client_message.ItemInfo{item}
+	}
+	return SendMail(p, int32(receiver_id), int32(mail_type), args[2], args[3], items)
 }
 
 func mail_list_cmd(p *Player, args []string) int32 {
@@ -1538,6 +1555,31 @@ func onekey_unequip_cmd(p *Player, args []string) int32 {
 	return p.role_one_key_unequip(int32(role_id))
 }
 
+func role_equips_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var role_id int
+	var err error
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("角色id[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	equips, o := p.db.Roles.GetEquip(int32(role_id))
+	if !o {
+		log.Error("玩家[%v]没有角色[%v]", p.Id, role_id)
+		return -1
+	}
+
+	log.Debug("玩家[%v]角色[%v]已装备物品[%v]", p.Id, role_id, equips)
+
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1586,6 +1628,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"role_attrs":         get_role_attrs_cmd,
 	"onekey_equip":       onekey_equip_cmd,
 	"onekey_unequip":     onekey_unequip_cmd,
+	"role_equips":        role_equips_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

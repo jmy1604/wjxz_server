@@ -271,15 +271,31 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 		log.Error("new mail create failed")
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)
 	}
+
+	// 附件
 	if attached_items != nil {
 		for i := 0; i < len(attached_items); i++ {
-			res := receiver.attach_mail_item(mail_id, attached_items[i].ItemCfgId, attached_items[i].ItemNum)
+			item_id := attached_items[i].ItemCfgId
+			item_num := attached_items[i].ItemNum
+			if sender != nil {
+				if sender.get_item(item_id) < item_num {
+					log.Error("Player[%v] item[%v] not enough", sender.Id, item_id)
+					return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)
+				}
+			}
+			res := receiver.attach_mail_item(mail_id, item_id, item_num)
 			if res < 0 {
 				return res
 			}
 		}
+		if sender != nil {
+			for _, item := range attached_items {
+				sender.add_item(item.GetItemCfgId(), -item.GetItemNum())
+			}
+		}
 	}
 
+	// 个人邮件发送时间点保存
 	if mail_type == MAIL_TYPE_PLAYER && sender != nil {
 		sender.db.MailCommon.SetLastSendPlayerMailTime(now_time)
 	}
@@ -418,7 +434,7 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_MAIL_GET_ATTACHED_ITEMS_RESPONSE), response)
 
-	log.Debug("Player[%v] mails[%v] attached items: %v", this.Id, mail_ids, attached_items)
+	log.Debug("Player[%v] mails[%v] get attached items: %v", this.Id, mail_ids, attached_items)
 
 	return 1
 }

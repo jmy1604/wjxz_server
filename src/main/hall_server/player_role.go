@@ -759,7 +759,6 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 			}
 			eq := item_table_mgr.Get(equips[item.EquipType])
 			if equips[item.EquipType] == 0 || (eq != nil && eq.BattlePower < item.BattlePower) {
-				//log.Debug("000000000000000000 之前[%v] 之后[%v]", equips[item.EquipType], item_id)
 				equips[item.EquipType] = item_id
 			}
 
@@ -774,7 +773,6 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 				}
 				// 已装备的大于背包中的，不替换
 				if eq != nil && e.BattlePower >= eq.BattlePower {
-					//log.Debug("111111111111111111 待装备[%v] 已装备[%v]", equips[item.EquipType], role_equips[item.EquipType])
 					equips[item.EquipType] = role_equips[item.EquipType]
 				}
 			}

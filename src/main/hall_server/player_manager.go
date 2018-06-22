@@ -242,11 +242,14 @@ func (this *Player) send_notify_state() {
 
 	// 其他
 	if this.states_changed != nil {
+		if response == nil {
+			response = &msg_client_message.S2CStateNotify{}
+		}
 		for k, v := range this.states_changed {
 			if v == 1 {
 				response.States = append(response.States, k)
 			} else if v == 2 {
-				response.CancelStates = append(response.States, k)
+				response.CancelStates = append(response.CancelStates, k)
 			}
 		}
 		this.states_changed = nil
