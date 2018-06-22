@@ -32,11 +32,13 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 			is_read = true
 		}
 
+		has_attached := false
 		if v.AttachItemIds != nil && len(v.AttachItemIds) > 0 {
 			if now_time-v.SendUnix >= global_config_mgr.GetGlobalConfig().MailAttachExistDays*24*3600 {
 				to_delete_mail = append(to_delete_mail, v.Id)
 				continue
 			}
+			has_attached = true
 		} else {
 			if now_time-v.SendUnix >= global_config_mgr.GetGlobalConfig().MailNormalExistDays*24*3600 {
 				to_delete_mail = append(to_delete_mail, v.Id)
@@ -56,6 +58,7 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 			SendTime:      v.SendUnix,
 			IsRead:        is_read,
 			IsGetAttached: is_get_attached,
+			HasAttached:   has_attached,
 		}
 		mails = append(mails, d)
 	}
@@ -86,6 +89,10 @@ func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg
 		if md.IsGetAttached > 0 {
 			is_get_attached = true
 		}
+		has_attached := false
+		if md.AttachItemIds != nil {
+			has_attached = true
+		}
 		d := &msg_client_message.MailBasicData{
 			Id:            md.Id,
 			Type:          int32(md.Type),
@@ -93,6 +100,7 @@ func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg
 			SendTime:      md.SendUnix,
 			IsRead:        is_read,
 			IsGetAttached: is_get_attached,
+			HasAttached:   has_attached,
 		}
 		mails = append(mails, d)
 	}

@@ -650,6 +650,7 @@ message MailBasicData {
 	int32 SendTime							= 5; // 发送时间
 	bool IsRead								= 6; // 是否已读
 	bool IsGetAttached						= 7; // 是否已领取附件
+	bool HasAttached						= 8; // 是否有附件
 }
 message S2CMailListResponse {
 	repeated MailBasicData Mails            = 1; //

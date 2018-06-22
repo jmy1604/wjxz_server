@@ -623,7 +623,7 @@ func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_c
 	}
 	this.init_attrs_equips_skills(level, role_card, extra_equips)
 	if team.player != nil {
-		team.player.role_update_equips_attr(id, this, false)
+		team.player.role_update_suit_attr_power(id, true, false)
 	}
 }
 

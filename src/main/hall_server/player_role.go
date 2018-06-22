@@ -248,9 +248,9 @@ func (this *Player) get_team_member(role_id int32, team *BattleTeam, pos int32) 
 		return
 	}
 
-	if this.team_member_mgr == nil {
-		this.team_member_mgr = make(map[int32]*TeamMember)
-	}
+	//if this.team_member_mgr == nil {
+	//	this.team_member_mgr = make(map[int32]*TeamMember)
+	//}
 	m = this.team_member_mgr[role_id]
 	if m == nil {
 		m = team_member_pool.Get()
@@ -258,7 +258,7 @@ func (this *Player) get_team_member(role_id int32, team *BattleTeam, pos int32) 
 	}
 	if team == nil {
 		m.init_attrs_equips_skills(level, role_card, nil)
-		this.role_update_equips_attr(role_id, m, true)
+		this.role_update_suit_attr_power(role_id, true, true)
 	} else {
 		m.init_all(team, role_id, level, role_card, pos, nil)
 	}
@@ -757,9 +757,9 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 			if item == nil || item.EquipType < 1 || item.EquipType >= EQUIP_TYPE_LEFT_SLOT {
 				continue
 			}
-			power := item.BattlePower
 			eq := item_table_mgr.Get(equips[item.EquipType])
-			if equips[item.EquipType] == 0 || (eq != nil && eq.BattlePower < power) {
+			if equips[item.EquipType] == 0 || (eq != nil && eq.BattlePower < item.BattlePower) {
+				//log.Debug("000000000000000000 之前[%v] 之后[%v]", equips[item.EquipType], item_id)
 				equips[item.EquipType] = item_id
 			}
 
@@ -774,22 +774,24 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 				}
 				// 已装备的大于背包中的，不替换
 				if eq != nil && e.BattlePower >= eq.BattlePower {
-					equips[item.EquipType] = 0
+					//log.Debug("111111111111111111 待装备[%v] 已装备[%v]", equips[item.EquipType], role_equips[item.EquipType])
+					equips[item.EquipType] = role_equips[item.EquipType]
 				}
 			}
 		}
 
 		for i := 0; i < len(equips); i++ {
+			if i >= EQUIP_TYPE_LEFT_SLOT {
+				break
+			}
 			if equips[i] > 0 {
 				if role_equips != nil && i < len(role_equips) && role_equips[i] > 0 {
-					this.del_item(equips[i], 1)
-					this.add_item(role_equips[i], 1)
+					if equips[i] != role_equips[i] {
+						this.del_item(equips[i], 1)
+						this.add_item(role_equips[i], 1)
+					}
 				} else {
 					this.del_item(equips[i], 1)
-				}
-			} else {
-				if role_equips != nil && i < len(role_equips) && role_equips[i] > 0 {
-					equips[i] = role_equips[i]
 				}
 			}
 		}
@@ -860,7 +862,7 @@ func (this *Player) set_power(role_id, pow int32) {
 	this.roles_power[role_id] = pow
 }
 
-func (this *Player) role_update_equips_attr(role_id int32, mem *TeamMember, get_power bool) int32 {
+func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, get_power bool) int32 {
 	equips, o := this.db.Roles.GetEquip(role_id)
 	if !o {
 		log.Error("Player[%v] not found role[%v], update suits failed", this.Id, role_id)
@@ -905,9 +907,14 @@ func (this *Player) role_update_equips_attr(role_id int32, mem *TeamMember, get_
 		}
 	}
 
+	var mem *TeamMember
+	if get_suit_attr {
+		mem = this.team_member_mgr[role_id]
+	}
+
 	for s, n := range suits {
 		attrs := s.SuitAddAttrs[n]
-		if attrs != nil {
+		if mem != nil && attrs != nil {
 			mem.add_attrs(attrs)
 		}
 		if get_power {
