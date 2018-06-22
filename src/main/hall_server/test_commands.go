@@ -1039,6 +1039,14 @@ func add_item_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func all_items_cmd(p *Player, args []string) int32 {
+	a := item_table_mgr.Array
+	for _, item := range a {
+		p.add_item(item.Id, 100)
+	}
+	return 1
+}
+
 func role_levelup_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
@@ -1548,6 +1556,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"campaign_data":      campaign_data_cmd,
 	"leave_game":         leave_game_cmd,
 	"add_item":           add_item_cmd,
+	"all_items":          all_items_cmd,
 	"role_levelup":       role_levelup_cmd,
 	"role_rankup":        role_rankup_cmd,
 	"role_decompose":     role_decompose_cmd,
