@@ -250,9 +250,9 @@ func (this *Player) get_team_member(role_id int32, team *BattleTeam, pos int32) 
 		return
 	}
 
-	//if this.team_member_mgr == nil {
-	//	this.team_member_mgr = make(map[int32]*TeamMember)
-	//}
+	if this.team_member_mgr == nil {
+		this.team_member_mgr = make(map[int32]*TeamMember)
+	}
 	m = this.team_member_mgr[role_id]
 	if m == nil {
 		m = team_member_pool.Get()
