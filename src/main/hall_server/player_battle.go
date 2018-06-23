@@ -162,7 +162,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 			continue
 		}
 
-		m := p.get_team_member(members[i], this, int32(i))
+		m := p.get_team_member_by_role(members[i], this, int32(i))
 		if m == nil {
 			log.Error("Player[%v] init battle team get member with role_id[%v] error", p.Id, members[i])
 			continue

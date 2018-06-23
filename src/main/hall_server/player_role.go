@@ -226,7 +226,7 @@ func (this *Player) send_roles() {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLES_RESPONSE), msg)
 }
 
-func (this *Player) get_team_member(role_id int32, team *BattleTeam, pos int32) (m *TeamMember) {
+func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos int32) (m *TeamMember) {
 	var table_id, rank, level int32
 	var o bool
 	table_id, o = this.db.Roles.GetTableId(role_id)
@@ -273,7 +273,7 @@ func (this *Player) send_role_attrs(role_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 	}
 
-	m := this.get_team_member(role_id, nil, -1)
+	m := this.get_team_member_by_role(role_id, nil, -1)
 	if m == nil {
 		log.Error("Player[%v] get team member with role[%v] failed, cant send role attrs", this.Id, role_id)
 		return -1
