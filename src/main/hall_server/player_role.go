@@ -312,13 +312,7 @@ func (this *Player) lock_role(role_id int32, is_lock bool) int32 {
 	return 1
 }
 
-func (this *Player) levelup_role(role_id int32) int32 {
-	lvl, o := this.db.Roles.GetLevel(role_id)
-	if !o {
-		log.Error("Player[%v] not have role[%v]", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
-	}
-
+func (this *Player) _levelup_role(role_id, lvl int32) int32 {
 	if len(levelup_table_mgr.Array) <= int(lvl) {
 		log.Error("Player[%v] is already max level[%v]", this.Id, lvl)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_IS_MAX)
@@ -334,29 +328,59 @@ func (this *Player) levelup_role(role_id int32) int32 {
 		for i := 0; i < len(levelup_data.CardLevelUpRes)/2; i++ {
 			resource_id := levelup_data.CardLevelUpRes[2*i]
 			resource_num := levelup_data.CardLevelUpRes[2*i+1]
-			if this.get_resource(resource_id) < resource_num {
+			now_num := this.get_resource(resource_id)
+			if now_num < resource_num {
+				log.Error("Player[%v] levelup role[%v] cost resource[%v] not enough, need[%v] now[%v]", this.Id, role_id, resource_id, resource_num, now_num)
 				return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
 			}
+			if this.tmp_cache_items == nil || len(this.tmp_cache_items) > 0 {
+				this.tmp_cache_items = make(map[int32]int32)
+			}
+			num := this.tmp_cache_items[resource_id]
+			if num == 0 {
+				this.tmp_cache_items[resource_id] = resource_num
+			} else {
+				this.tmp_cache_items[resource_id] = num + resource_num
+			}
 		}
-		for i := 0; i < len(levelup_data.CardLevelUpRes)/2; i++ {
-			resource_id := levelup_data.CardLevelUpRes[2*i]
-			resource_num := levelup_data.CardLevelUpRes[2*i+1]
-			this.add_resource(resource_id, -resource_num)
-		}
+	}
+	return 1
+}
 
-		this.db.Roles.SetLevel(role_id, lvl+1)
-		lvl += 1
+func (this *Player) levelup_role(role_id, up_num int32) int32 {
+	if up_num == 0 {
+		up_num = 1
 	}
 
+	lvl, o := this.db.Roles.GetLevel(role_id)
+	if !o {
+		log.Error("Player[%v] not have role[%v]", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	res := int32(0)
+	for i := int32(1); i <= up_num; i++ {
+		res = this._levelup_role(role_id, lvl+i)
+		if res < 0 {
+			return res
+		}
+	}
+
+	for id, num := range this.tmp_cache_items {
+		this.add_resource(id, -num)
+	}
+
+	this.db.Roles.SetLevel(role_id, lvl+up_num)
+	this.tmp_cache_items = nil
 	this.roles_id_change_info.id_update(role_id)
 
 	response := &msg_client_message.S2CRoleLevelUpResponse{
 		RoleId: role_id,
-		Level:  lvl,
+		Level:  lvl + up_num,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEVELUP_RESPONSE), response)
 
-	log.Debug("Player[%v] role[%v] up to level[%v]", this.Id, role_id, lvl)
+	log.Debug("Player[%v] role[%v] up to level[%v]", this.Id, role_id, lvl+up_num)
 
 	return lvl
 }
@@ -614,6 +638,56 @@ func (this *Player) check_fusion_role_cond(cost_role_ids []int32, cost_cond *tab
 	return 1
 }
 
+// 消耗返还升级升阶的资源
+func (this *Player) _return_role_resource(role_id int32) (items []*msg_client_message.ItemInfo) {
+	lvl, _ := this.db.Roles.GetLevel(role_id)
+	rank, _ := this.db.Roles.GetRank(role_id)
+
+	for i := int32(1); i < lvl; i++ {
+		levelup_data := levelup_table_mgr.Get(i)
+		if levelup_data == nil {
+			return
+		}
+		d := levelup_data.CardDecomposeRes
+		if d != nil {
+			for j := 0; j < len(d)/2; j++ {
+				items = append(items, &msg_client_message.ItemInfo{
+					ItemCfgId: d[2*j],
+					ItemNum:   d[2*j+1],
+				})
+			}
+		}
+	}
+
+	for i := int32(1); i < rank; i++ {
+		rankup_data := rankup_table_mgr.Get(i)
+		if rankup_data == nil {
+			return
+		}
+		dd := [][]int32{rankup_data.Type1DecomposeRes, rankup_data.Type2DecomposeRes, rankup_data.Type3DecomposeRes}
+		for _, d := range dd {
+			if d == nil {
+				continue
+			}
+			for j := 0; j < len(d)/2; j++ {
+				items = append(items, &msg_client_message.ItemInfo{
+					ItemCfgId: d[2*j],
+					ItemNum:   d[2*j+1],
+				})
+			}
+
+		}
+	}
+
+	if items != nil {
+		for _, item := range items {
+			this.add_resource(item.GetItemCfgId(), item.GetItemNum())
+		}
+	}
+
+	return
+}
+
 func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][]int32) int32 {
 	fusion := fusion_table_mgr.Get(fusion_id)
 	if fusion == nil {
@@ -656,6 +730,11 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 			log.Error("Player[%v] fusion[%v] main card id[%v] level[%v] not enough, need level[%v]", this.Id, fusion_id, main_card_id, main_role_level, fusion.MainCardLevelCond)
 			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_CARD_INVALID)
 		}
+	} else {
+		if this.db.Roles.NumAll() >= global_config_mgr.GetGlobalConfig().MaxRoleCount {
+			log.Error("Player[%v] role inventory is full", this.Id)
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_INVENTORY_NOT_ENOUGH_SPACE)
+		}
 	}
 
 	for i := 0; i < len(cost_role_ids); i++ {
@@ -683,8 +762,19 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_FUSION_FAILED)
 	}
 
+	new_role_id := int32(0)
+	if fusion.FusionType == 1 {
+		this.db.Roles.SetTableId(main_role_id, item.ItemCfgId)
+		this.roles_id_change_info.id_update(main_role_id)
+	} else {
+		new_role_id = this.new_role(item.ItemCfgId, 1, 1)
+	}
+
+	var get_items []*msg_client_message.ItemInfo
 	for i := 0; i < len(cost_role_ids); i++ {
 		for j := 0; j < len(cost_role_ids[i]); j++ {
+			items := this._return_role_resource(cost_role_ids[i][j])
+			get_items = append(get_items, items...)
 			this.delete_role(cost_role_ids[i][j])
 		}
 	}
@@ -695,17 +785,10 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		this.add_resource(res_id, -res_num)
 	}
 
-	new_role_id := int32(0)
-	if fusion.FusionType == 1 {
-		this.db.Roles.SetTableId(main_role_id, item.ItemCfgId)
-		this.roles_id_change_info.id_update(main_role_id)
-	} else {
-		new_role_id = this.new_role(item.ItemCfgId, 1, 1)
-	}
-
 	response := &msg_client_message.S2CRoleFusionResponse{
 		NewCardId: item.ItemCfgId,
 		RoleId:    new_role_id,
+		GetItems:  get_items,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_FUSION_RESPONSE), response)
 
@@ -959,7 +1042,7 @@ func C2SRoleLevelUpHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 		log.Error("Unmarshal msg failed err(%s) !", err.Error())
 		return -1
 	}
-	return p.levelup_role(req.GetRoleId())
+	return p.levelup_role(req.GetRoleId(), req.GetUpNum())
 }
 
 func C2SRoleRankUpHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
