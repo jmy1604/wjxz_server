@@ -374,6 +374,10 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 							}(c)
 						}
 					} else {
+						if cur_hall_conn == nil {
+							log.Error("hall connection is not estabulished")
+							break
+						}
 						cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)
 					}
 				}

@@ -15,6 +15,7 @@ enum E_ERR {
 	PLAYER_SELECT_SERVER_NOT_FOUND			= -7; // 选择服务器不存在
 	PLAYER_ALREADY_SELECTED_SERVER			= -8; // 玩家已经选择过服务器
 	PLAYER_IS_OFFLINE						= -9; // 玩家已离线
+	PLAYER_SEND_TOO_FREQUENTLY				= -10; // 发送消息太频繁
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
