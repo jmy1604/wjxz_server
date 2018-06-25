@@ -39,7 +39,7 @@ func parse_xml_str_arr(instr string, spe_str string) (ret_ivals []int32) {
 		for tmp_i := int32(0); tmp_i < tmp_len; tmp_i++ {
 			ival, err = strconv.Atoi(strs[tmp_i])
 			if nil != err {
-				log.Error("parse_xml_str_arr parse string[%v] with split[%v] failed to convrt[%s] err [%s] strslen[%d] tmp_i[%d]!", instr, spe_str, strs[tmp_i], err.Error(), tmp_len, tmp_i)
+				log.Error("parse_xml_str_arr parse string[%v] with to split_string[%v] split[%v] failed to convrt[%s] err [%s] strslen[%d] tmp_i[%d]!", instr, strs, spe_str, strs[tmp_i], err.Error(), tmp_len, tmp_i)
 				return nil
 			}
 
@@ -58,7 +58,6 @@ func parse_xml_str_arr2(instr string, spe_str string) (ret_ivals []int32) {
 
 	strs := strings.Split(instr, spe_str)
 
-	//log.Info("parse_xml_str_arr %s arr[%v]", string(tmp_byte), strs)
 	tmp_len := int32(len(strs))
 	var ival int
 	var err error
@@ -67,7 +66,7 @@ func parse_xml_str_arr2(instr string, spe_str string) (ret_ivals []int32) {
 		for tmp_i := int32(0); tmp_i < tmp_len; tmp_i++ {
 			ival, err = strconv.Atoi(strs[tmp_i])
 			if nil != err {
-				log.Error("parse_xml_str_arr parse string[%v] with spit[%v] failed to convrt[%s] err [%s] strslen[%d] tmp_i[%d]!", instr, spe_str, strs[tmp_i], err.Error(), tmp_len, tmp_i)
+				log.Error("parse_xml_str_arr parse string[%v] to split_string[%v] with spit[%v] failed to convrt[%s] err [%s] strslen[%d] tmp_i[%d]!", instr, strs, spe_str, strs[tmp_i], err.Error(), tmp_len, tmp_i)
 				return nil
 			}
 

@@ -194,6 +194,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("suit_table_mgr init success")
 	}
 
+	if !draw_table_mgr.Init() {
+		log.Error("draw_table_mgr init failed")
+		return errors.New("draw_table_mgr init failed")
+	} else {
+		log.Info("draw_table_mgr init success")
+	}
+
 	if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Init()
 	} else {
@@ -362,6 +369,7 @@ var fusion_table_mgr table_config.FusionTableMgr
 var talent_table_mgr table_config.TalentTableMgr
 var tower_table_mgr table_config.TowerTableMgr
 var item_upgrade_table_mgr table_config.ItemUpgradeTableMgr
+var draw_table_mgr table_config.DrawTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

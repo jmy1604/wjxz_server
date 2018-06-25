@@ -167,6 +167,15 @@ message PlayerTowerList{
 	repeated PlayerTower List=1;
 }
 
+message PlayerDraw{
+	optional int32 Type=1;
+	optional int32 LastDrawTime=2;
+}
+
+message PlayerDrawList{
+	repeated PlayerDraw List=1;
+}
+
 message PlayerShopItem{
 	optional int32 Id=1;
 	optional int32 LeftNum=2;

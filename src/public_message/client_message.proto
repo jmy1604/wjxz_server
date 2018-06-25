@@ -757,6 +757,25 @@ message S2CTowerRankingListResponse {
 	repeated TowerRankInfo Ranks			= 1;
 }
 
+// ---------------------------------- 抽卡 ------------------------------------
+// 请求抽卡数据
+message C2SDrawDataRequest {
+}
+
+message S2CDrawDataResponse {
+	map<int32,int32> DrawLastTimes			= 1; // key 抽卡ID  value 上次抽卡时间
+}
+
+// 请求抽卡
+message C2SDrawCardRequest {
+	int32 DrawType							= 1; // 抽卡类型  
+}
+
+message S2CDrawCardResponse {
+	int32 DrawType							= 1; // 抽卡类型
+	repeated int32 RoleTableId				= 2; // 抽到的角色
+}
+
 //////////////////////////////////////////////////////////////////////////////
 message FriendInfo {
 	
