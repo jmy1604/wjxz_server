@@ -25,6 +25,7 @@ const (
 // 其他属性
 const (
 	ITEM_RESOURCE_ID_GOLD        = 1  // 金币
+	ITEM_RESOURCE_ID_SOUL        = 2  // 绿魂
 	ITEM_RESOURCE_ID_DIAMOND     = 3  // 钻石
 	ITEM_RESOURCE_ID_EXP         = 7  // 经验值
 	ITEM_RESOURCE_ID_STAMINA     = 8  // 体力

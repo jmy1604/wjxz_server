@@ -8,7 +8,9 @@
 	"MaxEnergy":60,
 	"EnergyAdd":20,
 	
-	"HeartbeatInterval":60,
+	"HeartbeatInterval":180,
+	
+	"MaxRoleCount": 300,
 	
 	"MailTitleBytes":32,
 	"MailContentBytes":240,

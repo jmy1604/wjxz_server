@@ -1042,8 +1042,14 @@ func add_item_cmd(p *Player, args []string) int32 {
 func all_items_cmd(p *Player, args []string) int32 {
 	a := item_table_mgr.Array
 	for _, item := range a {
-		p.add_item(item.Id, 100)
+		p.add_resource(item.Id, 10000)
 	}
+	return 1
+}
+
+func clear_items_cmd(p *Player, args []string) int32 {
+	p.db.Items.Clear()
+	p.send_items()
 	return 1
 }
 
@@ -1054,14 +1060,21 @@ func role_levelup_cmd(p *Player, args []string) int32 {
 	}
 
 	var err error
-	var role_id int
+	var role_id, up_num int
 	role_id, err = strconv.Atoi(args[0])
 	if err != nil {
 		log.Error("转换角色ID[%v]失败[%v]", args[0], err.Error())
 		return -1
 	}
+	if len(args) > 1 {
+		up_num, err = strconv.Atoi(args[1])
+		if err != nil {
+			log.Error("转换升级次数[%v]失败[%v]", args[1], err.Error())
+			return -1
+		}
+	}
 
-	res := p.levelup_role(int32(role_id))
+	res := p.levelup_role(int32(role_id), int32(up_num))
 	if res > 0 {
 		log.Debug("玩家[%v]升级了角色[%v]等级[%v]", p.Id, role_id, res)
 	}
@@ -1620,6 +1633,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"leave_game":         leave_game_cmd,
 	"add_item":           add_item_cmd,
 	"all_items":          all_items_cmd,
+	"clear_items":        clear_items_cmd,
 	"role_levelup":       role_levelup_cmd,
 	"role_rankup":        role_rankup_cmd,
 	"role_decompose":     role_decompose_cmd,
