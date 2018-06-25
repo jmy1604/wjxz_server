@@ -9,6 +9,7 @@ import (
 	"public_message/gen_go/client_message"
 	_ "reflect"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	//"3p/code.google.com.protobuf/proto"
@@ -212,14 +213,21 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 				log.Warn("Account[%v] token[%v] invalid, need[%v]", p.Account, tmp_msg.GetToken(), tokeninfo.token)
 			}
 		} else {
-			p.bhandling = true
-			p.b_base_prop_chg = false
-			p.OnInit()
-			ret_code = handlerinfo.player_msg_handler(w, r, p /*req*/, tmp_msg.GetData())
+			if !atomic.CompareAndSwapInt32(&p.is_lock, 0, 1) {
+				ret_code = int32(msg_client_message.E_ERR_PLAYER_SEND_TOO_FREQUENTLY)
+			} else {
+				p.bhandling = true
+				p.b_base_prop_chg = false
+				p.OnInit()
+				ret_code = handlerinfo.player_msg_handler(w, r, p /*req*/, tmp_msg.GetData())
+				data = p.PopCurMsgData()
+				atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
+			}
 		}
 
 	} else {
 		ret_code, p = handlerinfo.msg_handler(w, r /*req*/, tmp_msg.GetData())
+		data = p.PopCurMsgData()
 	}
 
 	var old_msg_num, msg_num int32
@@ -264,7 +272,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		res2cli := &msg_client_message.S2C_MSG_DATA{}
-		data := p.PopCurMsgData()
+
 		if nil == data || len(data) < 4 {
 			//log.Error("client_msg_handler PopCurMsgDataError nil or len[%d] error", len(data))
 			//return

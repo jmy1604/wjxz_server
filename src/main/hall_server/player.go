@@ -78,6 +78,7 @@ type Player struct {
 	db            *dbPlayerRow
 	pos           int32
 
+	is_lock            int32
 	bhandling          bool
 	msg_items          []*PlayerMsgItem
 	msg_items_lock     *sync.Mutex
