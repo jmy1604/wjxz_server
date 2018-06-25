@@ -105,4 +105,9 @@ enum MSGID {
 	S2C_TOWER_RECORD_DATA_RESPONSE			= 10705; // 爬塔录像具体数据返回 S2CTowerRecordDataResponse
 	C2S_TOWER_RANKING_LIST_REQUEST			= 10706; // 爬塔排行榜请求 C2STowerRankingListRequest
 	S2C_TOWER_RANKING_LIST_RESPONSE			= 10707; // 爬塔排行榜请求返回 S2CTowerRankingListResponse
+	
+	C2S_DRAW_CARD_REQUEST				 	= 10800; // 请求抽卡 C2SDrawCardRequest
+	S2C_DRAW_CARD_RESPONSE					= 10801; // 请求抽卡返回 S2CDrawCardResponse
+	C2S_DRAW_DATA_REQUEST					= 10802; // 请求抽卡数据 C2SDrawDataRequest
+	S2C_DRAW_DATA_RESPONSE					= 10803; // 请求抽卡数据返回 S2CDrawDataResponse
 }

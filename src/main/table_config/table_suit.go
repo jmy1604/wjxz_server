@@ -62,7 +62,7 @@ func (this *SuitTableMgr) Load() bool {
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
 
-		suitattrs := parse_xml_str_arr(tmp_item.AttrSuit2Str, ",")
+		suitattrs := parse_xml_str_arr2(tmp_item.AttrSuit2Str, ",")
 		if suitattrs == nil || len(suitattrs)%2 != 0 {
 			log.Error("Suit table parse field AttrSuit2[%v] error", tmp_item.AttrSuit2Str)
 			return false

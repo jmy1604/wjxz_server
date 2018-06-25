@@ -1580,6 +1580,27 @@ func role_equips_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func draw_card_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var draw_type int
+	var err error
+	draw_type, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("抽卡类型[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.draw_card(int32(draw_type))
+}
+
+func draw_data_cmd(p *Player, args []string) int32 {
+	return p.send_draw_data()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1629,6 +1650,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"onekey_equip":       onekey_equip_cmd,
 	"onekey_unequip":     onekey_unequip_cmd,
 	"role_equips":        role_equips_cmd,
+	"draw_card":          draw_card_cmd,
+	"draw_data":          draw_data_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

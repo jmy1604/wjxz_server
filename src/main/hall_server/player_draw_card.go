@@ -6,9 +6,9 @@ import (
 	"math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 	"time"
 
-	_ "3p/code.google.com.protobuf/proto"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -94,118 +94,148 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 	return
 }
 
-func (this *Player) DropItems(items_info []*table_config.ItemInfo, draw_count int32, badd bool) (bool, []*msg_client_message.ItemInfo) {
-	total_drop_count := int32(0)
-	for n := 0; n < len(items_info); n++ {
-		total_drop_count += items_info[n].Num
-	}
-
-	items := make([]*msg_client_message.ItemInfo, 0, draw_count*total_drop_count)
-
-	this.used_drop_ids = make(map[int32]int32)
-
-	seed := time.Now().Unix() + time.Now().UnixNano()
-	rand.Seed(seed + int64(rand.Int31n(100)))
-	for count := int32(0); count < draw_count; count++ {
-		for i := 0; i < len(items_info); i++ {
-			for j := 0; j < int(items_info[i].Num); j++ {
-				draw_lib := drop_table_mgr.Map[items_info[i].Id]
-				if nil == draw_lib {
-					log.Error("Player[%v] draw card not found draw lib[%v]", this.Id, items_info[i].Id)
-					return false, nil
-				}
-
-				tmp_item := this.drop_item(draw_lib, true, badd)
-				if tmp_item != nil {
-					items = append(items, tmp_item)
-				}
-			}
-		}
-	}
-
-	return true, items
-}
-
-func (this *Player) DropItems2(items_info []int32, badd bool) (bool, []*msg_client_message.ItemInfo) {
-	total_drop_count := int32(0)
-	for n := 0; n < len(items_info)/2; n++ {
-		total_drop_count += items_info[2*n+1]
-	}
-
-	items := make([]*msg_client_message.ItemInfo, 0, total_drop_count)
-
-	rand.Seed(time.Now().Unix() + time.Now().UnixNano())
-	for i := 0; i < len(items_info)/2; i++ {
-		drop_lib := drop_table_mgr.Map[items_info[2*i]]
-		if nil == drop_lib {
-			return false, nil
-		}
-
-		for j := 0; j < int(items_info[2*i+1]); j++ {
-			tmp_item := this.drop_item(drop_lib, false, badd)
-			if tmp_item != nil {
-				items = append(items, tmp_item)
-			}
-		}
-	}
-	return true, items
-}
-
-func (this *Player) DrawCard(draw_type, draw_count int32) int32 {
-	extract := extract_table_mgr.Get(draw_type)
-	if extract == nil || extract.DropItems == nil {
+func (this *Player) draw_card(draw_type int32) int32 {
+	draw := draw_table_mgr.Get(draw_type)
+	if draw == nil {
 		log.Error("Player[%v] draw id[%v] not found", this.Id, draw_type)
 		return -1
 	}
 
-	/*num := this.GetItemResourceValue(extract.CostId)
-	if num < extract.CostNum*draw_count {
-		log.Error("Player[%v] draw card need item[%v] num[%v] not enough", this.Id, extract.CostId, extract.CostNum*draw_count)
-		return int32(msg_client_message.E_ERR_ITEM_NUM_NOT_ENOUGH)
+	is_free := false
+	now_time := int32(time.Now().Unix())
+	if draw.FreeExtractTime > 0 {
+		last_draw, o := this.db.Draws.GetLastDrawTime(draw_type)
+		if !o || now_time-last_draw >= draw.FreeExtractTime {
+			is_free = true
+		}
 	}
 
-	var b bool
-	res2cli := &msg_client_message.S2CDrawResult{}
-
-	// 首抽
-	if !this.db.FirstDrawCards.HasIndex(draw_type) && (extract.FirstDropIds != nil && len(extract.FirstDropIds) > 0) {
-		b, res2cli.Items = this.DropItems2(extract.FirstDropIds, true)
-		if !b {
-			log.Error("C2SDrawHandler failed to find draw_lib [%d]", draw_type)
-			return int32(msg_client_message.E_ERR_DRAW_WRONG_DRAW_TYPE)
+	// 资源
+	is_enough := 0
+	if !is_free {
+		if draw.ResCondition1 != nil {
+			i := 0
+			for ; i < len(draw.ResCondition1)/2; i++ {
+				res_id := draw.ResCondition1[2*i]
+				res_num := draw.ResCondition1[2*i+1]
+				if this.get_resource(res_id) < res_num {
+					break
+				}
+			}
+			if i >= len(draw.ResCondition1)/2 {
+				is_enough = 1
+			}
 		}
-		var d dbPlayerFirstDrawCardData
-		d.Id = draw_type
-		d.Drawed = 1
-		this.db.FirstDrawCards.Add(&d)
-		res2cli.IsFirst = proto.Bool(true)
+		if is_enough == 0 {
+			if draw.ResCondition2 != nil {
+				i := 0
+				for ; i < len(draw.ResCondition2)/2; i++ {
+					res_id := draw.ResCondition2[2*i]
+					res_num := draw.ResCondition2[2*i+1]
+					if this.get_resource(res_id) < res_num {
+						break
+					}
+				}
+				if i >= len(draw.ResCondition2)/2 {
+					is_enough = 2
+				}
+			}
+		}
+	}
+
+	var role_ids []int32
+	for i := 0; i < len(draw.DropId)/2; i++ {
+		did := draw.DropId[2*i]
+		dn := draw.DropId[2*i+1]
+		for j := 0; j <= int(dn); j++ {
+			o, item := this.drop_item_by_id(did, true, true)
+			if !o {
+				log.Error("Player[%v] draw type[%v] with drop_id[%v] failed", this.Id, draw_type, did)
+				return -1
+			}
+			role_ids = append(role_ids, item.GetItemCfgId())
+		}
+	}
+
+	if !is_free {
+		if is_enough == 0 {
+			log.Error("Player[%v] not enough res to draw card", this.Id)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
+		}
+
+		var res_condition []int32
+		if is_enough == 1 {
+			res_condition = draw.ResCondition1
+		} else {
+			res_condition = draw.ResCondition2
+		}
+
+		if res_condition != nil {
+			for i := 0; i < len(res_condition)/2; i++ {
+				res_id := res_condition[2*i]
+				res_num := res_condition[2*i+1]
+				this.add_resource(res_id, -res_num)
+			}
+		}
 	} else {
-		b, res2cli.Items = this.DropItems(extract.DropItems, draw_count, true)
-		if !b {
-			log.Error("C2SDrawHandler failed to find draw_lib [%d]", draw_type)
-			return int32(msg_client_message.E_ERR_DRAW_WRONG_DRAW_TYPE)
+		if !this.db.Draws.HasIndex(draw_type) {
+			this.db.Draws.Add(&dbPlayerDrawData{
+				Type:         draw_type,
+				LastDrawTime: now_time,
+			})
+		} else {
+			this.db.Draws.SetLastDrawTime(draw_type, now_time)
 		}
-		res2cli.IsFirst = proto.Bool(false)
 	}
 
-	this.RemoveItemResource(extract.CostId, extract.CostNum*draw_count, "draw_card", "draw")
+	response := &msg_client_message.S2CDrawCardResponse{
+		DrawType:    draw_type,
+		RoleTableId: role_ids,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_DRAW_CARD_RESPONSE), response)
 
-	this.SendItemsUpdate()
-	this.Send(res2cli)*/
+	log.Debug("Player[%v] drawed card %v with draw type %v", this.Id, role_ids, draw_type)
 
 	return 1
 }
 
-func C2SDrawHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	/*req := msg.(*msg_client_message.C2SDraw)
-	if nil == req || nil == p {
-		log.Error("C2SDrawHandler req or p nil [%v]", nil == p)
+func (this *Player) send_draw_data() int32 {
+	draw_times := make(map[int32]int32)
+	all_type := this.db.Draws.GetAllIndex()
+	if all_type != nil {
+		for _, t := range all_type {
+			draw_time, _ := this.db.Draws.GetLastDrawTime(t)
+			draw_times[t] = draw_time
+		}
+	}
+
+	response := &msg_client_message.S2CDrawDataResponse{
+		DrawLastTimes: draw_times,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_DRAW_DATA_RESPONSE), response)
+
+	log.Debug("Player[%v] draw data is %v", this.Id, draw_times)
+
+	return 1
+}
+
+func C2SDrawCardHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SDrawCardRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.draw_card(req.GetDrawType())
+}
+
+func C2SDrawDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SDrawDataRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
 
-	draw_type := req.GetDrawType()
-	draw_num := req.GetDrawCount()
-
-	return p.DrawCard(draw_type, draw_num)*/
-	return 1
+	return p.send_draw_data()
 }
