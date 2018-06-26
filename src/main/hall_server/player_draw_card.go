@@ -200,30 +200,41 @@ func (this *Player) draw_card(draw_type int32) int32 {
 	response := &msg_client_message.S2CDrawCardResponse{
 		DrawType:    draw_type,
 		RoleTableId: role_ids,
+		IsFreeDraw:  is_free,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_DRAW_CARD_RESPONSE), response)
 
-	log.Debug("Player[%v] drawed card %v with draw type %v", this.Id, role_ids, draw_type)
+	log.Debug("Player[%v] drawed card[%v] with draw type[%v], is free[%v]", this.Id, role_ids, draw_type, is_free)
 
 	return 1
 }
 
 func (this *Player) send_draw_data() int32 {
-	draw_times := make(map[int32]int32)
+	free_secs := make(map[int32]int32)
 	all_type := this.db.Draws.GetAllIndex()
 	if all_type != nil {
+		now_time := int32(time.Now().Unix())
 		for _, t := range all_type {
 			draw_time, _ := this.db.Draws.GetLastDrawTime(t)
-			draw_times[t] = draw_time
+			draw_data := draw_table_mgr.Get(t)
+			if draw_data == nil {
+				log.Warn("Cant found draw data with id[%v] in send player[%v] data", t, this.Id)
+				continue
+			}
+			remain_seconds := draw_data.FreeExtractTime - (now_time - draw_time)
+			if remain_seconds < 0 {
+				remain_seconds = 0
+			}
+			free_secs[t] = remain_seconds
 		}
 	}
 
 	response := &msg_client_message.S2CDrawDataResponse{
-		DrawLastTimes: draw_times,
+		FreeDrawRemainSeconds: free_secs,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_DRAW_DATA_RESPONSE), response)
 
-	log.Debug("Player[%v] draw data is %v", this.Id, draw_times)
+	log.Debug("Player[%v] draw data is %v", this.Id, response)
 
 	return 1
 }

@@ -176,6 +176,10 @@ message PlayerDrawList{
 	repeated PlayerDraw List=1;
 }
 
+message PlayerGoldHand{
+	optional int32 LastRefreshTime=1;
+}
+
 message PlayerShopItem{
 	optional int32 Id=1;
 	optional int32 LeftNum=2;

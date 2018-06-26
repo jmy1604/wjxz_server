@@ -8,7 +8,7 @@ import (
 
 const (
 	SIMPLE_TIMER_CHAN_LENGTH        = 4096      // 计时器插入缓冲队列长度
-	DEFAULT_TIMER_INTERVAL_MSECONDS = 10        // 默认计时器间隔作用时间
+	DEFAULT_TIMER_INTERVAL_MSECONDS = 10        // 默认计时器间隔作用时间(毫秒)
 	DEFAULT_TIME_PERIOD_SECONDS     = 24 * 3600 // 默认计时器总时间
 )
 
@@ -139,7 +139,7 @@ func (this *SimpleTimeWheel) Remove(timer_id int32) {
 
 func (this *SimpleTimeWheel) insert(data *SimpleTimerData) bool {
 	lists_len := int32(len(this.timer_lists))
-	insert_list_index := (this.curr_timer_index + int32(len(this.timer_lists))) % lists_len
+	insert_list_index := (this.curr_timer_index + lists_len) % lists_len
 	list := this.timer_lists[insert_list_index]
 	if list == nil {
 		list = &SimpleTimerList{}

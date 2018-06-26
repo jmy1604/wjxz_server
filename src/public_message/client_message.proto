@@ -16,6 +16,8 @@ enum E_ERR {
 	PLAYER_ALREADY_SELECTED_SERVER			= -8; // 玩家已经选择过服务器
 	PLAYER_IS_OFFLINE						= -9; // 玩家已离线
 	PLAYER_SEND_TOO_FREQUENTLY				= -10; // 发送消息太频繁
+	PLAYER_GOLD_NOT_ENOUGH					= -11; // 金币不足
+	PLAYER_DIAMOND_NOT_ENOUGH				= -12; // 钻石不足
 	
 	// 战斗
 	PLAYER_SET_ATTACK_MEMBERS_FAILED		= -10000; // 设置进攻阵营失败
@@ -87,6 +89,10 @@ enum E_ERR {
 	PLAYER_TOWER_FIGHT_RECORD_NOT_FOUND		= -16003; // 爬塔录像不存在
 	PLAYER_TOWER_ALREADY_HIGHEST			= -16004; // 爬塔已达最高层
 	PLAYER_TOWER_CANT_FIGHT					= -16005; // 不能打该层塔
+	
+	// 点金手
+	PLAYER_GOLDHAND_DATA_NOT_FOUND			= -17001; // 点金手数据不存在
+	PLAYER_GOLDHAND_REFRESH_IS_COOLINGDOWN	= -17000; // 点金手刷新CD中
 		
 	// 玩家
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -768,7 +774,7 @@ message C2SDrawDataRequest {
 }
 
 message S2CDrawDataResponse {
-	map<int32,int32> DrawLastTimes			= 1; // key 抽卡ID  value 上次抽卡时间
+	map<int32,int32> FreeDrawRemainSeconds	= 1; // 免费抽卡剩余时间    key 抽卡ID  value 抽卡剩余时间
 }
 
 // 请求抽卡
@@ -779,8 +785,29 @@ message C2SDrawCardRequest {
 message S2CDrawCardResponse {
 	int32 DrawType							= 1; // 抽卡类型
 	repeated int32 RoleTableId				= 2; // 抽到的角色
+	bool IsFreeDraw							= 3; // 是否免费抽卡
 }
 
+// ---------------------------------- 点金手 ----------------------------------
+// 请求点金
+message C2STouchGoldRequest {
+	int32 Type								= 1; // 点金类型   1(免费), 2, 3
+}
+
+message S2CTouchGoldResponse {
+	int32 Type								= 1; // 点金类型
+	int32 GetGold							= 2; // 获得金币数
+	int32 CostDiamond						= 3; // 消耗钻石数
+	int32 NextRefreshRemainSeconds			= 4; // 下次剩余刷新时间
+}
+
+// 点金手数据
+message C2SGoldHandDataRequest {
+}
+
+message S2CGoldHandDataResponse {
+	int32 RemainRefreshSeconds				= 1; // 剩余刷新时间(秒)
+}
 //////////////////////////////////////////////////////////////////////////////
 message FriendInfo {
 	
