@@ -638,7 +638,7 @@ func (this *Player) check_fusion_role_cond(cost_role_ids []int32, cost_cond *tab
 	return 1
 }
 
-// 消耗返还升级升阶的资源
+// 返还升级升阶消耗的资源
 func (this *Player) _return_role_resource(role_id int32) (items []*msg_client_message.ItemInfo) {
 	lvl, _ := this.db.Roles.GetLevel(role_id)
 	rank, _ := this.db.Roles.GetRank(role_id)
