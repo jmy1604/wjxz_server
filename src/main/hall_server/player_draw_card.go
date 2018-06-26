@@ -212,7 +212,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 func (this *Player) send_draw_data() int32 {
 	free_secs := make(map[int32]int32)
 	all_type := this.db.Draws.GetAllIndex()
-	if all_type != nil {
+	if all_type != nil && len(all_type) > 0 {
 		now_time := int32(time.Now().Unix())
 		for _, t := range all_type {
 			draw_time, _ := this.db.Draws.GetLastDrawTime(t)
@@ -226,6 +226,12 @@ func (this *Player) send_draw_data() int32 {
 				remain_seconds = 0
 			}
 			free_secs[t] = remain_seconds
+		}
+	} else {
+		for _, d := range draw_table_mgr.Array {
+			if d != nil && d.FreeExtractTime > 0 {
+				free_secs[d.Id] = 0
+			}
 		}
 	}
 
