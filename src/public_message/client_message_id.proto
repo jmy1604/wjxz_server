@@ -110,4 +110,9 @@ enum MSGID {
 	S2C_DRAW_CARD_RESPONSE					= 10801; // 请求抽卡返回 S2CDrawCardResponse
 	C2S_DRAW_DATA_REQUEST					= 10802; // 请求抽卡数据 C2SDrawDataRequest
 	S2C_DRAW_DATA_RESPONSE					= 10803; // 请求抽卡数据返回 S2CDrawDataResponse
+	
+	C2S_TOUCH_GOLD_REQUEST					= 10900; // 请求点金 C2STouchGoldRequest
+	S2C_TOUCH_GOLD_RESPONSE					= 10901; // 请求点金返回 S2CTouchGoldResponse
+	C2S_GOLD_HAND_DATA_REQUEST				= 10902; // 请求点金手数据 C2SGoldHandDataRequest
+	S2C_GOLD_HAND_DATA_RESPONSE			 	= 10903; // 请求点金手数据返回 S2CGoldHandDataResponse
 }
