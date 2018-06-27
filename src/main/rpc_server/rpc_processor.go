@@ -1032,11 +1032,6 @@ func (this *RpcServer) init_proc_service() bool {
 		return false
 	}
 
-	// 商店调用注册
-	if !this.rpc_service.Register(&H2R_ShopProc{}) {
-		return false
-	}
-
 	// 关卡调用注册
 	if !this.rpc_service.Register(&H2R_StageProc{}) {
 		return false
