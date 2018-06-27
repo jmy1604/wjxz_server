@@ -145,6 +145,16 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		members = p.db.BattleTeam.GetAttackMembers()
 	} else if team_id == BATTLE_DEFENSE_TEAM {
 		members = p.db.BattleTeam.GetDefenseMembers()
+	} else if team_id == BATTLE_CAMPAIN_TEAM {
+		members = p.db.BattleTeam.GetCampaignMembers()
+	} else if team_id == BATTLE_TOWER_TEAM {
+		if p.tmp_teams == nil {
+			p.tmp_teams = make(map[int32][]int32)
+		}
+		if p.tmp_teams[team_id] == nil {
+			p.tmp_teams[team_id] = p.db.BattleTeam.GetAttackMembers()
+		}
+		members = p.tmp_teams[team_id]
 	} else {
 		log.Warn("Unknown team id %v", team_id)
 		return false
@@ -778,6 +788,8 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 				log.Error("Player[%v] set campaign members[%v] failed", p.Id, req.AttackMembers)
 				return res
 			}
+		} else if req.BattleType == 3 {
+
 		}
 	}
 
@@ -799,7 +811,13 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 	}
 
 	if res > 0 {
-		p.send_battle_team(BATTLE_ATTACK_TEAM, req.GetAttackMembers())
+		if req.BattleType == 1 {
+			p.send_battle_team(BATTLE_ATTACK_TEAM, req.GetAttackMembers())
+		} else if req.BattleType == 2 {
+			p.send_battle_team(BATTLE_CAMPAIN_TEAM, req.GetAttackMembers())
+		} else if req.BattleType == 3 {
+			p.send_battle_team(BATTLE_TOWER_TEAM, req.GetAttackMembers())
+		}
 	}
 
 	return res

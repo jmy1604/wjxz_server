@@ -90,6 +90,7 @@ type Player struct {
 	used_drop_ids map[int32]int32 // 抽卡掉落ID统计
 
 	team_member_mgr      map[int32]*TeamMember                 // 成员map
+	tmp_teams            map[int32][]int32                     // 临时阵容，缓存爬塔活动等进攻阵容
 	attack_team          *BattleTeam                           // 进攻阵型
 	campaign_team        *BattleTeam                           // 战役阵型
 	tower_team           *BattleTeam                           // 爬塔阵型
@@ -633,6 +634,51 @@ func C2SWorldChatSendHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 	}
 	return p.world_chat(req.GetContent())
 }*/
+
+func (this *Player) SetTeam(team_type int32, team []int32) int32 {
+	if team == nil {
+		return -1
+	}
+
+	used_id := make(map[int32]bool)
+	for i := 0; i < len(team); i++ {
+		if team[i] <= 0 {
+			continue
+		}
+		if _, o := used_id[team[i]]; o {
+			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
+		}
+		used_id[team[i]] = true
+	}
+
+	for i := 0; i < len(team); i++ {
+		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
+			break
+		}
+		if team[i] <= 0 {
+			continue
+		}
+		if !this.db.Roles.HasIndex(team[i]) {
+			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
+			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
+		}
+		this.db.Roles.SetIsLock(team[i], 1)
+	}
+
+	if team_type == BATTLE_ATTACK_TEAM {
+		this.db.BattleTeam.SetAttackMembers(team)
+	} else if team_type == BATTLE_CAMPAIN_TEAM {
+		this.db.BattleTeam.SetCampaignMembers(team)
+	} else if team_type == BATTLE_DEFENSE_TEAM {
+		this.db.BattleTeam.SetDefenseMembers(team)
+	} else {
+		if this.tmp_teams == nil {
+			this.tmp_teams = make(map[int32][]int32)
+		}
+		this.tmp_teams[team_type] = team
+	}
+	return 1
+}
 
 func (this *Player) SetAttackTeam(team []int32) int32 {
 	if team == nil {

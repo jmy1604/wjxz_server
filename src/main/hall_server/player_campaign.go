@@ -101,21 +101,25 @@ func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int
 
 func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem) (is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
 	var attack_team *BattleTeam
+	var team_type int32
 	if stage_type == 1 {
 		if this.attack_team == nil {
 			this.attack_team = &BattleTeam{}
 		}
 		attack_team = this.attack_team
+		team_type = BATTLE_ATTACK_TEAM
 	} else if stage_type == 2 {
 		if this.campaign_team == nil {
 			this.campaign_team = &BattleTeam{}
 		}
 		attack_team = this.campaign_team
+		team_type = BATTLE_CAMPAIN_TEAM
 	} else if stage_type == 3 {
 		if this.tower_team == nil {
 			this.tower_team = &BattleTeam{}
 		}
 		attack_team = this.tower_team
+		team_type = BATTLE_TOWER_TEAM
 	} else {
 		log.Error("Stage type %v invalid", stage_type)
 		return
@@ -128,13 +132,13 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 	// 新的关卡初始化
 	if stage.Id != this.stage_id {
 		this.stage_wave = 0
-		if !attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+		if !attack_team.Init(this, team_type, 0) {
 			log.Error("Player[%v] init attack team failed", this.Id)
 			return
 		}
 	} else {
 		if this.stage_wave == 0 {
-			if !attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+			if !attack_team.Init(this, team_type, 0) {
 				log.Error("Player[%v] init attack team failed", this.Id)
 				return
 			}

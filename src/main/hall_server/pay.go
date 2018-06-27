@@ -340,17 +340,17 @@ func google_pay_order_verify(p *Player, item_id int32, order_data []byte) int32 
 	new_row.SetPayTime(int32(time.Now().Unix()))
 
 	//p.AddDiamond(bid_info.RewardGem, "Pay", "PayMgr")
-	res := p.buy_item(item_id, 1, true)
+	/*res := p.buy_item(item_id, 1, true)
 	if res < 0 {
 		return res
-	}
+	}*/
 
 	/*if PLAYER_FIRST_PAY_NOT_ACT == p.db.Info.GetFirstPayState() {
 		p.db.Info.SetFirstPayState(PLAYER_FIRST_PAY_ACT)
 		p.SyncPlayerFirstPayState()
 	}*/
 
-	return res
+	return 1
 }
 
 type FaceBookPayOrder struct {
