@@ -28,7 +28,6 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 		}
 	}
 
-	get_same := false
 	rand_val := rand.Int31n(drop_lib.TotalWeight)
 	var tmp_item *table_config.XmlDropItem
 	for i := int32(0); i < drop_lib.TotalCount; i++ {
@@ -37,20 +36,13 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 			continue
 		}
 
-		if tmp_item.Weight > rand_val || get_same {
+		if tmp_item.Weight > rand_val {
 			if tmp_item.DropItemID == 0 {
 				return nil
 			}
 
 			if check_same {
 				if _, o := this.used_drop_ids[tmp_item.DropItemID]; o {
-					get_same = true
-					if i == drop_lib.TotalCount-1 {
-						i = 0
-					}
-					if len(this.used_drop_ids) == int(drop_lib.TotalCount) {
-						this.used_drop_ids = make(map[int32]int32)
-					}
 					log.Debug("!!!!!!!!!!! !!!!!!!! total_count[%v]  used_drop_ids len[%v]  i[%v]", drop_lib.TotalCount, len(this.used_drop_ids), i)
 					continue
 				}
