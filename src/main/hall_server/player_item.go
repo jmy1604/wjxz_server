@@ -341,6 +341,11 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 }
 
 func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
+	if fusion_num >= 1000 {
+		log.Error("!!!!!!! Player[%v] fusion num %v too big", this.Id, fusion_num)
+		return -1
+	}
+
 	piece_num := this.get_item(piece_id)
 	if piece_num <= 0 {
 		log.Error("Player[%v] no piece[%v], cant fusion", this.Id, piece_id)

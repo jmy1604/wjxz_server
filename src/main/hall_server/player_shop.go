@@ -12,11 +12,15 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func (this *Player) refresh_shop(shop_id int32) (res int32, items []*msg_client_message.ShopItem) {
+func (this *Player) refresh_shop(shop_id int32) (res int32 /*, items []*msg_client_message.ShopItem*/) {
 	shop := shop_table_mgr.Get(shop_id)
 	if shop == nil {
 		log.Error("Shop %v data not found", shop_id)
-		return -1, nil
+		return -1 /*, nil*/
+	}
+
+	if this.db.ShopItems.NumAll() > 0 {
+		this.db.ShopItems.Clear()
 	}
 
 	if shop.ShopMaxSlot > 0 {
@@ -24,9 +28,13 @@ func (this *Player) refresh_shop(shop_id int32) (res int32, items []*msg_client_
 			shop_item := shopitem_table_mgr.RandomShopItem(shop_id)
 			if shop_item == nil {
 				log.Error("Player[%v] random shop[%v] item failed", this.Id, shop_id)
-				return -1, nil
+				return -1 /*, nil*/
 			}
-			si := &msg_client_message.ShopItem{
+			this.db.ShopItems.Add(&dbPlayerShopItemData{
+				ShopItemId: shop_item.Id,
+				LeftNum:    shop_item.StockNum,
+			})
+			/*si := &msg_client_message.ShopItem{
 				ItemId: shop_item.Id,
 				CostResource: &msg_client_message.ItemInfo{
 					ItemCfgId: shop_item.Item[0],
@@ -34,16 +42,22 @@ func (this *Player) refresh_shop(shop_id int32) (res int32, items []*msg_client_
 				},
 				ItemNum: shop_item.StockNum,
 			}
-			items = append(items, si)
+			items = append(items, si)*/
 		}
 	} else {
+		// 商店所有物品都刷
 		items_shop := shopitem_table_mgr.GetItemsShop(shop_id)
 		if items_shop == nil {
 			log.Error("Shop[%v] cant found items", shop_id)
-			return -1, nil
+			return -1 /*, nil*/
 		}
+
 		for _, item := range items_shop {
-			si := &msg_client_message.ShopItem{
+			this.db.ShopItems.Add(&dbPlayerShopItemData{
+				ShopItemId: item.Id,
+				LeftNum:    item.StockNum,
+			})
+			/*si := &msg_client_message.ShopItem{
 				ItemId: item.Id,
 				CostResource: &msg_client_message.ItemInfo{
 					ItemCfgId: item.Item[0],
@@ -51,11 +65,35 @@ func (this *Player) refresh_shop(shop_id int32) (res int32, items []*msg_client_
 				},
 				ItemNum: item.StockNum,
 			}
-			items = append(items, si)
+			items = append(items, si)*/
 		}
 	}
 
 	res = 1
+	return
+}
+
+func (this *Player) get_shop_free_refresh_info(shop_id int32) (is_free bool, remain_secs int32) {
+	shop_tdata := shop_table_mgr.Get(shop_id)
+	if shop_tdata == nil {
+		log.Error("Shop[%v] not found", shop_id)
+		return false, -1
+	}
+
+	if shop_tdata.FreeRefreshTime > 0 {
+		is_free = true
+	}
+
+	now_time := int32(time.Now().Unix())
+	last_refresh, _ := this.db.Shops.GetLastFreeRefreshTime(shop_id)
+	if last_refresh <= 0 {
+		last_refresh = now_time
+	}
+	remain_secs = shop_tdata.FreeRefreshTime - (now_time - last_refresh)
+	if remain_secs < 0 {
+		// 免费
+		remain_secs = 0
+	}
 	return
 }
 
@@ -117,6 +155,16 @@ func (this *Player) send_shop(shop_id int32, auto_refresh bool) (res int32, is_f
 	return
 }
 
+func (this *Player) buy_item(shop_id, item_id, item_num int32) int32 {
+	shop_tdata := shop_table_mgr.Get(shop_id)
+	if shop_tdata == nil {
+		log.Error("Shop[%v] table data not found", shop_id)
+		return -1
+	}
+
+	return 1
+}
+
 func C2SShopDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SShopDataRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -126,4 +174,14 @@ func C2SShopDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 	}
 	res, _ := p.send_shop(req.GetShopId(), true)
 	return res
+}
+
+func C2SShopBuyItemHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SShopBuyItemRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.buy_item(req.GetShopId(), req.GetItemId(), req.GetItemNum())
 }
