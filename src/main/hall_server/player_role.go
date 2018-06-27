@@ -757,7 +757,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 
 	var item *msg_client_message.ItemInfo
 	var o bool
-	if o, item = this.drop_item_by_id(fusion.ResultDropID, true, false); !o {
+	if o, item = this.drop_item_by_id(fusion.ResultDropID, false, nil); !o {
 		log.Error("Player[%v] fusion[%v] drop new card failed", this.Id, fusion_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_FUSION_FAILED)
 	}

@@ -12,22 +12,18 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func (this *Player) drop_item_by_id(id int32, check_same bool, add bool) (bool, *msg_client_message.ItemInfo) {
+func (this *Player) drop_item_by_id(id int32, add bool, used_drop_ids map[int32]int32) (bool, *msg_client_message.ItemInfo) {
 	drop_lib := drop_table_mgr.Map[id]
 	if nil == drop_lib {
 		return false, nil
 	}
-	item := this.drop_item(drop_lib, check_same, add)
+	item := this.drop_item(drop_lib, add, used_drop_ids)
 	return true, item
 }
 
-func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, badd bool) (item *msg_client_message.ItemInfo) {
-	if check_same {
-		if this.used_drop_ids == nil || len(this.used_drop_ids) == int(drop_lib.TotalCount) {
-			this.used_drop_ids = make(map[int32]int32)
-		}
-	}
-
+func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, used_drop_ids map[int32]int32) (item *msg_client_message.ItemInfo) {
+	get_same := false
+	check_cnt := drop_lib.TotalCount
 	rand_val := rand.Int31n(drop_lib.TotalWeight)
 	var tmp_item *table_config.XmlDropItem
 	for i := int32(0); i < drop_lib.TotalCount; i++ {
@@ -36,14 +32,19 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 			continue
 		}
 
-		if tmp_item.Weight > rand_val {
+		if tmp_item.Weight > rand_val || get_same {
 			if tmp_item.DropItemID == 0 {
 				return nil
 			}
 
-			if check_same {
-				if _, o := this.used_drop_ids[tmp_item.DropItemID]; o {
-					log.Debug("!!!!!!!!!!! !!!!!!!! total_count[%v]  used_drop_ids len[%v]  i[%v]", drop_lib.TotalCount, len(this.used_drop_ids), i)
+			if used_drop_ids != nil {
+				if _, o := used_drop_ids[tmp_item.DropItemID]; o {
+					get_same = true
+					check_cnt -= 1
+					if check_cnt <= 0 {
+						break
+					}
+					log.Debug("!!!!!!!!!!! !!!!!!!! total_count[%v]  used_drop_ids len[%v]  i[%v]", drop_lib.TotalCount, len(used_drop_ids), i)
 					continue
 				}
 			}
@@ -74,8 +75,8 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 				this.tmp_cache_items[item.ItemCfgId] = n + item.ItemNum
 			}
 
-			if check_same {
-				this.used_drop_ids[tmp_item.DropItemID] = tmp_item.Weight
+			if used_drop_ids != nil {
+				used_drop_ids[tmp_item.DropItemID] = tmp_item.Weight
 			}
 			break
 		} else {
@@ -149,7 +150,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 		did := draw.DropId[2*i]
 		dn := draw.DropId[2*i+1]
 		for j := 0; j <= int(dn); j++ {
-			o, item := this.drop_item_by_id(did, true, true)
+			o, item := this.drop_item_by_id(did, true, nil)
 			if !o {
 				log.Error("Player[%v] draw type[%v] with drop_id[%v] failed", this.Id, draw_type, did)
 				return -1

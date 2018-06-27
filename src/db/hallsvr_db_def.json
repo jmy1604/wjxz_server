@@ -367,7 +367,8 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
-						{"Type":"int32","Index":2,"Name":"LastFreeRefreshTime"}
+						{"Type":"int32","Index":2,"Name":"LastFreeRefreshTime"},
+						{"Type":"int32","Index":3,"Name":"LastAutoRefreshTime"}
 					]
 				},
 				{
