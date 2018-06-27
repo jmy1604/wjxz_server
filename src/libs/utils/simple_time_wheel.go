@@ -15,13 +15,13 @@ const (
 type SimpleTimerFunc func(interface{}) int32
 
 type SimpleTimerData struct {
-	timer_id   int32           // 计时器ID
-	timer_func SimpleTimerFunc // 处理函数
-	param      interface{}     // 参数
-	begin_now  bool            // 是否马上开始
-	interval   int32           // 作用时间间隔(毫秒)
-	total_num  int32           // 总作用次数
-	curr_num   int32           // 当前已作用次数
+	timer_id       int32           // 计时器ID
+	timer_func     SimpleTimerFunc // 处理函数
+	param          interface{}     // 参数
+	begin_msecs    int32           // 是否马上开始
+	interval_msecs int32           // 作用时间间隔(毫秒)
+	total_num      int32           // 总作用次数
+	curr_num       int32           // 当前已作用次数
 }
 
 type SimpleTimerOpData struct {
@@ -107,19 +107,19 @@ func (this *SimpleTimeWheel) Init(timer_interval_mseconds, time_period_seconds i
 	return true
 }
 
-func (this *SimpleTimeWheel) Insert(timer_func SimpleTimerFunc, param interface{}, begin_now bool, interval_mseconds, total_effect_mseconds int32) int32 {
-	if interval_mseconds == 0 || total_effect_mseconds == 0 {
+func (this *SimpleTimeWheel) Insert(timer_func SimpleTimerFunc, param interface{}, begin_msecs, interval_msecs, total_effect_msecs int32) int32 {
+	if interval_msecs == 0 || total_effect_msecs == 0 {
 		log.Error("Insert new simple timer failed, interval_seconds or total_effect_mseconds cant to be set zero")
 		return -1
 	}
 	new_timer_id := atomic.AddInt32(&this.curr_timer_id, 1)
 	data := &SimpleTimerData{
-		timer_id:   new_timer_id,
-		timer_func: timer_func,
-		param:      param,
-		begin_now:  begin_now,
-		interval:   interval_mseconds,
-		total_num:  total_effect_mseconds / interval_mseconds,
+		timer_id:       new_timer_id,
+		timer_func:     timer_func,
+		param:          param,
+		begin_msecs:    begin_msecs,
+		interval_msecs: interval_msecs,
+		total_num:      total_effect_msecs / interval_msecs,
 	}
 	this.op_chan <- &SimpleTimerOpData{
 		op:   1,
@@ -138,8 +138,17 @@ func (this *SimpleTimeWheel) Remove(timer_id int32) {
 }
 
 func (this *SimpleTimeWheel) insert(data *SimpleTimerData) bool {
+	if data.curr_num >= data.total_num {
+		return false
+	}
 	lists_len := int32(len(this.timer_lists))
-	insert_list_index := (this.curr_timer_index + lists_len) % lists_len
+	var insert_list_index int32
+	if data.curr_num == 0 {
+		insert_list_index = (this.curr_timer_index + 1 + (data.begin_msecs+DEFAULT_TIMER_INTERVAL_MSECONDS-1)/DEFAULT_TIMER_INTERVAL_MSECONDS) % lists_len
+	} else {
+		insert_list_index = (this.curr_timer_index + 1 + (data.interval_msecs+DEFAULT_TIMER_INTERVAL_MSECONDS-1)/DEFAULT_TIMER_INTERVAL_MSECONDS) % lists_len
+	}
+	data.curr_num += 1
 	list := this.timer_lists[insert_list_index]
 	if list == nil {
 		list = &SimpleTimerList{}
