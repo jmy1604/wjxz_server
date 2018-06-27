@@ -764,6 +764,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 
 	new_role_id := int32(0)
 	if fusion.FusionType == 1 {
+		new_role_id = main_role_id
 		this.db.Roles.SetTableId(main_role_id, item.ItemCfgId)
 		this.roles_id_change_info.id_update(main_role_id)
 	} else {
