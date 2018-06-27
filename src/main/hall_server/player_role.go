@@ -785,6 +785,8 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		this.add_resource(res_id, -res_num)
 	}
 
+	this.check_and_send_roles_change()
+
 	response := &msg_client_message.S2CRoleFusionResponse{
 		NewCardId: item.ItemCfgId,
 		RoleId:    new_role_id,
