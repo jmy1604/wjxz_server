@@ -370,8 +370,8 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 
 	var items []*msg_client_message.ItemInfo
 	for i := int32(0); i < fusion_num; i++ {
-		o, item := this.drop_item_by_id(piece.ComposeDropID, true, true)
-		if !o {
+		o, item := this.drop_item_by_id(piece.ComposeDropID, false, true)
+		if !o || item == nil {
 			log.Error("Player[%v] fusion item with piece[%v] and drop_id[%v] failed", this.Id, piece_id, piece.ComposeDropID)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_FUSION_FAILED)
 		}
