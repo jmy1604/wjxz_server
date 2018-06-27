@@ -66,7 +66,7 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, check_same, ba
 			} else {
 				if card_table_mgr.GetCards(tmp_item.DropItemID) != nil {
 					if badd {
-						for i := int32(0); i < num; i++ {
+						for j := int32(0); j < num; j++ {
 							if this.new_role(tmp_item.DropItemID, 1, 1) == 0 {
 								log.Error("Player[%v] rand dropid[%d] not item or cat or building or item resource", this.Id, tmp_item.DropItemID)
 								continue
