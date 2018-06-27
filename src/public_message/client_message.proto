@@ -808,6 +808,50 @@ message C2SGoldHandDataRequest {
 message S2CGoldHandDataResponse {
 	int32 RemainRefreshSeconds				= 1; // 剩余刷新时间(秒)
 }
+
+// ---------------------------------- 商店 ------------------------------------
+// 请求商店
+message C2SShopDataRequest {
+	int32 ShopId							= 1; // 商店ID
+}
+
+message ShopItem {
+	int32 ItemId							= 1; // 商品ID
+	ItemInfo CostResource					= 2; // 需要花费的货币
+	int32 ItemNum							= 3; // 剩余数量
+}
+
+message S2CShopDataResponse {
+	int32 ShopId							= 1;
+	repeated ShopItem Items					= 2;
+	int32 NextFreeRefreshRemainSeconds		= 3;
+}
+
+// 请求购买商品
+message C2SShopBuyItemRequest {
+	int32 ShopId							= 1; // 商店ID
+	int32 ItemId							= 2; // 商品ID
+	int32 ItemNum							= 3; // 商品数量
+}
+
+message S2CShopBuyItemResponse {
+	int32 ShopId							= 1; // 商店ID
+	int32 ItemId							= 2; // 商品ID
+	int32 ItemNum							= 3; // 购买数量
+	int32 RemainItemNum						= 4; // 剩余数量
+}
+
+// 刷新商店
+message C2SShopRefreshRequest {
+	int32 ShopId							= 1; // 商店ID
+}
+
+message S2CShopResfreshResponse {
+	int32 ShopId							= 1; // 商店ID
+	int32 RefreshType						= 2; // 0 自动刷新  1 手动刷新
+	bool IsFreeRefresh						= 3; // 是否免费 
+}
+
 //////////////////////////////////////////////////////////////////////////////
 message FriendInfo {
 	

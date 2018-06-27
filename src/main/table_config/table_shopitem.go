@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"libs/log"
+	"math/rand"
 )
 
 const (
@@ -30,19 +31,25 @@ type XmlShopItemConfig struct {
 	Items []*XmlShopItemItem `xml:"item"`
 }
 
+type ItemsShop struct {
+	items        []*XmlShopItemItem
+	total_weight int32
+}
+
 type ShopItemTableManager struct {
 	items_map   map[int32]*XmlShopItemItem
 	items_array []*XmlShopItemItem
+	shops_map   map[int32]*ItemsShop
 }
 
 func (this *ShopItemTableManager) Init() bool {
-	data, err := ioutil.ReadFile("../game_data/Shop.xml")
+	data, err := ioutil.ReadFile("../game_data/ShopItem.xml")
 	if nil != err {
 		log.Error("ShopItemTableManager Load read file err[%s] !", err.Error())
 		return false
 	}
 
-	tmp_cfg := &XmlShopConfig{}
+	tmp_cfg := &XmlShopItemConfig{}
 	err = xml.Unmarshal(data, tmp_cfg)
 	if nil != err {
 		log.Error("ShopItemTableManager Load xml Unmarshal failed error [%s] !", err.Error())
@@ -53,9 +60,16 @@ func (this *ShopItemTableManager) Init() bool {
 
 	this.items_map = make(map[int32]*XmlShopItemItem)
 	this.items_array = []*XmlShopItemItem{}
+	this.shops_map = make(map[int32]*ItemsShop)
 	for i := int32(0); i < tmp_len; i++ {
-		//c := tmp_cfg.Items[i]
-
+		c := tmp_cfg.Items[i]
+		shop := this.shops_map[c.ShopId]
+		if shop == nil {
+			shop = &ItemsShop{}
+			this.shops_map[c.ShopId] = shop
+		}
+		shop.items = append(shop.items, c)
+		shop.total_weight = c.RandomWeight
 	}
 
 	log.Info("Shop table load items count(%v)", tmp_len)
@@ -69,4 +83,31 @@ func (this *ShopItemTableManager) GetItem(item_id int32) *XmlShopItemItem {
 
 func (this *ShopItemTableManager) GetItems() map[int32]*XmlShopItemItem {
 	return this.items_map
+}
+
+func (this *ShopItemTableManager) RandomShopItem(shop_id int32) *XmlShopItemItem {
+	shop := this.shops_map[shop_id]
+	if shop == nil {
+		return nil
+	}
+
+	if shop.total_weight <= 0 {
+		return nil
+	}
+
+	r := rand.Int31n(shop.total_weight)
+	for _, item := range shop.items {
+		if r <= item.RandomWeight {
+			return item
+		}
+	}
+	return nil
+}
+
+func (this *ShopItemTableManager) GetItemsShop(shop_id int32) []*XmlShopItemItem {
+	shop := this.shops_map[shop_id]
+	if shop == nil {
+		return nil
+	}
+	return shop.items
 }

@@ -378,20 +378,8 @@
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":1,"Name":"ShopItemId"},
 						{"Type":"int32","Index":2,"Name":"LeftNum","Incby":true}						
-					]
-				},
-				{
-					"DBColumnName":"ShopLimitedInfo",
-					"InUse":true,
-					"ColumnName":"ShopLimitedInfo",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"LimitedDays"},
-						{"Type":"int32","Index":2,"Name":"LastSaveTime"}
 					]
 				},
 				{
@@ -560,17 +548,6 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"bytes","Index":1,"Name":"CustomData"}
-					]
-				},
-				{
-					"DBColumnName":"HandbookItem",
-					"InUse":true,
-					"ColumnName":"HandbookItem",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Id"}
 					]
 				},
 				{
