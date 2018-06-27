@@ -739,6 +739,44 @@ func new_role_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func all_roles_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var num, level, rank int
+	var err error
+	num, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	if len(args) > 1 {
+		level, err = strconv.Atoi(args[1])
+		if err != nil {
+			return -1
+		}
+	} else {
+		level = 1
+	}
+
+	if len(args) > 2 {
+		rank, err = strconv.Atoi(args[1])
+		if err != nil {
+			return -1
+		}
+	} else {
+		rank = 1
+	}
+
+	for _, c := range card_table_mgr.Array {
+		for i := 0; i < num; i++ {
+			p.new_role(c.Id, int32(rank), int32(level))
+		}
+	}
+	return 1
+}
+
 func list_role_cmd(p *Player, args []string) int32 {
 	var camp, typ, star int
 	var err error
@@ -1620,6 +1658,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"test_lua":           test_lua_cmd,
 	"rand_role":          rand_role_cmd,
 	"new_role":           new_role_cmd,
+	"all_roles":          all_roles_cmd,
 	"list_role":          list_role_cmd,
 	"set_attack_team":    set_attack_team_cmd,
 	"set_defense_team":   set_defense_team_cmd,

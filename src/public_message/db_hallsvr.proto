@@ -180,22 +180,22 @@ message PlayerGoldHand{
 	optional int32 LastRefreshTime=1;
 }
 
-message PlayerShopItem{
+message PlayerShop{
 	optional int32 Id=1;
+	optional int32 LastFreeRefreshTime=2;
+}
+
+message PlayerShopList{
+	repeated PlayerShop List=1;
+}
+
+message PlayerShopItem{
+	optional int32 ShopItemId=1;
 	optional int32 LeftNum=2;
 }
 
 message PlayerShopItemList{
 	repeated PlayerShopItem List=1;
-}
-
-message PlayerShopLimitedInfo{
-	optional int32 LimitedDays=1;
-	optional int32 LastSaveTime=2;
-}
-
-message PlayerShopLimitedInfoList{
-	repeated PlayerShopLimitedInfo List=1;
 }
 
 message PlayerDialyTask{
@@ -317,14 +317,6 @@ message PlayerFriendChatUnreadMessageList{
 
 message PlayerChaterOpenRequest{
 	optional bytes CustomData=1;
-}
-
-message PlayerHandbookItem{
-	optional int32 Id=1;
-}
-
-message PlayerHandbookItemList{
-	repeated PlayerHandbookItem List=1;
 }
 
 message PlayerHeadItem{

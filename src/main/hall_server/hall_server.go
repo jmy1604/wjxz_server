@@ -208,6 +208,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("goldhand_table_mgr init success")
 	}
 
+	if !shopitem_table_mgr.Init() {
+		log.Error("shopitem_table_mgr init failed")
+		return errors.New("shopitem_table_mgr init failed")
+	} else {
+		log.Info("shopitem_table_mgr init success")
+	}
+
 	if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Init()
 	} else {
@@ -360,6 +367,7 @@ var task_table_mgr table_config.TaskTableMgr
 var item_table_mgr table_config.ItemTableMgr
 var drop_table_mgr table_config.DropManager
 var shop_table_mgr table_config.ShopTableManager
+var shopitem_table_mgr table_config.ShopItemTableManager
 var handbook_table_mgr table_config.HandbookTableMgr
 var suit_table_mgr table_config.SuitTableMgr
 var extract_table_mgr table_config.ExtractTableManager

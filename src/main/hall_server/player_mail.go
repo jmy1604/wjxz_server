@@ -81,6 +81,9 @@ func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	for i := 0; i < len(mail_ids); i++ {
 		md := this.m_data[mail_ids[i]]
+		if md == nil {
+			continue
+		}
 		is_read := false
 		if md.IsRead > 0 {
 			is_read = true
