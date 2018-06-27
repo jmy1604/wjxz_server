@@ -183,6 +183,7 @@ message PlayerGoldHand{
 message PlayerShop{
 	optional int32 Id=1;
 	optional int32 LastFreeRefreshTime=2;
+	optional int32 LastAutoRefreshTime=3;
 }
 
 message PlayerShopList{

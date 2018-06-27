@@ -927,6 +927,7 @@ func (this* dbPlayerGoldHandData)clone_to(d *dbPlayerGoldHandData){
 type dbPlayerShopData struct{
 	Id int32
 	LastFreeRefreshTime int32
+	LastAutoRefreshTime int32
 }
 func (this* dbPlayerShopData)from_pb(pb *db.PlayerShop){
 	if pb == nil {
@@ -934,17 +935,20 @@ func (this* dbPlayerShopData)from_pb(pb *db.PlayerShop){
 	}
 	this.Id = pb.GetId()
 	this.LastFreeRefreshTime = pb.GetLastFreeRefreshTime()
+	this.LastAutoRefreshTime = pb.GetLastAutoRefreshTime()
 	return
 }
 func (this* dbPlayerShopData)to_pb()(pb *db.PlayerShop){
 	pb = &db.PlayerShop{}
 	pb.Id = proto.Int32(this.Id)
 	pb.LastFreeRefreshTime = proto.Int32(this.LastFreeRefreshTime)
+	pb.LastAutoRefreshTime = proto.Int32(this.LastAutoRefreshTime)
 	return
 }
 func (this* dbPlayerShopData)clone_to(d *dbPlayerShopData){
 	d.Id = this.Id
 	d.LastFreeRefreshTime = this.LastFreeRefreshTime
+	d.LastAutoRefreshTime = this.LastAutoRefreshTime
 	return
 }
 type dbPlayerShopItemData struct{
@@ -4804,6 +4808,28 @@ func (this *dbPlayerShopColumn)SetLastFreeRefreshTime(id int32,v int32)(has bool
 		return
 	}
 	d.LastFreeRefreshTime = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerShopColumn)GetLastAutoRefreshTime(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopColumn.GetLastAutoRefreshTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.LastAutoRefreshTime
+	return v,true
+}
+func (this *dbPlayerShopColumn)SetLastAutoRefreshTime(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopColumn.SetLastAutoRefreshTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.LastAutoRefreshTime = v
 	this.m_changed = true
 	return true
 }
