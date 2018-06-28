@@ -370,6 +370,49 @@ func (this *Player) notify_enter_complete() {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ENTER_GAME_COMPLETE_NOTIFY), msg)
 }
 
+func (this *Player) send_notify_state() {
+	var response *msg_client_message.S2CStateNotify
+
+	// 挂机收益
+	s := this.check_income_state()
+	if s != 0 {
+		if response == nil {
+			response = &msg_client_message.S2CStateNotify{}
+		}
+	}
+	if s > 0 {
+		response.States = append(response.States, int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
+	} else if s < 0 {
+		response.CancelStates = append(response.CancelStates, int32(msg_client_message.MODULE_STATE_HANGUP_RANDOM_INCOME))
+	}
+
+	// 其他
+	if this.states_changed != nil {
+		if response == nil {
+			response = &msg_client_message.S2CStateNotify{}
+		}
+		for k, v := range this.states_changed {
+			if v == 1 {
+				response.States = append(response.States, k)
+			} else if v == 2 {
+				response.CancelStates = append(response.CancelStates, k)
+			}
+		}
+		this.states_changed = nil
+	}
+
+	if response != nil {
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_STATE_NOTIFY), response)
+	}
+}
+
+func (this *Player) notify_state_changed(state int32, change_type int32) {
+	if this.states_changed == nil {
+		this.states_changed = make(map[int32]int32)
+	}
+	this.states_changed[state] = change_type
+}
+
 /*
 func C2SShopItemsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
 	req := msg.(*msg_client_message.C2SShopItems)
