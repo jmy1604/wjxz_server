@@ -18,7 +18,13 @@ func CheckWeekTimeArrival(last_time_point int32, week_time_format string) bool {
 		return true
 	}
 
-	tm, err := time.Parse("Monday 08:00:00", week_time_format)
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		log.Error("!!!!!!! Load Location Local error[%v]", err.Error())
+		return false
+	}
+
+	tm, err := time.ParseInLocation("Monday 15:04:05", week_time_format, loc)
 	if err != nil {
 		log.Error("parse shop refresh time format[%v] failed, err[%v]", week_time_format, err.Error())
 		return false
@@ -54,7 +60,13 @@ func CheckDayTimeArrival(last_time_point int32, day_time_format string) bool {
 		return false
 	}
 
-	tm, err := time.Parse("08:00:00", day_time_format)
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		log.Error("!!!!!!! Load Location Local error[%v]", err.Error())
+		return false
+	}
+
+	tm, err := time.ParseInLocation("15:04:05", day_time_format, loc)
 	if err != nil {
 		log.Error("parse shop refresh time format[%v] failed, err[%v]", day_time_format, err.Error())
 		return false

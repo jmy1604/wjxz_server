@@ -10,7 +10,7 @@ type XmlShopItem struct {
 	Id              int32  `xml:"ID,attr"`
 	Type            int32  `xml:"ShopType,attr"`
 	ShopMaxSlot     int32  `xml:"ShopMaxSlot,attr"`
-	AutoRefreshTime int32  `xml:"AutoRefreshTime,attr"`
+	AutoRefreshTime string `xml:"AutoRefreshTime,attr"`
 	FreeRefreshTime int32  `xml:"FreeRefreshTime,attr"`
 	RefreshResStr   string `xml:"RefreshRes,attr"`
 	RefreshRes      []int32

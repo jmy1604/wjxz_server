@@ -145,6 +145,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("drop_table_mgr init succeed")
 	}
 
+	if !shop_table_mgr.Init() {
+		log.Error("shop_table_mgr init failed")
+		return errors.New("shop_table_mgr init failed")
+	} else {
+		log.Info("shop_table_mgr init success")
+	}
+
 	if !levelup_table_mgr.Init() {
 		log.Error("levelup_table_mgr init failed")
 		return errors.New("levelup_table_mgr init failed")

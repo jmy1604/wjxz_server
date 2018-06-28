@@ -184,6 +184,7 @@ message PlayerShop{
 	optional int32 Id=1;
 	optional int32 LastFreeRefreshTime=2;
 	optional int32 LastAutoRefreshTime=3;
+	optional int32 CurrAutoId=4;
 }
 
 message PlayerShopList{
@@ -191,8 +192,9 @@ message PlayerShopList{
 }
 
 message PlayerShopItem{
-	optional int32 ShopItemId=1;
-	optional int32 LeftNum=2;
+	optional int32 Id=1;
+	optional int32 ShopItemId=2;
+	optional int32 LeftNum=3;
 }
 
 message PlayerShopItemList{
