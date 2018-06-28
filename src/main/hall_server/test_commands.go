@@ -1150,18 +1150,17 @@ func role_decompose_cmd(p *Player, args []string) int32 {
 
 	var err error
 	var role_id int
-	role_id, err = strconv.Atoi(args[0])
-	if err != nil {
-		log.Error("转换角色ID[%v]失败[%v]", args[0], err.Error())
-		return -1
+	var role_ids []int32
+	for i := 0; i < len(args); i++ {
+		role_id, err = strconv.Atoi(args[i])
+		if err != nil {
+			log.Error("转换角色ID[%v]失败[%v]", args[i], err.Error())
+			return -1
+		}
+		role_ids = append(role_ids, int32(role_id))
 	}
 
-	res := p.decompose_role(int32(role_id))
-	if res > 0 {
-		log.Debug("玩家[%v]分解了角色[%v]", p.Id, role_id)
-	}
-
-	return res
+	return p.decompose_role(role_ids)
 }
 
 func item_fusion_cmd(p *Player, args []string) int32 {
@@ -1606,6 +1605,23 @@ func onekey_unequip_cmd(p *Player, args []string) int32 {
 	return p.role_one_key_unequip(int32(role_id))
 }
 
+func left_slot_open_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var role_id int
+	var err error
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("角色id[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.role_open_left_slot(int32(role_id))
+}
+
 func role_equips_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
@@ -1766,6 +1782,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"role_attrs":         get_role_attrs_cmd,
 	"onekey_equip":       onekey_equip_cmd,
 	"onekey_unequip":     onekey_unequip_cmd,
+	"left_slot_open":     left_slot_open_cmd,
 	"role_equips":        role_equips_cmd,
 	"draw_card":          draw_card_cmd,
 	"draw_data":          draw_data_cmd,

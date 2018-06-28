@@ -25,6 +25,7 @@
 	"TowerKeyGetInterval": 1800,
 	
 	"ItemLeftSlotOpenLevel": 1,
+	"LeftSlotDropId": 200001,
 	
 	"MaxFriendNum":200,
 	
