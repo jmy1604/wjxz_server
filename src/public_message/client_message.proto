@@ -60,6 +60,9 @@ enum E_ERR {
 	PLAYER_FUSION_NEED_RESOURCE_NOT_ENOUGH  = -12014; // 角色合成需要的资源不足
 	PLAYER_ROLE_IS_LOCKED					= -12015; // 角色被锁定
 	PLAYER_ROLE_INVENTORY_NOT_ENOUGH_SPACE	= -12016; // 角色背包没有足够的空位
+	PLAYER_ROLE_LEFT_SLOT_DROP_FAILED		= -12017; // 角色左槽掉落失败
+	PLAYER_ROLE_OPEN_LEFTSLOT_LEVEL_NOT_ENOUGH = -12018; // 角色左槽开启等级不够
+	PLAYER_ROLE_LEFT_SLOT_ALREADY_OPENED	= -12019; // 角色左槽已激活
 	
 	// 关卡
 	PLAYER_ALREADY_FIGHT_CAMPAIGN			= -13001; // 已打过该战役
@@ -575,11 +578,11 @@ message S2CRoleRankUpResponse {
 
 // 角色分解
 message C2SRoleDecomposeRequest {
-	int32 RoleId							= 1; // 角色ID
+	repeated int32 RoleIds					= 1; // 角色ID
 }
 
 message S2CRoleDecomposeResponse {
-	int32 RoleId							= 1; // 角色ID
+	repeated int32 RoleIds					= 1; // 角色ID
 	repeated ItemInfo GetItems      		= 2; // 分解获得的物品
 }
 

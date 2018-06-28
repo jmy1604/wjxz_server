@@ -169,6 +169,10 @@ func (this *Player) delete_role(role_id int32) bool {
 	if !this.db.Roles.HasIndex(role_id) {
 		return false
 	}
+	is_lock, _ := this.db.Roles.GetIsLock(role_id)
+	if is_lock > 0 {
+		return false
+	}
 	// 脱下装备
 	equips, _ := this.db.Roles.GetEquip(role_id)
 	if equips != nil {
@@ -510,90 +514,99 @@ func (this *Player) team_has_role(team_id int32, role_id int32) bool {
 	return false
 }
 
-func (this *Player) decompose_role(role_id int32) int32 {
-	level, o := this.db.Roles.GetLevel(role_id)
-	if !o {
-		log.Error("Player[%v] not have role[%v]", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
-	}
-
-	is_lock, _ := this.db.Roles.GetIsLock(role_id)
-	if is_lock > 0 {
-		log.Error("Player[%v] role[%v] is locked, cant decompose", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
-	}
-
-	/*if this.team_member_mgr[role_id] != nil {
-		log.Error("Player[%v] team has role[%v], cant decompose", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
-	}*/
-
-	if this.team_has_role(BATTLE_ATTACK_TEAM, role_id) {
-		log.Error("Player[%v] attack team has role[%v], cant decompose", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
-	}
-
-	if this.team_has_role(BATTLE_DEFENSE_TEAM, role_id) {
-		log.Error("Player[%v] defense team has role[%v], cant decompose", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
-	}
-
-	rank, _ := this.db.Roles.GetRank(role_id)
-	table_id, _ := this.db.Roles.GetTableId(role_id)
-
-	card_data := card_table_mgr.GetRankCard(table_id, rank)
-	if card_data == nil {
-		log.Error("Not found card data by table_id[%v] and rank[%v]", table_id, rank)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
-	}
-
-	for i := 0; i < len(card_data.DecomposeRes)/2; i++ {
-		item_id := card_data.DecomposeRes[2*i]
-		item_num := card_data.DecomposeRes[2*i+1]
-		this.add_resource(item_id, item_num)
-		if this.tmp_cache_items == nil {
-			this.tmp_cache_items = make(map[int32]int32)
+func (this *Player) decompose_role(role_ids []int32) int32 {
+	for i := 0; i < len(role_ids); i++ {
+		role_id := role_ids[i]
+		level, o := this.db.Roles.GetLevel(role_id)
+		if !o {
+			role_ids[i] = 0
+			log.Error("Player[%v] not have role[%v]", this.Id, role_id)
+			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+			continue
 		}
-		this.tmp_cache_items[item_id] += item_num
-	}
 
-	levelup_data := levelup_table_mgr.Get(level)
-	if levelup_data == nil {
-		log.Error("Not found levelup[%v] data", level)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_DATA_NOT_FOUND)
-	}
-	if levelup_data.CardDecomposeRes != nil {
-		for i := 0; i < len(levelup_data.CardDecomposeRes)/2; i++ {
-			item_id := levelup_data.CardDecomposeRes[2*i]
-			item_num := levelup_data.CardDecomposeRes[2*i+1]
+		is_lock, _ := this.db.Roles.GetIsLock(role_id)
+		if is_lock > 0 {
+			role_ids[i] = 0
+			log.Error("Player[%v] role[%v] is locked, cant decompose", this.Id, role_id)
+			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
+			continue
+		}
+
+		/*if this.team_member_mgr[role_id] != nil {
+			log.Error("Player[%v] team has role[%v], cant decompose", this.Id, role_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+		}*/
+
+		if this.team_has_role(BATTLE_ATTACK_TEAM, role_id) {
+			role_ids[i] = 0
+			log.Error("Player[%v] attack team has role[%v], cant decompose", this.Id, role_id)
+			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+			continue
+		}
+
+		if this.team_has_role(BATTLE_DEFENSE_TEAM, role_id) {
+			log.Error("Player[%v] defense team has role[%v], cant decompose", this.Id, role_id)
+			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+			continue
+		}
+
+		rank, _ := this.db.Roles.GetRank(role_id)
+		table_id, _ := this.db.Roles.GetTableId(role_id)
+
+		card_data := card_table_mgr.GetRankCard(table_id, rank)
+		if card_data == nil {
+			role_ids[i] = 0
+			log.Error("Not found card data by table_id[%v] and rank[%v]", table_id, rank)
+			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
+			continue
+		}
+
+		for i := 0; i < len(card_data.DecomposeRes)/2; i++ {
+			item_id := card_data.DecomposeRes[2*i]
+			item_num := card_data.DecomposeRes[2*i+1]
 			this.add_resource(item_id, item_num)
 			if this.tmp_cache_items == nil {
 				this.tmp_cache_items = make(map[int32]int32)
 			}
 			this.tmp_cache_items[item_id] += item_num
 		}
-	}
 
-	rank_res := get_decompose_rank_res(table_id, rank)
-	if rank_res != nil {
-		for i := 0; i < len(rank_res)/2; i++ {
-			this.add_resource(rank_res[2*i], rank_res[2*i+1])
-			if this.tmp_cache_items == nil {
-				this.tmp_cache_items = make(map[int32]int32)
-			}
-			this.tmp_cache_items[rank_res[2*i]] += rank_res[2*i+1]
+		levelup_data := levelup_table_mgr.Get(level)
+		if levelup_data == nil {
+			role_ids[i] = 0
+			log.Error("Not found levelup[%v] data", level)
+			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEVEL_DATA_NOT_FOUND)
+			continue
 		}
-	}
+		if levelup_data.CardDecomposeRes != nil {
+			for i := 0; i < len(levelup_data.CardDecomposeRes)/2; i++ {
+				item_id := levelup_data.CardDecomposeRes[2*i]
+				item_num := levelup_data.CardDecomposeRes[2*i+1]
+				this.add_resource(item_id, item_num)
+				if this.tmp_cache_items == nil {
+					this.tmp_cache_items = make(map[int32]int32)
+				}
+				this.tmp_cache_items[item_id] += item_num
+			}
+		}
 
-	this.delete_role(role_id)
-	role := this.team_member_mgr[role_id]
-	if role != nil {
-		team_member_pool.Put(role)
-		delete(this.team_member_mgr, role_id)
+		rank_res := get_decompose_rank_res(table_id, rank)
+		if rank_res != nil {
+			for i := 0; i < len(rank_res)/2; i++ {
+				this.add_resource(rank_res[2*i], rank_res[2*i+1])
+				if this.tmp_cache_items == nil {
+					this.tmp_cache_items = make(map[int32]int32)
+				}
+				this.tmp_cache_items[rank_res[2*i]] += rank_res[2*i+1]
+			}
+		}
+
+		this.delete_role(role_id)
 	}
 
 	response := &msg_client_message.S2CRoleDecomposeResponse{
-		RoleId: role_id,
+		RoleIds: role_ids,
 	}
 	if this.tmp_cache_items != nil {
 		for k, v := range this.tmp_cache_items {
@@ -606,7 +619,7 @@ func (this *Player) decompose_role(role_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DECOMPOSE_RESPONSE), response)
 
-	log.Debug("Player[%v] decompose role[%v]", this.Id, role_id)
+	log.Debug("Player[%v] decompose roles %v", this.Id, role_ids)
 
 	return 1
 }
@@ -831,8 +844,29 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	}
 	if open > 0 {
 		log.Warn("Player[%v] role[%v] left slot already opened", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEFT_SLOT_ALREADY_OPENED)
 	}
 
+	open_level := global_config_mgr.GetGlobalConfig().ItemLeftSlotOpenLevel
+	lvl, _ := this.db.Roles.GetLevel(role_id)
+	if lvl < open_level {
+		log.Error("Player[%v] open left slot for role[%v] failed, level[%v] not enough", this.Id, role_id, lvl)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_OPEN_LEFTSLOT_LEVEL_NOT_ENOUGH)
+	}
+
+	left_drop_id := global_config_mgr.GetGlobalConfig().LeftSlotDropId
+	b, left_item := this.drop_item_by_id(left_drop_id, false, nil)
+	if !b {
+		log.Error("Player[%v] left slot drop with id[%v] failed for role[%v]", this.Id, left_drop_id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEFT_SLOT_DROP_FAILED)
+	}
+
+	equips, _ := this.db.Roles.GetEquip(role_id)
+	if equips == nil || len(equips) == 0 {
+		equips = make([]int32, EQUIP_TYPE_MAX)
+		equips[EQUIP_TYPE_LEFT_SLOT] = left_item.GetItemCfgId()
+	}
+	this.db.Roles.SetEquip(role_id, equips)
 	this.db.Roles.SetLeftSlotIsOpen(role_id, 1)
 
 	this.roles_id_change_info.id_update(role_id)
@@ -841,6 +875,8 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 		RoleId: role_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEFTSLOT_OPEN_RESPONSE), response)
+
+	log.Debug("Player[%v] opened left slot for role[%v] with equip[%v]", this.Id, role_id, equips[EQUIP_TYPE_LEFT_SLOT])
 
 	return 1
 }
@@ -956,7 +992,7 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 	return 1
 }
 
-func (this *Player) set_power(role_id, pow int32) {
+func (this *Player) set_role_power(role_id, pow int32) {
 	if this.roles_power == nil {
 		return
 	}
@@ -1027,7 +1063,7 @@ func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, ge
 	}
 
 	if get_power {
-		this.set_power(role_id, power)
+		this.set_role_power(role_id, power)
 	}
 
 	return 1
@@ -1080,7 +1116,7 @@ func C2SRoleDecomposeHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.decompose_role(req.GetRoleId())
+	return p.decompose_role(req.GetRoleIds())
 }
 
 func C2SRoleFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

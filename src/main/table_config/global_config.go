@@ -51,6 +51,7 @@ type GlobalConfig struct {
 	TowerKeyMax                int32      // 爬塔钥匙最大值
 	TowerKeyGetInterval        int32      // 爬塔获取钥匙的时间间隔(秒)
 	ItemLeftSlotOpenLevel      int32      // 左槽开启等级
+	LeftSlotDropId             int32      // 左槽掉落ID
 
 	MaxFriendNum int32
 
