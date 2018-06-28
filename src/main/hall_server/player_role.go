@@ -169,6 +169,20 @@ func (this *Player) delete_role(role_id int32) bool {
 	if !this.db.Roles.HasIndex(role_id) {
 		return false
 	}
+	// 脱下装备
+	equips, _ := this.db.Roles.GetEquip(role_id)
+	if equips != nil {
+		for i := 0; i < len(equips); i++ {
+			if equips[i] <= 0 {
+				continue
+			}
+			if int32(i) != EQUIP_TYPE_LEFT_SLOT {
+				this.add_item(equips[i], 1)
+			} else {
+				this.item_to_resource(equips[i])
+			}
+		}
+	}
 	this.db.Roles.Remove(role_id)
 	if this.team_member_mgr != nil {
 		m := this.team_member_mgr[role_id]
@@ -771,6 +785,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		new_role_id = this.new_role(item.ItemCfgId, 1, 1)
 	}
 
+	// 返还升级升阶的资源
 	var get_items []*msg_client_message.ItemInfo
 	for i := 0; i < len(cost_role_ids); i++ {
 		for j := 0; j < len(cost_role_ids[i]); j++ {

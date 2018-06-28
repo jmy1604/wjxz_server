@@ -109,12 +109,6 @@ func (this *GlobalConfigManager) Init(conf_path string) bool {
 
 	this.global_config = gc
 
-	// 商店起始时间配置
-	this.shop_time_checker = &utils.DaysTimeChecker{}
-	if !this.shop_time_checker.Init("2006-Jan-02 15:04:05", gc.ShopStartRefreshTime) {
-		return false
-	}
-
 	return true
 }
 

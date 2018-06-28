@@ -93,6 +93,15 @@ enum E_ERR {
 	// 点金手
 	PLAYER_GOLDHAND_DATA_NOT_FOUND			= -17001; // 点金手数据不存在
 	PLAYER_GOLDHAND_REFRESH_IS_COOLINGDOWN	= -17000; // 点金手刷新CD中
+	
+	// 商店
+	PLAYER_SHOP_TABLE_DATA_NOT_FOUND		= -18000; // 商店数据找不到
+	PLAYER_SHOP_ITEM_TABLE_DATA_NOT_FOUND	= -18001; // 商品数据找不到
+	PLAYER_SHOP_REFRESH_RESOURCE_NOT_ENOUGH = -18002; // 手动刷新资源不足
+	PLAYER_SHOP_ITEM_NOT_FOUND				= -18003; // 商店无该商品			
+	PLAYER_SHOP_ITEM_NUM_NOT_ENOUGH			= -18004; // 商店商品数量不足
+	PLAYER_SHOP_ITEM_BUY_RESOURCE_NOT_ENOUGH= -18005; // 商店购买商品资源不足
+	PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID	= -18006; // 商品随机数据配置错误
 		
 	// 玩家
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -816,15 +825,17 @@ message C2SShopDataRequest {
 }
 
 message ShopItem {
-	int32 ItemId							= 1; // 商品ID
-	ItemInfo CostResource					= 2; // 需要花费的货币
-	int32 ItemNum							= 3; // 剩余数量
+	int32 Id								= 1; // 商品ID  服务器自动生成
+	int32 ItemId							= 2; // 商品配置ID
+	ItemInfo CostResource					= 3; // 需要花费的货币
+	int32 ItemNum							= 4; // 剩余数量
 }
 
 message S2CShopDataResponse {
-	int32 ShopId							= 1;
-	repeated ShopItem Items					= 2;
-	int32 NextFreeRefreshRemainSeconds		= 3;
+	int32 ShopId							= 1; // 商店ID
+	repeated ShopItem Items					= 2; // 商店商品
+	int32 NextFreeRefreshRemainSeconds		= 3; // -1 代表没有
+	int32 NextAutoRefreshRemainSeconds      = 4; // -1 代表没有
 }
 
 // 请求购买商品
@@ -836,8 +847,8 @@ message C2SShopBuyItemRequest {
 
 message S2CShopBuyItemResponse {
 	int32 ShopId							= 1; // 商店ID
-	int32 ItemId							= 2; // 商品ID
-	int32 ItemNum							= 3; // 购买数量
+	int32 Id								= 2; // 商品ID  服务器自动生成
+	int32 BuyNum							= 3; // 购买数量
 	int32 RemainItemNum						= 4; // 剩余数量
 }
 
@@ -848,8 +859,12 @@ message C2SShopRefreshRequest {
 
 message S2CShopResfreshResponse {
 	int32 ShopId							= 1; // 商店ID
-	int32 RefreshType						= 2; // 0 自动刷新  1 手动刷新
-	bool IsFreeRefresh						= 3; // 是否免费 
+	bool IsFreeRefresh						= 2; // 是否免费 
+}
+
+// 商店自动刷新通知
+message S2CShopAutoRefreshNotify {
+	int32 ShopId							= 1; // 商店ID
 }
 
 //////////////////////////////////////////////////////////////////////////////

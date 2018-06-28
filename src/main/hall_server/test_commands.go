@@ -1652,6 +1652,70 @@ func draw_data_cmd(p *Player, args []string) int32 {
 	return p.send_draw_data()
 }
 
+func shop_data_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var shop_id int
+	var err error
+	shop_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("商店ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.send_shop(int32(shop_id))
+}
+
+func buy_item_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var shop_id, item_id, item_num int
+	var err error
+	shop_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("商店[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+	item_id, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("商品[%v]转换失败[%v]", args[1], err.Error())
+		return -1
+	}
+
+	if len(args) > 2 {
+		item_num, err = strconv.Atoi(args[2])
+		if err != nil {
+			log.Error("商品数量[%v]转换失败[%v]", args[2], err.Error())
+			return -1
+		}
+	}
+
+	return p.shop_buy_item(int32(shop_id), int32(item_id), int32(item_num))
+}
+
+func shop_refresh_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var shop_id int
+	var err error
+	shop_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("商店[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.shop_refresh(int32(shop_id))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1705,6 +1769,9 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"role_equips":        role_equips_cmd,
 	"draw_card":          draw_card_cmd,
 	"draw_data":          draw_data_cmd,
+	"shop_data":          shop_data_cmd,
+	"buy_item":           buy_item_cmd,
+	"shop_refresh":       shop_refresh_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

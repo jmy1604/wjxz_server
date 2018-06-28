@@ -63,6 +63,16 @@ func (this *ShopItemTableManager) Init() bool {
 	this.shops_map = make(map[int32]*ItemsShop)
 	for i := int32(0); i < tmp_len; i++ {
 		c := tmp_cfg.Items[i]
+		c.Item = parse_xml_str_arr2(c.ItemStr, ",")
+		if c.Item == nil || len(c.Item)%2 != 0 {
+			log.Error("ShopItemTableManager parse index[%v] column with value[%v] for field[ItemList] invalid", i, c.ItemStr)
+			return false
+		}
+		c.BuyCost = parse_xml_str_arr2(c.BuyCostStr, ",")
+		if c.BuyCost == nil || len(c.BuyCost)%2 != 0 {
+			log.Error("ShopItemTableManager parse index[%v] column with value[%v] for field[BuyCost] invalid", i, c.BuyCostStr)
+			return false
+		}
 		shop := this.shops_map[c.ShopId]
 		if shop == nil {
 			shop = &ItemsShop{}
@@ -70,6 +80,8 @@ func (this *ShopItemTableManager) Init() bool {
 		}
 		shop.items = append(shop.items, c)
 		shop.total_weight = c.RandomWeight
+		this.items_map[c.Id] = c
+		this.items_array = append(this.items_array, c)
 	}
 
 	log.Info("Shop table load items count(%v)", tmp_len)

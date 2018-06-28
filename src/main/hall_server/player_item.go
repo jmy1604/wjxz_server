@@ -404,6 +404,26 @@ func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
 	return 1
 }
 
+func (this *Player) item_to_resource(item_id int32) []*msg_client_message.ItemInfo {
+	item := item_table_mgr.Get(item_id)
+	if item == nil {
+		log.Error("Cant found item[%v] table data", item_id)
+		return nil
+	}
+
+	var resources []*msg_client_message.ItemInfo
+	if item.SellReward != nil {
+		for i := 0; i < len(item.SellReward)/2; i++ {
+			this.add_resource(item.SellReward[2*i], item.SellReward[2*i+1])
+			resources = append(resources, &msg_client_message.ItemInfo{
+				ItemCfgId: item.SellReward[2*i],
+				ItemNum:   item.SellReward[2*i+1],
+			})
+		}
+	}
+	return resources
+}
+
 func (this *Player) sell_item(item_id, item_num int32) int32 {
 	item := item_table_mgr.Get(item_id)
 	if item == nil {

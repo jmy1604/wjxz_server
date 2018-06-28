@@ -440,5 +440,5 @@ func H2LHallServerRegisterHandler(conn *server_conn.ServerConn, m proto.Message)
 
 	hall_agent_manager.SetAgentByID(server_id, a)
 
-	log.Trace("大厅服务器[%d %s]已连接", server_id, server_name, a.listen_client_ip)
+	log.Trace("大厅服务器[%d %s %s]已连接", server_id, server_name, a.listen_client_ip)
 }

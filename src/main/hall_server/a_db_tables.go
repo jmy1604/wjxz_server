@@ -928,6 +928,7 @@ type dbPlayerShopData struct{
 	Id int32
 	LastFreeRefreshTime int32
 	LastAutoRefreshTime int32
+	CurrAutoId int32
 }
 func (this* dbPlayerShopData)from_pb(pb *db.PlayerShop){
 	if pb == nil {
@@ -936,6 +937,7 @@ func (this* dbPlayerShopData)from_pb(pb *db.PlayerShop){
 	this.Id = pb.GetId()
 	this.LastFreeRefreshTime = pb.GetLastFreeRefreshTime()
 	this.LastAutoRefreshTime = pb.GetLastAutoRefreshTime()
+	this.CurrAutoId = pb.GetCurrAutoId()
 	return
 }
 func (this* dbPlayerShopData)to_pb()(pb *db.PlayerShop){
@@ -943,15 +945,18 @@ func (this* dbPlayerShopData)to_pb()(pb *db.PlayerShop){
 	pb.Id = proto.Int32(this.Id)
 	pb.LastFreeRefreshTime = proto.Int32(this.LastFreeRefreshTime)
 	pb.LastAutoRefreshTime = proto.Int32(this.LastAutoRefreshTime)
+	pb.CurrAutoId = proto.Int32(this.CurrAutoId)
 	return
 }
 func (this* dbPlayerShopData)clone_to(d *dbPlayerShopData){
 	d.Id = this.Id
 	d.LastFreeRefreshTime = this.LastFreeRefreshTime
 	d.LastAutoRefreshTime = this.LastAutoRefreshTime
+	d.CurrAutoId = this.CurrAutoId
 	return
 }
 type dbPlayerShopItemData struct{
+	Id int32
 	ShopItemId int32
 	LeftNum int32
 }
@@ -959,17 +964,20 @@ func (this* dbPlayerShopItemData)from_pb(pb *db.PlayerShopItem){
 	if pb == nil {
 		return
 	}
+	this.Id = pb.GetId()
 	this.ShopItemId = pb.GetShopItemId()
 	this.LeftNum = pb.GetLeftNum()
 	return
 }
 func (this* dbPlayerShopItemData)to_pb()(pb *db.PlayerShopItem){
 	pb = &db.PlayerShopItem{}
+	pb.Id = proto.Int32(this.Id)
 	pb.ShopItemId = proto.Int32(this.ShopItemId)
 	pb.LeftNum = proto.Int32(this.LeftNum)
 	return
 }
 func (this* dbPlayerShopItemData)clone_to(d *dbPlayerShopItemData){
+	d.Id = this.Id
 	d.ShopItemId = this.ShopItemId
 	d.LeftNum = this.LeftNum
 	return
@@ -4833,6 +4841,40 @@ func (this *dbPlayerShopColumn)SetLastAutoRefreshTime(id int32,v int32)(has bool
 	this.m_changed = true
 	return true
 }
+func (this *dbPlayerShopColumn)GetCurrAutoId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopColumn.GetCurrAutoId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.CurrAutoId
+	return v,true
+}
+func (this *dbPlayerShopColumn)SetCurrAutoId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopColumn.SetCurrAutoId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.CurrAutoId = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerShopColumn)IncbyCurrAutoId(id int32,v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopColumn.IncbyCurrAutoId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		d = &dbPlayerShopData{}
+		this.m_data[id] = d
+	}
+	d.CurrAutoId +=  v
+	this.m_changed = true
+	return d.CurrAutoId
+}
 type dbPlayerShopItemColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerShopItemData
@@ -4852,7 +4894,7 @@ func (this *dbPlayerShopItemColumn)load(data []byte)(err error){
 	for _, v := range pb.List {
 		d := &dbPlayerShopItemData{}
 		d.from_pb(v)
-		this.m_data[int32(d.ShopItemId)] = d
+		this.m_data[int32(d.Id)] = d
 	}
 	this.m_changed = false
 	return
@@ -4915,9 +4957,9 @@ func (this *dbPlayerShopItemColumn)Get(id int32)(v *dbPlayerShopItemData){
 func (this *dbPlayerShopItemColumn)Set(v dbPlayerShopItemData)(has bool){
 	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Set")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.ShopItemId)]
+	d := this.m_data[int32(v.Id)]
 	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.ShopItemId)
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.Id)
 		return false
 	}
 	v.clone_to(d)
@@ -4927,14 +4969,14 @@ func (this *dbPlayerShopItemColumn)Set(v dbPlayerShopItemData)(has bool){
 func (this *dbPlayerShopItemColumn)Add(v *dbPlayerShopItemData)(ok bool){
 	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.Add")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.ShopItemId)]
+	_, has := this.m_data[int32(v.Id)]
 	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.ShopItemId)
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.Id)
 		return false
 	}
 	d:=&dbPlayerShopItemData{}
 	v.clone_to(d)
-	this.m_data[int32(v.ShopItemId)]=d
+	this.m_data[int32(v.Id)]=d
 	this.m_changed = true
 	return true
 }
@@ -4959,6 +5001,28 @@ func (this *dbPlayerShopItemColumn)NumAll()(n int32){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.NumAll")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
+}
+func (this *dbPlayerShopItemColumn)GetShopItemId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetShopItemId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.ShopItemId
+	return v,true
+}
+func (this *dbPlayerShopItemColumn)SetShopItemId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerShopItemColumn.SetShopItemId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.ShopItemId = v
+	this.m_changed = true
+	return true
 }
 func (this *dbPlayerShopItemColumn)GetLeftNum(id int32)(v int32 ,has bool){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerShopItemColumn.GetLeftNum")
