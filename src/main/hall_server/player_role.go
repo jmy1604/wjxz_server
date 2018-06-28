@@ -519,7 +519,6 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 		role_id := role_ids[i]
 		level, o := this.db.Roles.GetLevel(role_id)
 		if !o {
-			role_ids[i] = 0
 			log.Error("Player[%v] not have role[%v]", this.Id, role_id)
 			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 			continue
@@ -527,7 +526,6 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 
 		is_lock, _ := this.db.Roles.GetIsLock(role_id)
 		if is_lock > 0 {
-			role_ids[i] = 0
 			log.Error("Player[%v] role[%v] is locked, cant decompose", this.Id, role_id)
 			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
 			continue
@@ -539,7 +537,6 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 		}*/
 
 		if this.team_has_role(BATTLE_ATTACK_TEAM, role_id) {
-			role_ids[i] = 0
 			log.Error("Player[%v] attack team has role[%v], cant decompose", this.Id, role_id)
 			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
 			continue
@@ -556,7 +553,6 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 
 		card_data := card_table_mgr.GetRankCard(table_id, rank)
 		if card_data == nil {
-			role_ids[i] = 0
 			log.Error("Not found card data by table_id[%v] and rank[%v]", table_id, rank)
 			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_TABLE_ID_NOT_FOUND)
 			continue
@@ -603,6 +599,7 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 		}
 
 		this.delete_role(role_id)
+		role_ids[i] = 0
 	}
 
 	response := &msg_client_message.S2CRoleDecomposeResponse{
