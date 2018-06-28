@@ -832,9 +832,10 @@ message ShopItem {
 }
 
 message S2CShopDataResponse {
-	int32 ShopId							= 1;
-	repeated ShopItem Items					= 2;
-	int32 NextFreeRefreshRemainSeconds		= 3;
+	int32 ShopId							= 1; // 商店ID
+	repeated ShopItem Items					= 2; // 商店商品
+	int32 NextFreeRefreshRemainSeconds		= 3; // -1 代表没有
+	int32 NextAutoRefreshRemainSeconds      = 4; // -1 代表没有
 }
 
 // 请求购买商品
@@ -858,8 +859,7 @@ message C2SShopRefreshRequest {
 
 message S2CShopResfreshResponse {
 	int32 ShopId							= 1; // 商店ID
-	int32 RefreshType						= 2; // 0 自动刷新  1 手动刷新
-	bool IsFreeRefresh						= 3; // 是否免费 
+	bool IsFreeRefresh						= 2; // 是否免费 
 }
 
 // 商店自动刷新通知

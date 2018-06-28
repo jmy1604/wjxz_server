@@ -58,39 +58,34 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 	return 1
 }
 
-func (this *Player) get_shop_free_refresh_info(shop_id int32) (shop_tdata *table_config.XmlShopItem, remain_secs int32, cost_res []int32) {
-	shop_tdata = shop_table_mgr.Get(shop_id)
-	if shop_tdata == nil {
-		log.Error("Shop[%v] not found", shop_id)
-		return nil, -1, nil
-	}
-
+func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (remain_secs int32, cost_res []int32) {
 	now_time := int32(time.Now().Unix())
-	last_refresh, _ := this.db.Shops.GetLastFreeRefreshTime(shop_id)
+	last_refresh, _ := this.db.Shops.GetLastFreeRefreshTime(shop.Id)
 	if last_refresh == 0 {
-		this._refresh_shop(shop_tdata)
+		this._refresh_shop(shop)
 	}
-	if shop_tdata.FreeRefreshTime > 0 {
-		remain_secs = shop_tdata.FreeRefreshTime - (now_time - last_refresh)
+	if shop.FreeRefreshTime > 0 {
+		remain_secs = shop.FreeRefreshTime - (now_time - last_refresh)
 		if remain_secs < 0 {
 			// 免费
 			remain_secs = 0
+			this.db.Shops.SetLastFreeRefreshTime(shop.Id, now_time)
 		}
 	} else {
 		remain_secs = -1
 	}
-	cost_res = shop_tdata.RefreshRes
+	cost_res = shop.RefreshRes
 	return
 }
 
-func (this *Player) _send_shop(shop_id int32, free_remain_secs int32) int32 {
+func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs int32) int32 {
 	var shop_items []*msg_client_message.ShopItem
 	item_ids := this.db.ShopItems.GetAllIndex()
 	for _, id := range item_ids {
 		item_id, _ := this.db.ShopItems.GetShopItemId(id)
 		shop_item_tdata := shopitem_table_mgr.GetItem(item_id)
 		if shop_item_tdata == nil {
-			log.Warn("Player[%v] shop[%v] item[%v] table data not found", this.Id, shop_id, item_id)
+			log.Warn("Player[%v] shop[%v] item[%v] table data not found", this.Id, shop.Id, item_id)
 			continue
 		}
 		num, o := this.db.ShopItems.GetLeftNum(id)
@@ -110,10 +105,22 @@ func (this *Player) _send_shop(shop_id int32, free_remain_secs int32) int32 {
 		shop_items = append(shop_items, shop_item)
 	}
 
+	auto_remain_secs := int32(-1)
+	if shop.AutoRefreshTime != "" {
+		if !this.db.Shops.HasIndex(shop.Id) {
+			this.db.Shops.Add(&dbPlayerShopData{
+				Id: shop.Id,
+			})
+		}
+		last_refresh, _ := this.db.Shops.GetLastAutoRefreshTime(shop.Id)
+		auto_remain_secs = utils.GetRemainSeconds2NextDayRefresh(last_refresh, shop.AutoRefreshTime)
+	}
+
 	response := &msg_client_message.S2CShopDataResponse{
-		ShopId: shop_id,
+		ShopId: shop.Id,
+		Items:  shop_items,
 		NextFreeRefreshRemainSeconds: free_remain_secs,
-		Items: shop_items,
+		NextAutoRefreshRemainSeconds: auto_remain_secs,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_DATA_RESPONSE), response)
 
@@ -121,47 +128,41 @@ func (this *Player) _send_shop(shop_id int32, free_remain_secs int32) int32 {
 	return 1
 }
 
-func (this *Player) check_shop_auto_refresh(shop_id int32, send_notify bool) bool {
-	shop_tdata := shop_table_mgr.Get(shop_id)
-	if shop_tdata == nil {
-		log.Error("Shop[%v] table data not found", shop_id)
-		return false
-	}
-
+func (this *Player) check_shop_auto_refresh(shop *table_config.XmlShopItem, send_notify bool) bool {
 	// 固定时间点自动刷新
-	if shop_tdata.AutoRefreshTime == "" {
+	if shop.AutoRefreshTime == "" {
 		return false
 	}
 
 	now_time := int32(time.Now().Unix())
-	last_refresh, o := this.db.Shops.GetLastAutoRefreshTime(shop_id)
+	last_refresh, o := this.db.Shops.GetLastAutoRefreshTime(shop.Id)
 	if !o {
 		this.db.Shops.Add(&dbPlayerShopData{
-			Id: shop_id,
+			Id: shop.Id,
 		})
-		this.db.Shops.SetLastAutoRefreshTime(shop_id, now_time)
+		this.db.Shops.SetLastAutoRefreshTime(shop.Id, now_time)
 		last_refresh = 0
 	}
-	if !utils.CheckDayTimeArrival(last_refresh, shop_tdata.AutoRefreshTime) {
+	if !utils.CheckDayTimeArrival(last_refresh, shop.AutoRefreshTime) {
 		return false
 	}
 
-	res := this._refresh_shop(shop_tdata)
+	res := this._refresh_shop(shop)
 	if res < 0 {
 		return false
 	}
 
-	this.db.Shops.SetLastAutoRefreshTime(shop_id, now_time)
-	this.send_shop(shop_id)
+	this.db.Shops.SetLastAutoRefreshTime(shop.Id, now_time)
+	this.send_shop(shop.Id)
 
 	if send_notify {
 		notify := &msg_client_message.S2CShopAutoRefreshNotify{
-			ShopId: shop_id,
+			ShopId: shop.Id,
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_AUTO_REFRESH_NOTIFY), notify)
 	}
 
-	log.Debug("Player[%v] shop[%v] auto refreshed", this.Id, shop_id)
+	log.Debug("Player[%v] shop[%v] auto refreshed", this.Id, shop.Id)
 
 	return true
 }
@@ -169,15 +170,21 @@ func (this *Player) check_shop_auto_refresh(shop_id int32, send_notify bool) boo
 // 商店数据
 
 func (this *Player) send_shop(shop_id int32) int32 {
-	if this.check_shop_auto_refresh(shop_id, false) {
+	shop_tdata := shop_table_mgr.Get(shop_id)
+	if shop_tdata == nil {
+		log.Error("Shop[%v] table data not found", shop_id)
+		return int32(msg_client_message.E_ERR_PLAYER_SHOP_TABLE_DATA_NOT_FOUND)
+	}
+
+	if this.check_shop_auto_refresh(shop_tdata, false) {
 		return 1
 	}
 
-	shop_tdata, remain_secs, _ := this.get_shop_free_refresh_info(shop_id)
+	remain_secs, _ := this.get_shop_free_refresh_info(shop_tdata)
 	if shop_tdata.FreeRefreshTime > 0 && remain_secs <= 0 {
 		remain_secs = shop_tdata.FreeRefreshTime
 	}
-	res := this._send_shop(shop_id, remain_secs)
+	res := this._send_shop(shop_tdata, remain_secs)
 	if res < 0 {
 		return res
 	}
@@ -186,14 +193,14 @@ func (this *Player) send_shop(shop_id int32) int32 {
 
 // 商店购买
 func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
-	if this.check_shop_auto_refresh(shop_id, true) {
-		return 1
-	}
-
 	shop_tdata := shop_table_mgr.Get(shop_id)
 	if shop_tdata == nil {
 		log.Error("Shop[%v] table data not found", shop_id)
 		return int32(msg_client_message.E_ERR_PLAYER_SHOP_TABLE_DATA_NOT_FOUND)
+	}
+
+	if this.check_shop_auto_refresh(shop_tdata, true) {
+		return 1
 	}
 
 	item_id, o := this.db.ShopItems.GetShopItemId(id)
@@ -228,11 +235,11 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 	}
 
 	for i := 0; i < len(shopitem_tdata.Item)/2; i++ {
-		this.add_resource(shopitem_tdata.Item[2*i], shopitem_tdata.Item[2*i+1])
+		this.add_resource(shopitem_tdata.Item[2*i], shopitem_tdata.Item[2*i+1]*buy_num)
 	}
 
 	for i := 0; i < len(shopitem_tdata.BuyCost)/2; i++ {
-		this.add_resource(shopitem_tdata.BuyCost[2*i], -shopitem_tdata.BuyCost[2*i+1])
+		this.add_resource(shopitem_tdata.BuyCost[2*i], -shopitem_tdata.BuyCost[2*i+1]*buy_num)
 	}
 
 	if shopitem_tdata.StockNum > 0 {
@@ -257,15 +264,23 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 
 // 商店刷新
 func (this *Player) shop_refresh(shop_id int32) int32 {
-	if this.check_shop_auto_refresh(shop_id, true) {
+	shop_tdata := shop_table_mgr.Get(shop_id)
+	if shop_tdata == nil {
+		log.Error("Shop[%v] table data not found", shop_id)
+		return int32(msg_client_message.E_ERR_PLAYER_SHOP_TABLE_DATA_NOT_FOUND)
+	}
+
+	if this.check_shop_auto_refresh(shop_tdata, true) {
 		return 1
 	}
 
-	shop_tdata, remain_secs, cost_res := this.get_shop_free_refresh_info(shop_id)
+	remain_secs, cost_res := this.get_shop_free_refresh_info(shop_tdata)
 
 	// 免费刷新
+	is_free := false
 	if shop_tdata.FreeRefreshTime > 0 && remain_secs <= 0 {
 		remain_secs = shop_tdata.FreeRefreshTime
+		is_free = true
 	}
 
 	// 手动刷新
@@ -286,7 +301,13 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 		}
 	}
 
-	this._send_shop(shop_id, remain_secs)
+	this._send_shop(shop_tdata, remain_secs)
+
+	response := &msg_client_message.S2CShopResfreshResponse{
+		ShopId:        shop_id,
+		IsFreeRefresh: is_free,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_REFRESH_RESPONSE), response)
 	return 1
 }
 

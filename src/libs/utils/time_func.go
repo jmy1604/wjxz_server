@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func CheckWeekTimeArrival(last_time_point int32, week_time_format string) bool {
-	log.Debug("last shop refresh time point is %v, week time format is %v", last_time_point, week_time_format)
+func CheckWeekTimeArrival(last_time_point int32, week_time_string string) bool {
+	log.Debug("last shop refresh time point is %v, week time format is %v", last_time_point, week_time_string)
 	last_time := time.Unix(int64(last_time_point), 0)
 	now_time := time.Now()
 
@@ -24,9 +24,9 @@ func CheckWeekTimeArrival(last_time_point int32, week_time_format string) bool {
 		return false
 	}
 
-	tm, err := time.ParseInLocation("Monday 15:04:05", week_time_format, loc)
+	tm, err := time.ParseInLocation("Monday 15:04:05", week_time_string, loc)
 	if err != nil {
-		log.Error("parse shop refresh time format[%v] failed, err[%v]", week_time_format, err.Error())
+		log.Error("parse shop refresh time format[%v] failed, err[%v]", week_time_string, err.Error())
 		return false
 	}
 
@@ -52,7 +52,7 @@ func CheckWeekTimeArrival(last_time_point int32, week_time_format string) bool {
 	return false
 }
 
-func CheckDayTimeArrival(last_time_point int32, day_time_format string) bool {
+func CheckDayTimeArrival(last_time_point int32, day_time_string string) bool {
 	last_time := time.Unix(int64(last_time_point), 0)
 	now_time := time.Now()
 
@@ -66,9 +66,9 @@ func CheckDayTimeArrival(last_time_point int32, day_time_format string) bool {
 		return false
 	}
 
-	tm, err := time.ParseInLocation("15:04:05", day_time_format, loc)
+	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
 	if err != nil {
-		log.Error("parse shop refresh time format[%v] failed, err[%v]", day_time_format, err.Error())
+		log.Error("parse shop refresh time format[%v] failed, err[%v]", day_time_string, err.Error())
 		return false
 	}
 	hour := tm.Hour()
@@ -85,11 +85,51 @@ func CheckDayTimeArrival(last_time_point int32, day_time_format string) bool {
 	return false
 }
 
-type DaysTimeChecker struct {
-	start_time_tm time.Time
+func GetRemainSeconds2NextDayRefresh(last_time_point int32, day_time_string string) int32 {
+	last_time := time.Unix(int64(last_time_point), 0)
+	now_time := time.Now()
+
+	if now_time.Unix() <= last_time.Unix() {
+		return -1
+	}
+
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		log.Error("!!!!!!! Load Location Local error[%v]", err.Error())
+		return -1
+	}
+
+	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
+	if err != nil {
+		log.Error("parse shop refresh time format[%v] failed, err[%v]", day_time_string, err.Error())
+		return -1
+	}
+
+	today_tm := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), tm.Hour(), tm.Minute(), tm.Second(), tm.Nanosecond(), tm.Location())
+	if tm.Unix() >= today_tm.Unix() {
+		return -1
+	}
+
+	diff_days := (today_tm.Unix() - tm.Unix()) / (24 * 3600)
+	y := int(diff_days) % int(1)
+	log.Debug("!!!!!!! today_unix[%v], st_unix[%v], diff_days[%v], y[%v]", today_tm.Unix(), tm.Unix(), diff_days, y)
+
+	next_refresh_time := int64(0)
+	if y == 0 && now_time.Unix() < today_tm.Unix() {
+		next_refresh_time = today_tm.Unix()
+	} else {
+		next_refresh_time = today_tm.Unix() + int64((int(1)-y)*24*3600)
+	}
+
+	log.Debug("now:%v  next_refresh_time:%v  last_save:%v", now_time.Unix(), next_refresh_time, last_time_point)
+	return int32(next_refresh_time - now_time.Unix())
 }
 
-func (this *DaysTimeChecker) Init(start_time_layout, start_time_value string) bool {
+type DaysTimeChecker struct {
+	time_tm time.Time
+}
+
+func (this *DaysTimeChecker) Set(time_layout, time_value string) bool {
 	var loc *time.Location
 	var err error
 	loc, err = time.LoadLocation("Local")
@@ -98,13 +138,13 @@ func (this *DaysTimeChecker) Init(start_time_layout, start_time_value string) bo
 		return false
 	}
 
-	this.start_time_tm, err = time.ParseInLocation(start_time_layout, start_time_value, loc)
+	this.time_tm, err = time.ParseInLocation(time_layout, time_value, loc)
 	if err != nil {
-		log.Error("!!!!!!! Parse start time layout[%v] failed, err[%v]", start_time_layout, err.Error())
+		log.Error("!!!!!!! Parse start time layout[%v] failed, err[%v]", time_layout, err.Error())
 		return false
 	}
 
-	if this.start_time_tm.Unix() >= time.Now().Unix() {
+	if this.time_tm.Unix() >= time.Now().Unix() {
 		log.Error("!!!!!!! Now time is Early to start time")
 		return false
 	}
@@ -125,13 +165,13 @@ func (this *DaysTimeChecker) IsArrival(last_save int32, interval_days int32) boo
 	}
 
 	// 今天的时间点，与配置相同
-	st := this.start_time_tm
+	st := this.time_tm
 	tmp := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), st.Hour(), st.Minute(), st.Second(), st.Nanosecond(), st.Location())
-	if this.start_time_tm.Unix() >= tmp.Unix() {
+	if this.time_tm.Unix() >= tmp.Unix() {
 		return false
 	}
 
-	diff_days := (tmp.Unix() - this.start_time_tm.Unix()) / (24 * 3600)
+	diff_days := (tmp.Unix() - this.time_tm.Unix()) / (24 * 3600)
 	y := int(diff_days) % int(interval_days)
 
 	last_refresh_time := int64(0)
@@ -161,7 +201,7 @@ func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32, interva
 		return -1
 	}
 
-	st := this.start_time_tm
+	st := this.time_tm
 	today_tm := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), st.Hour(), st.Minute(), st.Second(), st.Nanosecond(), st.Location())
 	if st.Unix() >= today_tm.Unix() {
 		return -1
