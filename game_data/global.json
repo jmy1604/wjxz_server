@@ -8,13 +8,9 @@
 	"MaxEnergy":60,
 	"EnergyAdd":20,
 	
-<<<<<<< HEAD
-	"HeartbeatInterval":6000,
-=======
 	"HeartbeatInterval":180,
 	
 	"MaxRoleCount": 300,
->>>>>>> 71ca2a4d6deaaaf9d393e25d68d39c0ddb087d55
 	
 	"MailTitleBytes":32,
 	"MailContentBytes":240,
