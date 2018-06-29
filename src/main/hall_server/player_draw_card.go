@@ -126,7 +126,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 				}
 			}
 			if i >= len(draw.ResCondition1)/2 {
-				res_condition = draw.ResCondition11
+				res_condition = draw.ResCondition1
 				is_enough = 1
 			}
 		}
