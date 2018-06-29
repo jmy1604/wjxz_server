@@ -149,7 +149,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 	for i := 0; i < len(draw.DropId)/2; i++ {
 		did := draw.DropId[2*i]
 		dn := draw.DropId[2*i+1]
-		for j := 0; j <= int(dn); j++ {
+		for j := 0; j < int(dn); j++ {
 			o, item := this.drop_item_by_id(did, true, nil)
 			if !o {
 				log.Error("Player[%v] draw type[%v] with drop_id[%v] failed", this.Id, draw_type, did)
