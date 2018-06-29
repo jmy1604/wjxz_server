@@ -114,6 +114,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 
 	// 资源
 	is_enough := 0
+	var res_condition []int32
 	if !is_free {
 		if draw.ResCondition1 != nil {
 			i := 0
@@ -125,6 +126,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 				}
 			}
 			if i >= len(draw.ResCondition1)/2 {
+				res_condition = draw.ResCondition11
 				is_enough = 1
 			}
 		}
@@ -139,9 +141,14 @@ func (this *Player) draw_card(draw_type int32) int32 {
 					}
 				}
 				if i >= len(draw.ResCondition2)/2 {
+					res_condition = draw.ResCondition2
 					is_enough = 2
 				}
 			}
+		}
+		if is_enough == 0 {
+			log.Error("Player[%v] not enough res to draw card", this.Id)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
 		}
 	}
 
@@ -160,18 +167,6 @@ func (this *Player) draw_card(draw_type int32) int32 {
 	}
 
 	if !is_free {
-		if is_enough == 0 {
-			log.Error("Player[%v] not enough res to draw card", this.Id)
-			return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
-		}
-
-		var res_condition []int32
-		if is_enough == 1 {
-			res_condition = draw.ResCondition1
-		} else {
-			res_condition = draw.ResCondition2
-		}
-
 		if res_condition != nil {
 			for i := 0; i < len(res_condition)/2; i++ {
 				res_id := res_condition[2*i]
