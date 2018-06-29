@@ -27,6 +27,16 @@
 	"ItemLeftSlotOpenLevel": 1,
 	"LeftSlotDropId": 200001,
 	
+	"ArenaGetTopRankNum": 50,
+	"ArenaMatchPlayerNum": 20,
+	"ArenaRepeatedWinNum": 2,
+	"ArenaLoseRepeatedNum": 1,
+	"ArenaHighGradeStart": 3,
+	"ArenaWinAddScore": 20,
+	"ArenaRepeatedWinAddExtraScore": 20,
+	"ArenaLoseAddScoreOnLowGrade": 10,
+	"ArenaLoseAddScoreOnHighGrade": 0,
+	
 	"MaxFriendNum":200,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

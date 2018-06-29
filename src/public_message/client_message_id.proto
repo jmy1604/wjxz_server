@@ -123,4 +123,7 @@ enum MSGID {
 	C2S_SHOP_REFRESH_REQUEST				= 11004; // 请求商店刷新 C2SShopRefreshRequest
 	S2C_SHOP_REFRESH_RESPONSE				= 11005; // 请求商店刷新返回 S2CShopRefreshResponse
 	S2C_SHOP_AUTO_REFRESH_NOTIFY			= 11006; // 商店定时自动刷新通知 S2CShopAutoRefreshNotify
+	
+	C2S_RANK_LIST_REQUEST					= 12000; // 请求排行榜 C2SRankListRequest
+	S2C_RANK_LIST_RESPONSE					= 12001; // 排行榜返回 S2CRankListResponse
 }

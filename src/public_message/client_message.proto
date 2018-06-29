@@ -870,6 +870,30 @@ message S2CShopAutoRefreshNotify {
 	int32 ShopId							= 1; // 商店ID
 }
 
+// --------------------------------- 排行榜 -----------------------------------
+// 排行项
+message RankItemInfo {
+	int32 Rank 								= 1; // 排名
+	int32 PlayerId							= 2; // 玩家ID
+	string PlayerName						= 3; // 玩家昵称
+	int32 PlayerLevel						= 4; // 玩家等级
+	string PlayerHead						= 5; // 玩家头像
+	int32 PlayerArenaScore					= 6; // 玩家竞技场积分
+	int32 PlayerArenaGrade					= 7; // 玩家竞技场段位
+}
+
+// 请求排行榜
+message C2SRankListRequest {
+	int32 RankListType						= 1; // 排行榜类型  1 竞技场
+	repeated int32 Params					= 2; // 参数, 跟具体类型有关
+}
+
+message S2CRankListResponse {
+	int32 RankListType						= 1; // 排行榜类型
+	int32 SelfRank							= 2; // 自己排名
+	repeated RankItemInfo RankItems			= 3; // 排名项
+}
+
 //////////////////////////////////////////////////////////////////////////////
 message FriendInfo {
 	

@@ -222,11 +222,34 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("shopitem_table_mgr init success")
 	}
 
+	if !arena_bonus_table_mgr.Init() {
+		log.Error("arena_bonus_table_mgr init failed")
+		return errors.New("arena_bonus_table_mgr init failed")
+	} else {
+		log.Info("arena_bonus_table_mgr init success")
+	}
+
+	if !arena_division_table_mgr.Init() {
+		log.Error("arena_division_table_mgr init failed")
+		return errors.New("arena_division_table_mgr init failed")
+	} else {
+		log.Info("arena_division_table_mgr init success")
+	}
+
+	if !arena_robot_table_mgr.Init() {
+		log.Error("arena_robot_table_mgr init failed")
+		return errors.New("arena_robot_table_mgr init failed")
+	} else {
+		log.Info("arena_robot_table_mgr init success")
+	}
+
 	if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Init()
 	} else {
 		conn_timer_wheel.Init()
 	}
+
+	rank_list_mgr.Init()
 
 	return
 }
@@ -393,6 +416,9 @@ var tower_table_mgr table_config.TowerTableMgr
 var item_upgrade_table_mgr table_config.ItemUpgradeTableMgr
 var draw_table_mgr table_config.DrawTableMgr
 var goldhand_table_mgr table_config.GoldHandTableMgr
+var arena_division_table_mgr table_config.ArenaDivisionTableMgr
+var arena_robot_table_mgr table_config.ArenaRobotTableMgr
+var arena_bonus_table_mgr table_config.ArenaBonusTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

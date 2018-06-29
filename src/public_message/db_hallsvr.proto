@@ -201,6 +201,11 @@ message PlayerShopItemList{
 	repeated PlayerShopItem List=1;
 }
 
+message PlayerArena{
+	optional int32 RepeatedWinNum=1;
+	optional int32 RepeatedLoseNum=2;
+}
+
 message PlayerDialyTask{
 	optional int32 TaskId=1;
 	optional int32 Value=2;

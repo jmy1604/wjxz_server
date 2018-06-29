@@ -386,6 +386,18 @@
 					]
 				},
 				{
+					"DBColumnName":"Arena",
+					"InUse":true,
+					"ColumnName":"Arena",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"RepeatedWinNum","Incby":true},
+						{"Type":"int32","Index":2,"Name":"RepeatedLoseNum","Incby":true}
+					]
+				},
+				{
 					"DBColumnName":"DialyTask",
 					"InUse":true,
 					"ColumnName":"DialyTask",

@@ -895,6 +895,20 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		battle_record_mgr.SaveNew(this.Id, p.Id, d)
 	}
 
+	// 竞技场加分
+	var add_score int32
+	if is_win {
+		add_score = global_config_mgr.GetGlobalConfig().ArenaWinAddScore
+		if this.db.Arena.GetRepeatedWinNum() >= global_config_mgr.GetGlobalConfig().ArenaRepeatedWinNum {
+			add_score += global_config_mgr.GetGlobalConfig().ArenaRepeatedWinAddExtraScore
+		}
+	} else {
+		add_score = global_config_mgr.GetGlobalConfig().ArenaLoseAddScoreOnLowGrade
+	}
+	if add_score > 0 {
+		this.UpdateArenaScore(add_score)
+	}
+
 	Output_S2CBattleResult(this, response)
 	return 1
 }
