@@ -131,19 +131,14 @@ func (this *Player) add_gold(add int32) int32 {
 	result := int32(0)
 	gold := add + this.db.Info.GetGold()
 	if gold >= 0 {
-		if gold < add || gold < this.db.Info.GetGold() {
-			this.db.Info.SetGold(math.MaxInt32)
+		result = this.db.Info.IncbyGold(add)
+	} else {
+		if add > 0 {
 			result = math.MaxInt32
 		} else {
-			result = this.db.Info.IncbyGold(add)
-		}
-	} else {
-		if gold < 0 {
-			this.db.Info.SetGold(0)
 			result = 0
-		} else {
-			result = this.db.Info.IncbyGold(add)
 		}
+		this.db.Info.SetGold(result)
 	}
 	if add != 0 {
 		this.b_base_prop_chg = true
@@ -159,19 +154,14 @@ func (this *Player) add_diamond(add int32) int32 {
 	result := int32(0)
 	diamond := add + this.db.Info.GetDiamond()
 	if diamond >= 0 {
-		if diamond < add || diamond < this.db.Info.GetDiamond() {
-			result = math.MaxInt32
-			this.db.Info.SetDiamond(result)
-		} else {
-			result = this.db.Info.IncbyDiamond(add)
-		}
+		result = this.db.Info.IncbyDiamond(add)
 	} else {
-		if diamond < 0 {
-			result = 0
-			this.db.Info.SetDiamond(result)
+		if add > 0 {
+			result = math.MaxInt32
 		} else {
-			result = this.db.Info.IncbyDiamond(add)
+			result = 0
 		}
+		this.db.Info.SetDiamond(result)
 	}
 	if add != 0 {
 		this.b_base_prop_chg = true
