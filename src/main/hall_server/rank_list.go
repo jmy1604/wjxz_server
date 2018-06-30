@@ -21,13 +21,11 @@ const (
 )
 
 type RankList struct {
-	rank_type int32
 	rank_list *utils.CommonRankingList
 	item_pool *sync.Pool
 }
 
-func (this *RankList) Init(rank_type int32, root_node utils.SkiplistNode) {
-	this.rank_type = rank_type
+func (this *RankList) Init(root_node utils.SkiplistNode) {
 	this.rank_list = utils.NewCommonRankingList(root_node, ARENA_RANK_MAX)
 	this.item_pool = &sync.Pool{
 		New: func() interface{} {
@@ -105,7 +103,7 @@ func (this *RankListManager) Init() {
 			break
 		}
 		this.rank_lists[i] = &RankList{}
-		this.rank_lists[i].Init(i, root_rank_item[i])
+		this.rank_lists[i].Init(root_rank_item[i])
 	}
 	this.rank_map = make(map[int32]*RankList)
 	this.locker = &sync.RWMutex{}
