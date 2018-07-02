@@ -192,6 +192,10 @@ func (this *Player) draw_card(draw_type int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_DRAW_CARD_RESPONSE), response)
 
+	if is_free {
+		this.send_draw_data()
+	}
+
 	log.Debug("Player[%v] drawed card[%v] with draw type[%v], is free[%v]", this.Id, role_ids, draw_type, is_free)
 
 	return 1
