@@ -160,9 +160,13 @@ func (this *Player) _update_arena_score(data *ArenaRankItem) {
 }
 
 func (this *Player) LoadArenaScore() {
+	score := this.db.Arena.GetScore()
+	if score <= 0 {
+		return
+	}
 	var data = ArenaRankItem{
 		SaveTime:    this.db.Arena.GetUpdateScoreTime(),
-		PlayerScore: this.db.Arena.GetScore(),
+		PlayerScore: score,
 		PlayerId:    this.Id,
 	}
 	this._update_arena_score(&data)
@@ -209,7 +213,8 @@ func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
 		return
 	}
 
-	for rank := rank_start; rank < rank_start+rank_num; rank++ {
+	l := int32(len(rank_items))
+	for rank := rank_start; rank < l; rank++ {
 		item := (rank_items[rank-rank_start]).(*ArenaRankItem)
 		if item == nil {
 			log.Error("Player[%v] get arena rank list by rank[%v] item failed")
@@ -218,7 +223,9 @@ func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
 		log.Debug("Rank: %v   Player[%v] Score[%v]", rank, item.PlayerId, item.PlayerScore)
 	}
 
-	log.Debug("Player[%v] score[%v] rank[%v]", this.Id, self_value.(int32), self_rank)
+	if self_value != nil && self_rank > 0 {
+		log.Debug("Player[%v] score[%v] rank[%v]", this.Id, self_value.(int32), self_rank)
+	}
 }
 
 // 匹配对手
