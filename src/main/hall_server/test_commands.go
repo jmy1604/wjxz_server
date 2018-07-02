@@ -928,15 +928,9 @@ func pvp_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	player := player_mgr.GetPlayerById(int32(player_id))
-	if player == nil {
-		log.Error("玩家[%v]找不到", player_id)
-		return -1
-	}
-
 	p.Fight2Player(int32(player_id))
 
-	log.Debug("玩家[%v]pvp玩家[%v]", p.Id, player.Id)
+	log.Debug("玩家[%v]pvp玩家[%v]", p.Id, player_id)
 	return 1
 }
 

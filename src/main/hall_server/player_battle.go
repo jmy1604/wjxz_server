@@ -239,6 +239,46 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 	return true
 }
 
+// init with stage
+func (this *BattleTeam) InitWithArenaRobot(robot *table_config.XmlArenaRobotItem, side int32) bool {
+	if this.members == nil {
+		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
+	}
+
+	for i := 0; i < len(this.members); i++ {
+		if this.members[i] != nil {
+			team_member_pool.Put(this.members[i])
+			this.members[i] = nil
+		}
+	}
+
+	this.side = side
+	this.curr_attack = 0
+	this.team_type = BATTLE_STAGE_TEAM
+
+	for i := 0; i < len(robot.RobotCardList); i++ {
+		monster := robot.RobotCardList[i]
+		pos := monster.Slot - 1
+		if pos < 0 || pos >= BATTLE_ROUND_MAX_NUM {
+			log.Error("Arena Robot[%v] monster slot[%v] invalid", robot.Id, monster.Slot)
+			return false
+		}
+
+		role_card := card_table_mgr.GetRankCard(monster.MonsterID, monster.Rank)
+		if role_card == nil {
+			log.Error("Cant get card by role_id[%v] and rank[%v]", monster.MonsterID, monster.Rank)
+			return false
+		}
+
+		m := team_member_pool.Get()
+
+		m.init_all(this, 0, monster.Level, role_card, pos, monster.EquipID)
+		this.members[pos] = m
+	}
+
+	return true
+}
+
 // round start
 func (this *BattleTeam) RoundStart() {
 	for i := 0; i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
@@ -789,12 +829,15 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 				return res
 			}
 		} else {
-			team_type := -1
+			team_type := int32(-1)
 			// 爬塔阵容
 			if req.GetBattleType() == 3 {
 				team_type = BATTLE_TOWER_TEAM
+			} else {
+				log.Error("Player[%v] set team[%v] invalid", p.Id, team_type)
+				return -1
 			}
-			res := p.SetTeam(team_type)
+			res := p.SetTeam(team_type, req.AttackMembers)
 			if res < 0 {
 				log.Error("Player[%v] set team[%v] failed", p.Id, team_type)
 				return res

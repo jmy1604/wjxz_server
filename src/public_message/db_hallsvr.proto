@@ -204,6 +204,8 @@ message PlayerShopItemList{
 message PlayerArena{
 	optional int32 RepeatedWinNum=1;
 	optional int32 RepeatedLoseNum=2;
+	optional int32 Score=3;
+	optional int32 UpdateScoreTime=4;
 }
 
 message PlayerDialyTask{

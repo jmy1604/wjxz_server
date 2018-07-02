@@ -199,3 +199,26 @@ func (this *CommonRankingList) GetRankRange(start, num int32) (int32, int32) {
 	}
 	return start, num
 }
+
+func (this *CommonRankingList) GetLastRankRange(num int32) (int32, int32) {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
+	l := int32(len(this.key2item))
+	if this.key2item == nil || l == 0 {
+		return 0, 0
+	}
+
+	if num > l {
+		num = l
+	}
+
+	return l - num + 1, num
+}
+
+func (this *CommonRankingList) GetLastRank() int32 {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
+	return int32(len(this.key2item))
+}

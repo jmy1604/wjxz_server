@@ -985,6 +985,8 @@ func (this* dbPlayerShopItemData)clone_to(d *dbPlayerShopItemData){
 type dbPlayerArenaData struct{
 	RepeatedWinNum int32
 	RepeatedLoseNum int32
+	Score int32
+	UpdateScoreTime int32
 }
 func (this* dbPlayerArenaData)from_pb(pb *db.PlayerArena){
 	if pb == nil {
@@ -992,17 +994,23 @@ func (this* dbPlayerArenaData)from_pb(pb *db.PlayerArena){
 	}
 	this.RepeatedWinNum = pb.GetRepeatedWinNum()
 	this.RepeatedLoseNum = pb.GetRepeatedLoseNum()
+	this.Score = pb.GetScore()
+	this.UpdateScoreTime = pb.GetUpdateScoreTime()
 	return
 }
 func (this* dbPlayerArenaData)to_pb()(pb *db.PlayerArena){
 	pb = &db.PlayerArena{}
 	pb.RepeatedWinNum = proto.Int32(this.RepeatedWinNum)
 	pb.RepeatedLoseNum = proto.Int32(this.RepeatedLoseNum)
+	pb.Score = proto.Int32(this.Score)
+	pb.UpdateScoreTime = proto.Int32(this.UpdateScoreTime)
 	return
 }
 func (this* dbPlayerArenaData)clone_to(d *dbPlayerArenaData){
 	d.RepeatedWinNum = this.RepeatedWinNum
 	d.RepeatedLoseNum = this.RepeatedLoseNum
+	d.Score = this.Score
+	d.UpdateScoreTime = this.UpdateScoreTime
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -5167,6 +5175,39 @@ func (this *dbPlayerArenaColumn)IncbyRepeatedLoseNum(v int32)(r int32){
 	this.m_data.RepeatedLoseNum += v
 	this.m_changed = true
 	return this.m_data.RepeatedLoseNum
+}
+func (this *dbPlayerArenaColumn)GetScore( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArenaColumn.GetScore")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.Score
+	return
+}
+func (this *dbPlayerArenaColumn)SetScore(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetScore")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Score = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerArenaColumn)IncbyScore(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.IncbyScore")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Score += v
+	this.m_changed = true
+	return this.m_data.Score
+}
+func (this *dbPlayerArenaColumn)GetUpdateScoreTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArenaColumn.GetUpdateScoreTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.UpdateScoreTime
+	return
+}
+func (this *dbPlayerArenaColumn)SetUpdateScoreTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetUpdateScoreTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.UpdateScoreTime = v
+	this.m_changed = true
+	return
 }
 type dbPlayerDialyTaskColumn struct{
 	m_row *dbPlayerRow

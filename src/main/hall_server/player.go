@@ -157,6 +157,9 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 
 	ret_p.new_mail_list_locker = &sync.Mutex{}
 
+	// 载入竞技场排名
+	ret_p.LoadArenaScore()
+
 	return ret_p
 }
 
@@ -830,15 +833,21 @@ func (this *Player) CancelDefensing() bool {
 }
 
 func (this *Player) Fight2Player(player_id int32) int32 {
+	var robot *ArenaRobot
 	p := player_mgr.GetPlayerById(player_id)
 	if p == nil {
-		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		robot = arena_robot_mgr.Get(player_id)
+		if robot == nil {
+			return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		}
 	}
 
 	// 是否正在防守
-	if !p.IsDefensing() {
-		log.Warn("Player[%v] is defensing, player[%v] fight failed", player_id, this.Id)
-		return int32(msg_client_message.E_ERR_PLAYER_IS_DEFENSING)
+	if p != nil {
+		if !p.IsDefensing() {
+			log.Warn("Player[%v] is defensing, player[%v] fight failed", player_id, this.Id)
+			return int32(msg_client_message.E_ERR_PLAYER_IS_DEFENSING)
+		}
 	}
 
 	if this.attack_team == nil {
@@ -850,21 +859,39 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	}
 	this.add_talent_attr(this.attack_team)
 
-	if p.defense_team == nil {
-		p.defense_team = &BattleTeam{}
-	}
-	if !p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) {
-		log.Error("Player[%v] init defense team failed", player_id)
-		return -1
-	}
-	p.add_talent_attr(p.defense_team)
+	var target_team *BattleTeam
+	var target_team_format []*msg_client_message.BattleMemberItem
+	if p != nil {
+		if p.defense_team == nil {
+			p.defense_team = &BattleTeam{}
+		}
+		if !p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) {
+			log.Error("Player[%v] init defense team failed", player_id)
+			return -1
+		}
+		p.add_talent_attr(p.defense_team)
 
-	my_team := this.attack_team._format_members_for_msg()
-	target_team := p.defense_team._format_members_for_msg()
-	is_win, enter_reports, rounds := this.attack_team.Fight(p.defense_team, BATTLE_END_BY_ALL_DEAD, 0)
+		target_team_format = p.defense_team._format_members_for_msg()
+		target_team = p.defense_team
+	} else {
+		if !robot.defense_team.InitWithArenaRobot(robot.robot_data, 1) {
+			log.Error("Robot[%v] init defense team failed", player_id)
+			return -1
+		}
 
-	// 对方防守结束
-	p.CancelDefensing()
+		target_team_format = robot.defense_team._format_members_for_msg()
+		target_team = robot.defense_team
+	}
+
+	my_team_format := this.attack_team._format_members_for_msg()
+
+	// To Fight
+	is_win, enter_reports, rounds := this.attack_team.Fight(target_team, BATTLE_END_BY_ALL_DEAD, 0)
+
+	if p != nil {
+		// 对方防守结束
+		p.CancelDefensing()
+	}
 
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
@@ -874,17 +901,17 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	}
 
 	members_damage := this.attack_team.common_data.members_damage
-	members_cure := p.defense_team.common_data.members_cure
+	members_cure := target_team.common_data.members_cure
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:               is_win,
 		EnterReports:        enter_reports,
 		Rounds:              rounds,
-		MyTeam:              my_team,
-		TargetTeam:          target_team,
+		MyTeam:              my_team_format,
+		TargetTeam:          target_team_format,
 		MyMemberDamages:     members_damage[this.attack_team.side],
-		TargetMemberDamages: members_damage[p.defense_team.side],
+		TargetMemberDamages: members_damage[target_team.side],
 		MyMemberCures:       members_cure[this.attack_team.side],
-		TargetMemberCures:   members_cure[p.defense_team.side],
+		TargetMemberCures:   members_cure[target_team.side],
 		BattleType:          1,
 		BattleParam:         player_id,
 	}
@@ -892,22 +919,11 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 
 	// 保存录像
 	if d != nil {
-		battle_record_mgr.SaveNew(this.Id, p.Id, d)
+		battle_record_mgr.SaveNew(this.Id, player_id, d)
 	}
 
 	// 竞技场加分
-	var add_score int32
-	if is_win {
-		add_score = global_config_mgr.GetGlobalConfig().ArenaWinAddScore
-		if this.db.Arena.GetRepeatedWinNum() >= global_config_mgr.GetGlobalConfig().ArenaRepeatedWinNum {
-			add_score += global_config_mgr.GetGlobalConfig().ArenaRepeatedWinAddExtraScore
-		}
-	} else {
-		add_score = global_config_mgr.GetGlobalConfig().ArenaLoseAddScoreOnLowGrade
-	}
-	if add_score > 0 {
-		this.UpdateArenaScore(add_score)
-	}
+	this.UpdateArenaScore(is_win)
 
 	Output_S2CBattleResult(this, response)
 	return 1

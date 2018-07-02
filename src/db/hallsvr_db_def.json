@@ -394,7 +394,9 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"RepeatedWinNum","Incby":true},
-						{"Type":"int32","Index":2,"Name":"RepeatedLoseNum","Incby":true}
+						{"Type":"int32","Index":2,"Name":"RepeatedLoseNum","Incby":true},
+						{"Type":"int32","Index":3,"Name":"Score","Incby":true},
+						{"Type":"int32","Index":4,"Name":"UpdateScoreTime"}
 					]
 				},
 				{

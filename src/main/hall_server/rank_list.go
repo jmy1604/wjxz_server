@@ -6,7 +6,7 @@ import (
 	_ "main/table_config"
 	_ "math/rand"
 	_ "net/http"
-	"public_message/gen_go/client_message"
+	_ "public_message/gen_go/client_message"
 	_ "public_message/gen_go/client_message_id"
 	"sync"
 	_ "time"
@@ -29,38 +29,55 @@ func (this *RankList) Init(root_node utils.SkiplistNode) {
 	this.rank_list = utils.NewCommonRankingList(root_node, ARENA_RANK_MAX)
 	this.item_pool = &sync.Pool{
 		New: func() interface{} {
-			return &ArenaRankItem{}
+			return root_node.New()
 		},
 	}
 }
 
+func (this *RankList) GetItemByPlayerId(player_id int32) (item utils.SkiplistNode) {
+	return this.rank_list.GetByKey(player_id)
+}
+
+func (this *RankList) GetRankByPlayerId(player_id int32) int32 {
+	return this.rank_list.GetRank(player_id)
+}
+
+func (this *RankList) GetItemByRank(rank int32) (item utils.SkiplistNode) {
+	return this.rank_list.GetByRank(rank)
+}
+
 // 获取排名
-func (this *RankList) GetItemsByRank(player_id, start_rank, rank_num int32) (rank_items []*msg_client_message.RankItemInfo, self_rank int32, self_value interface{}) {
+func (this *RankList) GetItemsByRank(player_id, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
 	start_rank, rank_num = this.rank_list.GetRankRange(start_rank, rank_num)
 	if start_rank == 0 {
 		log.Error("Get rank list range with [%v,%v] failed", start_rank, rank_num)
-		return make([]*msg_client_message.RankItemInfo, 0), 0, nil
+		return nil, 0, nil
 	}
 
 	nodes := make([]interface{}, rank_num)
 	for i := int32(0); i < rank_num; i++ {
-		nodes[i] = this.item_pool.Get().(*msg_client_message.RankItemInfo)
+		nodes[i] = this.item_pool.Get().(utils.SkiplistNode)
 	}
 
 	num := this.rank_list.GetRangeNodes(start_rank, rank_num, nodes)
 	if num == 0 {
 		log.Error("Get rank list nodes failed")
-		return make([]*msg_client_message.RankItemInfo, 0), 0, nil
+		return nil, 0, nil
 	}
 
-	rank_items = make([]*msg_client_message.RankItemInfo, num)
+	rank_items = make([]utils.SkiplistNode, num)
 	for i := int32(0); i < num; i++ {
-		rank_items[i] = nodes[i].(*msg_client_message.RankItemInfo)
+		rank_items[i] = nodes[i].(utils.SkiplistNode)
 	}
 
 	self_rank, self_value = this.rank_list.GetRankAndValue(player_id)
 	return
 
+}
+
+// 获取最后的几个排名
+func (this *RankList) GetLastRankRange(rank_num int32) (int32, int32) {
+	return this.rank_list.GetLastRankRange(rank_num)
 }
 
 // 更新排行榜
@@ -109,11 +126,39 @@ func (this *RankListManager) Init() {
 	this.locker = &sync.RWMutex{}
 }
 
-func (this *RankListManager) GetItemsByRange(rank_type, player_id, start_rank, rank_num int32) (rank_items []*msg_client_message.RankItemInfo, self_rank int32, self_value interface{}) {
+func (this *RankListManager) GetItemByPlayerId(rank_type, player_id int32) (item utils.SkiplistNode) {
+	if int(rank_type) >= len(this.rank_lists) {
+		return nil
+	}
+	return this.rank_lists[rank_type].GetItemByPlayerId(player_id)
+}
+
+func (this *RankListManager) GetRankByPlayerId(rank_type, player_id int32) int32 {
+	if int(rank_type) >= len(this.rank_lists) {
+		return -1
+	}
+	return this.rank_lists[rank_type].GetRankByPlayerId(player_id)
+}
+
+func (this *RankListManager) GetItemByRank(rank_type, rank int32) (item utils.SkiplistNode) {
+	if int(rank_type) >= len(this.rank_lists) {
+		return nil
+	}
+	return this.rank_lists[rank_type].GetItemByRank(rank)
+}
+
+func (this *RankListManager) GetItemsByRange(rank_type, player_id, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
 	if int(rank_type) >= len(this.rank_lists) {
 		return nil, 0, nil
 	}
 	return this.rank_lists[rank_type].GetItemsByRank(player_id, start_rank, rank_num)
+}
+
+func (this *RankListManager) GetLastRankRange(rank_type, rank_num int32) (int32, int32) {
+	if int(rank_type) >= len(this.rank_lists) {
+		return -1, -1
+	}
+	return this.rank_lists[rank_type].GetLastRankRange(rank_num)
 }
 
 func (this *RankListManager) UpdateItem(rank_type int32, item utils.SkiplistNode) bool {
@@ -130,7 +175,37 @@ func (this *RankListManager) DeleteItem(rank_type int32, key interface{}) bool {
 	return this.rank_lists[rank_type].DeleteItem(key)
 }
 
-func (this *RankListManager) GetItemsByRange2(rank_type, player_id, start_rank, rank_num int32) (rank_items []*msg_client_message.RankItemInfo, self_rank int32, self_value interface{}) {
+func (this *RankListManager) GetItemByPlayerId2(rank_type, player_id int32) (item utils.SkiplistNode) {
+	this.locker.RLock()
+	rank_list := this.rank_map[rank_type]
+	if rank_list == nil {
+		return
+	}
+	this.locker.RUnlock()
+	return rank_list.GetItemByPlayerId(player_id)
+}
+
+func (this *RankListManager) GetRankByPlayerId2(rank_type, player_id int32) int32 {
+	this.locker.RLock()
+	rank_list := this.rank_map[rank_type]
+	if rank_list == nil {
+		return 0
+	}
+	this.locker.RUnlock()
+	return rank_list.GetRankByPlayerId(player_id)
+}
+
+func (this *RankListManager) GetItemByRank2(rank_type, rank int32) (item utils.SkiplistNode) {
+	this.locker.RLock()
+	rank_list := this.rank_map[rank_type]
+	if rank_list == nil {
+		return
+	}
+	this.locker.RUnlock()
+	return rank_list.GetItemByRank(rank)
+}
+
+func (this *RankListManager) GetItemsByRange2(rank_type, player_id, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
 	this.locker.RLock()
 	rank_list := this.rank_map[rank_type]
 	if rank_list == nil {
@@ -138,6 +213,16 @@ func (this *RankListManager) GetItemsByRange2(rank_type, player_id, start_rank, 
 	}
 	this.locker.RUnlock()
 	return rank_list.GetItemsByRank(player_id, start_rank, rank_num)
+}
+
+func (this *RankListManager) GetLastRankRange2(rank_type, rank_num int32) (int32, int32) {
+	this.locker.RLock()
+	rank_list := this.rank_map[rank_type]
+	if rank_list == nil {
+		return -1, -1
+	}
+	this.locker.RUnlock()
+	return rank_list.GetLastRankRange(rank_num)
 }
 
 func (this *RankListManager) UpdateItem2(rank_type int32, item utils.SkiplistNode) bool {

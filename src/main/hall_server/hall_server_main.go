@@ -134,6 +134,9 @@ func main() {
 		return
 	}
 
+	// 排行榜
+	rank_list_mgr.Init()
+
 	if nil != dbc.Preload() {
 		log.Error("dbc Preload Failed !!")
 		return

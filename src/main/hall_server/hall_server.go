@@ -243,13 +243,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("arena_robot_table_mgr init success")
 	}
 
+	arena_robot_mgr.Init()
+
 	if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Init()
 	} else {
 		conn_timer_wheel.Init()
 	}
-
-	rank_list_mgr.Init()
 
 	return
 }
