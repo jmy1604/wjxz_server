@@ -124,13 +124,13 @@ enum MSGID {
 	S2C_SHOP_REFRESH_RESPONSE				= 11005; // 请求商店刷新返回 S2CShopRefreshResponse
 	S2C_SHOP_AUTO_REFRESH_NOTIFY			= 11006; // 商店定时自动刷新通知 S2CShopAutoRefreshNotify
 	
-	C2S_RANK_LIST_REQUEST					= 12000; // 请求排行榜 C2SRankListRequest
-	S2C_RANK_LIST_RESPONSE					= 12001; // 排行榜返回 S2CRankListResponse
+	C2S_RANK_LIST_REQUEST					= 11100; // 请求排行榜 C2SRankListRequest
+	S2C_RANK_LIST_RESPONSE					= 11101; // 排行榜返回 S2CRankListResponse
 	
-	C2S_ARENA_DATA_REQUEST					= 13000; // 请求竞技场数据 C2SArenaDataRequest
-	S2C_ARENA_DATA_RESPONSE					= 13001; // 请求竞技场数据返回 S2CAreaDataResponse
-	C2S_ARENA_PLAYER_DEFENSE_TEAM_REQUEST   = 13002; // 请求竞技场玩家阵容 C2SArenaPlayerDefenseTeamRequest
-	S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE  = 13003; // 请求竞技场玩家阵容返回 S2CArenaPlayerDefenseTeamResponse
-	C2S_ARENA_MATCH_PLAYER_REQUEST			= 13004; // 请求竞技场匹配 C2SArenaMatchPlayerRequest
-	S2C_ARENA_MATCH_PLAYER_RESPONSE			= 13005; // 请求竞技场匹配返回 S2CArenaMatchPlayerResponse
+	C2S_ARENA_DATA_REQUEST					= 11200; // 请求竞技场数据 C2SArenaDataRequest
+	S2C_ARENA_DATA_RESPONSE					= 11201; // 请求竞技场数据返回 S2CAreaDataResponse
+	C2S_ARENA_PLAYER_DEFENSE_TEAM_REQUEST   = 11202; // 请求竞技场玩家阵容 C2SArenaPlayerDefenseTeamRequest
+	S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE  = 11203; // 请求竞技场玩家阵容返回 S2CArenaPlayerDefenseTeamResponse
+	C2S_ARENA_MATCH_PLAYER_REQUEST			= 11204; // 请求竞技场匹配 C2SArenaMatchPlayerRequest
+	S2C_ARENA_MATCH_PLAYER_RESPONSE			= 11205; // 请求竞技场匹配返回 S2CArenaMatchPlayerResponse
 }
