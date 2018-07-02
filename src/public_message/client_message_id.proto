@@ -126,4 +126,11 @@ enum MSGID {
 	
 	C2S_RANK_LIST_REQUEST					= 12000; // 请求排行榜 C2SRankListRequest
 	S2C_RANK_LIST_RESPONSE					= 12001; // 排行榜返回 S2CRankListResponse
+	
+	C2S_ARENA_DATA_REQUEST					= 13000; // 请求竞技场数据 C2SArenaDataRequest
+	S2C_ARENA_DATA_RESPONSE					= 13001; // 请求竞技场数据返回 S2CAreaDataResponse
+	C2S_ARENA_PLAYER_DEFENSE_TEAM_REQUEST   = 13002; // 请求竞技场玩家阵容 C2SArenaPlayerDefenseTeamRequest
+	S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE  = 13003; // 请求竞技场玩家阵容返回 S2CArenaPlayerDefenseTeamResponse
+	C2S_ARENA_MATCH_PLAYER_REQUEST			= 13004; // 请求竞技场匹配 C2SArenaMatchPlayerRequest
+	S2C_ARENA_MATCH_PLAYER_RESPONSE			= 13005; // 请求竞技场匹配返回 S2CArenaMatchPlayerResponse
 }

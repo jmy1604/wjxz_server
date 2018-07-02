@@ -5,13 +5,13 @@ import (
 	"libs/utils"
 	"main/table_config"
 	_ "math/rand"
-	_ "net/http"
-	_ "public_message/gen_go/client_message"
+	"net/http"
+	"public_message/gen_go/client_message"
 	_ "public_message/gen_go/client_message_id"
 	_ "sync"
 	"time"
 
-	_ "github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 const (
@@ -21,8 +21,8 @@ const (
 type ArenaRankItem struct {
 	SaveTime    int32
 	PlayerScore int32
-	PlayerLevel int32
-	PlayerId    int32
+	//PlayerLevel int32
+	PlayerId int32
 }
 
 func (this *ArenaRankItem) Less(value interface{}) bool {
@@ -37,11 +37,11 @@ func (this *ArenaRankItem) Less(value interface{}) bool {
 		if this.SaveTime > item.SaveTime {
 			return true
 		}
-		if this.SaveTime == item.SaveTime {
+		/*if this.SaveTime == item.SaveTime {
 			if this.PlayerLevel < item.PlayerLevel {
 				return true
 			}
-		}
+		}*/
 	}
 	return false
 }
@@ -58,11 +58,11 @@ func (this *ArenaRankItem) Greater(value interface{}) bool {
 		if this.SaveTime < item.SaveTime {
 			return true
 		}
-		if this.SaveTime == item.SaveTime {
+		/*if this.SaveTime == item.SaveTime {
 			if this.PlayerLevel > item.PlayerLevel {
 				return true
 			}
-		}
+		}*/
 	}
 	return false
 }
@@ -99,13 +99,18 @@ func (this *ArenaRankItem) Assign(node utils.SkiplistNode) {
 		return
 	}
 	this.PlayerId = n.PlayerId
-	this.PlayerLevel = n.PlayerLevel
 	this.PlayerScore = n.PlayerScore
 	this.SaveTime = n.SaveTime
 }
 
 func (this *ArenaRankItem) CopyDataTo(node interface{}) {
-	return
+	n := node.(*ArenaRankItem)
+	if n == nil {
+		return
+	}
+	n.PlayerId = this.PlayerId
+	n.PlayerScore = this.PlayerScore
+	n.SaveTime = this.SaveTime
 }
 
 type ArenaRobot struct {
@@ -130,11 +135,19 @@ func (this *ArenaRobotManager) Init() {
 		return
 	}
 
+	now_time := int32(time.Now().Unix())
 	this.robots = make(map[int32]*ArenaRobot)
 	for _, r := range array {
 		robot := &ArenaRobot{}
 		robot.Init(r)
 		this.robots[r.Id] = robot
+		// 加入排行榜
+		var d = ArenaRankItem{
+			SaveTime:    now_time,
+			PlayerScore: r.RobotScore,
+			PlayerId:    r.Id,
+		}
+		rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, &d)
 	}
 }
 
@@ -150,21 +163,27 @@ func (this *Player) LoadArenaScore() {
 	var data = ArenaRankItem{
 		SaveTime:    this.db.Arena.GetUpdateScoreTime(),
 		PlayerScore: this.db.Arena.GetScore(),
-		PlayerLevel: this.db.Info.GetLvl(),
 		PlayerId:    this.Id,
 	}
 	this._update_arena_score(&data)
 }
 
-func (this *Player) UpdateArenaScore(is_win bool) {
+func (this *Player) UpdateArenaScore(is_win bool) bool {
 	var add_score int32
+	now_score := this.db.Arena.GetScore()
+	division := arena_division_table_mgr.GetByScore(now_score)
+	if division == nil {
+		log.Error("Arena division table data with score[%v] is not found", now_score)
+		return false
+	}
+
 	if is_win {
-		add_score = global_config_mgr.GetGlobalConfig().ArenaWinAddScore
+		add_score = division.WinScore
 		if this.db.Arena.GetRepeatedWinNum() >= global_config_mgr.GetGlobalConfig().ArenaRepeatedWinNum {
-			add_score += global_config_mgr.GetGlobalConfig().ArenaRepeatedWinAddExtraScore
+			add_score += division.WinningStreakScoreBonus
 		}
 	} else {
-		add_score = global_config_mgr.GetGlobalConfig().ArenaLoseAddScoreOnLowGrade
+		add_score = division.LoseScore
 	}
 
 	if add_score > 0 {
@@ -175,11 +194,12 @@ func (this *Player) UpdateArenaScore(is_win bool) {
 		var data = ArenaRankItem{
 			SaveTime:    now_time,
 			PlayerScore: score,
-			PlayerLevel: this.db.Info.GetLvl(),
 			PlayerId:    this.Id,
 		}
 		this._update_arena_score(&data)
 	}
+
+	return true
 }
 
 func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
@@ -190,10 +210,12 @@ func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
 	}
 
 	for rank := rank_start; rank < rank_start+rank_num; rank++ {
-		item := rank_items[rank-rank_start]
-		pid := item.GetKey().(int32)
-		score := item.GetValue().(int32)
-		log.Debug("Rank: %v   Player[%v] Score[%v]", rank, pid, score)
+		item := (rank_items[rank-rank_start]).(*ArenaRankItem)
+		if item == nil {
+			log.Error("Player[%v] get arena rank list by rank[%v] item failed")
+			continue
+		}
+		log.Debug("Rank: %v   Player[%v] Score[%v]", rank, item.PlayerId, item.PlayerScore)
 	}
 
 	log.Debug("Player[%v] score[%v] rank[%v]", this.Id, self_value.(int32), self_rank)
@@ -207,7 +229,7 @@ func (this *Player) MatchArenaPlayer() (p *Player) {
 		return
 	}
 
-	var start_rank, rank_num int32
+	var start_rank, rank_num, last_rank int32
 	match_num := global_config_mgr.GetGlobalConfig().ArenaMatchPlayerNum
 	if rank == 0 {
 		start_rank, rank_num = rank_list_mgr.GetLastRankRange(RANK_LIST_TYPE_ARENA, match_num)
@@ -216,31 +238,39 @@ func (this *Player) MatchArenaPlayer() (p *Player) {
 			return
 		}
 	} else {
-		last_rank, _ := rank_list_mgr.GetLastRankRange(RANK_LIST_TYPE_ARENA, 1)
+		last_rank, _ = rank_list_mgr.GetLastRankRange(RANK_LIST_TYPE_ARENA, 1)
 		half_num := match_num / 2
-		// 一般情况
-		right_need := (rank + half_num) - last_rank
-		if right_need > 0 {
-			rank_num = last_rank - rank
+		var left, right int32
+		if this.db.Arena.GetRepeatedWinNum() >= global_config_mgr.GetGlobalConfig().ArenaRepeatedWinNum {
+			right = rank - 1
+			left = rank - match_num
+		} else if this.db.Arena.GetRepeatedLoseNum() >= global_config_mgr.GetGlobalConfig().ArenaLoseRepeatedNum {
+			right = rank + match_num
+			left = rank + 1
 		} else {
-			rank_num = half_num
+			right = rank + half_num
+			left = rank - half_num
 		}
-		left_need := rank - half_num + 1
-		if left_need <= 0 {
-			rank_num += half_num
-		} else {
-			rank_num += (half_num - left_need)
-		}
-		if right_need > 0 && left_need < 0 {
-			if right_need < -left_need {
 
-			}
-		} else if right_need < 0 && left_need > 0 {
-
+		if left < 1 {
+			left = 1
 		}
+		if right > last_rank {
+			right = last_rank
+		}
+
+		start_rank = left
+		rank_num = right - start_rank + 1
 	}
 
 	_, r := rand31n_from_range(start_rank, start_rank+rank_num)
+	// 如果是自己
+	if rank == r {
+		r += 1
+		if r > last_rank {
+			r -= 2
+		}
+	}
 	item := rank_list_mgr.GetItemByRank(RANK_LIST_TYPE_ARENA, r)
 	if item == nil {
 		log.Error("Player[%v] match arena player by random rank[%v] get empty item", this.Id, r)
@@ -249,5 +279,50 @@ func (this *Player) MatchArenaPlayer() (p *Player) {
 
 	player_id := item.(*ArenaRankItem).PlayerId
 	p = player_mgr.GetPlayerById(player_id)
+
+	log.Debug("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v", this.Id, start_rank, rank_num)
+
 	return
+}
+
+func (this *Player) send_arena_data() int32 {
+	return 1
+}
+
+func (this *Player) arena_player_defense_team(player_id int32) int32 {
+	return 1
+}
+
+func (this *Player) arena_match() int32 {
+	return 1
+}
+
+func C2SArenaDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SArenaDataRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.send_arena_data()
+}
+
+func C2SArenaPlayerDefenseTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SArenaPlayerDefenseTeamRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.arena_player_defense_team(req.GetPlayerId())
+}
+
+func C2SArenaMatchPlayerHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SArenaMatchPlayerRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.arena_match()
 }

@@ -1726,6 +1726,55 @@ func shop_refresh_cmd(p *Player, args []string) int32 {
 	return p.shop_refresh(int32(shop_id))
 }
 
+func arena_ranklist_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var start, num int
+	var err error
+	start, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("开始排名[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+	num, err = strconv.Atoi(args[1])
+	if err != nil {
+		log.Error("排名数[%v]转换失败[%v]", args[1], err.Error())
+		return -1
+	}
+
+	p.OutputArenaRankItems(int32(start), int32(num))
+
+	return 1
+}
+
+func arena_data_cmd(p *Player, args []string) int32 {
+	return p.send_arena_data()
+}
+
+func arena_player_team_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("玩家ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.arena_player_defense_team(int32(player_id))
+}
+
+func arena_match_cmd(p *Player, args []string) int32 {
+	return p.arena_match()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1783,6 +1832,10 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"shop_data":          shop_data_cmd,
 	"buy_item":           buy_item_cmd,
 	"shop_refresh":       shop_refresh_cmd,
+	"arena_ranklist":     arena_ranklist_cmd,
+	"arena_data":         arena_data_cmd,
+	"arena_player_team":  arena_player_team_cmd,
+	"arena_match":        arena_match_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

@@ -23,13 +23,15 @@ const (
 type RankList struct {
 	rank_list *utils.CommonRankingList
 	item_pool *sync.Pool
+	root_node utils.SkiplistNode
 }
 
 func (this *RankList) Init(root_node utils.SkiplistNode) {
-	this.rank_list = utils.NewCommonRankingList(root_node, ARENA_RANK_MAX)
+	this.root_node = root_node
+	this.rank_list = utils.NewCommonRankingList(this.root_node, ARENA_RANK_MAX)
 	this.item_pool = &sync.Pool{
 		New: func() interface{} {
-			return root_node.New()
+			return this.root_node.New()
 		},
 	}
 }
@@ -46,7 +48,7 @@ func (this *RankList) GetItemByRank(rank int32) (item utils.SkiplistNode) {
 	return this.rank_list.GetByRank(rank)
 }
 
-// 获取排名
+// 获取排名项
 func (this *RankList) GetItemsByRank(player_id, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
 	start_rank, rank_num = this.rank_list.GetRankRange(start_rank, rank_num)
 	if start_rank == 0 {

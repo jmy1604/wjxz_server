@@ -880,6 +880,7 @@ message RankItemInfo {
 	string PlayerHead						= 5; // 玩家头像
 	int32 PlayerArenaScore					= 6; // 玩家竞技场积分
 	int32 PlayerArenaGrade					= 7; // 玩家竞技场段位
+	int32 PlayerPower						= 8; // 玩家战力
 }
 
 // 请求排行榜
@@ -892,6 +893,48 @@ message S2CRankListResponse {
 	int32 RankListType						= 1; // 排行榜类型
 	int32 SelfRank							= 2; // 自己排名
 	repeated RankItemInfo RankItems			= 3; // 排名项
+	int32 SelfHistoryTopRank				= 4; // 自己历史最高排名，暂时只有竞技场有
+}
+
+// 
+
+// --------------------------------- 竞技场 -----------------------------------
+// 竞技场数据请求
+message C2SArenaDataRequest {
+}
+
+message S2CArenaDataResponse {
+	int32 RemainSeconds						= 1; // 剩余结束时间
+}
+
+// 请求竞技场对方防守阵容
+message C2SArenaPlayerDefenseTeamRequest {
+	int32 PlayerId							= 1;
+}
+
+message PlayerTeamRole {
+	int32 TableId							= 1;
+	int32 Pos								= 2;
+	int32 Level								= 3;
+}
+
+message S2CArenaPlayerDefenseTeamResponse {
+	int32 PlayerId							= 1;
+	map<int32,PlayerTeamRole> DefenseTeam	= 2;
+}
+
+// 请求竞技场匹配
+message C2SArenaMatchPlayerRequest {
+}
+
+message S2CArenaMatchPlayerResponse {
+	int32 PlayerId						 	= 1; // ID
+	string PlayerName						= 2; // 昵称
+	int32 PlayerLevel						= 3; // 等级
+	int32 PlayerHead						= 4; // 头像
+	int32 PlayerGrade 						= 5; // 段位
+	int32 PlayerScore                       = 6; // 积分
+	int32 PlayerPower						= 7; // 战力
 }
 
 //////////////////////////////////////////////////////////////////////////////
