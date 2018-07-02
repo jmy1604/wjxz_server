@@ -788,8 +788,17 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 				log.Error("Player[%v] set campaign members[%v] failed", p.Id, req.AttackMembers)
 				return res
 			}
-		} else if req.BattleType == 3 {
-
+		} else {
+			team_type := -1
+			// 爬塔阵容
+			if req.GetBattleType() == 3 {
+				team_type = BATTLE_TOWER_TEAM
+			}
+			res := p.SetTeam(team_type)
+			if res < 0 {
+				log.Error("Player[%v] set team[%v] failed", p.Id, team_type)
+				return res
+			}
 		}
 	}
 
