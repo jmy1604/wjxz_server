@@ -27,6 +27,16 @@ func (this *Player) get_gold_hand_left_nums() []int32 {
 	return ln
 }
 
+func (this *Player) if_gold_hand_reseted() bool {
+	ln := this.get_gold_hand_left_nums()
+	for i := 0; i < len(ln); i++ {
+		if ln[i] <= 0 {
+			return false
+		}
+	}
+	return true
+}
+
 func (this *Player) check_reset_gold_hand(gold_hand_data *table_config.XmlGoldHandItem) (remain_seconds int32) {
 	last_refresh := this.db.GoldHand.GetLastRefreshTime()
 	now_time := int32(time.Now().Unix())
@@ -75,7 +85,7 @@ func (this *Player) touch_gold(t int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_GOLDHAND_REFRESH_IS_COOLINGDOWN)
 	}*/
 
-	remain_seconds := this.check_reset_gold_hand(gold_hand)
+	this.check_reset_gold_hand(gold_hand)
 
 	var gold, diamond int32
 	if t == 1 {
@@ -108,9 +118,8 @@ func (this *Player) touch_gold(t int32) int32 {
 	this.add_gold(gold)
 	this.add_diamond(-diamond)
 
-	if remain_seconds <= 0 {
-		now_time := int32(time.Now().Unix())
-		this.db.GoldHand.SetLastRefreshTime(now_time)
+	if this.if_gold_hand_reseted() {
+		this.db.GoldHand.SetLastRefreshTime(int32(time.Now().Unix()))
 	}
 
 	response := &msg_client_message.S2CTouchGoldResponse{
