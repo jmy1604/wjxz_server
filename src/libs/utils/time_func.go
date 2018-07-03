@@ -6,7 +6,6 @@ import (
 )
 
 func CheckWeekTimeArrival(last_time_point int32, week_time_string string) bool {
-	log.Debug("last shop refresh time point is %v, week time format is %v", last_time_point, week_time_string)
 	last_time := time.Unix(int64(last_time_point), 0)
 	now_time := time.Now()
 
@@ -44,7 +43,6 @@ func CheckWeekTimeArrival(last_time_point int32, week_time_string string) bool {
 		last_refresh_time = tmp.Unix() - int64((now_time.Weekday()-tm.Weekday())*24*3600)
 	}
 
-	log.Debug("now_unix:%v last_refresh_time:%v last_save_time:%v", now_time.Unix(), last_refresh_time, last_time_point)
 	if now_time.Unix() >= last_refresh_time && last_refresh_time > int64(last_time_point) {
 		return true
 	}
@@ -112,7 +110,6 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string)
 
 	diff_days := (today_tm.Unix() - tm.Unix()) / (24 * 3600)
 	y := int(diff_days) % int(1)
-	log.Debug("!!!!!!! today_unix[%v], st_unix[%v], diff_days[%v], y[%v]", today_tm.Unix(), tm.Unix(), diff_days, y)
 
 	next_refresh_time := int64(0)
 	if y == 0 && now_time.Unix() < today_tm.Unix() {
@@ -120,13 +117,10 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string)
 	} else {
 		next_refresh_time = today_tm.Unix() + int64((int(1)-y)*24*3600)
 	}
-
-	log.Debug("now:%v  next_refresh_time:%v  last_save:%v", now_time.Unix(), next_refresh_time, last_time_point)
 	return int32(next_refresh_time - now_time.Unix())
 }
 
 func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string string, interval_days int32) int32 {
-	log.Debug("@@@@@@@ last_save[%v]  interval_days[%v]", last_save, interval_days)
 	if last_save <= 0 || interval_days <= 0 {
 		return -1
 	}
@@ -155,7 +149,6 @@ func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string strin
 
 	diff_days := (today_tm.Unix() - tm.Unix()) / (24 * 3600)
 	y := int(diff_days) % int(interval_days)
-	log.Debug("!!!!!!! today_unix[%v], st_unix[%v], diff_days[%v], y[%v]", today_tm.Unix(), tm.Unix(), diff_days, y)
 
 	next_refresh_time := int64(0)
 	if y == 0 && now_time.Unix() < today_tm.Unix() {
@@ -164,7 +157,6 @@ func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string strin
 		next_refresh_time = today_tm.Unix() + int64((int(interval_days)-y)*24*3600)
 	}
 
-	log.Debug("now:%v  next_refresh_time:%v  last_save:%v", now_time.Unix(), next_refresh_time, last_save)
 	return int32(next_refresh_time - now_time.Unix())
 }
 
@@ -225,7 +217,6 @@ func (this *DaysTimeChecker) IsArrival(last_save int32, interval_days int32) boo
 		last_refresh_time = tmp.Unix() - int64(y*24*3600)
 	}
 
-	log.Debug("now_unix:%v last_refresh_time:%v last_save_time:%v", now_time.Unix(), last_refresh_time, last_save)
 	if last_refresh_time > int64(last_save) {
 		return true
 	}
@@ -259,7 +250,6 @@ func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32, interva
 		next_refresh_time = today_tm.Unix() + int64((int(interval_days)-y)*24*3600)
 	}
 
-	//log.Debug("now:%v  next_refresh_time:%v  last_save:%v", now_time.Unix(), next_refresh_time, last_save)
 	return int32(next_refresh_time - now_time.Unix())
 }
 
