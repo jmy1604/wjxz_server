@@ -295,6 +295,8 @@ func (this *HallServer) Run() {
 		go conn_timer_wheel.Run()
 	}
 
+	arena_season_mgr.Run()
+
 	for {
 		select {
 		case d, ok := <-this.ticker.Chan:

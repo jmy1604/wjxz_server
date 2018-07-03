@@ -304,7 +304,11 @@ func (this *Player) MatchArenaPlayer() (player_id int32) {
 }
 
 func (this *Player) send_arena_data() int32 {
-	response := &msg_client_message.S2CArenaDataResponse{}
+	day_remain, season_remain := arena_season_mgr.GetRemainSeconds()
+	response := &msg_client_message.S2CArenaDataResponse{
+		DayRemainSeconds:    day_remain,
+		SeasonRemainSeconds: season_remain,
+	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_DATA_RESPONSE), response)
 	log.Debug("Player[%v] arena data: %v", this.Id, response)
 	return 1

@@ -94,8 +94,8 @@ enum E_ERR {
 	PLAYER_TOWER_CANT_FIGHT					= -16005; // 不能打该层塔
 	
 	// 点金手
-	PLAYER_GOLDHAND_DATA_NOT_FOUND			= -17001; // 点金手数据不存在
-	PLAYER_GOLDHAND_REFRESH_IS_COOLINGDOWN	= -17000; // 点金手刷新CD中
+	PLAYER_GOLDHAND_DATA_NOT_FOUND			= -17000; // 点金手数据不存在
+	PLAYER_GOLDHAND_REFRESH_IS_COOLINGDOWN	= -17001; // 点金手刷新CD中
 	
 	// 商店
 	PLAYER_SHOP_TABLE_DATA_NOT_FOUND		= -18000; // 商店数据找不到
@@ -915,7 +915,8 @@ message C2SArenaDataRequest {
 }
 
 message S2CArenaDataResponse {
-	int32 RemainSeconds						= 1; // 剩余结束时间
+	int32 DayRemainSeconds					= 1; // 每天剩余结束时间
+	int32 SeasonRemainSeconds				= 2; // 赛季剩余时间
 }
 
 // 请求竞技场对方防守阵容

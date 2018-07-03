@@ -105,10 +105,8 @@ func (this *Player) touch_gold(t int32) int32 {
 	left_nums := this.get_gold_hand_left_nums()
 	if left_nums[t-1] <= 0 {
 		log.Error("Player[%v] cant touch gold hand with type[%v], num not enough", this.Id, t)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GOLDHAND_REFRESH_IS_COOLINGDOWN)
 	}
-	left_nums[t-1] -= 1
-	this.db.GoldHand.SetLeftNum(left_nums)
 
 	if this.get_diamond() < diamond {
 		log.Error("Player[%v] diamond not enough, cant touch gold %v", this.Id, t)
@@ -121,6 +119,9 @@ func (this *Player) touch_gold(t int32) int32 {
 	if this.if_gold_hand_reseted() {
 		this.db.GoldHand.SetLastRefreshTime(int32(time.Now().Unix()))
 	}
+
+	left_nums[t-1] -= 1
+	this.db.GoldHand.SetLeftNum(left_nums)
 
 	response := &msg_client_message.S2CTouchGoldResponse{
 		Type:                     t,
