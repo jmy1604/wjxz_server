@@ -75,7 +75,7 @@ func (this *Player) touch_gold(t int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_GOLDHAND_REFRESH_IS_COOLINGDOWN)
 	}*/
 
-	this.check_reset_gold_hand(gold_hand)
+	remain_seconds := this.check_reset_gold_hand(gold_hand)
 
 	var gold, diamond int32
 	if t == 1 {
@@ -108,8 +108,10 @@ func (this *Player) touch_gold(t int32) int32 {
 	this.add_gold(gold)
 	this.add_diamond(-diamond)
 
-	now_time := int32(time.Now().Unix())
-	this.db.GoldHand.SetLastRefreshTime(now_time)
+	if remain_seconds <= 0 {
+		now_time := int32(time.Now().Unix())
+		this.db.GoldHand.SetLastRefreshTime(now_time)
+	}
 
 	response := &msg_client_message.S2CTouchGoldResponse{
 		Type:                     t,
