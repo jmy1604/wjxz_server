@@ -243,6 +243,12 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("arena_robot_table_mgr init success")
 	}
 
+	if !arena_season_mgr.Init() {
+		log.Error("arena_season_mgr init failed")
+		return errors.New("arena_season_mgr init failed")
+	} else {
+		log.Info("arena_season_mgr init success")
+	}
 	arena_robot_mgr.Init()
 
 	if USE_CONN_TIMER_WHEEL == 0 {

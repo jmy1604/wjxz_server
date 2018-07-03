@@ -419,14 +419,20 @@ func C2SArenaMatchPlayerHandler(w http.ResponseWriter, r *http.Request, p *Playe
 
 // 竞技场赛季管理
 type ArenaSeasonMgr struct {
-	state      int32 // 0 结束  1 开始
-	start_time int32
+	state        int32 // 0 结束  1 开始
+	start_time   int32
+	time_checker *utils.DaysTimeChecker
 }
 
 var arena_season_mgr ArenaSeasonMgr
 
-func (this *ArenaSeasonMgr) Init() {
-
+func (this *ArenaSeasonMgr) Init() bool {
+	this.time_checker = &utils.DaysTimeChecker{}
+	if !this.time_checker.Set("15:04:05", global_config_mgr.GetGlobalConfig().ArenaSeasonDayResetTime) {
+		log.Error("ArenaSeasonMgr init failed")
+		return false
+	}
+	return true
 }
 
 func (this *ArenaSeasonMgr) Start() bool {
@@ -458,10 +464,9 @@ func (this *ArenaSeasonMgr) GetRemainSeconds() (day_remain int32, season_remain 
 		season_set = now_time
 	}
 
-	day_time_string := global_config_mgr.GetGlobalConfig().ArenaSeasonDayResetTime
-	day_remain = utils.GetRemainSeconds2NextDayTime(day_set, day_time_string)
+	day_remain = this.time_checker.RemainSecondsToNextRefresh(day_set, 1)
 	days := global_config_mgr.GetGlobalConfig().ArenaSeasonDays
-	season_remain = utils.GetRemainSeconds2NextSeveralDaysTime(season_set, day_time_string, days)
+	season_remain = this.time_checker.RemainSecondsToNextRefresh(season_set, days)
 
 	return
 }

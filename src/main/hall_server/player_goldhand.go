@@ -2,6 +2,7 @@ package main
 
 import (
 	"libs/log"
+	"main/table_config"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
@@ -12,13 +13,29 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+func (this *Player) reset_gold_hand_left_nums() []int32 {
+	ln := []int32{1, 1, 1}
+	this.db.GoldHand.SetLeftNum(ln)
+	return ln
+}
+
 func (this *Player) get_gold_hand_left_nums() []int32 {
 	ln := this.db.GoldHand.GetLeftNum()
 	if ln == nil || len(ln) == 0 {
-		ln = []int32{1, 1, 1}
-		this.db.GoldHand.SetLeftNum(ln)
+		ln = this.reset_gold_hand_left_nums()
 	}
 	return ln
+}
+
+func (this *Player) check_reset_gold_hand(gold_hand_data *table_config.XmlGoldHandItem) (remain_seconds int32) {
+	last_refresh := this.db.GoldHand.GetLastRefreshTime()
+	now_time := int32(time.Now().Unix())
+	remain_seconds = gold_hand_data.RefreshCD - (now_time - last_refresh)
+	if remain_seconds < 0 {
+		this.reset_gold_hand_left_nums()
+		remain_seconds = 0
+	}
+	return
 }
 
 func (this *Player) send_gold_hand() int32 {
@@ -29,12 +46,8 @@ func (this *Player) send_gold_hand() int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_GOLDHAND_DATA_NOT_FOUND)
 	}
 
-	last_refresh := this.db.GoldHand.GetLastRefreshTime()
-	now_time := int32(time.Now().Unix())
-	remain_seconds := gold_hand_data.RefreshCD - (now_time - last_refresh)
-	if remain_seconds < 0 {
-		remain_seconds = 0
-	}
+	remain_seconds := this.check_reset_gold_hand(gold_hand_data)
+
 	left_nums := make(map[int32]int32)
 	ln := this.get_gold_hand_left_nums()
 	for i := 0; i < len(ln); i++ {
@@ -55,12 +68,14 @@ func (this *Player) touch_gold(t int32) int32 {
 		log.Error("Goldhand data with level %v not found", lvl)
 		return int32(msg_client_message.E_ERR_PLAYER_GOLDHAND_DATA_NOT_FOUND)
 	}
-	last_refresh := this.db.GoldHand.GetLastRefreshTime()
+	/*last_refresh := this.db.GoldHand.GetLastRefreshTime()
 	now_time := int32(time.Now().Unix())
 	if now_time-last_refresh < gold_hand.RefreshCD {
 		log.Error("Player[%v] gold hand is cooling down", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_GOLDHAND_REFRESH_IS_COOLINGDOWN)
-	}
+	}*/
+
+	this.check_reset_gold_hand(gold_hand)
 
 	var gold, diamond int32
 	if t == 1 {
@@ -77,7 +92,7 @@ func (this *Player) touch_gold(t int32) int32 {
 		return -1
 	}
 
-	left_nums := this.db.GoldHand.GetLeftNum()
+	left_nums := this.get_gold_hand_left_nums()
 	if left_nums[t-1] <= 0 {
 		log.Error("Player[%v] cant touch gold hand with type[%v], num not enough", this.Id, t)
 		return -1
@@ -93,6 +108,7 @@ func (this *Player) touch_gold(t int32) int32 {
 	this.add_gold(gold)
 	this.add_diamond(-diamond)
 
+	now_time := int32(time.Now().Unix())
 	this.db.GoldHand.SetLastRefreshTime(now_time)
 
 	response := &msg_client_message.S2CTouchGoldResponse{
