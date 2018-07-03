@@ -12,6 +12,15 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+func (this *Player) get_gold_hand_left_nums() []int32 {
+	ln := this.db.GoldHand.GetLeftNum()
+	if ln == nil || len(ln) == 0 {
+		ln = []int32{1, 1, 1}
+		this.db.GoldHand.SetLeftNum(ln)
+	}
+	return ln
+}
+
 func (this *Player) send_gold_hand() int32 {
 	lvl := this.db.Info.GetLvl()
 	gold_hand_data := goldhand_table_mgr.Get(lvl)
@@ -26,8 +35,14 @@ func (this *Player) send_gold_hand() int32 {
 	if remain_seconds < 0 {
 		remain_seconds = 0
 	}
+	left_nums := make(map[int32]int32)
+	ln := this.get_gold_hand_left_nums()
+	for i := 0; i < len(ln); i++ {
+		left_nums[int32(i+1)] = ln[i]
+	}
 	response := &msg_client_message.S2CGoldHandDataResponse{
 		RemainRefreshSeconds: remain_seconds,
+		LeftNums:             left_nums,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GOLD_HAND_DATA_RESPONSE), response)
 	return 1
@@ -62,6 +77,14 @@ func (this *Player) touch_gold(t int32) int32 {
 		return -1
 	}
 
+	left_nums := this.db.GoldHand.GetLeftNum()
+	if left_nums[t-1] <= 0 {
+		log.Error("Player[%v] cant touch gold hand with type[%v], num not enough", this.Id, t)
+		return -1
+	}
+	left_nums[t-1] -= 1
+	this.db.GoldHand.SetLeftNum(left_nums)
+
 	if this.get_diamond() < diamond {
 		log.Error("Player[%v] diamond not enough, cant touch gold %v", this.Id, t)
 		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
@@ -79,6 +102,8 @@ func (this *Player) touch_gold(t int32) int32 {
 		NextRefreshRemainSeconds: gold_hand.RefreshCD,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TOUCH_GOLD_RESPONSE), response)
+
+	this.send_gold_hand()
 
 	return 1
 }

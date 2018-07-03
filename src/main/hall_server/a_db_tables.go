@@ -907,21 +907,35 @@ func (this* dbPlayerDrawData)clone_to(d *dbPlayerDrawData){
 }
 type dbPlayerGoldHandData struct{
 	LastRefreshTime int32
+	LeftNum []int32
 }
 func (this* dbPlayerGoldHandData)from_pb(pb *db.PlayerGoldHand){
 	if pb == nil {
+		this.LeftNum = make([]int32,0)
 		return
 	}
 	this.LastRefreshTime = pb.GetLastRefreshTime()
+	this.LeftNum = make([]int32,len(pb.GetLeftNum()))
+	for i, v := range pb.GetLeftNum() {
+		this.LeftNum[i] = v
+	}
 	return
 }
 func (this* dbPlayerGoldHandData)to_pb()(pb *db.PlayerGoldHand){
 	pb = &db.PlayerGoldHand{}
 	pb.LastRefreshTime = proto.Int32(this.LastRefreshTime)
+	pb.LeftNum = make([]int32, len(this.LeftNum))
+	for i, v := range this.LeftNum {
+		pb.LeftNum[i]=v
+	}
 	return
 }
 func (this* dbPlayerGoldHandData)clone_to(d *dbPlayerGoldHandData){
 	d.LastRefreshTime = this.LastRefreshTime
+	d.LeftNum = make([]int32, len(this.LeftNum))
+	for _ii, _vv := range this.LeftNum {
+		d.LeftNum[_ii]=_vv
+	}
 	return
 }
 type dbPlayerShopData struct{
@@ -987,6 +1001,8 @@ type dbPlayerArenaData struct{
 	RepeatedLoseNum int32
 	Score int32
 	UpdateScoreTime int32
+	MatchedPlayerId int32
+	HistoryTopRank int32
 }
 func (this* dbPlayerArenaData)from_pb(pb *db.PlayerArena){
 	if pb == nil {
@@ -996,6 +1012,8 @@ func (this* dbPlayerArenaData)from_pb(pb *db.PlayerArena){
 	this.RepeatedLoseNum = pb.GetRepeatedLoseNum()
 	this.Score = pb.GetScore()
 	this.UpdateScoreTime = pb.GetUpdateScoreTime()
+	this.MatchedPlayerId = pb.GetMatchedPlayerId()
+	this.HistoryTopRank = pb.GetHistoryTopRank()
 	return
 }
 func (this* dbPlayerArenaData)to_pb()(pb *db.PlayerArena){
@@ -1004,6 +1022,8 @@ func (this* dbPlayerArenaData)to_pb()(pb *db.PlayerArena){
 	pb.RepeatedLoseNum = proto.Int32(this.RepeatedLoseNum)
 	pb.Score = proto.Int32(this.Score)
 	pb.UpdateScoreTime = proto.Int32(this.UpdateScoreTime)
+	pb.MatchedPlayerId = proto.Int32(this.MatchedPlayerId)
+	pb.HistoryTopRank = proto.Int32(this.HistoryTopRank)
 	return
 }
 func (this* dbPlayerArenaData)clone_to(d *dbPlayerArenaData){
@@ -1011,6 +1031,8 @@ func (this* dbPlayerArenaData)clone_to(d *dbPlayerArenaData){
 	d.RepeatedLoseNum = this.RepeatedLoseNum
 	d.Score = this.Score
 	d.UpdateScoreTime = this.UpdateScoreTime
+	d.MatchedPlayerId = this.MatchedPlayerId
+	d.HistoryTopRank = this.HistoryTopRank
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -1558,6 +1580,29 @@ func (this* dbTowerRankingListPlayersData)clone_to(d *dbTowerRankingListPlayersD
 	for _ii, _vv := range this.Ids {
 		d.Ids[_ii]=_vv
 	}
+	return
+}
+type dbArenaSeasonDataData struct{
+	LastDayResetTime int32
+	LastSeasonResetTime int32
+}
+func (this* dbArenaSeasonDataData)from_pb(pb *db.ArenaSeasonData){
+	if pb == nil {
+		return
+	}
+	this.LastDayResetTime = pb.GetLastDayResetTime()
+	this.LastSeasonResetTime = pb.GetLastSeasonResetTime()
+	return
+}
+func (this* dbArenaSeasonDataData)to_pb()(pb *db.ArenaSeasonData){
+	pb = &db.ArenaSeasonData{}
+	pb.LastDayResetTime = proto.Int32(this.LastDayResetTime)
+	pb.LastSeasonResetTime = proto.Int32(this.LastSeasonResetTime)
+	return
+}
+func (this* dbArenaSeasonDataData)clone_to(d *dbArenaSeasonDataData){
+	d.LastDayResetTime = this.LastDayResetTime
+	d.LastSeasonResetTime = this.LastSeasonResetTime
 	return
 }
 
@@ -4701,6 +4746,25 @@ func (this *dbPlayerGoldHandColumn)SetLastRefreshTime(v int32){
 	this.m_changed = true
 	return
 }
+func (this *dbPlayerGoldHandColumn)GetLeftNum( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerGoldHandColumn.GetLeftNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.LeftNum))
+	for _ii, _vv := range this.m_data.LeftNum {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbPlayerGoldHandColumn)SetLeftNum(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerGoldHandColumn.SetLeftNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LeftNum = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.LeftNum[_ii]=_vv
+	}
+	this.m_changed = true
+	return
+}
 type dbPlayerShopColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerShopData
@@ -5206,6 +5270,32 @@ func (this *dbPlayerArenaColumn)SetUpdateScoreTime(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetUpdateScoreTime")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.UpdateScoreTime = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerArenaColumn)GetMatchedPlayerId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArenaColumn.GetMatchedPlayerId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.MatchedPlayerId
+	return
+}
+func (this *dbPlayerArenaColumn)SetMatchedPlayerId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetMatchedPlayerId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.MatchedPlayerId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerArenaColumn)GetHistoryTopRank( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArenaColumn.GetHistoryTopRank")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.HistoryTopRank
+	return
+}
+func (this *dbPlayerArenaColumn)SetHistoryTopRank(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetHistoryTopRank")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.HistoryTopRank = v
 	this.m_changed = true
 	return
 }
@@ -11025,6 +11115,293 @@ func (this *dbTowerRankingListTable) Save(quick bool) (err error) {
 func (this *dbTowerRankingListTable) GetRow( ) (row *dbTowerRankingListRow) {
 	return this.m_row
 }
+type dbArenaSeasonDataColumn struct{
+	m_row *dbArenaSeasonRow
+	m_data *dbArenaSeasonDataData
+	m_changed bool
+}
+func (this *dbArenaSeasonDataColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbArenaSeasonDataData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.ArenaSeasonData{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal ")
+		return
+	}
+	this.m_data = &dbArenaSeasonDataData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbArenaSeasonDataColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Unmarshal ")
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbArenaSeasonDataColumn)Get( )(v *dbArenaSeasonDataData ){
+	this.m_row.m_lock.UnSafeRLock("dbArenaSeasonDataColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbArenaSeasonDataData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbArenaSeasonDataColumn)Set(v dbArenaSeasonDataData ){
+	this.m_row.m_lock.UnSafeLock("dbArenaSeasonDataColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbArenaSeasonDataData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbArenaSeasonDataColumn)GetLastDayResetTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbArenaSeasonDataColumn.GetLastDayResetTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastDayResetTime
+	return
+}
+func (this *dbArenaSeasonDataColumn)SetLastDayResetTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbArenaSeasonDataColumn.SetLastDayResetTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastDayResetTime = v
+	this.m_changed = true
+	return
+}
+func (this *dbArenaSeasonDataColumn)GetLastSeasonResetTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbArenaSeasonDataColumn.GetLastSeasonResetTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastSeasonResetTime
+	return
+}
+func (this *dbArenaSeasonDataColumn)SetLastSeasonResetTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbArenaSeasonDataColumn.SetLastSeasonResetTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastSeasonResetTime = v
+	this.m_changed = true
+	return
+}
+type dbArenaSeasonRow struct {
+	m_table *dbArenaSeasonTable
+	m_lock       *RWMutex
+	m_loaded  bool
+	m_new     bool
+	m_remove  bool
+	m_touch      int32
+	m_releasable bool
+	m_valid   bool
+	m_Id        int32
+	Data dbArenaSeasonDataColumn
+}
+func new_dbArenaSeasonRow(table *dbArenaSeasonTable, Id int32) (r *dbArenaSeasonRow) {
+	this := &dbArenaSeasonRow{}
+	this.m_table = table
+	this.m_Id = Id
+	this.m_lock = NewRWMutex()
+	this.Data.m_row=this
+	this.Data.m_data=&dbArenaSeasonDataData{}
+	return this
+}
+func (this *dbArenaSeasonRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbArenaSeasonRow.save_data")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_new {
+		db_args:=new_db_args(2)
+		db_args.Push(this.m_Id)
+		dData,db_err:=this.Data.save()
+		if db_err!=nil{
+			log.Error("insert save Data failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dData)
+		args=db_args.GetArgs()
+		state = 1
+	} else {
+		if this.Data.m_changed{
+			update_string = "UPDATE ArenaSeason SET "
+			db_args:=new_db_args(2)
+			if this.Data.m_changed{
+				update_string+="Data=?,"
+				dData,err:=this.Data.save()
+				if err!=nil{
+					log.Error("update save Data failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dData)
+			}
+			update_string = strings.TrimRight(update_string, ", ")
+			update_string+=" WHERE Id=?"
+			db_args.Push(this.m_Id)
+			args=db_args.GetArgs()
+			state = 2
+		}
+	}
+	this.m_new = false
+	this.Data.m_changed = false
+	if release && this.m_loaded {
+		this.m_loaded = false
+		released = true
+	}
+	return nil,released,state,update_string,args
+}
+func (this *dbArenaSeasonRow) Save(release bool) (err error, d bool, released bool) {
+	err,released, state, update_string, args := this.save_data(release)
+	if err != nil {
+		log.Error("save data failed")
+		return err, false, false
+	}
+	if state == 0 {
+		d = false
+	} else if state == 1 {
+		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
+		if err != nil {
+			log.Error("INSERT ArenaSeason exec failed %v ", this.m_Id)
+			return err, false, released
+		}
+		d = true
+	} else if state == 2 {
+		_, err = this.m_table.m_dbc.Exec(update_string, args...)
+		if err != nil {
+			log.Error("UPDATE ArenaSeason exec failed %v", this.m_Id)
+			return err, false, released
+		}
+		d = true
+	}
+	return nil, d, released
+}
+type dbArenaSeasonTable struct{
+	m_dbc *DBC
+	m_lock *RWMutex
+	m_row *dbArenaSeasonRow
+	m_preload_select_stmt *sql.Stmt
+	m_save_insert_stmt *sql.Stmt
+}
+func new_dbArenaSeasonTable(dbc *DBC) (this *dbArenaSeasonTable) {
+	this = &dbArenaSeasonTable{}
+	this.m_dbc = dbc
+	this.m_lock = NewRWMutex()
+	return this
+}
+func (this *dbArenaSeasonTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS ArenaSeason(Id int(11),PRIMARY KEY (Id))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS ArenaSeason failed")
+		return
+	}
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='ArenaSeason'", this.m_dbc.m_db_name)
+	if err != nil {
+		log.Error("SELECT information_schema failed")
+		return
+	}
+	columns := make(map[string]int32)
+	for rows.Next() {
+		var column_name string
+		var ordinal_position int32
+		err = rows.Scan(&column_name, &ordinal_position)
+		if err != nil {
+			log.Error("scan information_schema row failed")
+			return
+		}
+		if ordinal_position < 1 {
+			log.Error("col ordinal out of range")
+			continue
+		}
+		columns[column_name] = ordinal_position
+	}
+	_, hasData := columns["Data"]
+	if !hasData {
+		_, err = this.m_dbc.Exec("ALTER TABLE ArenaSeason ADD COLUMN Data LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN Data failed")
+			return
+		}
+	}
+	return
+}
+func (this *dbArenaSeasonTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Data FROM ArenaSeason WHERE Id=0")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbArenaSeasonTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO ArenaSeason (Id,Data) VALUES (?,?)")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbArenaSeasonTable) Init() (err error) {
+	err=this.check_create_table()
+	if err!=nil{
+		log.Error("check_create_table failed")
+		return
+	}
+	err=this.prepare_preload_select_stmt()
+	if err!=nil{
+		log.Error("prepare_preload_select_stmt failed")
+		return
+	}
+	err=this.prepare_save_insert_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	return
+}
+func (this *dbArenaSeasonTable) Preload() (err error) {
+	r := this.m_dbc.StmtQueryRow(this.m_preload_select_stmt)
+	var dData []byte
+	err = r.Scan(&dData)
+	if err!=nil{
+		if err!=sql.ErrNoRows{
+			log.Error("Scan failed")
+			return
+		}
+	}else{
+		row := new_dbArenaSeasonRow(this,0)
+		err = row.Data.load(dData)
+		if err != nil {
+			log.Error("Data ")
+			return
+		}
+		row.m_valid = true
+		row.m_loaded=true
+		this.m_row=row
+	}
+	if this.m_row == nil {
+		this.m_row = new_dbArenaSeasonRow(this, 0)
+		this.m_row.m_new = true
+		this.m_row.m_valid = true
+		err = this.Save(false)
+		if err != nil {
+			log.Error("save failed")
+			return
+		}
+		this.m_row.m_loaded = true
+	}
+	return
+}
+func (this *dbArenaSeasonTable) Save(quick bool) (err error) {
+	if this.m_row==nil{
+		return errors.New("row nil")
+	}
+	err, _, _ = this.m_row.Save(false)
+	return err
+}
+func (this *dbArenaSeasonTable) GetRow( ) (row *dbArenaSeasonRow) {
+	return this.m_row
+}
 func (this *dbGooglePayRecordRow)GetSn( )(r string ){
 	this.m_lock.UnSafeRLock("dbGooglePayRecordRow.GetdbGooglePayRecordSnColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -13990,6 +14367,7 @@ type DBC struct {
 	BattleSaves *dbBattleSaveTable
 	TowerFightSaves *dbTowerFightSaveTable
 	TowerRankingList *dbTowerRankingListTable
+	ArenaSeason *dbArenaSeasonTable
 	GooglePayRecords *dbGooglePayRecordTable
 	ApplePayRecords *dbApplePayRecordTable
 	FaceBPayRecords *dbFaceBPayRecordTable
@@ -14026,6 +14404,12 @@ func (this *DBC)init_tables()(err error){
 	err = this.TowerRankingList.Init()
 	if err != nil {
 		log.Error("init TowerRankingList table failed")
+		return
+	}
+	this.ArenaSeason = new_dbArenaSeasonTable(this)
+	err = this.ArenaSeason.Init()
+	if err != nil {
+		log.Error("init ArenaSeason table failed")
 		return
 	}
 	this.GooglePayRecords = new_dbGooglePayRecordTable(this)
@@ -14101,6 +14485,13 @@ func (this *DBC)Preload()(err error){
 		return
 	}else{
 		log.Info("preload TowerRankingList table succeed !")
+	}
+	err = this.ArenaSeason.Preload()
+	if err != nil {
+		log.Error("preload ArenaSeason table failed")
+		return
+	}else{
+		log.Info("preload ArenaSeason table succeed !")
 	}
 	err = this.GooglePayRecords.Preload()
 	if err != nil {
@@ -14180,6 +14571,11 @@ func (this *DBC)Save(quick bool)(err error){
 	err = this.TowerRankingList.Save(quick)
 	if err != nil {
 		log.Error("save TowerRankingList table failed")
+		return
+	}
+	err = this.ArenaSeason.Save(quick)
+	if err != nil {
+		log.Error("save ArenaSeason table failed")
 		return
 	}
 	err = this.GooglePayRecords.Save(quick)

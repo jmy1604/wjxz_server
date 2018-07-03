@@ -178,6 +178,7 @@ message PlayerDrawList{
 
 message PlayerGoldHand{
 	optional int32 LastRefreshTime=1;
+	repeated int32 LeftNum=2;
 }
 
 message PlayerShop{
@@ -206,6 +207,8 @@ message PlayerArena{
 	optional int32 RepeatedLoseNum=2;
 	optional int32 Score=3;
 	optional int32 UpdateScoreTime=4;
+	optional int32 MatchedPlayerId=5;
+	optional int32 HistoryTopRank=6;
 }
 
 message PlayerDialyTask{
@@ -375,5 +378,10 @@ message TowerFightSaveData{
 
 message TowerRankingListPlayers{
 	repeated int32 Ids=1;
+}
+
+message ArenaSeasonData{
+	optional int32 LastDayResetTime=1;
+	optional int32 LastSeasonResetTime=2;
 }
 

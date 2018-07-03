@@ -105,6 +105,14 @@ enum E_ERR {
 	PLAYER_SHOP_ITEM_NUM_NOT_ENOUGH			= -18004; // 商店商品数量不足
 	PLAYER_SHOP_ITEM_BUY_RESOURCE_NOT_ENOUGH= -18005; // 商店购买商品资源不足
 	PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID	= -18006; // 商品随机数据配置错误
+	
+	// 竞技场
+	PLAYER_ARENA_ONLY_FIGHT_MATCHED_PLAYER  = -19000; // 只能打匹配的玩家
+	PLAYER_ARENA_MATCH_PLAYER_FAILED		= -19001; // 匹配玩家失败
+	PLAYER_ARENA_IS_RESETING				= -19002; // 竞技场正在重置
+	
+	// 排行榜
+	RANK_LIST_TYPE_INVALID					= -20000; // 排行榜类型错误
 		
 	// 玩家
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -819,6 +827,7 @@ message C2SGoldHandDataRequest {
 
 message S2CGoldHandDataResponse {
 	int32 RemainRefreshSeconds				= 1; // 剩余刷新时间(秒)
+	map<int32,int32> LeftNums				= 2; // 剩余次数
 }
 
 // ---------------------------------- 商店 ------------------------------------
@@ -877,7 +886,7 @@ message RankItemInfo {
 	int32 PlayerId							= 2; // 玩家ID
 	string PlayerName						= 3; // 玩家昵称
 	int32 PlayerLevel						= 4; // 玩家等级
-	string PlayerHead						= 5; // 玩家头像
+	int32 PlayerHead						= 5; // 玩家头像
 	int32 PlayerArenaScore					= 6; // 玩家竞技场积分
 	int32 PlayerArenaGrade					= 7; // 玩家竞技场段位
 	int32 PlayerPower						= 8; // 玩家战力
@@ -891,9 +900,11 @@ message C2SRankListRequest {
 
 message S2CRankListResponse {
 	int32 RankListType						= 1; // 排行榜类型
-	int32 SelfRank							= 2; // 自己排名
-	repeated RankItemInfo RankItems			= 3; // 排名项
-	int32 SelfHistoryTopRank				= 4; // 自己历史最高排名，暂时只有竞技场有
+	repeated RankItemInfo RankItems			= 2; // 排名项
+	int32 SelfHistoryTopRank				= 3; // 自己历史最高排名，暂时只有竞技场有
+	int32 SelfRank							= 4; // 自己排名
+	int32 SelfValue							= 5; // 数据值
+	int32 SelfValue2						= 6; // 数据值2
 }
 
 // 

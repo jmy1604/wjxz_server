@@ -113,7 +113,7 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 			})
 		}
 		last_refresh, _ := this.db.Shops.GetLastAutoRefreshTime(shop.Id)
-		auto_remain_secs = utils.GetRemainSeconds2NextDayRefresh(last_refresh, shop.AutoRefreshTime)
+		auto_remain_secs = utils.GetRemainSeconds2NextDayTime(last_refresh, shop.AutoRefreshTime)
 	}
 
 	response := &msg_client_message.S2CShopDataResponse{

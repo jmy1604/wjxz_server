@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
-	_ "sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -21,8 +21,7 @@ const (
 type ArenaRankItem struct {
 	SaveTime    int32
 	PlayerScore int32
-	//PlayerLevel int32
-	PlayerId int32
+	PlayerId    int32
 }
 
 func (this *ArenaRankItem) Less(value interface{}) bool {
@@ -37,11 +36,6 @@ func (this *ArenaRankItem) Less(value interface{}) bool {
 		if this.SaveTime > item.SaveTime {
 			return true
 		}
-		/*if this.SaveTime == item.SaveTime {
-			if this.PlayerLevel < item.PlayerLevel {
-				return true
-			}
-		}*/
 	}
 	return false
 }
@@ -58,11 +52,6 @@ func (this *ArenaRankItem) Greater(value interface{}) bool {
 		if this.SaveTime < item.SaveTime {
 			return true
 		}
-		/*if this.SaveTime == item.SaveTime {
-			if this.PlayerLevel > item.PlayerLevel {
-				return true
-			}
-		}*/
 	}
 	return false
 }
@@ -116,11 +105,30 @@ func (this *ArenaRankItem) CopyDataTo(node interface{}) {
 type ArenaRobot struct {
 	robot_data   *table_config.XmlArenaRobotItem
 	defense_team *BattleTeam
+	power        int32
 }
 
 func (this *ArenaRobot) Init(robot *table_config.XmlArenaRobotItem) {
 	this.robot_data = robot
 	this.defense_team = &BattleTeam{}
+	this._calculate_power()
+}
+
+func (this *ArenaRobot) _calculate_power() {
+	card_list := this.robot_data.RobotCardList
+	if card_list == nil {
+		return
+	}
+
+	for i := 0; i < len(card_list); i++ {
+		for j := 0; j < len(card_list[i].EquipID); j++ {
+			equip_item := item_table_mgr.Get(card_list[i].EquipID[j])
+			if equip_item == nil {
+				continue
+			}
+			this.power += equip_item.BattlePower
+		}
+	}
 }
 
 type ArenaRobotManager struct {
@@ -194,6 +202,10 @@ func (this *Player) UpdateArenaScore(is_win bool) bool {
 		now_time := int32(time.Now().Unix())
 		score := this.db.Arena.IncbyScore(add_score)
 		this.db.Arena.SetUpdateScoreTime(now_time)
+		top_score := this.db.Arena.GetHistoryTopRank()
+		if score > top_score {
+			this.db.Arena.SetHistoryTopRank(score)
+		}
 
 		var data = ArenaRankItem{
 			SaveTime:    now_time,
@@ -229,7 +241,7 @@ func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
 }
 
 // 匹配对手
-func (this *Player) MatchArenaPlayer() (p *Player) {
+func (this *Player) MatchArenaPlayer() (player_id int32) {
 	rank := rank_list_mgr.GetRankByPlayerId(RANK_LIST_TYPE_ARENA, this.Id)
 	if rank < 0 {
 		log.Error("Player[%v] get arena rank list rank failed", this.Id)
@@ -284,8 +296,7 @@ func (this *Player) MatchArenaPlayer() (p *Player) {
 		return
 	}
 
-	player_id := item.(*ArenaRankItem).PlayerId
-	p = player_mgr.GetPlayerById(player_id)
+	player_id = item.(*ArenaRankItem).PlayerId
 
 	log.Debug("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v, match player[%v]", this.Id, start_rank, rank_num, r, player_id)
 
@@ -331,25 +342,44 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 }
 
 func (this *Player) arena_match() int32 {
-	p := this.MatchArenaPlayer()
+	pid := this.MatchArenaPlayer()
+
+	var robot *ArenaRobot
+	p := player_mgr.GetPlayerById(pid)
 	if p == nil {
-		return -1
+		robot = arena_robot_mgr.Get(pid)
+		if robot == nil {
+			log.Error("Player[%v] matched id[%v] is not player and not robot", this.Id, pid)
+			return int32(msg_client_message.E_ERR_PLAYER_ARENA_MATCH_PLAYER_FAILED)
+		}
 	}
 
-	arena_score := p.db.Arena.GetScore()
-	arena_grade := int32(0)
-	arena_division := arena_division_table_mgr.GetByScore(arena_score)
-	if arena_division != nil {
-		arena_grade = arena_division.Id
+	// 当前匹配到的玩家
+	this.db.Arena.SetMatchedPlayerId(pid)
+
+	var level, head, score, power, grade int32
+	var name string
+	if p != nil {
+		name = p.db.GetName()
+		level = p.db.Info.GetLvl()
+		score = p.db.Arena.GetScore()
+		head = 0
+		power = p.get_defense_team_power()
+	} else {
+		name = robot.robot_data.RobotName
+		level = 1
+		score = robot.robot_data.RobotScore
+		head = robot.robot_data.RobotHead
+		power = robot.power
 	}
-	power := p.get_defense_team_power()
+
 	response := &msg_client_message.S2CArenaMatchPlayerResponse{
-		PlayerId:    p.Id,
-		PlayerName:  p.db.GetName(),
-		PlayerLevel: p.db.Info.GetLvl(),
-		PlayerHead:  0,
-		PlayerScore: arena_score,
-		PlayerGrade: arena_grade,
+		PlayerId:    pid,
+		PlayerName:  name,
+		PlayerLevel: level,
+		PlayerHead:  head,
+		PlayerScore: score,
+		PlayerGrade: grade,
 		PlayerPower: power,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_MATCH_PLAYER_RESPONSE), response)
@@ -385,4 +415,127 @@ func C2SArenaMatchPlayerHandler(w http.ResponseWriter, r *http.Request, p *Playe
 		return -1
 	}
 	return p.arena_match()
+}
+
+// 竞技场赛季管理
+type ArenaSeasonMgr struct {
+	state      int32 // 0 结束  1 开始
+	start_time int32
+}
+
+var arena_season_mgr ArenaSeasonMgr
+
+func (this *ArenaSeasonMgr) Init() {
+
+}
+
+func (this *ArenaSeasonMgr) Start() bool {
+	return atomic.CompareAndSwapInt32(&this.state, 0, 1)
+}
+
+func (this *ArenaSeasonMgr) End() bool {
+	return atomic.CompareAndSwapInt32(&this.state, 1, 0)
+}
+
+func (this *ArenaSeasonMgr) IsStart() bool {
+	return atomic.LoadInt32(&this.state) == 1
+}
+
+func (this *ArenaSeasonMgr) IsEnd() bool {
+	return atomic.LoadInt32(&this.state) == 0
+}
+
+func (this *ArenaSeasonMgr) GetRemainSeconds() (day_remain int32, season_remain int32) {
+	now_time := int32(time.Now().Unix())
+	day_set := dbc.ArenaSeason.GetRow().Data.GetLastDayResetTime()
+	if day_set == 0 {
+		dbc.ArenaSeason.GetRow().Data.SetLastDayResetTime(now_time)
+		day_set = now_time
+	}
+	season_set := dbc.ArenaSeason.GetRow().Data.GetLastSeasonResetTime()
+	if season_set == 0 {
+		dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
+		season_set = now_time
+	}
+
+	day_time_string := global_config_mgr.GetGlobalConfig().ArenaSeasonDayResetTime
+	day_remain = utils.GetRemainSeconds2NextDayTime(day_set, day_time_string)
+	days := global_config_mgr.GetGlobalConfig().ArenaSeasonDays
+	season_remain = utils.GetRemainSeconds2NextSeveralDaysTime(season_set, day_time_string, days)
+
+	return
+}
+
+func (this *ArenaSeasonMgr) Reset() {
+	for {
+		if atomic.LoadInt32(&this.state) == 1 {
+			time.Sleep(time.Second * 1)
+			continue
+		}
+		break
+	}
+
+	rank_list := rank_list_mgr.GetRankList(RANK_LIST_TYPE_ARENA)
+	if rank_list == nil {
+		return
+	}
+	rank_num := rank_list.RankNum()
+	for rank := int32(1); rank <= rank_num; rank++ {
+		item := rank_list.GetItemByRank(rank)
+		if item == nil {
+			log.Warn("Cant found rank[%v] item in arena rank list with reset", rank)
+			continue
+		}
+		arena_item := item.(*ArenaRankItem)
+		if arena_item == nil {
+			continue
+		}
+		division := arena_division_table_mgr.GetByScore(arena_item.PlayerScore)
+		if division == nil {
+			continue
+		}
+		arena_item.PlayerScore = division.NewSeasonScore
+		p := player_mgr.GetPlayerById(arena_item.PlayerId)
+		if p != nil {
+			p.db.Arena.SetScore(arena_item.PlayerScore)
+		}
+	}
+	atomic.StoreInt32(&this.state, 0)
+}
+
+func (this *ArenaSeasonMgr) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	for {
+		// 检测时间
+		day_remain, season_remain := this.GetRemainSeconds()
+		if day_remain < 0 {
+			log.Warn("Arena season check day reset time error")
+			time.Sleep(time.Second * 2)
+			continue
+		}
+		if season_remain < 0 {
+			log.Warn("Arena season check season reset time error")
+			time.Sleep(time.Second * 2)
+			continue
+		}
+
+		now_time := int32(time.Now().Unix())
+
+		// 每天领奖
+		if day_remain == 0 {
+			dbc.ArenaSeason.GetRow().Data.SetLastDayResetTime(now_time)
+		}
+		// 赛季结束，发奖重置积分
+		if season_remain == 0 {
+			dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
+			this.Reset()
+		}
+
+		time.Sleep(time.Second * 2)
+	}
 }

@@ -85,7 +85,7 @@ func CheckDayTimeArrival(last_time_point int32, day_time_string string) bool {
 	return false
 }
 
-func GetRemainSeconds2NextDayRefresh(last_time_point int32, day_time_string string) int32 {
+func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string) int32 {
 	last_time := time.Unix(int64(last_time_point), 0)
 	now_time := time.Now()
 
@@ -122,6 +122,49 @@ func GetRemainSeconds2NextDayRefresh(last_time_point int32, day_time_string stri
 	}
 
 	log.Debug("now:%v  next_refresh_time:%v  last_save:%v", now_time.Unix(), next_refresh_time, last_time_point)
+	return int32(next_refresh_time - now_time.Unix())
+}
+
+func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string string, interval_days int32) int32 {
+	log.Debug("@@@@@@@ last_save[%v]  interval_days[%v]", last_save, interval_days)
+	if last_save <= 0 || interval_days <= 0 {
+		return -1
+	}
+	last_time := time.Unix(int64(last_save), 0)
+	now_time := time.Now()
+	if last_time.Unix() > now_time.Unix() {
+		return -1
+	}
+
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		log.Error("!!!!!!! Load Location Local error[%v]", err.Error())
+		return -1
+	}
+
+	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
+	if err != nil {
+		log.Error("parse shop refresh time format[%v] failed, err[%v]", day_time_string, err.Error())
+		return -1
+	}
+
+	today_tm := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), tm.Hour(), tm.Minute(), tm.Second(), tm.Nanosecond(), tm.Location())
+	if tm.Unix() >= today_tm.Unix() {
+		return -1
+	}
+
+	diff_days := (today_tm.Unix() - tm.Unix()) / (24 * 3600)
+	y := int(diff_days) % int(interval_days)
+	log.Debug("!!!!!!! today_unix[%v], st_unix[%v], diff_days[%v], y[%v]", today_tm.Unix(), tm.Unix(), diff_days, y)
+
+	next_refresh_time := int64(0)
+	if y == 0 && now_time.Unix() < today_tm.Unix() {
+		next_refresh_time = today_tm.Unix()
+	} else {
+		next_refresh_time = today_tm.Unix() + int64((int(interval_days)-y)*24*3600)
+	}
+
+	log.Debug("now:%v  next_refresh_time:%v  last_save:%v", now_time.Unix(), next_refresh_time, last_save)
 	return int32(next_refresh_time - now_time.Unix())
 }
 

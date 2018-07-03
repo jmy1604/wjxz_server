@@ -27,15 +27,14 @@
 	"ItemLeftSlotOpenLevel": 1,
 	"LeftSlotDropId": 200001,
 	
+	"ArenaEnterLevel": 1,
 	"ArenaGetTopRankNum": 50,
 	"ArenaMatchPlayerNum": 20,
 	"ArenaRepeatedWinNum": 2,
 	"ArenaLoseRepeatedNum": 1,
 	"ArenaHighGradeStart": 3,
-	"ArenaWinAddScore": 20,
-	"ArenaRepeatedWinAddExtraScore": 20,
-	"ArenaLoseAddScoreOnLowGrade": 10,
-	"ArenaLoseAddScoreOnHighGrade": 0,
+	"ArenaSeasonDays": 7,
+	"ArenaSeasonDayResetTime":"08:00:00",
 	
 	"MaxFriendNum":200,
 	

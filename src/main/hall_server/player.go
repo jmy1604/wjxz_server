@@ -833,6 +833,12 @@ func (this *Player) CancelDefensing() bool {
 }
 
 func (this *Player) Fight2Player(player_id int32) int32 {
+	matched_player_id := this.db.Arena.GetMatchedPlayerId()
+	if matched_player_id > 0 && player_id != matched_player_id {
+		log.Error("Player[%v] only fight to matched player[%v], not player[%v]", this.Id, matched_player_id, player_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ARENA_ONLY_FIGHT_MATCHED_PLAYER)
+	}
+
 	var robot *ArenaRobot
 	p := player_mgr.GetPlayerById(player_id)
 	if p == nil {
@@ -892,6 +898,8 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		// 对方防守结束
 		p.CancelDefensing()
 	}
+
+	this.db.Arena.SetMatchedPlayerId(0)
 
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)

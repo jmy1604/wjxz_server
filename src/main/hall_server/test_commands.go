@@ -1775,6 +1775,23 @@ func arena_match_cmd(p *Player, args []string) int32 {
 	return p.arena_match()
 }
 
+func rank_list_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var rank_type int
+	var err error
+	rank_type, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("排行榜类型[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.get_rank_list_items(int32(rank_type), 1, global_config_mgr.GetGlobalConfig().ArenaGetTopRankNum)
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1836,6 +1853,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"arena_data":         arena_data_cmd,
 	"arena_player_team":  arena_player_team_cmd,
 	"arena_match":        arena_match_cmd,
+	"rank_list":          rank_list_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

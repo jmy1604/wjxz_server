@@ -47,3 +47,29 @@ func GetPlayerBaseInfo(player_id int32) (name string, level int32, head string) 
 	}
 	return
 }
+
+func GetFighterInfo(fighter_id int32) (name string, level, head, score, grade, power int32) {
+	p := player_mgr.GetPlayerById(fighter_id)
+	if p != nil {
+		name = p.db.GetName()
+		level = p.db.Info.GetLvl()
+		head = 0
+		score = p.db.Arena.GetScore()
+		power = p.get_defense_team_power()
+	} else {
+		robot := arena_robot_mgr.Get(fighter_id)
+		if robot == nil {
+			return
+		}
+		name = robot.robot_data.RobotName
+		level = 1
+		head = robot.robot_data.RobotHead
+		score = robot.robot_data.RobotScore
+		power = robot.power
+	}
+	arena_division := arena_division_table_mgr.GetByScore(score)
+	if arena_division != nil {
+		grade = arena_division.Id
+	}
+	return
+}

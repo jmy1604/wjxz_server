@@ -222,3 +222,9 @@ func (this *CommonRankingList) GetLastRank() int32 {
 
 	return int32(len(this.key2item))
 }
+
+func (this *CommonRankingList) GetLength() int32 {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+	return this.GetLength()
+}
