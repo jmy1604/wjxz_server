@@ -1792,6 +1792,11 @@ func rank_list_cmd(p *Player, args []string) int32 {
 	return p.get_rank_list_items(int32(rank_type), 1, global_config_mgr.GetGlobalConfig().ArenaGetTopRankNum)
 }
 
+func player_info_cmd(p *Player, args []string) int32 {
+	p.send_info()
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1854,6 +1859,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"arena_player_team":  arena_player_team_cmd,
 	"arena_match":        arena_match_cmd,
 	"rank_list":          rank_list_cmd,
+	"player_info":        player_info_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

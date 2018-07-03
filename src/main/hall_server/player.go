@@ -366,6 +366,7 @@ func (this *Player) send_info() {
 		VipLevel: this.db.Info.GetVipLvl(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_INFO_RESPONSE), response)
+	log.Debug("Player[%v] info: %v", this.Id, response)
 }
 
 func (this *Player) notify_enter_complete() {
