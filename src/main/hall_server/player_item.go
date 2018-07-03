@@ -244,6 +244,28 @@ func (this *Player) get_resource(id int32) int32 {
 	}
 }
 
+func (this *Player) set_resource(id int32, num int32) int32 {
+	if num < 0 {
+		return -1
+	}
+	if id == ITEM_RESOURCE_ID_GOLD {
+		this.db.Info.SetGold(num)
+		this.b_base_prop_chg = true
+	} else if id == ITEM_RESOURCE_ID_DIAMOND {
+		this.db.Info.SetDiamond(num)
+		this.b_base_prop_chg = true
+	} else if id == ITEM_RESOURCE_ID_EXP {
+		this.db.Info.SetExp(num)
+		this.b_base_prop_chg = true
+	} else {
+		n := this.get_item(id)
+		if n >= 0 {
+			this.add_item(id, -n+num)
+		}
+	}
+	return num
+}
+
 func (this *Player) equip(role_id, equip_id int32) int32 {
 	var n int32
 	var o bool

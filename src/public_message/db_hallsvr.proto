@@ -209,6 +209,8 @@ message PlayerArena{
 	optional int32 UpdateScoreTime=4;
 	optional int32 MatchedPlayerId=5;
 	optional int32 HistoryTopRank=6;
+	optional int32 FirstGetTicket=7;
+	optional int32 LastTicketsRefreshTime=8;
 }
 
 message PlayerDialyTask{

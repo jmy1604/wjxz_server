@@ -163,6 +163,17 @@ func (this *ArenaRobotManager) Get(robot_id int32) *ArenaRobot {
 	return this.robots[robot_id]
 }
 
+func (this *Player) check_arena_tickets_refresh() bool {
+	last_refresh := this.db.Arena.GetLastTicketsRefreshTime()
+	remain_seconds := arena_season_mgr.tickets_checker.RemainSecondsToNextRefresh(last_refresh, 1)
+	if remain_seconds <= 0 {
+		this.set_resource(global_config_mgr.GetGlobalConfig().ArenaTicketItemId, global_config_mgr.GetGlobalConfig().ArenaTicketsDay)
+	} else {
+		return false
+	}
+	return true
+}
+
 func (this *Player) _update_arena_score(data *ArenaRankItem) {
 	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_ARENA, data)
 }
@@ -304,6 +315,9 @@ func (this *Player) MatchArenaPlayer() (player_id int32) {
 }
 
 func (this *Player) send_arena_data() int32 {
+	if this.check_arena_tickets_refresh() {
+
+	}
 	day_remain, season_remain := arena_season_mgr.GetRemainSeconds()
 	response := &msg_client_message.S2CArenaDataResponse{
 		DayRemainSeconds:    day_remain,
@@ -315,6 +329,9 @@ func (this *Player) send_arena_data() int32 {
 }
 
 func (this *Player) arena_player_defense_team(player_id int32) int32 {
+	if this.check_arena_tickets_refresh() {
+
+	}
 	p := player_mgr.GetPlayerById(player_id)
 	if p == nil {
 		log.Error("Player[%v] not found", player_id)
@@ -346,6 +363,13 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 }
 
 func (this *Player) arena_match() int32 {
+	if this.check_arena_tickets_refresh() {
+
+	}
+	if this.get_resource(global_config_mgr.GetGlobalConfig().ArenaTicketItemId) < 1 {
+		log.Error("Player[%v] match arena player failed, ticket not enough", this.Id)
+	}
+
 	pid := this.MatchArenaPlayer()
 
 	var robot *ArenaRobot
@@ -360,23 +384,9 @@ func (this *Player) arena_match() int32 {
 
 	// 当前匹配到的玩家
 	this.db.Arena.SetMatchedPlayerId(pid)
+	this.add_resource(global_config_mgr.GetGlobalConfig().ArenaTicketItemId, -1)
 
-	var level, head, score, power, grade int32
-	var name string
-	if p != nil {
-		name = p.db.GetName()
-		level = p.db.Info.GetLvl()
-		score = p.db.Arena.GetScore()
-		head = 0
-		power = p.get_defense_team_power()
-	} else {
-		name = robot.robot_data.RobotName
-		level = 1
-		score = robot.robot_data.RobotScore
-		head = robot.robot_data.RobotHead
-		power = robot.power
-	}
-
+	name, level, head, score, grade, power := GetFighterInfo(pid)
 	response := &msg_client_message.S2CArenaMatchPlayerResponse{
 		PlayerId:    pid,
 		PlayerName:  name,
@@ -423,28 +433,53 @@ func C2SArenaMatchPlayerHandler(w http.ResponseWriter, r *http.Request, p *Playe
 
 // 竞技场赛季管理
 type ArenaSeasonMgr struct {
-	state        int32 // 0 结束  1 开始
-	start_time   int32
-	time_checker *utils.DaysTimeChecker
+	state           int32 // 0 结束  1 开始
+	start_time      int32
+	day_checker     *utils.DaysTimeChecker
+	season_checker  *utils.DaysTimeChecker
+	tickets_checker *utils.DaysTimeChecker
 }
 
 var arena_season_mgr ArenaSeasonMgr
 
 func (this *ArenaSeasonMgr) Init() bool {
-	this.time_checker = &utils.DaysTimeChecker{}
-	if !this.time_checker.Set("15:04:05", global_config_mgr.GetGlobalConfig().ArenaSeasonDayResetTime) {
-		log.Error("ArenaSeasonMgr init failed")
+	this.day_checker = &utils.DaysTimeChecker{}
+	if !this.day_checker.Set("15:04:05", global_config_mgr.GetGlobalConfig().ArenaDayResetTime) {
+		log.Error("ArenaSeasonMgr day checker init failed")
+		return false
+	}
+	this.season_checker = &utils.DaysTimeChecker{}
+	if !this.season_checker.Set("15:04:05", global_config_mgr.GetGlobalConfig().ArenaSeasonResetTime) {
+		log.Error("ArenaSeasonMgr season checker init failed")
+		return false
+	}
+	this.tickets_checker = &utils.DaysTimeChecker{}
+	if !this.tickets_checker.Set("15:04:05", global_config_mgr.GetGlobalConfig().ArenaTicketRefreshTime) {
+		log.Error("ArenaSeasonMgr tickets checker init failed")
 		return false
 	}
 	return true
 }
 
-func (this *ArenaSeasonMgr) Start() bool {
-	return atomic.CompareAndSwapInt32(&this.state, 0, 1)
+func (this *ArenaSeasonMgr) Start() {
+	for {
+		if !atomic.CompareAndSwapInt32(&this.state, 0, 1) {
+			time.Sleep(time.Second * 1)
+			continue
+		}
+		break
+	}
+	this.start_time = int32(time.Now().Unix())
 }
 
-func (this *ArenaSeasonMgr) End() bool {
-	return atomic.CompareAndSwapInt32(&this.state, 1, 0)
+func (this *ArenaSeasonMgr) End() {
+	for {
+		if !atomic.CompareAndSwapInt32(&this.state, 1, 0) {
+			time.Sleep(time.Second * 1)
+			continue
+		}
+		break
+	}
 }
 
 func (this *ArenaSeasonMgr) IsStart() bool {
@@ -466,17 +501,56 @@ func (this *ArenaSeasonMgr) GetRemainSeconds() (day_remain int32, season_remain 
 	if season_set == 0 {
 		dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
 		season_set = now_time
+		this.Start()
 	}
 
-	day_remain = this.time_checker.RemainSecondsToNextRefresh(day_set, 1)
+	day_remain = this.day_checker.RemainSecondsToNextRefresh(day_set, 1)
 	days := global_config_mgr.GetGlobalConfig().ArenaSeasonDays
-	season_remain = this.time_checker.RemainSecondsToNextRefresh(season_set, days)
+	season_remain = this.season_checker.RemainSecondsToNextRefresh(season_set, days)
 
 	return
 }
 
+func (this *ArenaSeasonMgr) Reward(typ int32) {
+	rank_list := rank_list_mgr.GetRankList(RANK_LIST_TYPE_ARENA)
+	if rank_list == nil {
+		return
+	}
+	rank_num := rank_list.RankNum()
+	for rank := int32(1); rank <= rank_num; rank++ {
+		item := rank_list.GetItemByRank(rank)
+		if item == nil {
+			log.Warn("Cant found rank[%v] item in arena rank list with reset", rank)
+			continue
+		}
+		arena_item := item.(*ArenaRankItem)
+		if arena_item == nil {
+			log.Warn("Arena rank[%v] item convert failed on DayReward", rank)
+			continue
+		}
+
+		bonus := arena_bonus_table_mgr.GetByRank(rank)
+		if bonus == nil {
+			log.Warn("Arena rank[%v] item get bonus failed on DayReward", rank)
+			continue
+		}
+
+		p := player_mgr.GetPlayerById(arena_item.PlayerId)
+		if p == nil {
+			continue
+		}
+
+		if typ == 1 {
+			SendMail2(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, "Arena Day Reward", "", bonus.DayRewardList)
+		} else {
+			SendMail2(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, "Arena Season Reward", "", bonus.SeasonRewardList)
+		}
+	}
+}
+
 func (this *ArenaSeasonMgr) Reset() {
 	for {
+		// 等待直到结束
 		if atomic.LoadInt32(&this.state) == 1 {
 			time.Sleep(time.Second * 1)
 			continue
@@ -509,7 +583,6 @@ func (this *ArenaSeasonMgr) Reset() {
 			p.db.Arena.SetScore(arena_item.PlayerScore)
 		}
 	}
-	atomic.StoreInt32(&this.state, 0)
 }
 
 func (this *ArenaSeasonMgr) Run() {
@@ -538,11 +611,17 @@ func (this *ArenaSeasonMgr) Run() {
 		// 每天领奖
 		if day_remain == 0 {
 			dbc.ArenaSeason.GetRow().Data.SetLastDayResetTime(now_time)
+			this.Reward(1)
 		}
 		// 赛季结束，发奖重置积分
 		if season_remain == 0 {
+			this.End()
 			dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
+			// 发奖
+			this.Reward(2)
+			// 重置
 			this.Reset()
+			this.Start()
 		}
 
 		time.Sleep(time.Second * 2)

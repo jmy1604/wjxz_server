@@ -23,10 +23,14 @@
 	
 	"TowerKeyMax": 10,
 	"TowerKeyGetInterval": 1800,
+	"TowerKeyId": 8,
 	
 	"ItemLeftSlotOpenLevel": 1,
 	"LeftSlotDropId": 200001,
 	
+	"ArenaTicketItemId": 18,
+	"ArenaTicketsDay": 5,
+	"ArenaTicketRefreshTime": "08:00:00",
 	"ArenaEnterLevel": 1,
 	"ArenaGetTopRankNum": 50,
 	"ArenaMatchPlayerNum": 20,
@@ -34,7 +38,8 @@
 	"ArenaLoseRepeatedNum": 1,
 	"ArenaHighGradeStart": 3,
 	"ArenaSeasonDays": 7,
-	"ArenaSeasonDayResetTime":"08:00:00",
+	"ArenaDayResetTime":"09:00:00",
+	"ArenaSeasonResetTime":"10:00:00",
 	
 	"MaxFriendNum":200,
 	

@@ -399,7 +399,9 @@
 						{"Type":"int32","Index":3,"Name":"Score","Incby":true},
 						{"Type":"int32","Index":4,"Name":"UpdateScoreTime"},
 						{"Type":"int32","Index":5,"Name":"MatchedPlayerId"},
-						{"Type":"int32","Index":6,"Name":"HistoryTopRank"}
+						{"Type":"int32","Index":6,"Name":"HistoryTopRank"},
+						{"Type":"int32","Index":7,"Name":"FirstGetTicket"},
+						{"Type":"int32","Index":8,"Name":"LastTicketsRefreshTime"}
 					]
 				},
 				{

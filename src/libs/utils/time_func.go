@@ -234,7 +234,6 @@ func (this *DaysTimeChecker) IsArrival(last_save int32, interval_days int32) boo
 }
 
 func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32, interval_days int32) int32 {
-	//log.Debug("@@@@@@@ last_save[%v]  interval_days[%v]", last_save, interval_days)
 	if last_save <= 0 || interval_days <= 0 {
 		return -1
 	}
@@ -252,7 +251,6 @@ func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32, interva
 
 	diff_days := (today_tm.Unix() - st.Unix()) / (24 * 3600)
 	y := int(diff_days) % int(interval_days)
-	//log.Debug("!!!!!!! today_unix[%v], st_unix[%v], diff_days[%v], y[%v]", today_tm.Unix(), st.Unix(), diff_days, y)
 
 	next_refresh_time := int64(0)
 	if y == 0 && now_time.Unix() < today_tm.Unix() {

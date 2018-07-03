@@ -236,6 +236,19 @@ func (this *Player) get_and_clear_cache_new_mails() (mails []*msg_client_message
 }
 
 func SendMail(sender *Player, receiver_id, mail_type int32, title string, content string, attached_items []*msg_client_message.ItemInfo) int32 {
+	var items []int32
+	if attached_items != nil {
+		items = make([]int32, 2*len(attached_items))
+		for i := 0; i < len(attached_items); i++ {
+			items[2*i] = attached_items[i].GetItemCfgId()
+			items[2*i+1] = attached_items[i].GetItemNum()
+		}
+	}
+
+	return SendMail2(sender, receiver_id, mail_type, title, content, items)
+}
+
+func SendMail2(sender *Player, receiver_id, mail_type int32, title string, content string, items []int32) int32 {
 	if int32(len(title)) > global_config_mgr.GetGlobalConfig().MailTitleBytes {
 		if sender != nil {
 			log.Error("Player[%v] send Mail title[%v] too long", sender.Id, title)
@@ -276,10 +289,10 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 	}
 
 	// 附件
-	if attached_items != nil {
-		for i := 0; i < len(attached_items); i++ {
-			item_id := attached_items[i].ItemCfgId
-			item_num := attached_items[i].ItemNum
+	if items != nil {
+		for i := 0; i < len(items)/2; i++ {
+			item_id := items[2*i]
+			item_num := items[2*i+1]
 			if sender != nil {
 				if sender.get_item(item_id) < item_num {
 					log.Error("Player[%v] item[%v] not enough", sender.Id, item_id)
@@ -292,8 +305,8 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 			}
 		}
 		if sender != nil {
-			for _, item := range attached_items {
-				sender.add_item(item.GetItemCfgId(), -item.GetItemNum())
+			for i := 0; i < len(items)/2; i++ {
+				sender.add_item(items[2*i], items[2*i+1])
 			}
 		}
 	}

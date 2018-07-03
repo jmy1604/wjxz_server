@@ -50,8 +50,12 @@ type GlobalConfig struct {
 	PlayerBattleRecordMaxCount int32      // 玩家战斗录像最大数量
 	TowerKeyMax                int32      // 爬塔钥匙最大值
 	TowerKeyGetInterval        int32      // 爬塔获取钥匙的时间间隔(秒)
+	TowerKeyId                 int32      // 爬塔门票
 	ItemLeftSlotOpenLevel      int32      // 左槽开启等级
 	LeftSlotDropId             int32      // 左槽掉落ID
+	ArenaTicketItemId          int32      // 竞技场门票ID
+	ArenaTicketsDay            int32      // 竞技场每天的门票
+	ArenaTicketRefreshTime     string     // 竞技场门票刷新时间
 	ArenaEnterLevel            int32      // 竞技场进入等级
 	ArenaGetTopRankNum         int32      // 竞技场取最高排名数
 	ArenaMatchPlayerNum        int32      // 竞技场匹配人数
@@ -59,7 +63,8 @@ type GlobalConfig struct {
 	ArenaLoseRepeatedNum       int32      // 竞技场连败场数
 	ArenaHighGradeStart        int32      // 竞技场高段位开始
 	ArenaSeasonDays            int32      // 竞技场赛季天数
-	ArenaSeasonDayResetTime    string     // 竞技场每天重置时间
+	ArenaDayResetTime          string     // 竞技场每天重置时间
+	ArenaSeasonResetTime       string     // 竞技场赛季重置时间
 
 	MaxFriendNum int32
 

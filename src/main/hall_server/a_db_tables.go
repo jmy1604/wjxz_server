@@ -1003,6 +1003,8 @@ type dbPlayerArenaData struct{
 	UpdateScoreTime int32
 	MatchedPlayerId int32
 	HistoryTopRank int32
+	FirstGetTicket int32
+	LastTicketsRefreshTime int32
 }
 func (this* dbPlayerArenaData)from_pb(pb *db.PlayerArena){
 	if pb == nil {
@@ -1014,6 +1016,8 @@ func (this* dbPlayerArenaData)from_pb(pb *db.PlayerArena){
 	this.UpdateScoreTime = pb.GetUpdateScoreTime()
 	this.MatchedPlayerId = pb.GetMatchedPlayerId()
 	this.HistoryTopRank = pb.GetHistoryTopRank()
+	this.FirstGetTicket = pb.GetFirstGetTicket()
+	this.LastTicketsRefreshTime = pb.GetLastTicketsRefreshTime()
 	return
 }
 func (this* dbPlayerArenaData)to_pb()(pb *db.PlayerArena){
@@ -1024,6 +1028,8 @@ func (this* dbPlayerArenaData)to_pb()(pb *db.PlayerArena){
 	pb.UpdateScoreTime = proto.Int32(this.UpdateScoreTime)
 	pb.MatchedPlayerId = proto.Int32(this.MatchedPlayerId)
 	pb.HistoryTopRank = proto.Int32(this.HistoryTopRank)
+	pb.FirstGetTicket = proto.Int32(this.FirstGetTicket)
+	pb.LastTicketsRefreshTime = proto.Int32(this.LastTicketsRefreshTime)
 	return
 }
 func (this* dbPlayerArenaData)clone_to(d *dbPlayerArenaData){
@@ -1033,6 +1039,8 @@ func (this* dbPlayerArenaData)clone_to(d *dbPlayerArenaData){
 	d.UpdateScoreTime = this.UpdateScoreTime
 	d.MatchedPlayerId = this.MatchedPlayerId
 	d.HistoryTopRank = this.HistoryTopRank
+	d.FirstGetTicket = this.FirstGetTicket
+	d.LastTicketsRefreshTime = this.LastTicketsRefreshTime
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -5296,6 +5304,32 @@ func (this *dbPlayerArenaColumn)SetHistoryTopRank(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetHistoryTopRank")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.HistoryTopRank = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerArenaColumn)GetFirstGetTicket( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArenaColumn.GetFirstGetTicket")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.FirstGetTicket
+	return
+}
+func (this *dbPlayerArenaColumn)SetFirstGetTicket(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetFirstGetTicket")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.FirstGetTicket = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerArenaColumn)GetLastTicketsRefreshTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArenaColumn.GetLastTicketsRefreshTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastTicketsRefreshTime
+	return
+}
+func (this *dbPlayerArenaColumn)SetLastTicketsRefreshTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetLastTicketsRefreshTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastTicketsRefreshTime = v
 	this.m_changed = true
 	return
 }
