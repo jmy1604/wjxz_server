@@ -887,6 +887,7 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 
 	if equips == nil {
 		equips = make([]int32, EQUIP_TYPE_MAX)
+		copy(equips, role_equips)
 		all_item := this.db.Items.GetAllIndex()
 		for _, item_id := range all_item {
 			item := item_table_mgr.Get(item_id)
@@ -996,6 +997,13 @@ func (this *Player) set_role_power(role_id, pow int32) {
 	this.roles_power[role_id] = pow
 }
 
+func (this *Player) get_role_power(role_id int32) (power int32) {
+	if this.roles_power == nil {
+		return
+	}
+	return this.roles_power[role_id]
+}
+
 func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, get_power bool) int32 {
 	equips, o := this.db.Roles.GetEquip(role_id)
 	if !o {
@@ -1064,6 +1072,19 @@ func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, ge
 	}
 
 	return 1
+}
+
+func (this *Player) get_defense_team_power() (power int32) {
+	team := this.db.BattleTeam.GetDefenseMembers()
+	if team == nil || len(team) == 0 {
+		return
+	}
+
+	for _, m := range team {
+		this.role_update_suit_attr_power(m, false, true)
+		power += this.get_role_power(m)
+	}
+	return
 }
 
 func C2SRoleAttrsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

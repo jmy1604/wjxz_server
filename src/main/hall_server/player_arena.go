@@ -7,7 +7,7 @@ import (
 	_ "math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
-	_ "public_message/gen_go/client_message_id"
+	"public_message/gen_go/client_message_id"
 	_ "sync"
 	"time"
 
@@ -287,20 +287,73 @@ func (this *Player) MatchArenaPlayer() (p *Player) {
 	player_id := item.(*ArenaRankItem).PlayerId
 	p = player_mgr.GetPlayerById(player_id)
 
-	log.Debug("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v", this.Id, start_rank, rank_num)
+	log.Debug("Player[%v] match arena players rank range [start:%v, num:%v], rand the rank %v, match player[%v]", this.Id, start_rank, rank_num, r, player_id)
 
 	return
 }
 
 func (this *Player) send_arena_data() int32 {
+	response := &msg_client_message.S2CArenaDataResponse{}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_DATA_RESPONSE), response)
+	log.Debug("Player[%v] arena data: %v", this.Id, response)
 	return 1
 }
 
 func (this *Player) arena_player_defense_team(player_id int32) int32 {
+	p := player_mgr.GetPlayerById(player_id)
+	if p == nil {
+		log.Error("Player[%v] not found", player_id)
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+	}
+	defense_team := p.db.BattleTeam.GetDefenseMembers()
+	team := make(map[int32]*msg_client_message.PlayerTeamRole)
+	if defense_team != nil {
+		for i := 0; i < len(defense_team); i++ {
+			m := defense_team[i]
+			if m <= 0 {
+				continue
+			}
+			table_id, _ := this.db.Roles.GetTableId(m)
+			level, _ := this.db.Roles.GetLevel(m)
+			team[m] = &msg_client_message.PlayerTeamRole{
+				TableId: table_id,
+				Pos:     int32(i),
+				Level:   level,
+			}
+		}
+	}
+	response := &msg_client_message.S2CArenaPlayerDefenseTeamResponse{
+		DefenseTeam: team,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE), response)
+	log.Debug("Player[%v] get arena player[%v] defense team[%v]", this.Id, player_id, team)
 	return 1
 }
 
 func (this *Player) arena_match() int32 {
+	p := this.MatchArenaPlayer()
+	if p == nil {
+		return -1
+	}
+
+	arena_score := p.db.Arena.GetScore()
+	arena_grade := int32(0)
+	arena_division := arena_division_table_mgr.GetByScore(arena_score)
+	if arena_division != nil {
+		arena_grade = arena_division.Id
+	}
+	power := p.get_defense_team_power()
+	response := &msg_client_message.S2CArenaMatchPlayerResponse{
+		PlayerId:    p.Id,
+		PlayerName:  p.db.GetName(),
+		PlayerLevel: p.db.Info.GetLvl(),
+		PlayerHead:  0,
+		PlayerScore: arena_score,
+		PlayerGrade: arena_grade,
+		PlayerPower: power,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_MATCH_PLAYER_RESPONSE), response)
+	log.Debug("Player[%v] matched arena player[%v]", this.Id, response)
 	return 1
 }
 
