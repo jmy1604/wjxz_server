@@ -539,6 +539,7 @@ func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
 		}
 		if item.EquipType == EQUIP_TYPE_LEFT_SLOT {
+			this.db.Equip.SetTmpSaveLeftSlotRoleId(role_id)
 			this.db.Equip.SetTmpLeftSlotItemId(new_item.ItemCfgId)
 		} else {
 			equips[item.EquipType] = new_item.ItemCfgId
