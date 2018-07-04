@@ -134,6 +134,10 @@ func (this *RankStageTotalScoreItem) GetValue() interface{} {
 	return this.StageTotalScore
 }
 
+func (this *RankStageTotalScoreItem) SetValue(value interface{}) {
+
+}
+
 func (this *RankStageTotalScoreItem) New() utils.SkiplistNode {
 	return &RankStageTotalScoreItem{}
 }
@@ -229,6 +233,10 @@ func (this *RankStageScoreItem) GetKey() interface{} {
 
 func (this *RankStageScoreItem) GetValue() interface{} {
 	return this.StageScore
+}
+
+func (this *RankStageScoreItem) SetValue(value interface{}) {
+
 }
 
 func (this *RankStageScoreItem) New() utils.SkiplistNode {
@@ -329,6 +337,10 @@ func (this *RankCharmItem) GetValue() interface{} {
 	return this.Charm
 }
 
+func (this *RankCharmItem) SetValue(value interface{}) {
+
+}
+
 func (this *RankCharmItem) New() utils.SkiplistNode {
 	return &RankCharmItem{}
 }
@@ -423,6 +435,10 @@ func (this *RankZanedItem) GetKey() interface{} {
 
 func (this *RankZanedItem) GetValue() interface{} {
 	return this.Zaned
+}
+
+func (this *RankZanedItem) SetValue(value interface{}) {
+
 }
 
 func (this *RankZanedItem) New() utils.SkiplistNode {

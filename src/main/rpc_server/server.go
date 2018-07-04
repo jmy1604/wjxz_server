@@ -26,7 +26,7 @@ type RpcServer struct {
 
 var server RpcServer
 var shop_mgr table_config.ShopTableManager
-var global_config_mgr table_config.GlobalConfigManager
+var global_config table_config.GlobalConfig
 
 func (this *RpcServer) Init() (err error) {
 	if this.initialized {
@@ -47,7 +47,7 @@ func (this *RpcServer) load_config() bool {
 	/*if !shop_mgr.Init() {
 		return false
 	}*/
-	if !global_config_mgr.Init("../game_data/global.json") {
+	if !global_config.Init("../game_data/global.json") {
 		return false
 	}
 	return true
