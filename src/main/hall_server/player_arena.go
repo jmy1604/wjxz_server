@@ -368,6 +368,7 @@ func (this *Player) arena_match() int32 {
 	}
 	if this.get_resource(global_config_mgr.GetGlobalConfig().ArenaTicketItemId) < 1 {
 		log.Error("Player[%v] match arena player failed, ticket not enough", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_ARENA_TICKETS_NOT_ENOUGH)
 	}
 
 	pid := this.MatchArenaPlayer()
