@@ -199,7 +199,7 @@ func (this *Player) push_battle_record(record_id int32) (pushed bool, remove_rec
 	if !o {
 		return
 	}
-	max_count := global_config_mgr.GetGlobalConfig().PlayerBattleRecordMaxCount
+	max_count := global_config.PlayerBattleRecordMaxCount
 	i := int32(0)
 	insert := false
 	for ; i < this.battle_record_count; i++ {
@@ -250,7 +250,7 @@ func (this *Player) init_battle_record_list() {
 		return
 	}
 
-	max_count := global_config_mgr.GetGlobalConfig().PlayerBattleRecordMaxCount
+	max_count := global_config.PlayerBattleRecordMaxCount
 	this.battle_record_list = make([]int32, max_count)
 	record_ids := this.db.BattleSaves.GetAllIndex()
 	if record_ids == nil {

@@ -67,7 +67,7 @@ type ConnTimerMgr struct {
 }
 
 func (this *ConnTimerMgr) Init() {
-	this.timer_lists = make([]*ConnTimerList, global_config_mgr.GetGlobalConfig().HeartbeatInterval*3)
+	this.timer_lists = make([]*ConnTimerList, global_config.HeartbeatInterval*3)
 	this.curr_timer_index = -1
 	this.players = make(map[int32]*ConnTimerPlayer)
 	this.locker = &sync.Mutex{}
@@ -82,7 +82,7 @@ func (this *ConnTimerMgr) Insert(player_id int32) bool {
 		this.remove(p)
 	}
 	lists_len := int32(len(this.timer_lists))
-	insert_list_index := (this.curr_timer_index + global_config_mgr.GetGlobalConfig().HeartbeatInterval) % lists_len
+	insert_list_index := (this.curr_timer_index + global_config.HeartbeatInterval) % lists_len
 	list := this.timer_lists[insert_list_index]
 	if list == nil {
 		list = &ConnTimerList{}

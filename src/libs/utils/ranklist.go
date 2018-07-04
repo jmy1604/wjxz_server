@@ -60,6 +60,17 @@ func (this *CommonRankingList) GetByKey(key interface{}) SkiplistNode {
 	return new_item
 }
 
+func (this *CommonRankingList) SetValueByKey(key interface{}, value interface{}) {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
+	item, o := this.key2item[key]
+	if !o || item == nil {
+		return
+	}
+	item.SetValue(value)
+}
+
 func (this *CommonRankingList) insert(key interface{}, item SkiplistNode, is_lock bool) bool {
 	if is_lock {
 		this.locker.Lock()
@@ -226,5 +237,5 @@ func (this *CommonRankingList) GetLastRank() int32 {
 func (this *CommonRankingList) GetLength() int32 {
 	this.locker.RLock()
 	defer this.locker.RUnlock()
-	return this.GetLength()
+	return this.ranking_items.GetLength()
 }

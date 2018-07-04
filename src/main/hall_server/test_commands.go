@@ -1368,7 +1368,7 @@ func fight_tower_cmd(p *Player, args []string) int32 {
 }
 
 func get_tower_key_cmd(p *Player, args []string) int32 {
-	tower_key_max := global_config_mgr.GetGlobalConfig().TowerKeyMax
+	tower_key_max := global_config.TowerKeyMax
 	p.db.TowerCommon.SetKeys(tower_key_max)
 	return p.send_tower_data(false)
 }
@@ -1775,6 +1775,15 @@ func arena_match_cmd(p *Player, args []string) int32 {
 	return p.arena_match()
 }
 
+func arena_reset_cmd(p *Player, args []string) int32 {
+	if arena_season_mgr.IsStart() {
+		arena_season_mgr.End()
+	}
+	arena_season_mgr.Reset()
+	arena_season_mgr.Start()
+	return 1
+}
+
 func rank_list_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
@@ -1789,7 +1798,7 @@ func rank_list_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.get_rank_list_items(int32(rank_type), 1, global_config_mgr.GetGlobalConfig().ArenaGetTopRankNum)
+	return p.get_rank_list_items(int32(rank_type), 1, global_config.ArenaGetTopRankNum)
 }
 
 func player_info_cmd(p *Player, args []string) int32 {
@@ -1858,6 +1867,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"arena_data":         arena_data_cmd,
 	"arena_player_team":  arena_player_team_cmd,
 	"arena_match":        arena_match_cmd,
+	"arena_reset":        arena_reset_cmd,
 	"rank_list":          rank_list_cmd,
 	"player_info":        player_info_cmd,
 }

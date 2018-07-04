@@ -224,7 +224,7 @@ func (this *Player) check_and_send_roles_change() {
 
 func (this *Player) add_init_roles() {
 	var team []int32
-	init_roles := global_config_mgr.GetGlobalConfig().InitRoles
+	init_roles := global_config.InitRoles
 	for i := 0; i < len(init_roles)/3; i++ {
 		iid := this.new_role(init_roles[3*i], init_roles[3*i+1], init_roles[3*i+2])
 		if team == nil {
@@ -351,9 +351,6 @@ func (this *Player) _levelup_role(role_id, lvl int32) int32 {
 				log.Error("Player[%v] levelup role[%v] cost resource[%v] not enough, need[%v] now[%v]", this.Id, role_id, resource_id, resource_num, now_num)
 				return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
 			}
-			if this.tmp_cache_items == nil || len(this.tmp_cache_items) > 0 {
-				this.tmp_cache_items = make(map[int32]int32)
-			}
 			num := this.tmp_cache_items[resource_id]
 			if num == 0 {
 				this.tmp_cache_items[resource_id] = resource_num
@@ -376,20 +373,22 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 	}
 
+	if this.tmp_cache_items == nil || len(this.tmp_cache_items) > 0 {
+		this.tmp_cache_items = make(map[int32]int32)
+	}
 	res := int32(0)
-	for i := int32(1); i <= up_num; i++ {
+	for i := int32(0); i < up_num; i++ {
 		res = this._levelup_role(role_id, lvl+i)
 		if res < 0 {
 			return res
 		}
 	}
-
 	for id, num := range this.tmp_cache_items {
 		this.add_resource(id, -num)
 	}
+	this.tmp_cache_items = nil
 
 	this.db.Roles.SetLevel(role_id, lvl+up_num)
-	this.tmp_cache_items = nil
 	this.roles_id_change_info.id_update(role_id)
 
 	response := &msg_client_message.S2CRoleLevelUpResponse{
@@ -755,7 +754,7 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_CARD_INVALID)
 		}
 	} else {
-		if this.db.Roles.NumAll() >= global_config_mgr.GetGlobalConfig().MaxRoleCount {
+		if this.db.Roles.NumAll() >= global_config.MaxRoleCount {
 			log.Error("Player[%v] role inventory is full", this.Id)
 			return int32(msg_client_message.E_ERR_PLAYER_ROLE_INVENTORY_NOT_ENOUGH_SPACE)
 		}
@@ -834,7 +833,7 @@ func (this *Player) get_role_handbook() int32 {
 }
 
 func (this *Player) role_open_left_slot(role_id int32) int32 {
-	open, ok := this.db.Roles.GetLeftSlotIsOpen(role_id)
+	/*open, ok := this.db.Roles.GetLeftSlotIsOpen(role_id)
 	if !ok {
 		log.Error("Player[%v] not found role[%v]", this.Id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
@@ -842,29 +841,40 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	if open > 0 {
 		log.Warn("Player[%v] role[%v] left slot already opened", this.Id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEFT_SLOT_ALREADY_OPENED)
+	}*/
+	equips, o := this.db.Roles.GetEquip(role_id)
+	if !o {
+		log.Error("Player[%v] not found role[%v]", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 	}
 
-	open_level := global_config_mgr.GetGlobalConfig().ItemLeftSlotOpenLevel
+	if equips != nil && len(equips) >= EQUIP_TYPE_MAX {
+		if equips[EQUIP_TYPE_LEFT_SLOT] > 0 {
+			log.Warn("Player[%v] role[%v] left slot already opened", this.Id, role_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEFT_SLOT_ALREADY_OPENED)
+		}
+	}
+
+	open_level := global_config.ItemLeftSlotOpenLevel
 	lvl, _ := this.db.Roles.GetLevel(role_id)
 	if lvl < open_level {
 		log.Error("Player[%v] open left slot for role[%v] failed, level[%v] not enough", this.Id, role_id, lvl)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_OPEN_LEFTSLOT_LEVEL_NOT_ENOUGH)
 	}
 
-	left_drop_id := global_config_mgr.GetGlobalConfig().LeftSlotDropId
+	left_drop_id := global_config.LeftSlotDropId
 	b, left_item := this.drop_item_by_id(left_drop_id, false, nil)
 	if !b {
 		log.Error("Player[%v] left slot drop with id[%v] failed for role[%v]", this.Id, left_drop_id, role_id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEFT_SLOT_DROP_FAILED)
 	}
 
-	equips, _ := this.db.Roles.GetEquip(role_id)
 	if equips == nil || len(equips) == 0 {
 		equips = make([]int32, EQUIP_TYPE_MAX)
-		equips[EQUIP_TYPE_LEFT_SLOT] = left_item.GetItemCfgId()
 	}
+	equips[EQUIP_TYPE_LEFT_SLOT] = left_item.GetItemCfgId()
 	this.db.Roles.SetEquip(role_id, equips)
-	this.db.Roles.SetLeftSlotIsOpen(role_id, 1)
+	//this.db.Roles.SetLeftSlotIsOpen(role_id, 1)
 
 	this.roles_id_change_info.id_update(role_id)
 

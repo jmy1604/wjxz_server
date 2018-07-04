@@ -31,8 +31,8 @@ func (this *Player) send_tower_data(check bool) int32 {
 }
 
 func (this *Player) check_tower_keys() (is_update bool, keys int32) {
-	tower_key_max := global_config_mgr.GetGlobalConfig().TowerKeyMax
-	tower_key_get_interval := global_config_mgr.GetGlobalConfig().TowerKeyGetInterval
+	tower_key_max := global_config.TowerKeyMax
+	tower_key_get_interval := global_config.TowerKeyGetInterval
 	keys = this.db.TowerCommon.GetKeys()
 	if keys >= tower_key_max {
 		return
@@ -107,7 +107,7 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 
 	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(3, stage)
 	this.db.TowerCommon.SetKeys(keys - 1)
-	tower_key_max := global_config_mgr.GetGlobalConfig().TowerKeyMax
+	tower_key_max := global_config.TowerKeyMax
 	if keys >= tower_key_max {
 		this.db.TowerCommon.SetLastGetNewKeyTime(int32(time.Now().Unix()))
 	}

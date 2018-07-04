@@ -34,13 +34,13 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 
 		has_attached := false
 		if v.AttachItemIds != nil && len(v.AttachItemIds) > 0 {
-			if now_time-v.SendUnix >= global_config_mgr.GetGlobalConfig().MailAttachExistDays*24*3600 {
+			if now_time-v.SendUnix >= global_config.MailAttachExistDays*24*3600 {
 				to_delete_mail = append(to_delete_mail, v.Id)
 				continue
 			}
 			has_attached = true
 		} else {
-			if now_time-v.SendUnix >= global_config_mgr.GetGlobalConfig().MailNormalExistDays*24*3600 {
+			if now_time-v.SendUnix >= global_config.MailNormalExistDays*24*3600 {
 				to_delete_mail = append(to_delete_mail, v.Id)
 				continue
 			}
@@ -157,7 +157,7 @@ func (this *dbPlayerMailColumn) HasUnreadMail() bool {
 }
 
 func (this *Player) new_mail(typ int32, title, content string) int32 {
-	mail_max := global_config_mgr.GetGlobalConfig().MailMaxCount
+	mail_max := global_config.MailMaxCount
 	if this.db.Mails.NumAll() >= mail_max {
 		first_id := int32(0)
 		all_ids := this.db.Mails.GetAllIndex()
@@ -249,7 +249,7 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 }
 
 func SendMail2(sender *Player, receiver_id, mail_type int32, title string, content string, items []int32) int32 {
-	if int32(len(title)) > global_config_mgr.GetGlobalConfig().MailTitleBytes {
+	if int32(len(title)) > global_config.MailTitleBytes {
 		if sender != nil {
 			log.Error("Player[%v] send Mail title[%v] too long", sender.Id, title)
 		} else {
@@ -257,7 +257,7 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 		}
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_TITLE_TOO_LONG)
 	}
-	if int32(len(content)) > global_config_mgr.GetGlobalConfig().MailContentBytes {
+	if int32(len(content)) > global_config.MailContentBytes {
 		if sender != nil {
 			log.Error("Player[%v] send mail content[%v] too long", sender.Id, content)
 		} else {
@@ -272,7 +272,7 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 			return -1
 		}
 		last_send := sender.db.MailCommon.GetLastSendPlayerMailTime()
-		if now_time-last_send < global_config_mgr.GetGlobalConfig().MailPlayerSendCooldown {
+		if now_time-last_send < global_config.MailPlayerSendCooldown {
 			log.Error("Player[%v] tribe mail is cooldown", sender.Id)
 			return int32(msg_client_message.E_ERR_PLAYER_MAIL_PLAYER_IS_COOLDOWN)
 		}

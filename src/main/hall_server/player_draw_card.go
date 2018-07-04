@@ -107,7 +107,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 	for i := 0; i < len(draw.DropId)/2; i++ {
 		n += draw.DropId[2*i+1]
 	}
-	if this.db.Roles.NumAll()+n > global_config_mgr.GetGlobalConfig().MaxRoleCount {
+	if this.db.Roles.NumAll()+n > global_config.MaxRoleCount {
 		log.Error("Player[%v] role inventory not enough space", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_INVENTORY_NOT_ENOUGH_SPACE)
 	}

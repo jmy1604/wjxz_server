@@ -78,6 +78,10 @@ func (this *ArenaRankItem) GetValue() interface{} {
 	return this.PlayerScore
 }
 
+func (this *ArenaRankItem) SetValue(value interface{}) {
+	this.PlayerScore = value.(int32)
+}
+
 func (this *ArenaRankItem) New() utils.SkiplistNode {
 	return &ArenaRankItem{}
 }
@@ -165,9 +169,9 @@ func (this *ArenaRobotManager) Get(robot_id int32) *ArenaRobot {
 
 func (this *Player) check_arena_tickets_refresh() bool {
 	last_refresh := this.db.Arena.GetLastTicketsRefreshTime()
-	remain_seconds := arena_season_mgr.tickets_checker.RemainSecondsToNextRefresh(last_refresh, 1)
+	remain_seconds := arena_season_mgr.tickets_checker.RemainSecondsToNextRefresh(last_refresh)
 	if remain_seconds <= 0 {
-		this.set_resource(global_config_mgr.GetGlobalConfig().ArenaTicketItemId, global_config_mgr.GetGlobalConfig().ArenaTicketsDay)
+		this.set_resource(global_config.ArenaTicketItemId, global_config.ArenaTicketsDay)
 	} else {
 		return false
 	}
@@ -202,7 +206,7 @@ func (this *Player) UpdateArenaScore(is_win bool) bool {
 
 	if is_win {
 		add_score = division.WinScore
-		if this.db.Arena.GetRepeatedWinNum() >= global_config_mgr.GetGlobalConfig().ArenaRepeatedWinNum {
+		if this.db.Arena.GetRepeatedWinNum() >= global_config.ArenaRepeatedWinNum {
 			add_score += division.WinningStreakScoreBonus
 		}
 	} else {
@@ -253,14 +257,14 @@ func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
 
 // 匹配对手
 func (this *Player) MatchArenaPlayer() (player_id int32) {
-	rank := rank_list_mgr.GetRankByPlayerId(RANK_LIST_TYPE_ARENA, this.Id)
+	rank := rank_list_mgr.GetRankByKey(RANK_LIST_TYPE_ARENA, this.Id)
 	if rank < 0 {
 		log.Error("Player[%v] get arena rank list rank failed", this.Id)
 		return
 	}
 
 	var start_rank, rank_num, last_rank int32
-	match_num := global_config_mgr.GetGlobalConfig().ArenaMatchPlayerNum
+	match_num := global_config.ArenaMatchPlayerNum
 	if rank == 0 {
 		start_rank, rank_num = rank_list_mgr.GetLastRankRange(RANK_LIST_TYPE_ARENA, match_num)
 		if start_rank < 0 {
@@ -271,10 +275,10 @@ func (this *Player) MatchArenaPlayer() (player_id int32) {
 		last_rank, _ = rank_list_mgr.GetLastRankRange(RANK_LIST_TYPE_ARENA, 1)
 		half_num := match_num / 2
 		var left, right int32
-		if this.db.Arena.GetRepeatedWinNum() >= global_config_mgr.GetGlobalConfig().ArenaRepeatedWinNum {
+		if this.db.Arena.GetRepeatedWinNum() >= global_config.ArenaRepeatedWinNum {
 			right = rank - 1
 			left = rank - match_num
-		} else if this.db.Arena.GetRepeatedLoseNum() >= global_config_mgr.GetGlobalConfig().ArenaLoseRepeatedNum {
+		} else if this.db.Arena.GetRepeatedLoseNum() >= global_config.ArenaLoseRepeatedNum {
 			right = rank + match_num
 			left = rank + 1
 		} else {
@@ -366,7 +370,7 @@ func (this *Player) arena_match() int32 {
 	if this.check_arena_tickets_refresh() {
 
 	}
-	if this.get_resource(global_config_mgr.GetGlobalConfig().ArenaTicketItemId) < 1 {
+	if this.get_resource(global_config.ArenaTicketItemId) < 1 {
 		log.Error("Player[%v] match arena player failed, ticket not enough", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_ARENA_TICKETS_NOT_ENOUGH)
 	}
@@ -385,7 +389,7 @@ func (this *Player) arena_match() int32 {
 
 	// 当前匹配到的玩家
 	this.db.Arena.SetMatchedPlayerId(pid)
-	this.add_resource(global_config_mgr.GetGlobalConfig().ArenaTicketItemId, -1)
+	this.add_resource(global_config.ArenaTicketItemId, -1)
 
 	name, level, head, score, grade, power := GetFighterInfo(pid)
 	response := &msg_client_message.S2CArenaMatchPlayerResponse{
@@ -445,17 +449,17 @@ var arena_season_mgr ArenaSeasonMgr
 
 func (this *ArenaSeasonMgr) Init() bool {
 	this.day_checker = &utils.DaysTimeChecker{}
-	if !this.day_checker.Set("15:04:05", global_config_mgr.GetGlobalConfig().ArenaDayResetTime) {
+	if !this.day_checker.Init("15:04:05", global_config.ArenaDayResetTime, 1) {
 		log.Error("ArenaSeasonMgr day checker init failed")
 		return false
 	}
 	this.season_checker = &utils.DaysTimeChecker{}
-	if !this.season_checker.Set("15:04:05", global_config_mgr.GetGlobalConfig().ArenaSeasonResetTime) {
+	if !this.season_checker.Init("15:04:05", global_config.ArenaSeasonResetTime, global_config.ArenaSeasonDays) {
 		log.Error("ArenaSeasonMgr season checker init failed")
 		return false
 	}
 	this.tickets_checker = &utils.DaysTimeChecker{}
-	if !this.tickets_checker.Set("15:04:05", global_config_mgr.GetGlobalConfig().ArenaTicketRefreshTime) {
+	if !this.tickets_checker.Init("15:04:05", global_config.ArenaTicketRefreshTime, 1) {
 		log.Error("ArenaSeasonMgr tickets checker init failed")
 		return false
 	}
@@ -502,13 +506,27 @@ func (this *ArenaSeasonMgr) GetRemainSeconds() (day_remain int32, season_remain 
 	if season_set == 0 {
 		dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
 		season_set = now_time
-		this.Start()
 	}
 
-	day_remain = this.day_checker.RemainSecondsToNextRefresh(day_set, 1)
-	days := global_config_mgr.GetGlobalConfig().ArenaSeasonDays
-	season_remain = this.season_checker.RemainSecondsToNextRefresh(season_set, days)
+	day_remain = this.day_checker.RemainSecondsToNextRefresh(day_set)
+	season_remain = this.season_checker.RemainSecondsToNextRefresh(season_set)
 
+	return
+}
+
+func (this *ArenaSeasonMgr) IsRewardArrive(now_time int32) (day_arrive, season_arrive bool) {
+	day_set := dbc.ArenaSeason.GetRow().Data.GetLastDayResetTime()
+	if day_set == 0 {
+		dbc.ArenaSeason.GetRow().Data.SetLastDayResetTime(now_time)
+		day_set = now_time
+	}
+	season_set := dbc.ArenaSeason.GetRow().Data.GetLastSeasonResetTime()
+	if season_set == 0 {
+		dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
+		season_set = now_time
+	}
+	day_arrive = this.day_checker.IsArrival(day_set)
+	season_arrive = this.season_checker.IsArrival(season_set)
 	return
 }
 
@@ -572,16 +590,23 @@ func (this *ArenaSeasonMgr) Reset() {
 		}
 		arena_item := item.(*ArenaRankItem)
 		if arena_item == nil {
+			log.Warn("Arena rank[%v] item convert failed", rank)
 			continue
 		}
 		division := arena_division_table_mgr.GetByScore(arena_item.PlayerScore)
 		if division == nil {
+			log.Error("arena division not found by player[%v] score[%v]", arena_item.PlayerId, arena_item.PlayerScore)
 			continue
 		}
-		arena_item.PlayerScore = division.NewSeasonScore
+		rank_list.SetValueByKey(arena_item.PlayerId, division.NewSeasonScore)
 		p := player_mgr.GetPlayerById(arena_item.PlayerId)
 		if p != nil {
-			p.db.Arena.SetScore(arena_item.PlayerScore)
+			p.db.Arena.SetScore(division.NewSeasonScore)
+		} else {
+			robot := arena_robot_mgr.Get(arena_item.PlayerId)
+			if robot != nil {
+				robot.robot_data.RobotScore = division.NewSeasonScore
+			}
 		}
 	}
 }
@@ -593,33 +618,30 @@ func (this *ArenaSeasonMgr) Run() {
 		}
 	}()
 
+	this.Start()
+
 	for {
 		// 检测时间
-		day_remain, season_remain := this.GetRemainSeconds()
-		if day_remain < 0 {
-			log.Warn("Arena season check day reset time error")
-			time.Sleep(time.Second * 2)
-			continue
-		}
-		if season_remain < 0 {
-			log.Warn("Arena season check season reset time error")
-			time.Sleep(time.Second * 2)
-			continue
-		}
-
 		now_time := int32(time.Now().Unix())
-
-		// 每天领奖
-		if day_remain == 0 {
+		day_arrive, season_arrive := this.IsRewardArrive(now_time)
+		if !day_arrive {
+			//log.Warn("Arena season check day reset time error")
+		} else {
 			dbc.ArenaSeason.GetRow().Data.SetLastDayResetTime(now_time)
 			this.Reward(1)
+			this.day_checker.ToNextTimePoint()
+			log.Info("Arena Day Reward")
 		}
-		// 赛季结束，发奖重置积分
-		if season_remain == 0 {
+
+		if !season_arrive {
+			//log.Warn("Arena season check season reset time error")
+		} else {
 			this.End()
 			dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
 			// 发奖
 			this.Reward(2)
+			this.season_checker.ToNextTimePoint()
+			log.Info("Arena Season Reward")
 			// 重置
 			this.Reset()
 			this.Start()

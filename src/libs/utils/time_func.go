@@ -161,10 +161,12 @@ func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string strin
 }
 
 type DaysTimeChecker struct {
-	time_tm time.Time
+	time_tm       time.Time
+	interval_days int32
+	next_time     int64
 }
 
-func (this *DaysTimeChecker) Set(time_layout, time_value string) bool {
+func (this *DaysTimeChecker) Init(time_layout, time_value string, interval_days int32) bool {
 	var loc *time.Location
 	var err error
 	loc, err = time.LoadLocation("Local")
@@ -184,18 +186,66 @@ func (this *DaysTimeChecker) Set(time_layout, time_value string) bool {
 		return false
 	}
 
-	return true
-}
-
-func (this *DaysTimeChecker) IsArrival(last_save int32, interval_days int32) bool {
 	if interval_days <= 0 {
+		log.Error("!!!!!!! Interval Days %v invalid", interval_days)
 		return false
 	}
 
+	this.interval_days = interval_days
+
+	return true
+}
+
+func (this *DaysTimeChecker) _init_next_time(now_time *time.Time) {
+	if this.next_time != 0 {
+		return
+	}
+	// 今天的时间点，与配置相同
+	tmp := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), this.time_tm.Hour(), this.time_tm.Minute(), this.time_tm.Second(), this.time_tm.Nanosecond(), this.time_tm.Location())
+	if tmp.Unix() >= now_time.Unix() {
+		this.next_time = tmp.Unix()
+	} else {
+		this.next_time = tmp.Unix() + int64(24*3600*this.interval_days)
+	}
+}
+
+func (this *DaysTimeChecker) ToNextTimePoint() {
+	if this.next_time == 0 {
+		log.Warn("DaysTimeChecker function ToNextTimePoint call must after Init")
+		return
+	}
+	this.next_time += int64(24 * 3600 * this.interval_days)
+}
+
+func (this *DaysTimeChecker) IsArrival(last_save int32) bool {
+	now_time := time.Now()
+	this._init_next_time(&now_time)
+
+	if now_time.Unix() < this.next_time {
+		return false
+	}
+
+	return true
+}
+
+func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32) (remain_seconds int32) {
+	now_time := time.Now()
+	this._init_next_time(&now_time)
+
+	remain_seconds = int32(this.next_time - now_time.Unix())
+	if remain_seconds < 0 {
+		remain_seconds = 0
+	}
+	return
+}
+
+/*
+func (this *DaysTimeChecker) IsArrival(last_save int32) bool {
 	last_time := time.Unix(int64(last_save), 0)
 	now_time := time.Now()
 
 	if last_time.Unix() > now_time.Unix() {
+		log.Error("DaysTimeChecker function IsArrival param: last_save[%v] invalid", last_save)
 		return false
 	}
 
@@ -203,11 +253,12 @@ func (this *DaysTimeChecker) IsArrival(last_save int32, interval_days int32) boo
 	st := this.time_tm
 	tmp := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), st.Hour(), st.Minute(), st.Second(), st.Nanosecond(), st.Location())
 	if this.time_tm.Unix() >= tmp.Unix() {
+		log.Error("DaysTimeChecker function IsArrival check init time value[%v] invalid", st)
 		return false
 	}
 
 	diff_days := (tmp.Unix() - this.time_tm.Unix()) / (24 * 3600)
-	y := int(diff_days) % int(interval_days)
+	y := int(diff_days) % int(this.interval_days)
 
 	last_refresh_time := int64(0)
 	if y == 0 && now_time.Unix() >= tmp.Unix() {
@@ -224,8 +275,8 @@ func (this *DaysTimeChecker) IsArrival(last_save int32, interval_days int32) boo
 	return false
 }
 
-func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32, interval_days int32) int32 {
-	if last_save <= 0 || interval_days <= 0 {
+func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32) int32 {
+	if last_save <= 0 {
 		return -1
 	}
 	last_time := time.Unix(int64(last_save), 0)
@@ -241,27 +292,25 @@ func (this *DaysTimeChecker) RemainSecondsToNextRefresh(last_save int32, interva
 	}
 
 	diff_days := (today_tm.Unix() - st.Unix()) / (24 * 3600)
-	y := int(diff_days) % int(interval_days)
+	y := int(diff_days) % int(this.interval_days)
 
 	next_refresh_time := int64(0)
 	if y == 0 && now_time.Unix() < today_tm.Unix() {
 		next_refresh_time = today_tm.Unix()
 	} else {
-		next_refresh_time = today_tm.Unix() + int64((int(interval_days)-y)*24*3600)
+		next_refresh_time = today_tm.Unix() + int64((int(this.interval_days)-y)*24*3600)
 	}
 
 	return int32(next_refresh_time - now_time.Unix())
 }
+*/
 
-func GetRemainSeconds4NextRefresh(config_hour, config_minute, config_second int32, last_save_time int32) (next_refresh_remain_seconds int32 /*, today_will_refresh bool*/) {
+func GetRemainSeconds4NextRefresh(config_hour, config_minute, config_second int32, last_save_time int32) (next_refresh_remain_seconds int32) {
 	now_time := time.Now()
 	if int32(now_time.Unix()) < last_save_time {
 		return 0
 	}
 	today_refresh_time := time.Date(now_time.Year(), now_time.Month(), now_time.Day(), int(config_hour), int(config_minute), int(config_second), 0, time.Local)
-	/*if int32(today_refresh_time.Unix()) > last_save_time {
-		today_will_refresh = true
-	}*/
 	if now_time.Unix() < today_refresh_time.Unix() {
 		if int32(today_refresh_time.Unix())-24*3600 > last_save_time {
 			next_refresh_remain_seconds = 0

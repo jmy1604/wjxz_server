@@ -62,7 +62,7 @@ var anouncement_mgr AnouncementMgr
 func (this *AnouncementMgr) Init() {
 	this.items_pool = &utils.SimpleItemPool{}
 	this.items_factory = &AnouncementItemFactory{}
-	this.items_pool.Init(global_config_mgr.GetGlobalConfig().AnouncementMaxNum, this.items_factory)
+	this.items_pool.Init(global_config.AnouncementMaxNum, this.items_factory)
 	this.locker = &sync.RWMutex{}
 	this.chat_msg_head = nil
 	this.chat_msg_tail = nil
@@ -73,7 +73,7 @@ func (this *AnouncementMgr) recycle_old() {
 	now_time := int32(time.Now().Unix())
 	msg := this.chat_msg_head
 	for msg != nil {
-		if now_time-msg.send_time >= global_config_mgr.GetGlobalConfig().AnouncementExistTime*60 {
+		if now_time-msg.send_time >= global_config.AnouncementExistTime*60 {
 			if msg == this.chat_msg_head {
 				this.chat_msg_head = msg.next
 			}

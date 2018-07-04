@@ -36,16 +36,20 @@ func (this *RankList) Init(root_node utils.SkiplistNode) {
 	}
 }
 
-func (this *RankList) GetItemByPlayerId(player_id int32) (item utils.SkiplistNode) {
-	return this.rank_list.GetByKey(player_id)
+func (this *RankList) GetItemByKey(key interface{}) (item utils.SkiplistNode) {
+	return this.rank_list.GetByKey(key)
 }
 
-func (this *RankList) GetRankByPlayerId(player_id int32) int32 {
-	return this.rank_list.GetRank(player_id)
+func (this *RankList) GetRankByKey(key interface{}) int32 {
+	return this.rank_list.GetRank(key)
 }
 
 func (this *RankList) GetItemByRank(rank int32) (item utils.SkiplistNode) {
 	return this.rank_list.GetByRank(rank)
+}
+
+func (this *RankList) SetValueByKey(key interface{}, value interface{}) {
+	this.rank_list.SetValueByKey(key, value)
 }
 
 func (this *RankList) RankNum() int32 {
@@ -53,7 +57,7 @@ func (this *RankList) RankNum() int32 {
 }
 
 // 获取排名项
-func (this *RankList) GetItemsByRank(player_id, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
+func (this *RankList) GetItemsByRange(key interface{}, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
 	start_rank, rank_num = this.rank_list.GetRankRange(start_rank, rank_num)
 	if start_rank == 0 {
 		log.Error("Get rank list range with [%v,%v] failed", start_rank, rank_num)
@@ -76,7 +80,7 @@ func (this *RankList) GetItemsByRank(player_id, start_rank, rank_num int32) (ran
 		rank_items[i] = nodes[i].(utils.SkiplistNode)
 	}
 
-	self_rank, self_value = this.rank_list.GetRankAndValue(player_id)
+	self_rank, self_value = this.rank_list.GetRankAndValue(key)
 	return
 
 }
@@ -139,18 +143,18 @@ func (this *RankListManager) GetRankList(rank_type int32) (rank_list *RankList) 
 	return this.rank_lists[rank_type]
 }
 
-func (this *RankListManager) GetItemByPlayerId(rank_type, player_id int32) (item utils.SkiplistNode) {
+func (this *RankListManager) GetItemByKey(rank_type int32, key interface{}) (item utils.SkiplistNode) {
 	if int(rank_type) >= len(this.rank_lists) {
 		return nil
 	}
-	return this.rank_lists[rank_type].GetItemByPlayerId(player_id)
+	return this.rank_lists[rank_type].GetItemByKey(key)
 }
 
-func (this *RankListManager) GetRankByPlayerId(rank_type, player_id int32) int32 {
+func (this *RankListManager) GetRankByKey(rank_type int32, key interface{}) int32 {
 	if int(rank_type) >= len(this.rank_lists) {
 		return -1
 	}
-	return this.rank_lists[rank_type].GetRankByPlayerId(player_id)
+	return this.rank_lists[rank_type].GetRankByKey(key)
 }
 
 func (this *RankListManager) GetItemByRank(rank_type, rank int32) (item utils.SkiplistNode) {
@@ -160,11 +164,11 @@ func (this *RankListManager) GetItemByRank(rank_type, rank int32) (item utils.Sk
 	return this.rank_lists[rank_type].GetItemByRank(rank)
 }
 
-func (this *RankListManager) GetItemsByRange(rank_type, player_id, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
+func (this *RankListManager) GetItemsByRange(rank_type int32, key interface{}, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
 	if int(rank_type) >= len(this.rank_lists) {
 		return nil, 0, nil
 	}
-	return this.rank_lists[rank_type].GetItemsByRank(player_id, start_rank, rank_num)
+	return this.rank_lists[rank_type].GetItemsByRange(key, start_rank, rank_num)
 }
 
 func (this *RankListManager) GetLastRankRange(rank_type, rank_num int32) (int32, int32) {
@@ -199,20 +203,20 @@ func (this *RankListManager) GetRankList2(rank_type int32) (rank_list *RankList)
 	return
 }
 
-func (this *RankListManager) GetItemByPlayerId2(rank_type, player_id int32) (item utils.SkiplistNode) {
+func (this *RankListManager) GetItemByKey2(rank_type int32, key interface{}) (item utils.SkiplistNode) {
 	rank_list := this.GetRankList2(rank_type)
 	if rank_list == nil {
 		return
 	}
-	return rank_list.GetItemByPlayerId(player_id)
+	return rank_list.GetItemByKey(key)
 }
 
-func (this *RankListManager) GetRankByPlayerId2(rank_type, player_id int32) int32 {
+func (this *RankListManager) GetRankByKey2(rank_type int32, key interface{}) int32 {
 	rank_list := this.GetRankList2(rank_type)
 	if rank_list == nil {
 		return 0
 	}
-	return rank_list.GetRankByPlayerId(player_id)
+	return rank_list.GetRankByKey(key)
 }
 
 func (this *RankListManager) GetItemByRank2(rank_type, rank int32) (item utils.SkiplistNode) {
@@ -223,12 +227,12 @@ func (this *RankListManager) GetItemByRank2(rank_type, rank int32) (item utils.S
 	return rank_list.GetItemByRank(rank)
 }
 
-func (this *RankListManager) GetItemsByRange2(rank_type, player_id, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
+func (this *RankListManager) GetItemsByRange2(rank_type int32, key interface{}, start_rank, rank_num int32) (rank_items []utils.SkiplistNode, self_rank int32, self_value interface{}) {
 	rank_list := this.GetRankList2(rank_type)
 	if rank_list == nil {
 		return
 	}
-	return rank_list.GetItemsByRank(player_id, start_rank, rank_num)
+	return rank_list.GetItemsByRange(key, start_rank, rank_num)
 }
 
 func (this *RankListManager) GetLastRankRange2(rank_type, rank_num int32) (int32, int32) {
@@ -314,5 +318,5 @@ func C2SRankListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_d
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.get_rank_list_items(req.GetRankListType(), 1, global_config_mgr.GetGlobalConfig().ArenaGetTopRankNum)
+	return p.get_rank_list_items(req.GetRankListType(), 1, global_config.ArenaGetTopRankNum)
 }

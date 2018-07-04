@@ -405,7 +405,7 @@ func apple_pay_verify(p *Player, order_data []byte) bool { //ordername, receipt 
 	}
 	final_str := base64.StdEncoding.EncodeToString(data)
 
-	req, err := http.NewRequest("POST", global_config_mgr.GetGlobalConfig().ApplePayUrl, strings.NewReader(final_str))
+	req, err := http.NewRequest("POST", global_config.ApplePayUrl, strings.NewReader(final_str))
 	if err != nil {
 		log.Error("apple_pay_verify http NewRequest failed(%s) !", err.Error())
 		return false

@@ -37,9 +37,9 @@
 	"ArenaRepeatedWinNum": 2,
 	"ArenaLoseRepeatedNum": 1,
 	"ArenaHighGradeStart": 3,
-	"ArenaSeasonDays": 7,
-	"ArenaDayResetTime":"09:00:00",
-	"ArenaSeasonResetTime":"10:00:00",
+	"ArenaSeasonDays": 1,
+	"ArenaDayResetTime":"14:59:00",
+	"ArenaSeasonResetTime":"15:00:00",
 	
 	"MaxFriendNum":200,
 	
@@ -52,9 +52,6 @@
 	"MaxNameLen":32,
 	"ChgNameCost":[0,10,20,30,40,50],
 	"FirstPayReward":6801,
-
-	"ShopStartRefreshTime": "2017-Oct-12 08:00:00",
-	"ShopRefreshTime": "Monday 08:00:00",
 	
 	"RankingListOnceGetItemsNum": 20,
 	"WorldChatMaxMsgNum": 200,

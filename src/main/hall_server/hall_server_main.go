@@ -108,7 +108,7 @@ func main() {
 	}
 
 	// 配置加载
-	if !global_config_mgr.Init("../game_data/global.json") {
+	if !global_config.Init("../game_data/global.json") {
 		log.Error("global_config_load failed !")
 		return
 	} else {

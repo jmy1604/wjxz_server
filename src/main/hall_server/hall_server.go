@@ -400,7 +400,7 @@ func (this *HallServer) OnUpdate(c *socket.TcpConn, t timer.TickTime) {
 
 }
 
-var global_config_mgr table_config.GlobalConfigManager
+var global_config table_config.GlobalConfig
 var task_table_mgr table_config.TaskTableMgr
 var item_table_mgr table_config.ItemTableMgr
 var drop_table_mgr table_config.DropManager

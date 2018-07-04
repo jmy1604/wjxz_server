@@ -63,7 +63,7 @@ func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CRetF
 func (this *dbPlayerFriendColumn) GetAviFriendId() int32 {
 	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.GetAviFriendId")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	for i := int32(1); i <= global_config_mgr.GetGlobalConfig().MaxFriendNum; i++ {
+	for i := int32(1); i <= global_config.MaxFriendNum; i++ {
 		if nil == this.m_data[i] {
 			return i
 		}
@@ -488,7 +488,7 @@ func (this *Player) check_friends_give_points_refresh() (remain_seconds int32) {
 		return
 	}
 
-	rt := &global_config_mgr.GetGlobalConfig().FriendGivePointsRefreshTime
+	rt := &global_config.FriendGivePointsRefreshTime
 	remain_seconds = utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, this.db.FriendRelative.GetLastRefreshTime())
 
 	if remain_seconds <= 0 {
@@ -517,7 +517,7 @@ func (this *Player) get_friend_list(get_foster bool) int32 {
 	this.db.Friends.FillAllListMsg(response)
 	this.db.FriendReqs.FillAllListMsg(response)
 
-	//rt := &global_config_mgr.GetGlobalConfig().FriendGivePointsRefreshTime
+	//rt := &global_config.FriendGivePointsRefreshTime
 	//now_time := time.Now()
 	for i := 0; i < len(response.FriendList); i++ {
 		/*fid := response.FriendList[i].GetPlayerId()
@@ -541,14 +541,14 @@ func (this *Player) get_friend_list(get_foster bool) int32 {
 		response.Reqs[i].Name = name
 		response.Reqs[i].Head = head
 	}
-	response.LeftGivePointsNum = global_config_mgr.GetGlobalConfig().FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday()
+	response.LeftGivePointsNum = global_config.FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday()
 	this.Send(1, response)
 	return 1
 }
 
 func (this *Player) store_friend_points(friend_id int32) (err int32, last_save int32, remain_seconds int32) {
 	last_save, o := this.db.FriendPoints.GetLastGiveTime(friend_id)
-	rt := &global_config_mgr.GetGlobalConfig().FriendGivePointsRefreshTime
+	rt := &global_config.FriendGivePointsRefreshTime
 	remain_seconds = utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, last_save)
 	if remain_seconds > 0 {
 		err = int32(msg_client_message.E_ERR_FRIEND_GIVE_POINTS_FREQUENTLY)
@@ -582,7 +582,7 @@ func (this *Player) give_friend_points(friend_list []int32) int32 {
 	}
 
 	today_num := this.db.FriendRelative.GetGiveNumToday()
-	today_max_num := global_config_mgr.GetGlobalConfig().FriendGivePointsPlayerNumOneDay
+	today_max_num := global_config.FriendGivePointsPlayerNumOneDay
 	if today_num >= today_max_num {
 		log.Error("Player[%v] give friend points num is max", this.Id)
 		return int32(msg_client_message.E_ERR_FRIEND_GIVE_POINTS_MAX_NUM_LIMIT)
@@ -645,7 +645,7 @@ func (this *Player) give_friend_points(friend_list []int32) int32 {
 
 	response := &msg_client_message.S2CGiveFriendPointsResult{
 		PointsData:        points_result[:n],
-		LeftGivePointsNum: proto.Int32(global_config_mgr.GetGlobalConfig().FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday()),
+		LeftGivePointsNum: proto.Int32(global_config.FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday()),
 	}
 
 	this.Send(response)*/

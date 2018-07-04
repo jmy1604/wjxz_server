@@ -20,6 +20,7 @@ type SkiplistNode interface {
 	KeyEqual(key interface{}) bool
 	GetKey() interface{}
 	GetValue() interface{}
+	SetValue(interface{})
 	New() SkiplistNode
 	Assign(node SkiplistNode)
 	CopyDataTo(node interface{})
@@ -320,6 +321,10 @@ func (this PlayerId) GetValue() interface{} {
 	return this
 }
 
+func (this PlayerId) SetValue(value interface{}) {
+
+}
+
 func (this PlayerId) New() SkiplistNode {
 	return this
 }
@@ -396,6 +401,10 @@ func (this *PlayerInfo) GetKey() interface{} {
 
 func (this *PlayerInfo) GetValue() interface{} {
 	return this.PlayerId
+}
+
+func (this *PlayerInfo) SetValue(value interface{}) {
+
 }
 
 func (this *PlayerInfo) New() SkiplistNode {

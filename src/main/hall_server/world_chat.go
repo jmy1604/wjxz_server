@@ -49,7 +49,7 @@ type WorldChatMgr struct {
 var world_chat_mgr WorldChatMgr
 
 func get_world_chat_max_msg_num() int32 {
-	max_num := global_config_mgr.GetGlobalConfig().WorldChatMaxMsgNum
+	max_num := global_config.WorldChatMaxMsgNum
 	if max_num == 0 {
 		max_num = MAX_WORLD_CHAT_MSG_NUM
 	}
@@ -69,7 +69,7 @@ func (this *WorldChatMgr) recycle_old() {
 	now_time := int32(time.Now().Unix())
 	msg := this.chat_msg_head
 	for msg != nil {
-		if now_time-msg.send_time >= global_config_mgr.GetGlobalConfig().WorldChatMsgExistTime*60 {
+		if now_time-msg.send_time >= global_config.WorldChatMsgExistTime*60 {
 			if msg == this.chat_msg_head {
 				this.chat_msg_head = msg.next
 			}
@@ -164,7 +164,7 @@ func (this *WorldChatMgr) pull_world_chat(player *Player) (chat_items []*msg_cli
 		if msg == nil {
 			break
 		}
-		if now_time-msg.send_time >= global_config_mgr.GetGlobalConfig().WorldChatMsgExistTime*60 {
+		if now_time-msg.send_time >= global_config.WorldChatMsgExistTime*60 {
 			msg = msg.next
 			continue
 		}
@@ -202,7 +202,7 @@ func (this *Player) world_chat(content []byte) int32 {
 		log.Error("Player[%v] world chat is cooling down !", this.Id)
 		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN)
 	}
-	if int32(len(content)) > global_config_mgr.GetGlobalConfig().WorldChatMsgMaxBytes {
+	if int32(len(content)) > global_config.WorldChatMsgMaxBytes {
 		log.Error("Player[%v] world chat content length is too long !", this.Id)
 		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG)
 	}
@@ -227,7 +227,7 @@ func (this *Player) world_chat(content []byte) int32 {
 
 func (this *Player) pull_world_chat() int32 {
 	now_time := int32(time.Now().Unix())
-	if now_time-this.db.WorldChat.GetLastPullTime() < global_config_mgr.GetGlobalConfig().WorldChatPullMsgCooldown {
+	if now_time-this.db.WorldChat.GetLastPullTime() < global_config.WorldChatPullMsgCooldown {
 		log.Error("Player[%v] pull world chat msg is cooling down", this.Id)
 		//return int32(msg_client_message.E_ERR_WORLDCHAT_PULL_COOLING_DOWN)
 		response := &msg_client_message.S2CWorldChatMsgPullResult{}

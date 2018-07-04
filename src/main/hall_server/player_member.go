@@ -606,7 +606,7 @@ func (this *TeamMember) init_with_team(team *BattleTeam, id int32, pos int32) {
 	this.team = team
 	this.id = id
 	this.pos = pos
-	this.energy = global_config_mgr.GetGlobalConfig().InitEnergy
+	this.energy = global_config.InitEnergy
 	if this.energy == 0 {
 		this.energy = BATTLE_TEAM_MEMBER_INIT_ENERGY
 	}
@@ -705,7 +705,7 @@ func (this *TeamMember) round_end() {
 		}
 	}
 
-	add_energy := global_config_mgr.GetGlobalConfig().EnergyAdd
+	add_energy := global_config.EnergyAdd
 	if add_energy == 0 {
 		add_energy = BATTLE_TEAM_MEMBER_ADD_ENERGY
 	}
@@ -717,7 +717,7 @@ func (this *TeamMember) get_use_skill() (skill_id int32) {
 		return
 	}
 
-	max_energy := global_config_mgr.GetGlobalConfig().MaxEnergy
+	max_energy := global_config.MaxEnergy
 	if max_energy == 0 {
 		max_energy = BATTLE_TEAM_MEMBER_MAX_ENERGY
 	}
@@ -741,7 +741,7 @@ func (this *TeamMember) used_skill(skill *table_config.XmlSkillItem) {
 	if skill.Type != SKILL_TYPE_SUPER {
 		return
 	}
-	max_energy := global_config_mgr.GetGlobalConfig().MaxEnergy
+	max_energy := global_config.MaxEnergy
 	if max_energy == 0 {
 		max_energy = BATTLE_TEAM_MEMBER_MAX_ENERGY
 	}

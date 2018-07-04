@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"libs/log"
-	"libs/utils"
+	_ "libs/utils"
 )
 
 type WeekTime struct {
@@ -99,37 +99,18 @@ type GlobalConfig struct {
 	FriendGivePointsPlayerNumOneDay int32    // 好友赠送点数每天最大人数
 }
 
-type GlobalConfigManager struct {
-	global_config     *GlobalConfig
-	shop_time_checker *utils.DaysTimeChecker
-}
-
-func (this *GlobalConfigManager) Init(conf_path string) bool {
-	gc := &GlobalConfig{}
+func (this *GlobalConfig) Init(conf_path string) bool {
 	data, err := ioutil.ReadFile(conf_path)
 	if nil != err {
 		log.Error("GlobalConfigManager::Init failed to readfile err(%s)!", err.Error())
 		return false
 	}
 
-	err = json.Unmarshal(data, gc)
+	err = json.Unmarshal(data, this)
 	if nil != err {
 		log.Error("GlobalConfigManager::Init json unmarshal failed err(%s)!", err.Error())
 		return false
 	}
 
-	gc.InitItem_len = int32(len(gc.InitItems))
-	gc.ChgNameCostLen = int32(len(gc.ChgNameCost))
-
-	this.global_config = gc
-
 	return true
-}
-
-func (this *GlobalConfigManager) GetGlobalConfig() *GlobalConfig {
-	return this.global_config
-}
-
-func (this *GlobalConfigManager) GetShopTimeChecker() *utils.DaysTimeChecker {
-	return this.shop_time_checker
 }
