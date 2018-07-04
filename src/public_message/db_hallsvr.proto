@@ -213,6 +213,11 @@ message PlayerArena{
 	optional int32 LastTicketsRefreshTime=8;
 }
 
+message PlayerEquip{
+	optional int32 TmpSaveLeftSlotRoleId=1;
+	optional int32 TmpLeftSlotItemId=2;
+}
+
 message PlayerDialyTask{
 	optional int32 TaskId=1;
 	optional int32 Value=2;

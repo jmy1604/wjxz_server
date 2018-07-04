@@ -170,11 +170,12 @@ func (this *ArenaRobotManager) Get(robot_id int32) *ArenaRobot {
 func (this *Player) check_arena_tickets_refresh() bool {
 	last_refresh := this.db.Arena.GetLastTicketsRefreshTime()
 	remain_seconds := arena_season_mgr.tickets_checker.RemainSecondsToNextRefresh(last_refresh)
-	if remain_seconds <= 0 {
-		this.set_resource(global_config.ArenaTicketItemId, global_config.ArenaTicketsDay)
-	} else {
+	if remain_seconds > 0 {
 		return false
 	}
+	this.set_resource(global_config.ArenaTicketItemId, global_config.ArenaTicketsDay)
+	this.db.Arena.SetLastTicketsRefreshTime(int32(time.Now().Unix()))
+	arena_season_mgr.tickets_checker.ToNextTimePoint()
 	return true
 }
 
@@ -209,6 +210,10 @@ func (this *Player) UpdateArenaScore(is_win bool) bool {
 		if this.db.Arena.GetRepeatedWinNum() >= global_config.ArenaRepeatedWinNum {
 			add_score += division.WinningStreakScoreBonus
 		}
+		if this.db.Arena.GetRepeatedLoseNum() > 0 {
+			this.db.Arena.SetRepeatedLoseNum(0)
+		}
+		this.db.Arena.IncbyRepeatedWinNum(1)
 	} else {
 		add_score = division.LoseScore
 	}
@@ -466,7 +471,7 @@ func (this *ArenaSeasonMgr) Init() bool {
 	return true
 }
 
-func (this *ArenaSeasonMgr) Start() {
+func (this *ArenaSeasonMgr) SeasonStart() {
 	for {
 		if !atomic.CompareAndSwapInt32(&this.state, 0, 1) {
 			time.Sleep(time.Second * 1)
@@ -477,7 +482,7 @@ func (this *ArenaSeasonMgr) Start() {
 	this.start_time = int32(time.Now().Unix())
 }
 
-func (this *ArenaSeasonMgr) End() {
+func (this *ArenaSeasonMgr) SeasonEnd() {
 	for {
 		if !atomic.CompareAndSwapInt32(&this.state, 1, 0) {
 			time.Sleep(time.Second * 1)
@@ -487,11 +492,11 @@ func (this *ArenaSeasonMgr) End() {
 	}
 }
 
-func (this *ArenaSeasonMgr) IsStart() bool {
+func (this *ArenaSeasonMgr) IsSeasonStart() bool {
 	return atomic.LoadInt32(&this.state) == 1
 }
 
-func (this *ArenaSeasonMgr) IsEnd() bool {
+func (this *ArenaSeasonMgr) IsSeasonEnd() bool {
 	return atomic.LoadInt32(&this.state) == 0
 }
 
@@ -561,7 +566,7 @@ func (this *ArenaSeasonMgr) Reward(typ int32) {
 
 		if typ == 1 {
 			SendMail2(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, "Arena Day Reward", "", bonus.DayRewardList)
-		} else {
+		} else if typ == 2 {
 			SendMail2(nil, arena_item.PlayerId, MAIL_TYPE_SYSTEM, "Arena Season Reward", "", bonus.SeasonRewardList)
 		}
 	}
@@ -618,25 +623,21 @@ func (this *ArenaSeasonMgr) Run() {
 		}
 	}()
 
-	this.Start()
+	this.SeasonStart()
 
 	for {
 		// 检测时间
 		now_time := int32(time.Now().Unix())
 		day_arrive, season_arrive := this.IsRewardArrive(now_time)
-		if !day_arrive {
-			//log.Warn("Arena season check day reset time error")
-		} else {
+		if day_arrive {
 			dbc.ArenaSeason.GetRow().Data.SetLastDayResetTime(now_time)
 			this.Reward(1)
 			this.day_checker.ToNextTimePoint()
 			log.Info("Arena Day Reward")
 		}
 
-		if !season_arrive {
-			//log.Warn("Arena season check season reset time error")
-		} else {
-			this.End()
+		if season_arrive {
+			this.SeasonEnd()
 			dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
 			// 发奖
 			this.Reward(2)
@@ -644,7 +645,9 @@ func (this *ArenaSeasonMgr) Run() {
 			log.Info("Arena Season Reward")
 			// 重置
 			this.Reset()
-			this.Start()
+			this.SeasonStart()
+			time.Sleep(time.Millisecond * 500)
+			continue
 		}
 
 		time.Sleep(time.Second * 2)

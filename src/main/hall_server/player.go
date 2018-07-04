@@ -113,6 +113,8 @@ type Player struct {
 	new_mail_list_locker *sync.Mutex     // 新邮件列表锁
 	new_mail_ids         []int32         // 新邮件ID列表
 
+	tmp_left_slot_equip_id int32 // 左槽升级临时保存
+
 	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data PlayerAnouncementData // 公告缓存数据
 
@@ -850,7 +852,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	}
 
 	// 赛季是否开始
-	if !arena_season_mgr.IsStart() {
+	if !arena_season_mgr.IsSeasonStart() {
 		log.Error("Arena Season is not start, wait a while")
 		return int32(msg_client_message.E_ERR_PLAYER_ARENA_SEASON_IS_RESETING)
 	}

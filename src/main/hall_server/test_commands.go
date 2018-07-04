@@ -1776,11 +1776,11 @@ func arena_match_cmd(p *Player, args []string) int32 {
 }
 
 func arena_reset_cmd(p *Player, args []string) int32 {
-	if arena_season_mgr.IsStart() {
-		arena_season_mgr.End()
+	if arena_season_mgr.IsSeasonStart() {
+		arena_season_mgr.SeasonEnd()
 	}
 	arena_season_mgr.Reset()
-	arena_season_mgr.Start()
+	arena_season_mgr.SeasonStart()
 	return 1
 }
 

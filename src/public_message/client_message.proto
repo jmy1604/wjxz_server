@@ -659,6 +659,23 @@ message S2CRoleOneKeyUnequipResponse {
 	repeated int32 Equips					= 2; // 脱装后的装备
 }
 
+// 左槽升级保存
+message C2SRoleLeftSlotResultSaveRequest {
+	int32 RoleId							= 1;
+}
+message S2CRoleLeftSlotResultSaveResponse {
+	int32 RoleId							= 1;
+}
+
+// 左槽升级取消
+message C2SRoleLeftSlotResultCancelRequest {
+	int32 RoleId							= 1;
+}
+message S2CRoleLeftSlotResultCancelResponse {
+	int32 RoleId							= 1;
+}
+
+
 // --------------------------------- 邮件 -------------------------------------
 // 发送邮件
 message C2SMailSendRequest {

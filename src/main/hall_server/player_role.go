@@ -888,6 +888,46 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	return 1
 }
 
+func (this *Player) role_left_slot_upgrade_save() int32 {
+	tmp_role_id := this.db.Equip.GetTmpSaveLeftSlotRoleId()
+	tmp_left_slot_id := this.db.Equip.GetTmpLeftSlotItemId()
+	equips, o := this.db.Roles.GetEquip(tmp_role_id)
+	if !o {
+		log.Error("Player[%v] role[%v] not found", this.Id, tmp_role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	if tmp_left_slot_id <= 0 {
+		log.Error("Player[%v] not save left slot upgrade result", this.Id)
+		return -1
+	}
+
+	equips[EQUIP_TYPE_LEFT_SLOT] = tmp_left_slot_id
+	this.db.Roles.SetEquip(tmp_role_id, equips)
+	this.db.Equip.SetTmpLeftSlotItemId(0)
+	this.db.Equip.SetTmpSaveLeftSlotRoleId(0)
+
+	this.roles_id_change_info.id_update(tmp_role_id)
+
+	response := &msg_client_message.S2CRoleLeftSlotResultSaveResponse{
+		RoleId: tmp_role_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEFTSLOT_RESULT_SAVE_RESPONSE), response)
+
+	return 1
+}
+
+func (this *Player) role_left_slot_result_cancel() int32 {
+	role_id := this.db.Equip.GetTmpSaveLeftSlotRoleId()
+	this.db.Equip.SetTmpLeftSlotItemId(0)
+	this.db.Equip.SetTmpSaveLeftSlotRoleId(0)
+	response := &msg_client_message.S2CRoleLeftSlotResultCancelResponse{
+		RoleId: role_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEFTSLOT_RESULT_CANCEL_RESPONSE), response)
+	return 1
+}
+
 func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 	role_equips, o := this.db.Roles.GetEquip(role_id)
 	if !o {
@@ -1196,4 +1236,24 @@ func C2SRoleOneKeyUnequipHandler(w http.ResponseWriter, r *http.Request, p *Play
 		return -1
 	}
 	return p.role_one_key_unequip(req.GetRoleId())
+}
+
+func C2SRoleLeftSlotUpgradeSaveHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleLeftSlotResultSaveRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.role_left_slot_upgrade_save()
+}
+
+func C2SRoleLeftSlotResultCancelHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SRoleLeftSlotResultCancelRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.role_left_slot_result_cancel()
 }

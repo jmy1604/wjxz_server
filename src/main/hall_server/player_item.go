@@ -538,7 +538,12 @@ func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
 			log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
 		}
-		equips[item.EquipType] = new_item.ItemCfgId
+		if item.EquipType == EQUIP_TYPE_LEFT_SLOT {
+			this.db.Equip.SetTmpLeftSlotItemId(new_item.ItemCfgId)
+		} else {
+			equips[item.EquipType] = new_item.ItemCfgId
+			this.db.Roles.SetEquip(role_id, equips)
+		}
 		new_item_id = new_item.ItemCfgId
 	} else {
 		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, nil)
