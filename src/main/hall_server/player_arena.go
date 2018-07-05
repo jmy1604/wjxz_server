@@ -448,6 +448,7 @@ type ArenaSeasonMgr struct {
 	day_checker     *utils.DaysTimeChecker
 	season_checker  *utils.DaysTimeChecker
 	tickets_checker *utils.DaysTimeChecker
+	to_exit         int32
 }
 
 var arena_season_mgr ArenaSeasonMgr
@@ -469,6 +470,10 @@ func (this *ArenaSeasonMgr) Init() bool {
 		return false
 	}
 	return true
+}
+
+func (this *ArenaSeasonMgr) ToEnd() {
+	atomic.StoreInt32(&this.to_exit, 1)
 }
 
 func (this *ArenaSeasonMgr) SeasonStart() {
@@ -626,6 +631,9 @@ func (this *ArenaSeasonMgr) Run() {
 	this.SeasonStart()
 
 	for {
+		if atomic.LoadInt32(&this.to_exit) > 0 {
+			break
+		}
 		// 检测时间
 		now_time := int32(time.Now().Unix())
 		day_arrive, season_arrive := this.IsRewardArrive(now_time)

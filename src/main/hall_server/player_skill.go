@@ -143,7 +143,7 @@ func _check_team_column(self_pos, column_index int32, target_team *BattleTeam) (
 // 十字攻击范围
 func _get_team_cross_targets() [][]int32 {
 	return [][]int32{
-		[]int32{0, 2, 3},
+		[]int32{0, 1, 3},
 		[]int32{1, 0, 2, 4},
 		[]int32{2, 1, 5},
 		[]int32{3, 0, 4, 6},

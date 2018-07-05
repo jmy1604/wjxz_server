@@ -333,6 +333,7 @@ func (this *HallServer) Shutdown() {
 	this.quit = true
 
 	this.redis_conn.Close()
+	arena_season_mgr.ToEnd()
 
 	log.Trace("关闭游戏主循环")
 

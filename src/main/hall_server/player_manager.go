@@ -375,6 +375,9 @@ func C2SEnterGameRequestHandler(w http.ResponseWriter, r *http.Request, msg_data
 	if !is_new {
 		p.send_items()
 		p.send_roles()
+	} else {
+		p.check_and_send_items_change()
+		p.check_and_send_roles_change()
 	}
 	p.send_info()
 	p.send_teams()
