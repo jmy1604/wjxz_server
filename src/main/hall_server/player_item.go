@@ -544,6 +544,7 @@ func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
 		} else {
 			equips[item.EquipType] = new_item.ItemCfgId
 			this.db.Roles.SetEquip(role_id, equips)
+			this.roles_id_change_info.id_update(role_id)
 		}
 		new_item_id = new_item.ItemCfgId
 	} else {
