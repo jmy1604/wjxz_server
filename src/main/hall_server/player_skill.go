@@ -783,6 +783,20 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		}
 	}
 
+	// 吸血
+	var add_hp int32
+	if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
+		add_hp = target_damage * self.attrs[ATTR_CLOSE_VAMPIRE] / 10000
+	} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
+		add_hp = target_damage * self.attrs[ATTR_REMOTE_VAMPIRE] / 10000
+	}
+	if add_hp > 0 {
+		reflect_damage -= add_hp
+		if reflect_damage < 0 {
+			reflect_damage = 0
+		}
+	}
+
 	// 贯通
 	if effect[3] > 0 {
 		if target.attrs[ATTR_SHIELD] < target_damage {

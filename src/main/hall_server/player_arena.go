@@ -80,6 +80,7 @@ func (this *ArenaRankItem) GetValue() interface{} {
 
 func (this *ArenaRankItem) SetValue(value interface{}) {
 	this.PlayerScore = value.(int32)
+	this.SaveTime = int32(time.Now().Unix())
 }
 
 func (this *ArenaRankItem) New() utils.SkiplistNode {
