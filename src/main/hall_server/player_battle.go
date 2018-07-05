@@ -160,6 +160,21 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		return false
 	}
 
+	if members == nil {
+		return false
+	}
+	is_empty := true
+	// 检测是否为空
+	for i := 0; i < len(members); i++ {
+		if members[i] > 0 {
+			is_empty = false
+			break
+		}
+	}
+	if is_empty {
+		return false
+	}
+
 	if this.members == nil {
 		this.members = make([]*TeamMember, BATTLE_TEAM_MEMBER_MAX_NUM)
 	}

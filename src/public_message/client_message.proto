@@ -525,6 +525,16 @@ message S2CItemUpgradeResponse {
 	repeated int32 NewItemId				= 2; // 新生成的物品ID
 }
 
+// 物品一键合成装备
+message C2SItemOneKeyUpgradeRequest {
+	repeated int32 ItemIds					= 1; // 待合成的物品列表
+}
+
+message S2CItemOneKeyUpgradeResponse {
+	repeated int32 ItemIds					= 1; // 待合成的物品列表
+	map<int32,ItemInfo> ResultItems			= 2; // key 待合成的物品ID  value 合成后的物品ID和数量
+}
+
 // ----------------------------------- 角色 ------------------------------------
 // 请求角色
 message C2SRolesRequest {

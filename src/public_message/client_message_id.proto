@@ -76,6 +76,8 @@ enum MSGID {
 	S2C_ITEM_UNEQUIP_RESPONSE				= 10310; // 请求卸载物品返回 S2CItemUnequipResponse
 	C2S_ITEM_UPGRADE_REQUEST			    = 10311; // 请求物品升级 C2SItemUpgradeRequest
 	S2C_ITEM_UPGRADE_RESPONSE				= 10312; // 请求物品升级返回 S2CItemUpgradeResponse
+	C2S_ITEM_ONEKEY_UPGRADE_REQUEST			= 10313; // 请求一键合成装备 C2SItemOneKeyUpgradeRequest
+	S2C_ITEM_ONEKEY_UPGRADE_RESPONSE		= 10314; // 请求一键合成装备返回 S2CItemOneKeyUpgradeResponse
 	
 	C2S_CAMPAIGN_DATA_REQUEST				= 10400; // 请求战役数据 C2SCampaignDataRequest
 	S2C_CAMPAIGN_DATA_RESPONSE				= 10401; // 战役数据返回 S2CCampaignDataResponse

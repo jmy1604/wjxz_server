@@ -585,6 +585,29 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 	return 1
 }
 
+func (this *Player) item_one_key_upgrade(item_ids []int32) int32 {
+	for i := 0; i < len(item_ids); i++ {
+		item := item_table_mgr.Get(item_ids[i])
+		if item == nil {
+			log.Error("item[%v] table data not found on item one key upgrade", item_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
+		}
+		if item.EquipType < 1 && item.EquipType >= EQUIP_TYPE_LEFT_SLOT {
+			continue
+		}
+		item_upgrade := item_upgrade_table_mgr.GetByItemId(item_ids[i])
+		if item_upgrade == nil {
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_DATA_NOT_FOUND)
+		}
+		drop_data := drop_table_mgr.Map[item_upgrade.ResultDropId]
+		if drop_data == nil {
+			log.Error("Drop id[%v] data not found", item_upgrade.ResultDropId)
+			return -1
+		}
+	}
+	return 1
+}
+
 func C2SItemFusionHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SItemFusionRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -633,4 +656,14 @@ func C2SItemUpgradeHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 		return -1
 	}
 	return p.item_upgrade(req.GetRoleId(), req.GetItemId(), req.GetItemNum(), req.GetUpgradeType())
+}
+
+func C2SItemOneKeyUpgradeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SItemOneKeyUpgradeRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.item_one_key_upgrade(req.GetItemIds())
 }
