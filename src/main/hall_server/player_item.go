@@ -508,6 +508,11 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		item_num = 1
 	}
 
+	if this.get_resource(item_id) < item_num {
+		log.Error("Player[%v] upgrade item[%v] not enough", this.Id, item_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
+	}
+
 	// 检测消耗物品
 	for i := 0; i < len(item_upgrade.ResCondtion)/2; i++ {
 		res_id := item_upgrade.ResCondtion[2*i]

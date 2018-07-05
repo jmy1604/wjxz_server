@@ -592,6 +592,9 @@ func (this *ArenaSeasonMgr) Reset() {
 	if rank_list == nil {
 		return
 	}
+
+	now_time := int32(time.Now().Unix())
+	var tmp_item = ArenaRankItem{}
 	rank_num := rank_list.RankNum()
 	for rank := int32(1); rank <= rank_num; rank++ {
 		item := rank_list.GetItemByRank(rank)
@@ -609,7 +612,11 @@ func (this *ArenaSeasonMgr) Reset() {
 			log.Error("arena division not found by player[%v] score[%v]", arena_item.PlayerId, arena_item.PlayerScore)
 			continue
 		}
-		rank_list.SetValueByKey(arena_item.PlayerId, division.NewSeasonScore)
+		//rank_list.SetValueByKey(arena_item.PlayerId, division.NewSeasonScore)
+		tmp_item.PlayerId = arena_item.PlayerId
+		tmp_item.PlayerScore = division.NewSeasonScore
+		tmp_item.SaveTime = now_time
+		rank_list.UpdateItem(&tmp_item)
 		p := player_mgr.GetPlayerById(arena_item.PlayerId)
 		if p != nil {
 			p.db.Arena.SetScore(division.NewSeasonScore)

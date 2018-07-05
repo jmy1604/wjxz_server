@@ -118,7 +118,7 @@ func (this *CommonRankingList) Update(item SkiplistNode) bool {
 	old_item, o := this.key2item[item.GetKey()]
 	if o {
 		if !this.delete(item.GetKey(), false) {
-			log.Error("Update key[%v] for StageTotalScoreRankingList failed", item)
+			log.Error("Update key[%v] for Ranking List failed", item)
 			return false
 		}
 		old_item.Assign(item)
