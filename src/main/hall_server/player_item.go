@@ -255,8 +255,7 @@ func (this *Player) set_resource(id int32, num int32) int32 {
 		this.db.Info.SetDiamond(num)
 		this.b_base_prop_chg = true
 	} else if id == ITEM_RESOURCE_ID_EXP {
-		this.db.Info.SetExp(num)
-		this.b_base_prop_chg = true
+
 	} else {
 		n := this.get_item(id)
 		if n >= 0 {
@@ -327,7 +326,7 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_EQUIP_SLOT_EMPTY)
 	}
 
-	if equip_type < EQUIP_TYPE_WEAPON || equip_type >= EQUIP_TYPE_MAX {
+	if equip_type < 1 || equip_type >= EQUIP_TYPE_MAX {
 		return int32(msg_client_message.E_ERR_PLAYER_EQUIP_TYPE_INVALID)
 	}
 

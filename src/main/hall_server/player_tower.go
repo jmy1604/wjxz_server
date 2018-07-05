@@ -22,8 +22,8 @@ func (this *Player) send_tower_data(check bool) int32 {
 		this.check_tower_keys()
 	}
 	response := &msg_client_message.S2CTowerDataResponse{
-		CurrTowerId:    this.db.TowerCommon.GetCurrId(),
-		TowerKeys:      this.db.TowerCommon.GetKeys(),
+		CurrTowerId: this.db.TowerCommon.GetCurrId(),
+		//TowerKeys:      this.db.TowerCommon.GetKeys(),
 		LastGetKeyTime: this.db.TowerCommon.GetLastGetNewKeyTime(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_DATA_RESPONSE), response)
@@ -33,13 +33,15 @@ func (this *Player) send_tower_data(check bool) int32 {
 func (this *Player) check_tower_keys() (is_update bool, keys int32) {
 	tower_key_max := global_config.TowerKeyMax
 	tower_key_get_interval := global_config.TowerKeyGetInterval
-	keys = this.db.TowerCommon.GetKeys()
+	//keys = this.db.TowerCommon.GetKeys()
+	keys = this.get_resource(global_config.TowerKeyId)
 	if keys >= tower_key_max {
 		return
 	}
 	now_time := int32(time.Now().Unix())
 	last_time := this.db.TowerCommon.GetLastGetNewKeyTime()
 	if last_time == 0 {
+		this.set_resource(global_config.TowerKeyId, global_config.TowerKeyMax)
 		last_time = now_time
 		this.db.TowerCommon.SetLastGetNewKeyTime(now_time)
 	}
@@ -52,7 +54,8 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32) {
 	if keys > tower_key_max {
 		keys = tower_key_max
 	}
-	this.db.TowerCommon.SetKeys(keys)
+	//this.db.TowerCommon.SetKeys(keys)
+	this.set_resource(global_config.TowerKeyId, keys)
 	this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
 	is_update = true
 	return
@@ -106,7 +109,8 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 	}
 
 	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(3, stage)
-	this.db.TowerCommon.SetKeys(keys - 1)
+	//this.db.TowerCommon.SetKeys(keys - 1)
+	this.add_resource(global_config.TowerKeyId, -1)
 	tower_key_max := global_config.TowerKeyMax
 	if keys >= tower_key_max {
 		this.db.TowerCommon.SetLastGetNewKeyTime(int32(time.Now().Unix()))
