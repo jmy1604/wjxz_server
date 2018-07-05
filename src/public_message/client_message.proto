@@ -888,7 +888,7 @@ message C2SShopRefreshRequest {
 	int32 ShopId							= 1; // 商店ID
 }
 
-message S2CShopResfreshResponse {
+message S2CShopRefreshResponse {
 	int32 ShopId							= 1; // 商店ID
 	bool IsFreeRefresh						= 2; // 是否免费 
 }

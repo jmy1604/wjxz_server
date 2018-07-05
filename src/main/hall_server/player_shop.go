@@ -303,7 +303,7 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 
 	this._send_shop(shop_tdata, remain_secs)
 
-	response := &msg_client_message.S2CShopResfreshResponse{
+	response := &msg_client_message.S2CShopRefreshResponse{
 		ShopId:        shop_id,
 		IsFreeRefresh: is_free,
 	}
