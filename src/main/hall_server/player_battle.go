@@ -843,6 +843,7 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 				return res
 			}
 		}
+		p.send_teams()
 	}
 
 	var res int32
