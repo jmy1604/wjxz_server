@@ -465,7 +465,7 @@ func (this *Player) sell_item(item_id, item_num int32) int32 {
 	return 1
 }
 
-func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
+func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32) int32 {
 	item := item_table_mgr.Get(item_id)
 	if item == nil {
 		log.Error("Player[%v] upgrade role[%v] item[%v] with upgrade_type[%v] failed, because item[%v] table data not found", this.Id, role_id, item_id, upgrade_type, item_id)
@@ -504,17 +504,21 @@ func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_DATA_NOT_FOUND)
 	}
 
+	if item_num == 0 {
+		item_num = 1
+	}
+
 	// 检测消耗物品
 	for i := 0; i < len(item_upgrade.ResCondtion)/2; i++ {
 		res_id := item_upgrade.ResCondtion[2*i]
-		res_num := item_upgrade.ResCondtion[2*i+1]
+		res_num := item_upgrade.ResCondtion[2*i+1] * item_num
 		if this.get_resource(res_id) < res_num {
 			log.Error("Player[%v] upgrade item[%v] failed, res[%v] not enough", this.Id, item_id, res_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_RES_NOT_ENOUGH)
 		}
 	}
 
-	new_item_id := int32(0)
+	var new_item_ids []int32
 	if item.EquipType == EQUIP_TYPE_LEFT_SLOT || item.EquipType == EQUIP_TYPE_RELIC {
 		if item.EquipType == EQUIP_TYPE_LEFT_SLOT {
 			for {
@@ -545,31 +549,33 @@ func (this *Player) item_upgrade(role_id, item_id, upgrade_type int32) int32 {
 			this.db.Roles.SetEquip(role_id, equips)
 			this.roles_id_change_info.id_update(role_id)
 		}
-		new_item_id = new_item.ItemCfgId
+		new_item_ids = []int32{new_item.ItemCfgId}
 	} else {
-		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, nil)
-		if !o {
-			log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
-			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
+		for i := int32(0); i < item_num; i++ {
+			o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, true, nil)
+			if !o {
+				log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
+				return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
+			}
+			this.add_resource(item_id, -1)
+			new_item_ids = append(new_item_ids, new_item.ItemCfgId)
 		}
-		this.add_resource(item_id, -1)
-		new_item_id = new_item.ItemCfgId
 	}
 
 	// 消耗物品
 	for i := 0; i < len(item_upgrade.ResCondtion)/2; i++ {
 		res_id := item_upgrade.ResCondtion[2*i]
-		res_num := item_upgrade.ResCondtion[2*i+1]
+		res_num := item_upgrade.ResCondtion[2*i+1] * item_num
 		this.add_resource(res_id, -res_num)
 	}
 
 	response := &msg_client_message.S2CItemUpgradeResponse{
 		RoleId:    role_id,
-		NewItemId: new_item_id,
+		NewItemId: new_item_ids,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_UPGRADE_RESPONSE), response)
 
-	log.Debug("Player[%v] upgraded item[%v] to new item[%v]", this.Id, item_id, new_item_id)
+	log.Debug("Player[%v] upgraded item[%v] to new item[%v]", this.Id, item_id, new_item_ids)
 
 	return 1
 }
@@ -621,5 +627,5 @@ func C2SItemUpgradeHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 		log.Error("Unmarshal msg failed err(%s)", err.Error())
 		return -1
 	}
-	return p.item_upgrade(req.GetRoleId(), req.GetItemId(), req.GetUpgradeType())
+	return p.item_upgrade(req.GetRoleId(), req.GetItemId(), req.GetItemNum(), req.GetUpgradeType())
 }

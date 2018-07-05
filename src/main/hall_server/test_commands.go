@@ -1452,7 +1452,7 @@ func item_upgrade_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	var item_id int
+	var item_id, item_num int
 	var err error
 	item_id, err = strconv.Atoi(args[0])
 	if err != nil {
@@ -1460,7 +1460,15 @@ func item_upgrade_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.item_upgrade(0, int32(item_id), 0)
+	if len(args) > 1 {
+		item_num, err = strconv.Atoi(args[1])
+		if err != nil {
+			log.Error("物品数量[%v]转换失败[%v]", args[1], err.Error())
+			return -1
+		}
+	}
+
+	return p.item_upgrade(0, int32(item_id), int32(item_num), 0)
 }
 
 func role_item_upgrade_cmd(p *Player, args []string) int32 {
@@ -1469,7 +1477,7 @@ func role_item_upgrade_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	var role_id, item_id, upgrade_type int
+	var role_id, item_id, item_num, upgrade_type int
 	var err error
 	role_id, err = strconv.Atoi(args[0])
 	if err != nil {
@@ -1482,6 +1490,13 @@ func role_item_upgrade_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 	if len(args) > 2 {
+		item_num, err = strconv.Atoi(args[1])
+		if err != nil {
+			log.Error("物品数量[%v]转换失败[%v]", args[1], err.Error())
+			return -1
+		}
+	}
+	if len(args) > 3 {
 		upgrade_type, err = strconv.Atoi(args[2])
 		if err != nil {
 			log.Error("升级类型[%v]转换失败[%v]", args[2], err.Error())
@@ -1489,7 +1504,7 @@ func role_item_upgrade_cmd(p *Player, args []string) int32 {
 		}
 	}
 
-	return p.item_upgrade(int32(role_id), int32(item_id), int32(upgrade_type))
+	return p.item_upgrade(int32(role_id), int32(item_id), int32(item_num), int32(upgrade_type))
 }
 
 func equip_item_cmd(p *Player, args []string) int32 {

@@ -517,11 +517,12 @@ message C2SItemUpgradeRequest {
 	int32 RoleId							= 1; // 角色ID   只有左槽右槽需要
 	int32 ItemId							= 2; // 物品ID
 	int32 UpgradeType						= 3; // 升级类型   左槽有两种，对应ItemUpgrade.xml表中的UpgradeType
+	int32 ItemNum							= 4; // 数量
 }
 
 message S2CItemUpgradeResponse {
 	int32 RoleId							= 1; // 角色ID
-	int32 NewItemId							= 2; // 新生成的物品ID
+	repeated int32 NewItemId				= 2; // 新生成的物品ID
 }
 
 // ----------------------------------- 角色 ------------------------------------
