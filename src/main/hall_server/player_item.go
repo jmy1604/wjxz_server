@@ -230,7 +230,7 @@ func (this *Player) add_resource(id, count int32) bool {
 				res = false
 			}
 		} else {
-			if this.del_item(id, count) {
+			if this.del_item(id, -count) {
 				res = false
 			}
 		}
@@ -268,7 +268,7 @@ func (this *Player) set_resource(id int32, num int32) int32 {
 			if -n+num > 0 {
 				this.add_item(id, -n+num)
 			} else {
-				this.del_item(id, -n+num)
+				this.del_item(id, n-num)
 			}
 		}
 	}

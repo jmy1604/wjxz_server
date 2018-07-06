@@ -18,8 +18,10 @@ const (
 	ARENA_RANK_MAX = 100000
 )
 
+var arena_serial_id int32
+
 type ArenaRankItem struct {
-	SaveTime    int32
+	SerialId    int32
 	PlayerScore int32
 	PlayerId    int32
 }
@@ -33,7 +35,7 @@ func (this *ArenaRankItem) Less(value interface{}) bool {
 		return true
 	}
 	if this.PlayerScore == item.PlayerScore {
-		if this.SaveTime > item.SaveTime {
+		if this.SerialId > item.SerialId {
 			return true
 		}
 	}
@@ -49,7 +51,7 @@ func (this *ArenaRankItem) Greater(value interface{}) bool {
 		return true
 	}
 	if this.PlayerScore == item.PlayerScore {
-		if this.SaveTime < item.SaveTime {
+		if this.SerialId < item.SerialId {
 			return true
 		}
 	}
@@ -80,7 +82,7 @@ func (this *ArenaRankItem) GetValue() interface{} {
 
 func (this *ArenaRankItem) SetValue(value interface{}) {
 	this.PlayerScore = value.(int32)
-	this.SaveTime = int32(time.Now().Unix())
+	this.SerialId = atomic.AddInt32(&arena_serial_id, 1)
 }
 
 func (this *ArenaRankItem) New() utils.SkiplistNode {
@@ -94,7 +96,7 @@ func (this *ArenaRankItem) Assign(node utils.SkiplistNode) {
 	}
 	this.PlayerId = n.PlayerId
 	this.PlayerScore = n.PlayerScore
-	this.SaveTime = n.SaveTime
+	this.SerialId = n.SerialId
 }
 
 func (this *ArenaRankItem) CopyDataTo(node interface{}) {
@@ -104,7 +106,7 @@ func (this *ArenaRankItem) CopyDataTo(node interface{}) {
 	}
 	n.PlayerId = this.PlayerId
 	n.PlayerScore = this.PlayerScore
-	n.SaveTime = this.SaveTime
+	n.SerialId = this.SerialId
 }
 
 type ArenaRobot struct {
@@ -148,7 +150,6 @@ func (this *ArenaRobotManager) Init() {
 		return
 	}
 
-	now_time := int32(time.Now().Unix())
 	this.robots = make(map[int32]*ArenaRobot)
 	for _, r := range array {
 		robot := &ArenaRobot{}
@@ -156,7 +157,7 @@ func (this *ArenaRobotManager) Init() {
 		this.robots[r.Id] = robot
 		// 加入排行榜
 		var d = ArenaRankItem{
-			SaveTime:    now_time,
+			SerialId:    atomic.AddInt32(&arena_serial_id, 1),
 			PlayerScore: r.RobotScore,
 			PlayerId:    r.Id,
 		}
@@ -190,7 +191,7 @@ func (this *Player) LoadArenaScore() {
 		return
 	}
 	var data = ArenaRankItem{
-		SaveTime:    this.db.Arena.GetUpdateScoreTime(),
+		SerialId:    atomic.AddInt32(&arena_serial_id, 1),
 		PlayerScore: score,
 		PlayerId:    this.Id,
 	}
@@ -229,7 +230,7 @@ func (this *Player) UpdateArenaScore(is_win bool) bool {
 		}
 
 		var data = ArenaRankItem{
-			SaveTime:    now_time,
+			SerialId:    atomic.AddInt32(&arena_serial_id, 1),
 			PlayerScore: score,
 			PlayerId:    this.Id,
 		}
@@ -593,8 +594,8 @@ func (this *ArenaSeasonMgr) Reset() {
 		return
 	}
 
-	now_time := int32(time.Now().Unix())
-	var tmp_item = ArenaRankItem{}
+	atomic.StoreInt32(&arena_serial_id, 0)
+	//var tmp_item = ArenaRankItem{}
 	rank_num := rank_list.RankNum()
 	for rank := int32(1); rank <= rank_num; rank++ {
 		item := rank_list.GetItemByRank(rank)
@@ -612,11 +613,11 @@ func (this *ArenaSeasonMgr) Reset() {
 			log.Error("arena division not found by player[%v] score[%v]", arena_item.PlayerId, arena_item.PlayerScore)
 			continue
 		}
-		//rank_list.SetValueByKey(arena_item.PlayerId, division.NewSeasonScore)
-		tmp_item.PlayerId = arena_item.PlayerId
+		rank_list.SetValueByKey(arena_item.PlayerId, division.NewSeasonScore)
+		/*tmp_item.PlayerId = arena_item.PlayerId
 		tmp_item.PlayerScore = division.NewSeasonScore
-		tmp_item.SaveTime = now_time
-		rank_list.UpdateItem(&tmp_item)
+		tmp_item.SerialId = atomic.AddInt32(&arena_serial_id, 1)
+		rank_list.UpdateItem(&tmp_item)*/
 		p := player_mgr.GetPlayerById(arena_item.PlayerId)
 		if p != nil {
 			p.db.Arena.SetScore(division.NewSeasonScore)

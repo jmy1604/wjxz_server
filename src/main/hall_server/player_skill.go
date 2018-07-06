@@ -1183,18 +1183,22 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 改变怒气
 				if effects[i][3] > 0 {
 					if rand.Int31n(10000) < effects[i][3] {
-						if target != nil {
+						if target != nil && effects[i][1] > 0 {
 							target.energy += effects[i][1]
 							if target.energy < 0 {
 								target.energy = 0
 							}
+							log.Debug("team[%v] member[%v] 增加了怒气 [%v]", target_team.side, target.pos, effects[i][1])
 						}
-						self.energy += effects[i][2]
-						if self.energy < 0 {
-							self.energy = 0
+						if effects[i][2] > 0 {
+							self.energy += effects[i][2]
+							if self.energy < 0 {
+								self.energy = 0
+							}
+							log.Debug("team[%v] member[%v] 增加了怒气 [%v]", self_team.side, self.pos, effects[i][2])
 						}
 						// -------------------- 战报 ----------------------
-						if skill_data.IsCancelReport == 0 {
+						if (effects[i][1] > 0 || effects[i][2] > 0) && skill_data.IsCancelReport == 0 {
 							report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], 0, false, false, false, 0)
 							report.User.Energy += self.energy
 						}

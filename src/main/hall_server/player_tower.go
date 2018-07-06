@@ -21,9 +21,10 @@ func (this *Player) send_tower_data(check bool) int32 {
 	if check {
 		this.check_tower_keys()
 	}
+	tower_keys := this.get_resource(global_config.TowerKeyId)
 	response := &msg_client_message.S2CTowerDataResponse{
-		CurrTowerId: this.db.TowerCommon.GetCurrId(),
-		//TowerKeys:      this.db.TowerCommon.GetKeys(),
+		CurrTowerId:    this.db.TowerCommon.GetCurrId(),
+		TowerKeys:      tower_keys,
 		LastGetKeyTime: this.db.TowerCommon.GetLastGetNewKeyTime(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_DATA_RESPONSE), response)
