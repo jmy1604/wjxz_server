@@ -53,6 +53,18 @@ func build_battle_report_item_add_target_item(item *msg_client_message.BattleRep
 	if target == nil {
 		return nil
 	}
+
+	// 已经加到列表中的受击对象
+	if item.BeHiters != nil {
+		for i := 0; i < len(item.BeHiters); i++ {
+			behiter := item.BeHiters[i]
+			if behiter.Side == target.team.side && behiter.Pos == target.pos {
+				behiter.Damage += target_damage
+				return behiter
+			}
+		}
+	}
+
 	mem_item := target.build_battle_fighter(target_damage)
 	mem_item.IsCritical = is_critical
 	mem_item.IsBlock = is_block
