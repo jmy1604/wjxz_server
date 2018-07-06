@@ -1116,6 +1116,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							report = build_battle_report_item(self_team, self_pos, 0, skill_data.Id)
 							self_team.common_data.reports = append(self_team.common_data.reports, report)
 						}
+						build_battle_report_item_add_target_item(report, target_team, target_pos[j], 0, false, false, false, 0)
 						build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
 					}
 					// ----------------------------------------------
