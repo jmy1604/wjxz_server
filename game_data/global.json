@@ -38,8 +38,12 @@
 	"ArenaLoseRepeatedNum": 1,
 	"ArenaHighGradeStart": 3,
 	"ArenaSeasonDays": 1,
-	"ArenaDayResetTime":"14:59:00",
-	"ArenaSeasonResetTime":"15:00:00",
+	"ArenaDayResetTime": "14:59:00",
+	"ArenaSeasonResetTime": "15:00:00",
+	
+	"ActiveStageRefreshTime": "00:00:00",
+	"ActiveStageChallengeNumOfDay": 2,
+	"ActiveStageChallengeNumPrice": 100,
 	
 	"MaxFriendNum":200,
 	

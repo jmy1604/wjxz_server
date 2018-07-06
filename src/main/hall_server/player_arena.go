@@ -663,7 +663,7 @@ func (this *ArenaSeasonMgr) Run() {
 			// 重置
 			this.Reset()
 			this.SeasonStart()
-			time.Sleep(time.Millisecond * 500)
+			time.Sleep(time.Second * 1)
 			continue
 		}
 

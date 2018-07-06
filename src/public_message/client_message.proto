@@ -366,8 +366,8 @@ message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
 	int32 CampaignId						= 3; // 战役ID
-	int32 BattleType						= 4; // 战斗类型   1 玩家ID  2 战役ID  3 塔层ID
-	int32 BattleParam						= 5; // 战斗参数
+	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本
+	int32 BattleParam						= 5; // 战斗参数   1 玩家ID  2 战役ID  3 塔层ID  4 活动副本ID
 }
 message S2CBattleResultResponse {
 	bool IsWin								= 1; // true 赢  false 输
@@ -978,6 +978,30 @@ message S2CArenaMatchPlayerResponse {
 	int32 PlayerGrade 						= 5; // 段位
 	int32 PlayerScore                       = 6; // 积分
 	int32 PlayerPower						= 7; // 战力
+}
+
+// ---------------------------------- 活动副本 --------------------------------
+// 活动副本数据
+message C2SActiveStageDataRequest {
+}
+
+message S2CActiveStageDataResponse{
+	int32 CanChallengeNum					= 1; // 可挑战次数
+	int32 MaxChallengeNum					= 2; // 最大挑战次数
+	int32 RemainSeconds4ChallengeNum		= 3; // 挑战次数刷新剩余秒数
+	int32 ChallengeNumPrice					= 4; // 挑战次数购买价格
+}
+
+// 活动副本挑战次数购买
+message C2SActiveStageChallengeNumBuyRequest {
+}
+
+message S2CActiveStageChallengeNumBuyResponse {
+	int32 CanChallengeNum					= 1; // 可挑战次数
+}
+
+// 活动副本刷新通知
+message S2CActiveStageRefreshNotify {
 }
 
 //////////////////////////////////////////////////////////////////////////////

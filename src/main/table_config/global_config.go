@@ -31,40 +31,43 @@ type TimeData struct {
 }
 
 type GlobalConfig struct {
-	InitRoles                  []int32    // 初始角色
-	InitItems                  []CfgIdNum // 初始物品
-	InitItem_len               int32      // 初始物品长度
-	InitDiamond                int32      // 初始钻石
-	InitCoin                   int32      // 初始金币
-	InitEnergy                 int32      // 初始怒气
-	MaxEnergy                  int32      // 最大怒气
-	EnergyAdd                  int32      // 怒气增量
-	HeartbeatInterval          int32      // 心跳间隔
-	MaxRoleCount               int32      // 最大角色数量
-	MailTitleBytes             int32      // 邮件标题最大字节数
-	MailContentBytes           int32      // 邮件内容最大字节数
-	MailMaxCount               int32      // 邮件最大数量
-	MailNormalExistDays        int32      // 最大无附件邮件保存天数
-	MailAttachExistDays        int32      // 最大附件邮件保存天数
-	MailPlayerSendCooldown     int32      // 个人邮件发送间隔(秒)
-	PlayerBattleRecordMaxCount int32      // 玩家战斗录像最大数量
-	TowerKeyMax                int32      // 爬塔钥匙最大值
-	TowerKeyGetInterval        int32      // 爬塔获取钥匙的时间间隔(秒)
-	TowerKeyId                 int32      // 爬塔门票
-	ItemLeftSlotOpenLevel      int32      // 左槽开启等级
-	LeftSlotDropId             int32      // 左槽掉落ID
-	ArenaTicketItemId          int32      // 竞技场门票ID
-	ArenaTicketsDay            int32      // 竞技场每天的门票
-	ArenaTicketRefreshTime     string     // 竞技场门票刷新时间
-	ArenaEnterLevel            int32      // 竞技场进入等级
-	ArenaGetTopRankNum         int32      // 竞技场取最高排名数
-	ArenaMatchPlayerNum        int32      // 竞技场匹配人数
-	ArenaRepeatedWinNum        int32      // 竞技场连胜场数
-	ArenaLoseRepeatedNum       int32      // 竞技场连败场数
-	ArenaHighGradeStart        int32      // 竞技场高段位开始
-	ArenaSeasonDays            int32      // 竞技场赛季天数
-	ArenaDayResetTime          string     // 竞技场每天重置时间
-	ArenaSeasonResetTime       string     // 竞技场赛季重置时间
+	InitRoles                    []int32    // 初始角色
+	InitItems                    []CfgIdNum // 初始物品
+	InitItem_len                 int32      // 初始物品长度
+	InitDiamond                  int32      // 初始钻石
+	InitCoin                     int32      // 初始金币
+	InitEnergy                   int32      // 初始怒气
+	MaxEnergy                    int32      // 最大怒气
+	EnergyAdd                    int32      // 怒气增量
+	HeartbeatInterval            int32      // 心跳间隔
+	MaxRoleCount                 int32      // 最大角色数量
+	MailTitleBytes               int32      // 邮件标题最大字节数
+	MailContentBytes             int32      // 邮件内容最大字节数
+	MailMaxCount                 int32      // 邮件最大数量
+	MailNormalExistDays          int32      // 最大无附件邮件保存天数
+	MailAttachExistDays          int32      // 最大附件邮件保存天数
+	MailPlayerSendCooldown       int32      // 个人邮件发送间隔(秒)
+	PlayerBattleRecordMaxCount   int32      // 玩家战斗录像最大数量
+	TowerKeyMax                  int32      // 爬塔钥匙最大值
+	TowerKeyGetInterval          int32      // 爬塔获取钥匙的时间间隔(秒)
+	TowerKeyId                   int32      // 爬塔门票
+	ItemLeftSlotOpenLevel        int32      // 左槽开启等级
+	LeftSlotDropId               int32      // 左槽掉落ID
+	ArenaTicketItemId            int32      // 竞技场门票ID
+	ArenaTicketsDay              int32      // 竞技场每天的门票
+	ArenaTicketRefreshTime       string     // 竞技场门票刷新时间
+	ArenaEnterLevel              int32      // 竞技场进入等级
+	ArenaGetTopRankNum           int32      // 竞技场取最高排名数
+	ArenaMatchPlayerNum          int32      // 竞技场匹配人数
+	ArenaRepeatedWinNum          int32      // 竞技场连胜场数
+	ArenaLoseRepeatedNum         int32      // 竞技场连败场数
+	ArenaHighGradeStart          int32      // 竞技场高段位开始
+	ArenaSeasonDays              int32      // 竞技场赛季天数
+	ArenaDayResetTime            string     // 竞技场每天重置时间
+	ArenaSeasonResetTime         string     // 竞技场赛季重置时间
+	ActiveStageRefreshTime       string     // 活动副本数据重置时间
+	ActiveStageChallengeNumOfDay int32      // 活动副本重置挑战次数
+	ActiveStageChallengeNumPrice int32      // 活动副本挑战次数购买价格
 
 	MaxFriendNum int32
 

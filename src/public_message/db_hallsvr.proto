@@ -218,6 +218,11 @@ message PlayerEquip{
 	optional int32 TmpLeftSlotItemId=2;
 }
 
+message PlayerActiveStage{
+	optional int32 CanChallengeNum=1;
+	optional int32 LastRefreshTime=2;
+}
+
 message PlayerDialyTask{
 	optional int32 TaskId=1;
 	optional int32 Value=2;
