@@ -225,8 +225,14 @@ func (this *Player) add_resource(id, count int32) bool {
 	} else if id == ITEM_RESOURCE_ID_EXP {
 		this.add_exp(count)
 	} else {
-		if !this.add_item(id, count) {
-			res = false
+		if count > 0 {
+			if !this.add_item(id, count) {
+				res = false
+			}
+		} else {
+			if this.del_item(id, count) {
+				res = false
+			}
 		}
 	}
 	return res
@@ -259,7 +265,11 @@ func (this *Player) set_resource(id int32, num int32) int32 {
 	} else {
 		n := this.get_item(id)
 		if n >= 0 {
-			this.add_item(id, -n+num)
+			if -n+num > 0 {
+				this.add_item(id, -n+num)
+			} else {
+				this.del_item(id, -n+num)
+			}
 		}
 	}
 	return num
@@ -514,9 +524,9 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 	}
 
 	// 检测消耗物品
-	for i := 0; i < len(item_upgrade.ResCondtion)/2; i++ {
-		res_id := item_upgrade.ResCondtion[2*i]
-		res_num := item_upgrade.ResCondtion[2*i+1] * item_num
+	for i := 0; i < len(item_upgrade.ResCondition)/2; i++ {
+		res_id := item_upgrade.ResCondition[2*i]
+		res_num := item_upgrade.ResCondition[2*i+1] * item_num
 		if this.get_resource(res_id) < res_num {
 			log.Error("Player[%v] upgrade item[%v] failed, res[%v] not enough", this.Id, item_id, res_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_RES_NOT_ENOUGH)
@@ -568,9 +578,9 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 	}
 
 	// 消耗物品
-	for i := 0; i < len(item_upgrade.ResCondtion)/2; i++ {
-		res_id := item_upgrade.ResCondtion[2*i]
-		res_num := item_upgrade.ResCondtion[2*i+1] * item_num
+	for i := 0; i < len(item_upgrade.ResCondition)/2; i++ {
+		res_id := item_upgrade.ResCondition[2*i]
+		res_num := item_upgrade.ResCondition[2*i+1] * item_num
 		this.add_resource(res_id, -res_num)
 	}
 
@@ -585,26 +595,137 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 	return 1
 }
 
-func (this *Player) item_one_key_upgrade(item_ids []int32) int32 {
-	for i := 0; i < len(item_ids); i++ {
-		item := item_table_mgr.Get(item_ids[i])
+func _item_one_key_insert_result_item(item_id, result_item_id, result_item_num int32, result_items map[int32]*msg_client_message.ItemInfo) {
+	items := result_items[item_id]
+	if items == nil {
+		items = &msg_client_message.ItemInfo{ItemCfgId: result_item_id, ItemNum: result_item_num}
+		result_items[item_id] = items
+	} else {
+		items.ItemNum += result_item_num
+	}
+}
+
+func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*msg_client_message.ItemInfo) int32 {
+	var next_item_id, result_item_id, res int32
+	next_item_id = item_id
+	res = 1
+	for {
+		item := item_table_mgr.Get(next_item_id)
 		if item == nil {
-			log.Error("item[%v] table data not found on item one key upgrade", item_ids[i])
+			log.Error("item[%v] table data not found on item one key upgrade", next_item_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
 		}
 		if item.EquipType < 1 && item.EquipType >= EQUIP_TYPE_LEFT_SLOT {
-			continue
+			res = 0
+			break
 		}
-		item_upgrade := item_upgrade_table_mgr.GetByItemId(item_ids[i])
+		item_upgrade := item_upgrade_table_mgr.GetByItemId(next_item_id)
 		if item_upgrade == nil {
-			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_DATA_NOT_FOUND)
+			if next_item_id == item_id {
+				res = 0
+			}
+			//return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_DATA_NOT_FOUND)
+			break
+		}
+		if item_upgrade.ResCondition == nil {
+			res = 0
+			break
+		}
+
+		if this.get_item(next_item_id) < 1 {
+			res = 0
+			break
+		}
+
+		has_gold := false
+		for n := 0; n < len(item_upgrade.ResCondition)/2; n++ {
+			if item_upgrade.ResCondition[2*n] == ITEM_RESOURCE_ID_GOLD {
+				has_gold = true
+				break
+			}
+		}
+
+		for n := 0; n < len(item_upgrade.ResCondition)/2; n++ {
+			res_id := item_upgrade.ResCondition[2*n]
+			res_num := item_upgrade.ResCondition[2*n+1]
+			num := this.get_resource(res_id)
+			if num < res_num {
+				if len(result_items) == 0 {
+					if !has_gold && res_id == ITEM_RESOURCE_ID_GOLD {
+						log.Error("Player[%v] item one key upgrade failed, not enough gold, need[%v] now[%v]", this.Id, res_num, num)
+						return int32(msg_client_message.E_ERR_PLAYER_GOLD_NOT_ENOUGH)
+					} else {
+						log.Error("Player[%v] item one key upgrade failed, material[%v] num[%v] not enough, need[%v]", this.Id, res_id, num, res_num)
+						return int32(msg_client_message.E_ERR_PLAYER_ITEM_ONE_KEY_UPGRADE_NOT_ENOUGH_MATERIAL)
+					}
+				}
+				res = 0
+				break
+			}
+		}
+		if res == 0 {
+			break
 		}
 		drop_data := drop_table_mgr.Map[item_upgrade.ResultDropId]
 		if drop_data == nil {
-			log.Error("Drop id[%v] data not found", item_upgrade.ResultDropId)
-			return -1
+			//_item_one_key_insert_result_item(item_id, result_item_id, 1, result_items)
+			res = 0
+			log.Error("Drop id[%v] data not found on player[%v] one key upgrade item", item_upgrade.ResultDropId, this.Id)
+			break
+		}
+		if drop_data.DropItems == nil || len(drop_data.DropItems) == 0 {
+			res = 0
+			break
+		}
+
+		item = item_table_mgr.Get(drop_data.DropItems[0].DropItemID)
+		if item == nil {
+			res = 0
+			break
+		}
+
+		// 新生成装备
+		result_item_id = drop_data.DropItems[0].DropItemID
+		this.add_item(result_item_id, 1)
+		// 消耗资源
+		for n := 0; n < len(item_upgrade.ResCondition)/2; n++ {
+			res_id := item_upgrade.ResCondition[2*n]
+			res_num := item_upgrade.ResCondition[2*n+1]
+			this.add_resource(res_id, -res_num)
+		}
+		// 删除老装备
+		this.del_item(next_item_id, 1)
+
+		next_item_id = result_item_id
+	}
+	if result_item_id > 0 {
+		_item_one_key_insert_result_item(item_id, result_item_id, 1, result_items)
+	}
+	return res
+}
+
+func (this *Player) items_one_key_upgrade(item_ids []int32) int32 {
+	result_items := make(map[int32]*msg_client_message.ItemInfo)
+	for i := 0; i < len(item_ids); i++ {
+		for {
+			res := this.item_one_key_upgrade(item_ids[i], result_items)
+			if res < 0 {
+				return res
+			}
+			if res == 0 {
+				break
+			}
 		}
 	}
+
+	response := &msg_client_message.S2CItemOneKeyUpgradeResponse{
+		ItemIds:     item_ids,
+		ResultItems: result_items,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_ONEKEY_UPGRADE_RESPONSE), response)
+
+	log.Debug("Player[%v] item one key upgrade result: %v", this.Id, response)
+
 	return 1
 }
 
@@ -665,5 +786,5 @@ func C2SItemOneKeyUpgradeHandler(w http.ResponseWriter, r *http.Request, p *Play
 		log.Error("Unmarshal msg failed err(%s)", err.Error())
 		return -1
 	}
-	return p.item_one_key_upgrade(req.GetItemIds())
+	return p.items_one_key_upgrade(req.GetItemIds())
 }

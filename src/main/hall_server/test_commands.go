@@ -1821,70 +1821,99 @@ func player_info_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func item_onekey_upgrade_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var item_ids []int32
+	var item_id int
+	var err error
+	item_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("物品ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+	item_ids = append(item_ids, int32(item_id))
+	if len(args) > 1 {
+		for i := 1; i < len(args); i++ {
+			item_id, err = strconv.Atoi(args[i])
+			if err != nil {
+				return -1
+			}
+			item_ids = append(item_ids, int32(item_id))
+		}
+	}
+
+	return p.items_one_key_upgrade(item_ids)
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
-	"test_lua":           test_lua_cmd,
-	"rand_role":          rand_role_cmd,
-	"new_role":           new_role_cmd,
-	"all_roles":          all_roles_cmd,
-	"list_role":          list_role_cmd,
-	"set_attack_team":    set_attack_team_cmd,
-	"set_defense_team":   set_defense_team_cmd,
-	"list_teams":         list_teams_cmd,
-	"pvp":                pvp_cmd,
-	"fight_stage":        fight_stage_cmd,
-	"fight_campaign":     fight_campaign_cmd,
-	"start_hangup":       start_hangup_cmd,
-	"hangup_income":      hangup_income_cmd,
-	"campaign_data":      campaign_data_cmd,
-	"leave_game":         leave_game_cmd,
-	"add_item":           add_item_cmd,
-	"all_items":          all_items_cmd,
-	"clear_items":        clear_items_cmd,
-	"role_levelup":       role_levelup_cmd,
-	"role_rankup":        role_rankup_cmd,
-	"role_decompose":     role_decompose_cmd,
-	"item_fusion":        item_fusion_cmd,
-	"fusion_role":        fusion_role_cmd,
-	"item_sell":          item_sell_cmd,
-	"send_mail":          send_mail_cmd,
-	"mail_list":          mail_list_cmd,
-	"mail_detail":        mail_detail_cmd,
-	"mail_items":         mail_items_cmd,
-	"delete_mail":        delete_mail_cmd,
-	"up_talent":          up_talent_cmd,
-	"tower_data":         tower_data_cmd,
-	"get_tower_key":      get_tower_key_cmd,
-	"fight_tower":        fight_tower_cmd,
-	"tower_records_info": tower_records_info_cmd,
-	"tower_record_data":  tower_record_data_cmd,
-	"tower_ranklist":     tower_ranklist_cmd,
-	"battle_recordlist":  battle_recordlist_cmd,
-	"battle_record":      battle_record_cmd,
-	"test_stw":           test_stw_cmd,
-	"item_upgrade":       item_upgrade_cmd,
-	"role_item_up":       role_item_upgrade_cmd,
-	"equip_item":         equip_item_cmd,
-	"unequip_item":       unequip_item_cmd,
-	"list_item":          list_items_cmd,
-	"role_attrs":         get_role_attrs_cmd,
-	"onekey_equip":       onekey_equip_cmd,
-	"onekey_unequip":     onekey_unequip_cmd,
-	"left_slot_open":     left_slot_open_cmd,
-	"role_equips":        role_equips_cmd,
-	"draw_card":          draw_card_cmd,
-	"draw_data":          draw_data_cmd,
-	"shop_data":          shop_data_cmd,
-	"buy_item":           buy_item_cmd,
-	"shop_refresh":       shop_refresh_cmd,
-	"arena_ranklist":     arena_ranklist_cmd,
-	"arena_data":         arena_data_cmd,
-	"arena_player_team":  arena_player_team_cmd,
-	"arena_match":        arena_match_cmd,
-	"arena_reset":        arena_reset_cmd,
-	"rank_list":          rank_list_cmd,
-	"player_info":        player_info_cmd,
+	"test_lua":            test_lua_cmd,
+	"rand_role":           rand_role_cmd,
+	"new_role":            new_role_cmd,
+	"all_roles":           all_roles_cmd,
+	"list_role":           list_role_cmd,
+	"set_attack_team":     set_attack_team_cmd,
+	"set_defense_team":    set_defense_team_cmd,
+	"list_teams":          list_teams_cmd,
+	"pvp":                 pvp_cmd,
+	"fight_stage":         fight_stage_cmd,
+	"fight_campaign":      fight_campaign_cmd,
+	"start_hangup":        start_hangup_cmd,
+	"hangup_income":       hangup_income_cmd,
+	"campaign_data":       campaign_data_cmd,
+	"leave_game":          leave_game_cmd,
+	"add_item":            add_item_cmd,
+	"all_items":           all_items_cmd,
+	"clear_items":         clear_items_cmd,
+	"role_levelup":        role_levelup_cmd,
+	"role_rankup":         role_rankup_cmd,
+	"role_decompose":      role_decompose_cmd,
+	"item_fusion":         item_fusion_cmd,
+	"fusion_role":         fusion_role_cmd,
+	"item_sell":           item_sell_cmd,
+	"send_mail":           send_mail_cmd,
+	"mail_list":           mail_list_cmd,
+	"mail_detail":         mail_detail_cmd,
+	"mail_items":          mail_items_cmd,
+	"delete_mail":         delete_mail_cmd,
+	"up_talent":           up_talent_cmd,
+	"tower_data":          tower_data_cmd,
+	"get_tower_key":       get_tower_key_cmd,
+	"fight_tower":         fight_tower_cmd,
+	"tower_records_info":  tower_records_info_cmd,
+	"tower_record_data":   tower_record_data_cmd,
+	"tower_ranklist":      tower_ranklist_cmd,
+	"battle_recordlist":   battle_recordlist_cmd,
+	"battle_record":       battle_record_cmd,
+	"test_stw":            test_stw_cmd,
+	"item_upgrade":        item_upgrade_cmd,
+	"role_item_up":        role_item_upgrade_cmd,
+	"equip_item":          equip_item_cmd,
+	"unequip_item":        unequip_item_cmd,
+	"list_item":           list_items_cmd,
+	"role_attrs":          get_role_attrs_cmd,
+	"onekey_equip":        onekey_equip_cmd,
+	"onekey_unequip":      onekey_unequip_cmd,
+	"left_slot_open":      left_slot_open_cmd,
+	"role_equips":         role_equips_cmd,
+	"draw_card":           draw_card_cmd,
+	"draw_data":           draw_data_cmd,
+	"shop_data":           shop_data_cmd,
+	"buy_item":            buy_item_cmd,
+	"shop_refresh":        shop_refresh_cmd,
+	"arena_ranklist":      arena_ranklist_cmd,
+	"arena_data":          arena_data_cmd,
+	"arena_player_team":   arena_player_team_cmd,
+	"arena_match":         arena_match_cmd,
+	"arena_reset":         arena_reset_cmd,
+	"rank_list":           rank_list_cmd,
+	"player_info":         player_info_cmd,
+	"item_onekey_upgrade": item_onekey_upgrade_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

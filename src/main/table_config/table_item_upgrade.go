@@ -12,7 +12,7 @@ type XmlItemUpgradeItem struct {
 	UpgradeType    int32  `xml:"UpgradeType,attr"`
 	ResultDropId   int32  `xml:"ResultDropID,attr"`
 	ResCondtionStr string `xml:"ResCondtion,attr"`
-	ResCondtion    []int32
+	ResCondition   []int32
 	Next           *XmlItemUpgradeItem
 }
 
@@ -70,7 +70,7 @@ func (this *ItemUpgradeTableMgr) Load() bool {
 				log.Error("ItemUpgradeTableMgr parse ResCondtion with [%v] failed", tmp_item.ResCondtionStr)
 				return false
 			} else {
-				tmp_item.ResCondtion = a
+				tmp_item.ResCondition = a
 			}
 		}
 
