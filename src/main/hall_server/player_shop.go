@@ -241,9 +241,9 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 		this.add_resource(shopitem_tdata.BuyCost[2*i], -shopitem_tdata.BuyCost[2*i+1]*buy_num)
 	}
 
-	if shopitem_tdata.StockNum > 0 {
-		this.db.ShopItems.IncbyLeftNum(id, -buy_num)
-	}
+	//if shopitem_tdata.StockNum > 0 {
+	this.db.ShopItems.IncbyLeftNum(id, -buy_num)
+	//}
 
 	if left_num > 0 {
 		left_num -= buy_num
