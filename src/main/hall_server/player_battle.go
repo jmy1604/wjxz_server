@@ -227,7 +227,6 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 
 	this.side = side
 	this.curr_attack = 0
-	this.team_type = BATTLE_STAGE_TEAM
 
 	for i := 0; i < len(stage.Monsters); i++ {
 		monster := stage.Monsters[i]
@@ -269,7 +268,6 @@ func (this *BattleTeam) InitWithArenaRobot(robot *table_config.XmlArenaRobotItem
 
 	this.side = side
 	this.curr_attack = 0
-	this.team_type = BATTLE_STAGE_TEAM
 
 	for i := 0; i < len(robot.RobotCardList); i++ {
 		monster := robot.RobotCardList[i]

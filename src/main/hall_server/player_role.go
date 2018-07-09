@@ -320,6 +320,7 @@ func (this *Player) lock_role(role_id int32, is_lock bool) int32 {
 	}
 
 	this.roles_id_change_info.id_update(role_id)
+	this.check_and_send_roles_change()
 
 	response := &msg_client_message.S2CRoleLockResponse{
 		RoleId: role_id,
@@ -390,6 +391,7 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 
 	this.db.Roles.SetLevel(role_id, lvl+up_num)
 	this.roles_id_change_info.id_update(role_id)
+	this.check_and_send_roles_change()
 
 	response := &msg_client_message.S2CRoleLevelUpResponse{
 		RoleId: role_id,
@@ -458,6 +460,8 @@ func (this *Player) rankup_role(role_id int32) int32 {
 	rank += 1
 	this.db.Roles.SetRank(role_id, rank)
 	this.roles_id_change_info.id_update(role_id)
+
+	this.check_and_send_roles_change()
 
 	response := &msg_client_message.S2CRoleRankUpResponse{
 		RoleId: role_id,
@@ -833,15 +837,6 @@ func (this *Player) get_role_handbook() int32 {
 }
 
 func (this *Player) role_open_left_slot(role_id int32) int32 {
-	/*open, ok := this.db.Roles.GetLeftSlotIsOpen(role_id)
-	if !ok {
-		log.Error("Player[%v] not found role[%v]", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
-	}
-	if open > 0 {
-		log.Warn("Player[%v] role[%v] left slot already opened", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_LEFT_SLOT_ALREADY_OPENED)
-	}*/
 	equips, o := this.db.Roles.GetEquip(role_id)
 	if !o {
 		log.Error("Player[%v] not found role[%v]", this.Id, role_id)
@@ -874,9 +869,9 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	}
 	equips[EQUIP_TYPE_LEFT_SLOT] = left_item.GetItemCfgId()
 	this.db.Roles.SetEquip(role_id, equips)
-	//this.db.Roles.SetLeftSlotIsOpen(role_id, 1)
 
 	this.roles_id_change_info.id_update(role_id)
+	this.check_and_send_roles_change()
 
 	response := &msg_client_message.S2CRoleLeftSlotOpenResponse{
 		RoleId: role_id,
@@ -908,6 +903,7 @@ func (this *Player) role_left_slot_upgrade_save() int32 {
 	this.db.Equip.SetTmpSaveLeftSlotRoleId(0)
 
 	this.roles_id_change_info.id_update(tmp_role_id)
+	this.check_and_send_roles_change()
 
 	response := &msg_client_message.S2CRoleLeftSlotResultSaveResponse{
 		RoleId: tmp_role_id,
@@ -1000,6 +996,7 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 	this.db.Roles.SetEquip(role_id, equips)
 
 	this.roles_id_change_info.id_update(role_id)
+	this.check_and_send_roles_change()
 
 	response := &msg_client_message.S2CRoleOneKeyEquipResponse{
 		RoleId: role_id,
@@ -1031,6 +1028,7 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 	}
 
 	this.roles_id_change_info.id_update(role_id)
+	this.check_and_send_roles_change()
 
 	response := &msg_client_message.S2CRoleOneKeyUnequipResponse{
 		RoleId: role_id,

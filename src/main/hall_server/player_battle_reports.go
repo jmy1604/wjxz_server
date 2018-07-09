@@ -46,7 +46,7 @@ func build_battle_report_item(self_team *BattleTeam, self_pos int32, self_damage
 }
 
 func build_battle_report_item_add_target_item(item *msg_client_message.BattleReportItem, target_team *BattleTeam, target_pos int32, target_damage int32, is_critical, is_block, is_absorb bool, anti_type int32) *msg_client_message.BattleFighter {
-	if item == nil {
+	if item == nil || target_team == nil || target_team.members == nil {
 		return nil
 	}
 	target := target_team.members[target_pos]

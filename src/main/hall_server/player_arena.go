@@ -197,13 +197,13 @@ func (this *Player) LoadArenaScore() {
 	this._update_arena_score(&data)
 }
 
-func (this *Player) UpdateArenaScore(is_win bool) bool {
+func (this *Player) UpdateArenaScore(is_win bool) (score int32) {
 	var add_score int32
 	now_score := this.db.Arena.GetScore()
 	division := arena_division_table_mgr.GetByScore(now_score)
 	if division == nil {
 		log.Error("Arena division table data with score[%v] is not found", now_score)
-		return false
+		return
 	}
 
 	if is_win {
@@ -221,7 +221,7 @@ func (this *Player) UpdateArenaScore(is_win bool) bool {
 
 	if add_score > 0 {
 		now_time := int32(time.Now().Unix())
-		score := this.db.Arena.IncbyScore(add_score)
+		score = this.db.Arena.IncbyScore(add_score)
 		this.db.Arena.SetUpdateScoreTime(now_time)
 
 		var data = ArenaRankItem{
@@ -238,7 +238,7 @@ func (this *Player) UpdateArenaScore(is_win bool) bool {
 		}
 	}
 
-	return true
+	return
 }
 
 func (this *Player) OutputArenaRankItems(rank_start, rank_num int32) {
