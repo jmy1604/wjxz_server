@@ -44,7 +44,7 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 					if check_cnt <= 0 {
 						break
 					}
-					log.Debug("!!!!!!!!!!! !!!!!!!! total_count[%v]  used_drop_ids len[%v]  i[%v]", drop_lib.TotalCount, len(used_drop_ids), i)
+					//log.Debug("!!!!!!!!!!! !!!!!!!! total_count[%v]  used_drop_ids len[%v]  i[%v]", drop_lib.TotalCount, len(used_drop_ids), i)
 					continue
 				}
 			}
