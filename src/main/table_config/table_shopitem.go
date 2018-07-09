@@ -79,7 +79,7 @@ func (this *ShopItemTableManager) Init() bool {
 			this.shops_map[c.ShopId] = shop
 		}
 		shop.items = append(shop.items, c)
-		shop.total_weight = c.RandomWeight
+		shop.total_weight += c.RandomWeight
 		this.items_map[c.Id] = c
 		this.items_array = append(this.items_array, c)
 	}
@@ -109,9 +109,10 @@ func (this *ShopItemTableManager) RandomShopItem(shop_id int32) *XmlShopItemItem
 
 	r := rand.Int31n(shop.total_weight)
 	for _, item := range shop.items {
-		if r <= item.RandomWeight {
+		if r < item.RandomWeight {
 			return item
 		}
+		r -= item.RandomWeight
 	}
 	return nil
 }

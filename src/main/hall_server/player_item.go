@@ -593,30 +593,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 	return 1
 }
 
-func _item_one_key_update_result_item(item_id, result_item_id, result_item_num int32, result_items map[int32]*msg_client_message.ItemInfo) {
-	items := result_items[item_id]
-	if items == nil {
-		if result_item_num > 0 {
-			items = &msg_client_message.ItemInfo{ItemCfgId: result_item_id, ItemNum: result_item_num}
-		}
-	} else {
-		if items.ItemCfgId == result_item_id {
-			if result_item_num < 0 && items.ItemNum < -result_item_num {
-				delete(result_items, item_id)
-				return
-			}
-			items.ItemNum += result_item_num
-		} else {
-			if result_item_num > 0 {
-				items.ItemCfgId = result_item_id
-				items.ItemNum = result_item_num
-			}
-		}
-	}
-	result_items[item_id] = items
-}
-
-func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*msg_client_message.ItemInfo) int32 {
+func (this *Player) item_one_key_upgrade(item_id int32, cost_items map[int32]int32, result_items map[int32]int32) int32 {
 	var next_item_id, result_item_id, res int32
 	next_item_id = item_id
 	res = 1
@@ -635,7 +612,6 @@ func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*
 			if next_item_id == item_id {
 				res = 0
 			}
-			//return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_DATA_NOT_FOUND)
 			break
 		}
 		if item_upgrade.ResCondition == nil {
@@ -705,7 +681,7 @@ func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*
 		// 新生成装备
 		result_item_id = drop_data.DropItems[0].DropItemID
 		this.add_item(result_item_id, 1)
-		_item_one_key_update_result_item(item_id, result_item_id, 1, result_items)
+		result_items[result_item_id] += 1
 		// 消耗资源
 		for n := 0; n < len(item_upgrade.ResCondition)/2; n++ {
 			res_id := item_upgrade.ResCondition[2*n]
@@ -714,11 +690,11 @@ func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*
 				res_num -= 1
 			}
 			this.add_resource(res_id, -res_num)
-			_item_one_key_update_result_item(item_id, res_id, -res_num, result_items)
+			cost_items[res_id] += res_num
 		}
 		// 删除老装备
 		this.del_item(next_item_id, 1)
-		_item_one_key_update_result_item(item_id, next_item_id, -1, result_items)
+		cost_items[next_item_id] += 1
 
 		next_item_id = result_item_id
 
@@ -729,10 +705,11 @@ func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*
 
 func (this *Player) items_one_key_upgrade(item_ids []int32) int32 {
 	this.already_upgrade = false
-	result_items := make(map[int32]*msg_client_message.ItemInfo)
+	cost_items := make(map[int32]int32)
+	result_items := make(map[int32]int32)
 	for i := 0; i < len(item_ids); i++ {
 		for {
-			res := this.item_one_key_upgrade(item_ids[i], result_items)
+			res := this.item_one_key_upgrade(item_ids[i], cost_items, result_items)
 			if res < 0 {
 				return res
 			}
@@ -744,6 +721,7 @@ func (this *Player) items_one_key_upgrade(item_ids []int32) int32 {
 
 	response := &msg_client_message.S2CItemOneKeyUpgradeResponse{
 		ItemIds:     item_ids,
+		CostItems:   cost_items,
 		ResultItems: result_items,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_ONEKEY_UPGRADE_RESPONSE), response)

@@ -533,7 +533,8 @@ message C2SItemOneKeyUpgradeRequest {
 
 message S2CItemOneKeyUpgradeResponse {
 	repeated int32 ItemIds					= 1; // 待合成的物品列表
-	map<int32,ItemInfo> ResultItems			= 2; // key 待合成的物品ID  value 合成后的物品ID和数量
+	map<int32,int32> CostItems				= 2; // 消耗的物品
+	map<int32,int32> ResultItems			= 3; // 生成的物品
 }
 
 // ----------------------------------- 角色 ------------------------------------
@@ -871,7 +872,7 @@ message ShopItem {
 	int32 Id								= 1; // 商品ID  服务器自动生成
 	int32 ItemId							= 2; // 商品配置ID
 	ItemInfo CostResource					= 3; // 需要花费的货币
-	int32 ItemNum							= 4; // 剩余数量
+	int32 BuyNum							= 4; // 剩余购买次数
 }
 
 message S2CShopDataResponse {
@@ -885,14 +886,14 @@ message S2CShopDataResponse {
 message C2SShopBuyItemRequest {
 	int32 ShopId							= 1; // 商店ID
 	int32 ItemId							= 2; // 商品ID
-	int32 ItemNum							= 3; // 商品数量
+	int32 BuyNum							= 3; // 商品数量
 }
 
 message S2CShopBuyItemResponse {
 	int32 ShopId							= 1; // 商店ID
 	int32 Id								= 2; // 商品ID  服务器自动生成
-	int32 BuyNum							= 3; // 购买数量
-	int32 RemainItemNum						= 4; // 剩余数量
+	int32 BuyNum							= 3; // 购买次数
+	int32 RemainBuyNum						= 4; // 剩余购买购买
 }
 
 // 刷新商店

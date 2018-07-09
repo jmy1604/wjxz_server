@@ -100,7 +100,7 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 				ItemCfgId: shop_item_tdata.Item[0],
 				ItemNum:   shop_item_tdata.Item[1],
 			},
-			ItemNum: num,
+			BuyNum: num,
 		}
 		shop_items = append(shop_items, shop_item)
 	}
@@ -250,10 +250,10 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 		left_num -= buy_num
 	}
 	response := &msg_client_message.S2CShopBuyItemResponse{
-		ShopId:        shop_id,
-		Id:            id,
-		BuyNum:        buy_num,
-		RemainItemNum: left_num,
+		ShopId:       shop_id,
+		Id:           id,
+		BuyNum:       buy_num,
+		RemainBuyNum: left_num,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_BUY_ITEM_RESPONSE), response)
 
@@ -328,7 +328,7 @@ func C2SShopBuyItemHandler(w http.ResponseWriter, r *http.Request, p *Player, ms
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.shop_buy_item(req.GetShopId(), req.GetItemId(), req.GetItemNum())
+	return p.shop_buy_item(req.GetShopId(), req.GetItemId(), req.GetBuyNum())
 }
 
 func C2SShopRefreshHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
