@@ -486,6 +486,10 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_TYPE_INVALID)
 	}
 
+	if item_num == 0 {
+		item_num = 1
+	}
+
 	// 左槽 右槽
 	var equips []int32
 	if item.EquipType == EQUIP_TYPE_LEFT_SLOT || item.EquipType == EQUIP_TYPE_RELIC {
@@ -503,8 +507,8 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_TYPE_INVALID)
 		}
 	} else {
-		if this.get_resource(item_id) < 1 {
-			log.Error("Player[%v] upgrade item[%v] failed, item[%] not found", this.Id, item_id, item_id)
+		if this.get_resource(item_id) < item_num {
+			log.Error("Player[%v] upgrade item[%v] failed, item[%] not enough", this.Id, item_id, item_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_NOT_FOUND)
 		}
 	}
@@ -514,13 +518,20 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_DATA_NOT_FOUND)
 	}
 
-	if item_num == 0 {
-		item_num = 1
-	}
-
-	if this.get_resource(item_id) < item_num {
-		log.Error("Player[%v] upgrade item[%v] not enough", this.Id, item_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ITEM_NUM_NOT_ENOUGH)
+	if item.EquipType == EQUIP_TYPE_LEFT_SLOT {
+		for {
+			if item_upgrade.UpgradeType == upgrade_type {
+				break
+			}
+			item_upgrade = item_upgrade.Next
+			if item_upgrade == nil {
+				break
+			}
+		}
+		if item_upgrade == nil {
+			log.Error("Player[%v] no upgrade table data for role[%v] item[%v] upgrade_type[%v]", this.Id, role_id, item_id, upgrade_type)
+			return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
+		}
 	}
 
 	// 检测消耗物品
@@ -535,22 +546,6 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 
 	var new_item_ids []int32
 	if item.EquipType == EQUIP_TYPE_LEFT_SLOT || item.EquipType == EQUIP_TYPE_RELIC {
-		if item.EquipType == EQUIP_TYPE_LEFT_SLOT {
-			for {
-				if item_upgrade.UpgradeType == upgrade_type {
-					break
-				}
-				item_upgrade = item_upgrade.Next
-				if item_upgrade == nil {
-					break
-				}
-			}
-			if item_upgrade == nil {
-				log.Error("Player[%v] no upgrade table data for role[%v] item[%v] upgrade_type[%v]", this.Id, role_id, item_id, upgrade_type)
-				return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_FAILED)
-			}
-		}
-
 		o, new_item := this.drop_item_by_id(item_upgrade.ResultDropId, false, nil)
 		if !o {
 			log.Error("Player[%v] upgrade item[%v] failed, drop error", this.Id, item_id)
@@ -581,6 +576,9 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 	for i := 0; i < len(item_upgrade.ResCondition)/2; i++ {
 		res_id := item_upgrade.ResCondition[2*i]
 		res_num := item_upgrade.ResCondition[2*i+1] * item_num
+		if res_num > 0 && res_id == item_id {
+			res_num -= item_num
+		}
 		this.add_resource(res_id, -res_num)
 	}
 
@@ -595,14 +593,27 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 	return 1
 }
 
-func _item_one_key_insert_result_item(item_id, result_item_id, result_item_num int32, result_items map[int32]*msg_client_message.ItemInfo) {
+func _item_one_key_update_result_item(item_id, result_item_id, result_item_num int32, result_items map[int32]*msg_client_message.ItemInfo) {
 	items := result_items[item_id]
 	if items == nil {
-		items = &msg_client_message.ItemInfo{ItemCfgId: result_item_id, ItemNum: result_item_num}
-		result_items[item_id] = items
+		if result_item_num > 0 {
+			items = &msg_client_message.ItemInfo{ItemCfgId: result_item_id, ItemNum: result_item_num}
+		}
 	} else {
-		items.ItemNum += result_item_num
+		if items.ItemCfgId == result_item_id {
+			if result_item_num < 0 && items.ItemNum < -result_item_num {
+				delete(result_items, item_id)
+				return
+			}
+			items.ItemNum += result_item_num
+		} else {
+			if result_item_num > 0 {
+				items.ItemCfgId = result_item_id
+				items.ItemNum = result_item_num
+			}
+		}
 	}
+	result_items[item_id] = items
 }
 
 func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*msg_client_message.ItemInfo) int32 {
@@ -628,12 +639,16 @@ func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*
 			break
 		}
 		if item_upgrade.ResCondition == nil {
-			res = 0
+			if next_item_id == item_id {
+				res = 0
+			}
 			break
 		}
 
 		if this.get_item(next_item_id) < 1 {
-			res = 0
+			if next_item_id == item_id {
+				res = 0
+			}
 			break
 		}
 
@@ -650,12 +665,12 @@ func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*
 			res_num := item_upgrade.ResCondition[2*n+1]
 			num := this.get_resource(res_id)
 			if num < res_num {
-				if len(result_items) == 0 {
+				if !this.already_upgrade {
 					if !has_gold && res_id == ITEM_RESOURCE_ID_GOLD {
-						log.Error("Player[%v] item one key upgrade failed, not enough gold, need[%v] now[%v]", this.Id, res_num, num)
+						log.Error("Player[%v] item one key upgrade[%v] failed, not enough gold, need[%v] now[%v]", this.Id, item_id, res_num, num)
 						return int32(msg_client_message.E_ERR_PLAYER_GOLD_NOT_ENOUGH)
 					} else {
-						log.Error("Player[%v] item one key upgrade failed, material[%v] num[%v] not enough, need[%v]", this.Id, res_id, num, res_num)
+						log.Error("Player[%v] item one key upgrade[%v] failed, material[%v] num[%v] not enough, need[%v]", this.Id, item_id, res_id, num, res_num)
 						return int32(msg_client_message.E_ERR_PLAYER_ITEM_ONE_KEY_UPGRADE_NOT_ENOUGH_MATERIAL)
 					}
 				}
@@ -664,6 +679,9 @@ func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*
 			}
 		}
 		if res == 0 {
+			if next_item_id != item_id {
+				res = 1
+			}
 			break
 		}
 		drop_data := drop_table_mgr.Map[item_upgrade.ResultDropId]
@@ -687,24 +705,30 @@ func (this *Player) item_one_key_upgrade(item_id int32, result_items map[int32]*
 		// 新生成装备
 		result_item_id = drop_data.DropItems[0].DropItemID
 		this.add_item(result_item_id, 1)
+		_item_one_key_update_result_item(item_id, result_item_id, 1, result_items)
 		// 消耗资源
 		for n := 0; n < len(item_upgrade.ResCondition)/2; n++ {
 			res_id := item_upgrade.ResCondition[2*n]
 			res_num := item_upgrade.ResCondition[2*n+1]
+			if res_num > 0 && res_id == item_id {
+				res_num -= 1
+			}
 			this.add_resource(res_id, -res_num)
+			_item_one_key_update_result_item(item_id, res_id, -res_num, result_items)
 		}
 		// 删除老装备
 		this.del_item(next_item_id, 1)
+		_item_one_key_update_result_item(item_id, next_item_id, -1, result_items)
 
 		next_item_id = result_item_id
-	}
-	if result_item_id > 0 {
-		_item_one_key_insert_result_item(item_id, result_item_id, 1, result_items)
+
+		this.already_upgrade = true
 	}
 	return res
 }
 
 func (this *Player) items_one_key_upgrade(item_ids []int32) int32 {
+	this.already_upgrade = false
 	result_items := make(map[int32]*msg_client_message.ItemInfo)
 	for i := 0; i < len(item_ids); i++ {
 		for {

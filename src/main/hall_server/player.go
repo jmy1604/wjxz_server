@@ -114,6 +114,7 @@ type Player struct {
 	new_mail_ids         []int32         // 新邮件ID列表
 
 	tmp_left_slot_equip_id int32 // 左槽升级临时保存
+	already_upgrade        bool  // 一键合成
 
 	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data PlayerAnouncementData // 公告缓存数据
