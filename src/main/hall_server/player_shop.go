@@ -283,7 +283,7 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 	}
 
 	// 手动刷新
-	if shop_tdata.FreeRefreshTime <= 0 && cost_res != nil {
+	if !is_free /*shop_tdata.FreeRefreshTime <= 0 && cost_res != nil*/ {
 		for i := 0; i < len(cost_res)/2; i++ {
 			if this.get_resource(cost_res[2*i]) < cost_res[2*i+1] {
 				log.Error("Player[%v] refresh shop[%v] failed, not enough resource%v", this.Id, shop_id, cost_res)
@@ -294,7 +294,7 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 
 	this._refresh_shop(shop_tdata)
 
-	if shop_tdata.FreeRefreshTime <= 0 && cost_res != nil {
+	if !is_free /*shop_tdata.FreeRefreshTime <= 0 && cost_res != nil*/ {
 		for i := 0; i < len(cost_res)/2; i++ {
 			this.add_resource(cost_res[2*i], -cost_res[2*i+1])
 		}
