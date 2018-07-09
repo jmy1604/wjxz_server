@@ -168,7 +168,6 @@ func (this *Player) check_shop_auto_refresh(shop *table_config.XmlShopItem, send
 }
 
 // 商店数据
-
 func (this *Player) send_shop(shop_id int32) int32 {
 	shop_tdata := shop_table_mgr.Get(shop_id)
 	if shop_tdata == nil {
