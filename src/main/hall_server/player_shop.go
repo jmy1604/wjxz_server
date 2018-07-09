@@ -97,8 +97,8 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 			Id:     id,
 			ItemId: item_id,
 			CostResource: &msg_client_message.ItemInfo{
-				ItemCfgId: shop_item_tdata.Item[0],
-				ItemNum:   shop_item_tdata.Item[1],
+				ItemCfgId: shop_item_tdata.BuyCost[0],
+				ItemNum:   shop_item_tdata.BuyCost[1],
 			},
 			BuyNum: num,
 		}
