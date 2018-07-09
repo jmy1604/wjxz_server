@@ -947,8 +947,13 @@ message C2SArenaDataRequest {
 }
 
 message S2CArenaDataResponse {
-	int32 DayRemainSeconds					= 1; // 每天剩余结束时间
-	int32 SeasonRemainSeconds				= 2; // 赛季剩余时间
+	int32 Score                     		= 1; // 积分
+	int32 Grade								= 2; // 段位
+	int32 Rank								= 3; // 排名
+	int32 TopRank						 	= 4; // 历史最高排名
+	int32 DayRemainSeconds					= 5; // 每天结算剩余结束时间
+	int32 SeasonRemainSeconds				= 6; // 赛季结算剩余时间
+	int32 TicketsRefreshRemainSeconds		= 7; // 门票剩余刷新时间
 }
 
 // 请求竞技场对方防守阵容

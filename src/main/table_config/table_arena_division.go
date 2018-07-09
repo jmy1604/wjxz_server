@@ -85,3 +85,11 @@ func (this *ArenaDivisionTableMgr) GetByScore(score int32) *XmlArenaDivisionItem
 	}
 	return nil
 }
+
+func (this *ArenaDivisionTableMgr) GetGradeByScore(score int32) int32 {
+	d := this.GetByScore(score)
+	if d == nil {
+		return 0
+	}
+	return d.Id
+}

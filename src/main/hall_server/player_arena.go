@@ -169,16 +169,15 @@ func (this *ArenaRobotManager) Get(robot_id int32) *ArenaRobot {
 	return this.robots[robot_id]
 }
 
-func (this *Player) check_arena_tickets_refresh() bool {
+func (this *Player) check_arena_tickets_refresh() (remain_seconds int32) {
 	last_refresh := this.db.Arena.GetLastTicketsRefreshTime()
-	remain_seconds := arena_season_mgr.tickets_checker.RemainSecondsToNextRefresh(last_refresh)
+	remain_seconds = utils.GetRemainSeconds2NextDayTime(last_refresh, global_config.ArenaTicketRefreshTime)
 	if remain_seconds > 0 {
-		return false
+		return
 	}
 	this.set_resource(global_config.ArenaTicketItemId, global_config.ArenaTicketsDay)
 	this.db.Arena.SetLastTicketsRefreshTime(int32(time.Now().Unix()))
-	arena_season_mgr.tickets_checker.ToNextTimePoint()
-	return true
+	return
 }
 
 func (this *Player) _update_arena_score(data *ArenaRankItem) {
@@ -224,10 +223,6 @@ func (this *Player) UpdateArenaScore(is_win bool) bool {
 		now_time := int32(time.Now().Unix())
 		score := this.db.Arena.IncbyScore(add_score)
 		this.db.Arena.SetUpdateScoreTime(now_time)
-		top_score := this.db.Arena.GetHistoryTopRank()
-		if score > top_score {
-			this.db.Arena.SetHistoryTopRank(score)
-		}
 
 		var data = ArenaRankItem{
 			SerialId:    atomic.AddInt32(&arena_serial_id, 1),
@@ -235,6 +230,12 @@ func (this *Player) UpdateArenaScore(is_win bool) bool {
 			PlayerId:    this.Id,
 		}
 		this._update_arena_score(&data)
+
+		top_rank := this.db.Arena.GetHistoryTopRank()
+		rank := rank_list_mgr.GetRankByKey(RANK_LIST_TYPE_ARENA, this.Id)
+		if rank < top_rank {
+			this.db.Arena.SetHistoryTopRank(rank)
+		}
 	}
 
 	return true
@@ -326,13 +327,23 @@ func (this *Player) MatchArenaPlayer() (player_id int32) {
 }
 
 func (this *Player) send_arena_data() int32 {
-	if this.check_arena_tickets_refresh() {
+	tickets_remain := this.check_arena_tickets_refresh()
+	if tickets_remain > 0 {
 
 	}
+
+	score := this.db.Arena.GetScore()
+	top_rank := this.db.Arena.GetHistoryTopRank()
+	rank := rank_list_mgr.GetRankByKey(RANK_LIST_TYPE_ARENA, this.Id)
 	day_remain, season_remain := arena_season_mgr.GetRemainSeconds()
 	response := &msg_client_message.S2CArenaDataResponse{
-		DayRemainSeconds:    day_remain,
-		SeasonRemainSeconds: season_remain,
+		Score:                       score,
+		Grade:                       arena_division_table_mgr.GetGradeByScore(score),
+		Rank:                        rank,
+		TopRank:                     top_rank,
+		DayRemainSeconds:            day_remain,
+		SeasonRemainSeconds:         season_remain,
+		TicketsRefreshRemainSeconds: tickets_remain,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_DATA_RESPONSE), response)
 	log.Debug("Player[%v] arena data: %v", this.Id, response)
@@ -340,7 +351,7 @@ func (this *Player) send_arena_data() int32 {
 }
 
 func (this *Player) arena_player_defense_team(player_id int32) int32 {
-	if this.check_arena_tickets_refresh() {
+	if this.check_arena_tickets_refresh() > 0 {
 
 	}
 	p := player_mgr.GetPlayerById(player_id)
@@ -374,7 +385,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 }
 
 func (this *Player) arena_match() int32 {
-	if this.check_arena_tickets_refresh() {
+	if this.check_arena_tickets_refresh() > 0 {
 
 	}
 	if this.get_resource(global_config.ArenaTicketItemId) < 1 {
@@ -445,12 +456,11 @@ func C2SArenaMatchPlayerHandler(w http.ResponseWriter, r *http.Request, p *Playe
 
 // 竞技场赛季管理
 type ArenaSeasonMgr struct {
-	state           int32 // 0 结束  1 开始
-	start_time      int32
-	day_checker     *utils.DaysTimeChecker
-	season_checker  *utils.DaysTimeChecker
-	tickets_checker *utils.DaysTimeChecker
-	to_exit         int32
+	state          int32 // 0 结束  1 开始
+	start_time     int32
+	day_checker    *utils.DaysTimeChecker
+	season_checker *utils.DaysTimeChecker
+	to_exit        int32
 }
 
 var arena_season_mgr ArenaSeasonMgr
@@ -464,11 +474,6 @@ func (this *ArenaSeasonMgr) Init() bool {
 	this.season_checker = &utils.DaysTimeChecker{}
 	if !this.season_checker.Init("15:04:05", global_config.ArenaSeasonResetTime, global_config.ArenaSeasonDays) {
 		log.Error("ArenaSeasonMgr season checker init failed")
-		return false
-	}
-	this.tickets_checker = &utils.DaysTimeChecker{}
-	if !this.tickets_checker.Init("15:04:05", global_config.ArenaTicketRefreshTime, 1) {
-		log.Error("ArenaSeasonMgr tickets checker init failed")
 		return false
 	}
 	return true
@@ -595,7 +600,6 @@ func (this *ArenaSeasonMgr) Reset() {
 	}
 
 	atomic.StoreInt32(&arena_serial_id, 0)
-	//var tmp_item = ArenaRankItem{}
 	rank_num := rank_list.RankNum()
 	for rank := int32(1); rank <= rank_num; rank++ {
 		item := rank_list.GetItemByRank(rank)
@@ -614,10 +618,6 @@ func (this *ArenaSeasonMgr) Reset() {
 			continue
 		}
 		rank_list.SetValueByKey(arena_item.PlayerId, division.NewSeasonScore)
-		/*tmp_item.PlayerId = arena_item.PlayerId
-		tmp_item.PlayerScore = division.NewSeasonScore
-		tmp_item.SerialId = atomic.AddInt32(&arena_serial_id, 1)
-		rank_list.UpdateItem(&tmp_item)*/
 		p := player_mgr.GetPlayerById(arena_item.PlayerId)
 		if p != nil {
 			p.db.Arena.SetScore(division.NewSeasonScore)
