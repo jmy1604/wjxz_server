@@ -791,10 +791,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		add_hp = target_damage * self.attrs[ATTR_REMOTE_VAMPIRE] / 10000
 	}
 	if add_hp > 0 {
-		reflect_damage -= add_hp
-		if reflect_damage < 0 {
-			reflect_damage = 0
-		}
+		self_damage -= add_hp
 	}
 
 	// 贯通
@@ -817,8 +814,6 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 			is_absorb = true
 		}
 	}
-
-	//log.Debug("@@@@@@@@@@@@@@@@@@@@@@@@ Team[%v] member[%v] attack[%v] defense[%v] damage_add[%v] damage_sub[%v]", self.team.side, self.pos, old_attack, defense, damage_add, damage_sub)
 
 	return
 }
