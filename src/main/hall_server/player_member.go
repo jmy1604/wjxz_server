@@ -555,18 +555,29 @@ func (this *TeamMember) init_equips() {
 	}
 }
 
-func (this *TeamMember) calculate_hp_attack_defense() {
-	hp := (this.hp + this.card.BaseHP + (this.level-1)*this.card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
-	attack := (this.attack + this.card.BaseAttack + (this.level-1)*this.card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
-	defense := (this.defense + this.card.BaseDefence + (this.level-1)*this.card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
-
-	this.attrs[ATTR_HP] = hp
-	this.attrs[ATTR_HP_MAX] = this.attrs[ATTR_HP]
-	this.attrs[ATTR_ATTACK] = attack
-	this.attrs[ATTR_DEFENSE] = defense
+func (this *TeamMember) calculate_max_hp() {
+	max_hp := (this.attrs[ATTR_HP_MAX] + this.card.BaseHP + (this.level-1)*this.card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
+	this.attrs[ATTR_HP_MAX] = max_hp
+	this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
 	this.hp = this.attrs[ATTR_HP]
+}
+
+func (this *TeamMember) calculate_attack() {
+	attack := (this.attack + this.card.BaseAttack + (this.level-1)*this.card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
+	this.attrs[ATTR_ATTACK] = attack
 	this.attack = this.attrs[ATTR_ATTACK]
+}
+
+func (this *TeamMember) calculate_defense() {
+	defense := (this.defense + this.card.BaseDefence + (this.level-1)*this.card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
+	this.attrs[ATTR_DEFENSE] = defense
 	this.defense = this.attrs[ATTR_DEFENSE]
+}
+
+func (this *TeamMember) calculate_hp_attack_defense() {
+	this.calculate_max_hp()
+	this.calculate_attack()
+	this.calculate_defense()
 }
 
 func (this *TeamMember) init_attrs_equips_skills(level int32, role_card *table_config.XmlCardItem, extra_equips []int32) {
@@ -602,8 +613,6 @@ func (this *TeamMember) init_attrs_equips_skills(level int32, role_card *table_c
 			this.init_equip(eid)
 		}
 	}
-
-	this.calculate_hp_attack_defense()
 }
 
 func (this *TeamMember) init_with_team(team *BattleTeam, id int32, pos int32) {
@@ -632,6 +641,7 @@ func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_c
 	if team.player != nil {
 		team.player.role_update_suit_attr_power(id, true, false)
 	}
+	this.calculate_hp_attack_defense()
 }
 
 func (this *TeamMember) init_for_summon(user *TeamMember, team *BattleTeam, id int32, level int32, role_card *table_config.XmlCardItem, pos int32) {
@@ -649,6 +659,7 @@ func (this *TeamMember) init_for_summon(user *TeamMember, team *BattleTeam, id i
 	for i := 0; i < len(role_card.PassiveSkillIds); i++ {
 		this.add_skill_attr(role_card.PassiveSkillIds[i])
 	}
+	this.calculate_hp_attack_defense()
 }
 
 func (this *TeamMember) add_attr(attr int32, value int32) {
@@ -656,6 +667,7 @@ func (this *TeamMember) add_attr(attr int32, value int32) {
 		this.add_hp(value)
 	} else if attr == ATTR_HP_MAX {
 		this.add_max_hp(value)
+		this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
 	} else {
 		this.attrs[attr] += value
 		if attr == ATTR_ATTACK {

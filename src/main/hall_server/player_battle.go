@@ -194,7 +194,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		}
 		this.members[i] = m
 		// 装备BUFF增加属性
-		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.hp, m.energy, m.attack, m.defense)
+		log.Debug("mem[%v]: id[%v] role_id[%v] role_rank[%v] max_hp[%v] hp[%v] energy[%v] attack[%v] defense[%v]", i, m.id, m.card.Id, m.card.Rank, m.attrs[ATTR_HP_MAX], m.hp, m.energy, m.attack, m.defense)
 	}
 	this.curr_attack = 0
 	this.side = side
