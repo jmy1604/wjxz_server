@@ -625,6 +625,9 @@ func (this *TeamMember) init_all(team *BattleTeam, id int32, level int32, role_c
 			this.bufflist_arr[i].owner = this
 		}
 	}
+	this.hp = 0
+	this.attack = 0
+	this.defense = 0
 	this.init_attrs_equips_skills(level, role_card, extra_equips)
 	if team.player != nil {
 		team.player.role_update_suit_attr_power(id, true, false)
