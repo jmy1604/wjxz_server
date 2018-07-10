@@ -91,12 +91,13 @@ type Player struct {
 
 	team_member_mgr      map[int32]*TeamMember                 // 成员map
 	tmp_teams            map[int32][]int32                     // 临时阵容，缓存爬塔活动等进攻阵容
-	attack_team          *BattleTeam                           // 进攻阵型
-	campaign_team        *BattleTeam                           // 战役阵型
-	tower_team           *BattleTeam                           // 爬塔阵型
-	defense_team         *BattleTeam                           // 防守阵型
+	attack_team          *BattleTeam                           // PVP进攻阵型
+	campaign_team        *BattleTeam                           // PVE战役阵型
+	tower_team           *BattleTeam                           // PVE爬塔阵型
+	active_stage_team    *BattleTeam                           // PVE活动关卡阵型
+	defense_team         *BattleTeam                           // PVP防守阵型
 	use_defense          int32                                 // 是否正在使用防守阵型
-	target_stage_team    *BattleTeam                           // 关卡阵型
+	target_stage_team    *BattleTeam                           // PVE关卡防守阵型
 	stage_id             int32                                 // 关卡ID
 	stage_wave           int32                                 // 当前关卡怪物第几波
 	roles_power          map[int32]int32                       // 角色战力

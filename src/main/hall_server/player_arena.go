@@ -189,10 +189,18 @@ func (this *Player) LoadArenaScore() {
 	if score <= 0 {
 		return
 	}
+	sid := this.db.Arena.GetSerialId()
+	if sid == 0 {
+		arena_serial_id += 1
+		sid = arena_serial_id
+	}
 	var data = ArenaRankItem{
-		SerialId:    atomic.AddInt32(&arena_serial_id, 1),
+		SerialId:    sid,
 		PlayerScore: score,
 		PlayerId:    this.Id,
+	}
+	if arena_serial_id < sid {
+		arena_serial_id = sid
 	}
 	this._update_arena_score(&data)
 }

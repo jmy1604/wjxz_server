@@ -67,10 +67,12 @@ func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (
 	if shop.FreeRefreshTime > 0 {
 		remain_secs = shop.FreeRefreshTime - (now_time - last_refresh)
 		if remain_secs < 0 {
-			// 免费
 			remain_secs = 0
-			this.db.Shops.SetLastFreeRefreshTime(shop.Id, now_time)
 		}
+		// 免费
+		/*if remain_secs == 0 {
+			this.db.Shops.SetLastFreeRefreshTime(shop.Id, now_time)
+		}*/
 	} else {
 		remain_secs = -1
 	}
@@ -179,11 +181,11 @@ func (this *Player) send_shop(shop_id int32) int32 {
 		return 1
 	}
 
-	remain_secs, _ := this.get_shop_free_refresh_info(shop_tdata)
-	if shop_tdata.FreeRefreshTime > 0 && remain_secs <= 0 {
-		remain_secs = shop_tdata.FreeRefreshTime
-	}
-	res := this._send_shop(shop_tdata, remain_secs)
+	free_remain_secs, _ := this.get_shop_free_refresh_info(shop_tdata)
+	/*if shop_tdata.FreeRefreshTime > 0 && free_remain_secs <= 0 {
+		free_remain_secs = shop_tdata.FreeRefreshTime
+	}*/
+	res := this._send_shop(shop_tdata, free_remain_secs)
 	if res < 0 {
 		return res
 	}
@@ -273,12 +275,12 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 		return 1
 	}
 
-	remain_secs, cost_res := this.get_shop_free_refresh_info(shop_tdata)
+	free_remain_secs, cost_res := this.get_shop_free_refresh_info(shop_tdata)
 
 	// 免费刷新
 	is_free := false
-	if shop_tdata.FreeRefreshTime > 0 && remain_secs <= 0 {
-		remain_secs = shop_tdata.FreeRefreshTime
+	if shop_tdata.FreeRefreshTime > 0 && free_remain_secs <= 0 {
+		free_remain_secs = shop_tdata.FreeRefreshTime
 		is_free = true
 	}
 
@@ -300,7 +302,11 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 		}
 	}
 
-	this._send_shop(shop_tdata, remain_secs)
+	this._send_shop(shop_tdata, free_remain_secs)
+
+	if is_free {
+		this.db.Shops.SetLastFreeRefreshTime(shop_id, int32(time.Now().Unix()))
+	}
 
 	response := &msg_client_message.S2CShopRefreshResponse{
 		ShopId:        shop_id,

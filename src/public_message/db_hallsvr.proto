@@ -211,6 +211,7 @@ message PlayerArena{
 	optional int32 HistoryTopRank=6;
 	optional int32 FirstGetTicket=7;
 	optional int32 LastTicketsRefreshTime=8;
+	optional int32 SerialId=9;
 }
 
 message PlayerEquip{
@@ -221,6 +222,14 @@ message PlayerEquip{
 message PlayerActiveStage{
 	optional int32 CanChallengeNum=1;
 	optional int32 LastRefreshTime=2;
+}
+
+message PlayerAssistRole{
+	optional int32 RoleId=1;
+}
+
+message PlayerAssistRoleList{
+	repeated PlayerAssistRole List=1;
 }
 
 message PlayerDialyTask{

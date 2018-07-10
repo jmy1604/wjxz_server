@@ -1010,6 +1010,19 @@ message S2CActiveStageChallengeNumBuyResponse {
 message S2CActiveStageRefreshNotify {
 }
 
+// 活动副本选择好友助战角色
+message C2SActiveStageSelectAssistRoleRequest {
+	int32 FriendId							= 1;
+	int32 RoleId							= 2;
+	int32 Pos								= 3;
+}
+
+message S2CActiveStageSelectAssistRoleResponse {
+	int32 FriendId							= 1;
+	int32 RoleId							= 2;
+	int32 Pos								= 3;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 message FriendInfo {
 	

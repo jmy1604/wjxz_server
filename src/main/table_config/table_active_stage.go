@@ -12,7 +12,6 @@ type XmlActiveStageItem struct {
 	StageId               int32 `xml:"StageID,attr"`
 	PlayerLevel           int32 `xml:"PlayerLevelCond,attr"`
 	PlayerLevelSuggestion int32 `xml:"PlayerLevelSuggestion,attr"`
-	Next                  *XmlTowerItem
 }
 
 type XmlActiveStageConfig struct {
@@ -65,6 +64,6 @@ func (this *ActiveStageTableMgr) Load() bool {
 	return true
 }
 
-func (this *ActiveStageTableMgr) Get(tower_id int32) *XmlActiveStageItem {
-	return this.Map[tower_id]
+func (this *ActiveStageTableMgr) Get(active_stage_id int32) *XmlActiveStageItem {
+	return this.Map[active_stage_id]
 }

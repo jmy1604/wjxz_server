@@ -79,11 +79,12 @@ const (
 
 // 阵容类型
 const (
-	BATTLE_ATTACK_TEAM  = 1 // pvp attack
-	BATTLE_DEFENSE_TEAM = 2 // pvp defense
-	BATTLE_CAMPAIN_TEAM = 3 // campaign
-	BATTLE_TOWER_TEAM   = 4 // tower
-	BATTLE_STAGE_TEAM   = 99
+	BATTLE_ATTACK_TEAM       = 1 // pvp attack
+	BATTLE_DEFENSE_TEAM      = 2 // pvp defense
+	BATTLE_CAMPAIN_TEAM      = 3 // campaign
+	BATTLE_TOWER_TEAM        = 4 // tower
+	BATTLE_ACTIVE_STAGE_TEAM = 5 // active stage
+	BATTLE_STAGE_TEAM        = 99
 )
 
 const (

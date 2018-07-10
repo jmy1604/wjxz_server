@@ -401,7 +401,8 @@
 						{"Type":"int32","Index":5,"Name":"MatchedPlayerId"},
 						{"Type":"int32","Index":6,"Name":"HistoryTopRank"},
 						{"Type":"int32","Index":7,"Name":"FirstGetTicket"},
-						{"Type":"int32","Index":8,"Name":"LastTicketsRefreshTime"}
+						{"Type":"int32","Index":8,"Name":"LastTicketsRefreshTime"},
+						{"Type":"int32","Index":9,"Name":"SerialId"}
 					]
 				},
 				{
@@ -424,8 +425,19 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"CanChallengeNum"},
+						{"Type":"int32","Index":1,"Name":"CanChallengeNum","Incby":true},
 						{"Type":"int32","Index":2,"Name":"LastRefreshTime"}
+					]
+				},
+				{
+					"DBColumnName":"AssistRole",
+					"InUse":true,
+					"ColumnName":"AssistRole",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"RoleId"}
 					]
 				},
 				{

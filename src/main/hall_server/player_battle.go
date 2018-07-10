@@ -843,9 +843,10 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 			}
 		} else {
 			team_type := int32(-1)
-			// 爬塔阵容
-			if req.GetBattleType() == 3 {
+			if req.GetBattleType() == 3 { // 爬塔阵容
 				team_type = BATTLE_TOWER_TEAM
+			} else if req.GetBattleType() == 4 { // 活动副本阵容
+				team_type = BATTLE_ACTIVE_STAGE_TEAM
 			} else {
 				log.Error("Player[%v] set team[%v] invalid", p.Id, team_type)
 				return -1

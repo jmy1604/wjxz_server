@@ -1005,6 +1005,7 @@ type dbPlayerArenaData struct{
 	HistoryTopRank int32
 	FirstGetTicket int32
 	LastTicketsRefreshTime int32
+	SerialId int32
 }
 func (this* dbPlayerArenaData)from_pb(pb *db.PlayerArena){
 	if pb == nil {
@@ -1018,6 +1019,7 @@ func (this* dbPlayerArenaData)from_pb(pb *db.PlayerArena){
 	this.HistoryTopRank = pb.GetHistoryTopRank()
 	this.FirstGetTicket = pb.GetFirstGetTicket()
 	this.LastTicketsRefreshTime = pb.GetLastTicketsRefreshTime()
+	this.SerialId = pb.GetSerialId()
 	return
 }
 func (this* dbPlayerArenaData)to_pb()(pb *db.PlayerArena){
@@ -1030,6 +1032,7 @@ func (this* dbPlayerArenaData)to_pb()(pb *db.PlayerArena){
 	pb.HistoryTopRank = proto.Int32(this.HistoryTopRank)
 	pb.FirstGetTicket = proto.Int32(this.FirstGetTicket)
 	pb.LastTicketsRefreshTime = proto.Int32(this.LastTicketsRefreshTime)
+	pb.SerialId = proto.Int32(this.SerialId)
 	return
 }
 func (this* dbPlayerArenaData)clone_to(d *dbPlayerArenaData){
@@ -1041,6 +1044,7 @@ func (this* dbPlayerArenaData)clone_to(d *dbPlayerArenaData){
 	d.HistoryTopRank = this.HistoryTopRank
 	d.FirstGetTicket = this.FirstGetTicket
 	d.LastTicketsRefreshTime = this.LastTicketsRefreshTime
+	d.SerialId = this.SerialId
 	return
 }
 type dbPlayerEquipData struct{
@@ -1087,6 +1091,25 @@ func (this* dbPlayerActiveStageData)to_pb()(pb *db.PlayerActiveStage){
 func (this* dbPlayerActiveStageData)clone_to(d *dbPlayerActiveStageData){
 	d.CanChallengeNum = this.CanChallengeNum
 	d.LastRefreshTime = this.LastRefreshTime
+	return
+}
+type dbPlayerAssistRoleData struct{
+	RoleId int32
+}
+func (this* dbPlayerAssistRoleData)from_pb(pb *db.PlayerAssistRole){
+	if pb == nil {
+		return
+	}
+	this.RoleId = pb.GetRoleId()
+	return
+}
+func (this* dbPlayerAssistRoleData)to_pb()(pb *db.PlayerAssistRole){
+	pb = &db.PlayerAssistRole{}
+	pb.RoleId = proto.Int32(this.RoleId)
+	return
+}
+func (this* dbPlayerAssistRoleData)clone_to(d *dbPlayerAssistRoleData){
+	d.RoleId = this.RoleId
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -5379,6 +5402,19 @@ func (this *dbPlayerArenaColumn)SetLastTicketsRefreshTime(v int32){
 	this.m_changed = true
 	return
 }
+func (this *dbPlayerArenaColumn)GetSerialId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerArenaColumn.GetSerialId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.SerialId
+	return
+}
+func (this *dbPlayerArenaColumn)SetSerialId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerArenaColumn.SetSerialId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.SerialId = v
+	this.m_changed = true
+	return
+}
 type dbPlayerEquipColumn struct{
 	m_row *dbPlayerRow
 	m_data *dbPlayerEquipData
@@ -5512,6 +5548,13 @@ func (this *dbPlayerActiveStageColumn)SetCanChallengeNum(v int32){
 	this.m_changed = true
 	return
 }
+func (this *dbPlayerActiveStageColumn)IncbyCanChallengeNum(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageColumn.IncbyCanChallengeNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.CanChallengeNum += v
+	this.m_changed = true
+	return this.m_data.CanChallengeNum
+}
 func (this *dbPlayerActiveStageColumn)GetLastRefreshTime( )(v int32 ){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerActiveStageColumn.GetLastRefreshTime")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -5524,6 +5567,133 @@ func (this *dbPlayerActiveStageColumn)SetLastRefreshTime(v int32){
 	this.m_data.LastRefreshTime = v
 	this.m_changed = true
 	return
+}
+type dbPlayerAssistRoleColumn struct{
+	m_row *dbPlayerRow
+	m_data map[int32]*dbPlayerAssistRoleData
+	m_changed bool
+}
+func (this *dbPlayerAssistRoleColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerAssistRoleList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbPlayerAssistRoleData{}
+		d.from_pb(v)
+		this.m_data[int32(d.RoleId)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerAssistRoleColumn)save( )(data []byte,err error){
+	pb := &db.PlayerAssistRoleList{}
+	pb.List=make([]*db.PlayerAssistRole,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerAssistRoleColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerAssistRoleColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbPlayerAssistRoleColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerAssistRoleColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbPlayerAssistRoleColumn)GetAll()(list []dbPlayerAssistRoleData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerAssistRoleColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbPlayerAssistRoleData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbPlayerAssistRoleColumn)Get(id int32)(v *dbPlayerAssistRoleData){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerAssistRoleColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbPlayerAssistRoleData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbPlayerAssistRoleColumn)Set(v dbPlayerAssistRoleData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerAssistRoleColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.RoleId)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.RoleId)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerAssistRoleColumn)Add(v *dbPlayerAssistRoleData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerAssistRoleColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.RoleId)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.RoleId)
+		return false
+	}
+	d:=&dbPlayerAssistRoleData{}
+	v.clone_to(d)
+	this.m_data[int32(v.RoleId)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerAssistRoleColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerAssistRoleColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerAssistRoleColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbPlayerAssistRoleColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbPlayerAssistRoleData)
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerAssistRoleColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerAssistRoleColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
 }
 type dbPlayerDialyTaskColumn struct{
 	m_row *dbPlayerRow
@@ -8260,6 +8430,7 @@ type dbPlayerRow struct {
 	Arena dbPlayerArenaColumn
 	Equip dbPlayerEquipColumn
 	ActiveStage dbPlayerActiveStageColumn
+	AssistRoles dbPlayerAssistRoleColumn
 	DialyTasks dbPlayerDialyTaskColumn
 	Achieves dbPlayerAchieveColumn
 	FinishedAchieves dbPlayerFinishedAchieveColumn
@@ -8336,6 +8507,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.Equip.m_data=&dbPlayerEquipData{}
 	this.ActiveStage.m_row=this
 	this.ActiveStage.m_data=&dbPlayerActiveStageData{}
+	this.AssistRoles.m_row=this
+	this.AssistRoles.m_data=make(map[int32]*dbPlayerAssistRoleData)
 	this.DialyTasks.m_row=this
 	this.DialyTasks.m_data=make(map[int32]*dbPlayerDialyTaskData)
 	this.Achieves.m_row=this
@@ -8381,7 +8554,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(47)
+		db_args:=new_db_args(48)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
@@ -8531,6 +8704,12 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dActiveStage)
+		dAssistRoles,db_err:=this.AssistRoles.save()
+		if db_err!=nil{
+			log.Error("insert save AssistRole failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dAssistRoles)
 		dDialyTasks,db_err:=this.DialyTasks.save()
 		if db_err!=nil{
 			log.Error("insert save DialyTask failed")
@@ -8642,9 +8821,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStage.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStage.m_changed||this.AssistRoles.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendRelative.m_changed||this.Friends.m_changed||this.FriendReqs.m_changed||this.FriendPoints.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(47)
+			db_args:=new_db_args(48)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -8877,6 +9056,15 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dActiveStage)
 			}
+			if this.AssistRoles.m_changed{
+				update_string+="AssistRoles=?,"
+				dAssistRoles,err:=this.AssistRoles.save()
+				if err!=nil{
+					log.Error("insert save AssistRole failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dAssistRoles)
+			}
 			if this.DialyTasks.m_changed{
 				update_string+="DialyTasks=?,"
 				dDialyTasks,err:=this.DialyTasks.save()
@@ -9075,6 +9263,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Arena.m_changed = false
 	this.Equip.m_changed = false
 	this.ActiveStage.m_changed = false
+	this.AssistRoles.m_changed = false
 	this.DialyTasks.m_changed = false
 	this.Achieves.m_changed = false
 	this.FinishedAchieves.m_changed = false
@@ -9416,6 +9605,14 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasAssistRole := columns["AssistRoles"]
+	if !hasAssistRole {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN AssistRoles LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN AssistRoles failed")
+			return
+		}
+	}
 	_, hasDialyTask := columns["DialyTasks"]
 	if !hasDialyTask {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN DialyTasks LONGBLOB")
@@ -9563,7 +9760,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStage,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStage,AssistRoles,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -9571,7 +9768,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStage,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStage,AssistRoles,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendRelative,Friends,FriendReqs,FriendPoints,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -9644,6 +9841,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dArena []byte
 	var dEquip []byte
 	var dActiveStage []byte
+	var dAssistRoles []byte
 	var dDialyTasks []byte
 	var dAchieves []byte
 	var dFinishedAchieves []byte
@@ -9664,7 +9862,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dFirstDrawCards []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStage,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStage,&dAssistRoles,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendRelative,&dFriends,&dFriendReqs,&dFriendPoints,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -9795,6 +9993,11 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.ActiveStage.load(dActiveStage)
 		if err != nil {
 			log.Error("ActiveStage %v", PlayerId)
+			return
+		}
+		err = row.AssistRoles.load(dAssistRoles)
+		if err != nil {
+			log.Error("AssistRoles %v", PlayerId)
 			return
 		}
 		err = row.DialyTasks.load(dDialyTasks)
