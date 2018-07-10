@@ -59,8 +59,9 @@
      <item GoodID="2017" ShopID="2" ItemList="56052,50" BuyCost="10,4000" StockNum="1" RandomWeight="0" />
      <item GoodID="2018" ShopID="2" ItemList="56053,50" BuyCost="10,3000" StockNum="1" RandomWeight="0" />
      <item GoodID="3001" ShopID="3" ItemList="8,1" BuyCost="3,5" StockNum="-1" RandomWeight="0" />
-     <item GoodID="4001" ShopID="4" ItemList="11,5" BuyCost="3,50" StockNum="1" RandomWeight="0" />
-     <item GoodID="4002" ShopID="4" ItemList="11,5" BuyCost="3,100" StockNum="1" RandomWeight="0" />
-     <item GoodID="4003" ShopID="4" ItemList="11,5" BuyCost="3,200" StockNum="1" RandomWeight="0" />
-     <item GoodID="4004" ShopID="4" ItemList="11,5" BuyCost="3,500" StockNum="1" RandomWeight="0" />
+     <item GoodID="4001" ShopID="4" ItemList="18,5" BuyCost="3,50" StockNum="1" RandomWeight="0" />
+     <item GoodID="4002" ShopID="4" ItemList="18,5" BuyCost="3,100" StockNum="1" RandomWeight="0" />
+     <item GoodID="4003" ShopID="4" ItemList="18,5" BuyCost="3,200" StockNum="1" RandomWeight="0" />
+     <item GoodID="4004" ShopID="4" ItemList="18,5" BuyCost="3,500" StockNum="1" RandomWeight="0" />
+     <item GoodID="4005" ShopID="4" ItemList="18,5" BuyCost="3,1000" StockNum="1" RandomWeight="0" />
 </Config>
