@@ -42,7 +42,7 @@
 	"ArenaSeasonResetTime": "15:00:00",
 	
 	"ActiveStageRefreshTime": "00:00:00",
-	"ActiveStageChallengeNumOfDay": 2,
+	"ActiveStageChallengeNumOfDay": 100,
 	"ActiveStageChallengeNumPrice": 100,
 	"ActiveStageLoveHeartLimit": 10,
 	
