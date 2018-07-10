@@ -282,6 +282,8 @@ func (this *Player) OnCreate() {
 	this.db.Info.SetLvl(1)
 	this.db.Info.SetCreateUnix(int32(time.Now().Unix()))
 	this.add_init_roles()
+	this.db.Info.IncbyDiamond(global_config.InitDiamond)
+	this.db.Info.IncbyGold(global_config.InitCoin)
 
 	// 新任务
 	this.UpdateNewTasks(1, false)
