@@ -23,6 +23,7 @@ func (this *Player) _send_active_stage_data() {
 		ChallengeNumPrice:          global_config.ActiveStageChallengeNumPrice,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_DATA_RESPONSE), response)
+	log.Debug("Player[%v] active stage data: %v", this.Id, response)
 }
 
 func (this *Player) check_active_stage_refresh() bool {
@@ -33,20 +34,18 @@ func (this *Player) check_active_stage_refresh() bool {
 
 	now_time := int32(time.Now().Unix())
 	last_refresh := this.db.ActiveStage.GetLastRefreshTime()
-	if last_refresh == 0 {
-		this._send_active_stage_data()
-		this.db.ActiveStage.SetLastRefreshTime(now_time)
-	} else {
-		if !utils.CheckDayTimeArrival(last_refresh, global_config.ActiveStageRefreshTime) {
-			return false
-		}
 
-		this.db.ActiveStage.SetCanChallengeNum(global_config.ActiveStageChallengeNumOfDay)
-		this.db.ActiveStage.SetLastRefreshTime(now_time)
-
-		notify := &msg_client_message.S2CActiveStageRefreshNotify{}
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_REFRESH_NOTIFY), notify)
+	if last_refresh > 0 && !utils.CheckDayTimeArrival(last_refresh, global_config.ActiveStageRefreshTime) {
+		return false
 	}
+
+	this.db.ActiveStage.SetCanChallengeNum(global_config.ActiveStageChallengeNumOfDay)
+	this.db.ActiveStage.SetLastRefreshTime(now_time)
+
+	this._send_active_stage_data()
+
+	notify := &msg_client_message.S2CActiveStageRefreshNotify{}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_REFRESH_NOTIFY), notify)
 
 	log.Debug("Player[%v] active stage refreshed", this.Id)
 	return true
@@ -102,6 +101,10 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		BattleParam:         active_stage_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
+
+	if is_win {
+		this.send_stage_reward(stage, 4)
+	}
 
 	Output_S2CBattleResult(this, response)
 

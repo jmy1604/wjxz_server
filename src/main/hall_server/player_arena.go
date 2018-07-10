@@ -377,10 +377,12 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 			}
 			table_id, _ := this.db.Roles.GetTableId(m)
 			level, _ := this.db.Roles.GetLevel(m)
+			rank, _ := this.db.Roles.GetRank(m)
 			team[m] = &msg_client_message.PlayerTeamRole{
 				TableId: table_id,
 				Pos:     int32(i),
 				Level:   level,
+				Rank:    rank,
 			}
 		}
 	}

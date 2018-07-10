@@ -5,12 +5,12 @@ import (
 	"libs/utils"
 	"main/rpc_common"
 	"main/table_config"
-	"net/http"
+	_ "net/http"
 	"public_message/gen_go/client_message"
 	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
-	"github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/proto"
 )
 
 const FRIEND_UNREAD_MESSAGE_MAX_NUM int = 200
@@ -18,28 +18,11 @@ const FRIEND_MESSAGE_MAX_LENGTH int = 200
 
 // ----------------------------------------------------------------------------
 
-func reg_player_friend_msg() {
-	/*msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendSearch, C2SFriendSearchHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendSearchById, C2SFriendSearchByIdHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SAddFriendByPId, C2SAddFriendByIdHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SAddFriendByName, C2SAddFriendByNameHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SRefuseFriend, C2SRefuseAddFriendHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SRemoveFriend, C2SFriendRemoveHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetFriendList, C2SGetFriendListHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGiveFriendPoints, C2SGiveFriendPointsHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SGetFriendPoints, C2SGetFriendPointsHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendChat, C2SFriendChatHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendGetUnreadMessageNum, C2SFriendGetUnreadMessageNumHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendPullUnreadMessage, C2SFriendPullUnreadMessageHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SFriendConfirmUnreadMessage, C2SFriendConfirmUnreadMessageHandler)
-	msg_handler_mgr.SetPlayerMsgHandler(msg_client_message.ID_C2SAgreeFriend, C2SAddFriendAgreeHandler)*/
-}
-
-func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CRetFriendListResult) {
+func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CFriendListResponse) {
 	//var tmp_info *msg_client_message.FriendInfo
 	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.FillAllListMsg")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	msg.FriendList = make([]*msg_client_message.FriendInfo, 0, len(this.m_data))
+	msg.Friends = make([]*msg_client_message.FriendInfo, 0, len(this.m_data))
 	for _, val := range this.m_data {
 		if nil == val {
 			continue
@@ -88,9 +71,9 @@ func (this dbPlayerFriendColumn) TryAddFriend(new_friend *dbPlayerFriendData) {
 	return
 }
 
-func (this *dbPlayerFriendReqColumn) FillAllListMsg(msg *msg_client_message.S2CRetFriendListResult) {
+func (this *dbPlayerFriendReqColumn) FillAllListMsg(msg *msg_client_message.S2CFriendListResponse) {
 
-	var tmp_info *msg_client_message.FriendReq
+	/*var tmp_info *msg_client_message.FriendReq
 	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendReqColumn.FillAllListMsg")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 
@@ -104,7 +87,7 @@ func (this *dbPlayerFriendReqColumn) FillAllListMsg(msg *msg_client_message.S2CR
 		tmp_info.PlayerId = val.PlayerId
 		tmp_info.Name = val.PlayerName
 		msg.Reqs = append(msg.Reqs, tmp_info)
-	}
+	}*/
 
 	return
 }
@@ -421,20 +404,6 @@ func (this *Player) agree_add_friend(id int32) int32 {
 }
 
 func (this *Player) refuse_add_friend(player_id int32) int32 {
-	name, o := this.db.FriendReqs.GetPlayerName(player_id)
-	if !o {
-		log.Error("Player[%v] not have player[%v] friend request", this.Id, player_id)
-		return -1
-	}
-
-	this.db.FriendReqs.Remove(player_id)
-
-	response := &msg_client_message.S2CRefuseFriendResult{}
-	response.Name = name
-	response.PlayerId = player_id
-	this.Send(1, response)
-
-	log.Debug("Player[%v] refuse add friend request of player[%v]", this.Id, player_id)
 
 	return 1
 }
@@ -468,8 +437,8 @@ func (this *Player) remove_friend(player_id int32) int32 {
 
 	this.remove_friend_data(player_id)
 
-	response := &msg_client_message.S2CRemoveFriendResult{}
-	response.PlayerId = player_id
+	response := &msg_client_message.S2CFriendRemoveResponse{}
+	//response.PlayerId = player_id
 	this.Send(1, response)
 
 	log.Debug("Player[%v] removed friend[%v]", this.Id, player_id)
@@ -513,35 +482,10 @@ func (this *Player) check_friends_give_points_refresh() (remain_seconds int32) {
 func (this *Player) get_friend_list(get_foster bool) int32 {
 	//remain_seconds := this.check_friends_give_points_refresh()
 
-	response := &msg_client_message.S2CRetFriendListResult{}
+	response := &msg_client_message.S2CFriendListResponse{}
 	this.db.Friends.FillAllListMsg(response)
 	this.db.FriendReqs.FillAllListMsg(response)
 
-	//rt := &global_config.FriendGivePointsRefreshTime
-	//now_time := time.Now()
-	for i := 0; i < len(response.FriendList); i++ {
-		/*fid := response.FriendList[i].GetPlayerId()
-		name, level, head := GetPlayerBaseInfo(fid)
-		response.FriendList[i].Name = name
-		response.FriendList[i].Head = head
-		response.FriendList[i].Level = level
-		points, o := this.db.FriendPoints.GetGivePoints(fid)
-		if o {
-			response.FriendList[i].FriendPoints = points
-			response.FriendList[i].LeftGiveSeconds = remain_seconds
-			response.FriendList[i].UnreadMessageNum = this.db.FriendChatUnreadIds.GetUnreadMessageNum(fid)
-		}
-		last_save, _ := this.db.Friends.GetLastGivePointsTime(fid)
-		remain_seconds := utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, last_save)
-		response.FriendList[i].LeftGiveSeconds = remain_seconds*/
-	}
-	for i := 0; i < len(response.Reqs); i++ {
-		fid := response.Reqs[i].GetPlayerId()
-		name, _, head := GetPlayerBaseInfo(fid)
-		response.Reqs[i].Name = name
-		response.Reqs[i].Head = head
-	}
-	response.LeftGivePointsNum = global_config.FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday()
 	this.Send(1, response)
 	return 1
 }
@@ -832,218 +776,6 @@ func (this *Player) friend_confirm_unread_message(friend_id int32, message_num i
 	log.Debug("Player[%v] confirm friend[%v] unread message num[%v]", this.Id, friend_id, message_num)
 
 	return 1
-}
-
-func C2SFriendSearchHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SFriendSearch)
-	if nil == req {
-		log.Error("C2SFriendSearchHandler c or req nil %v!", nil == req)
-		return -1
-	}
-	if nil == p {
-		log.Error("C2SFriendSearchHandler not login")
-		return -1
-	}
-
-	return p.search_friend(req.GetKey())
-}
-
-func C2SAddFriendByIdHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SAddFriendByPId)
-	if nil == req || p == nil {
-		log.Error("C2SAddFriendByPIdHandler c or req nil %v!", nil == req)
-		return -1
-	}
-
-	if nil == p {
-		log.Error("C2SAddFriendByPIdHandler not login")
-		return -1
-	}
-
-	tgt_pid := req.GetPlayerId()
-	if p.Id == tgt_pid {
-		log.Error("C2SAddFriendByPIdHandler add self !")
-		return -1
-	}
-
-	return p.add_friend_by_id(tgt_pid)
-}
-
-func C2SAddFriendByNameHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SAddFriendByName)
-	if nil == req {
-		log.Error("C2SAddFriendByPIdHandler c or req nil %v!", nil == req)
-		return -1
-	}
-
-	if nil == p {
-		log.Error("C2SAddFriendByPIdHandler not login")
-		return -1
-	}
-
-	if req.GetName() == p.db.GetName() {
-		log.Error("Add self with friend!!")
-		return -1
-	}
-
-	return p.add_friend_by_name(req.GetName())
-}
-
-func C2SAddFriendAgreeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SAgreeFriend)
-	if nil == req {
-		log.Error("C2SAddFriendAgreeHandler c or req nil %v!", nil == req)
-		return -1
-	}
-
-	if nil == p {
-		log.Error("C2SAddFriendAgreeHandler not login")
-		return -1
-	}
-
-	return p.agree_add_friend(req.GetPlayerId())
-}
-
-func C2SRefuseAddFriendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SRefuseFriend)
-	if nil == req {
-		log.Error("C2SRefuseAddFriendHandler c or req nil %v", nil == req)
-		return -1
-	}
-
-	if nil == p {
-		log.Error("C2SRefuseAddFriendHandler not login")
-		return -1
-	}
-
-	return p.refuse_add_friend(req.GetPlayerId())
-}
-
-func C2SFriendRemoveHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SRemoveFriend)
-	if nil == req {
-		log.Error("C2SFriendRemoveHandler c or req nil %v!", nil == req)
-		return -1
-	}
-
-	if nil == p {
-		log.Error("C2SFriendRemoveHandler not login")
-		return -1
-	}
-
-	return p.remove_friend(req.GetPlayerId())
-}
-
-func C2SGetFriendListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetFriendList)
-	if nil == req {
-		log.Error("C2SGetFriendListHandler c or req nil %v!", nil == req)
-		return -1
-	}
-
-	if nil == p {
-		log.Error("C2SGetFriendListHandler not login")
-		return -1
-	}
-
-	return p.get_friend_list(req.GetHasFoster())
-}
-
-func C2SGiveFriendPointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGiveFriendPoints)
-	if req == nil {
-		log.Error("C2SGiveFriendPointsHandler proto is nil")
-		return -1
-	}
-	if p == nil {
-		log.Error("C2SGiveFriendPointsHandler player not login")
-		return -1
-	}
-
-	return p.give_friend_points(req.GetFriendId())
-}
-
-func C2SGetFriendPointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetFriendPoints)
-	if req == nil {
-		log.Error("C2SGetFriendPointsHandler proto is nil")
-		return -1
-	}
-	if p == nil {
-		log.Error("C2SGetFriendPointsHandler player not login")
-		return -1
-	}
-
-	return p.get_friend_points(req.GetFriendId())
-}
-
-func C2SFriendChatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SFriendChat)
-	if nil == req {
-		log.Error("C2SFriendChatHandler c or req nil %v!", nil == req)
-		return -1
-	}
-
-	if nil == p {
-		log.Error("C2SFriendChatHandler not login")
-		return -1
-	}
-
-	return p.friend_chat(req.GetPlayerId(), req.GetContent())
-}
-
-func C2SFriendGetUnreadMessageNumHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SFriendGetUnreadMessageNum)
-	if req == nil {
-		log.Error("C2SFriendGetUnreadMessageNumHandler proto is invalid")
-		return -1
-	}
-	if p == nil {
-		log.Error("C2SFriendGetUnreadMessageNumHandler player is nil")
-		return -1
-	}
-	return p.friend_get_unread_message_num(req.GetFriendIds())
-}
-
-func C2SFriendPullUnreadMessageHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SFriendPullUnreadMessage)
-	if req == nil {
-		log.Error("C2SFriendPullUnreadMessageHandler proto is invalid")
-		return -1
-	}
-	if p == nil {
-		log.Error("C2SFriendPullUnreadMessageHandler player is nil")
-		return -1
-	}
-	return p.friend_pull_unread_message(req.GetFriendId())
-}
-
-func C2SFriendConfirmUnreadMessageHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SFriendConfirmUnreadMessage)
-	if req == nil {
-		log.Error("C2SFriendConfirmUnreadMessageHandler proto is invalid")
-		return -1
-	}
-	if p == nil {
-		log.Error("C2SFriendConfirmUnreadMessageHandler player is nil")
-		return -1
-	}
-	return p.friend_confirm_unread_message(req.GetFriendId(), req.GetMessageNum())
-}
-
-func C2SGetOnlineFriendsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg proto.Message) int32 {
-	req := msg.(*msg_client_message.C2SGetOnlineFriends)
-	if nil == req {
-		log.Error("C2SGetOnlineFriendsHandler c or req nil %v!", nil == req)
-		return -1
-	}
-
-	if nil == p {
-		log.Error("C2SGetOnlineFriendsHandler not login")
-		return -1
-	}
-
-	return 0
 }
 
 // ------------------------------------------------------

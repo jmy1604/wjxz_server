@@ -87,7 +87,7 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string)
 	last_time := time.Unix(int64(last_time_point), 0)
 	now_time := time.Now()
 
-	if now_time.Unix() <= last_time.Unix() {
+	if now_time.Unix() < last_time.Unix() {
 		return -1
 	}
 
@@ -108,16 +108,6 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string)
 		return -1
 	}
 
-	/*diff_days := (today_tm.Unix() - tm.Unix()) / (24 * 3600)
-	y := int(diff_days) % int(1)
-
-	next_refresh_time := int64(0)
-	if y == 0 && now_time.Unix() < today_tm.Unix() {
-		next_refresh_time = today_tm.Unix()
-	} else {
-		next_refresh_time = today_tm.Unix() + int64((int(1)-y)*24*3600)
-	}*/
-
 	if last_time.Unix() < today_tm.Unix() {
 		if now_time.Unix() < today_tm.Unix() {
 			return int32(today_tm.Unix() - now_time.Unix())
@@ -125,10 +115,8 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string)
 			return 0
 		}
 	} else {
-		return int32(today_tm.Unix() + int64(24*3600) - last_time.Unix())
+		return int32(today_tm.Unix() + int64(24*3600) - now_time.Unix())
 	}
-
-	//return int32(next_refresh_time - now_time.Unix())
 }
 
 func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string string, interval_days int32) int32 {

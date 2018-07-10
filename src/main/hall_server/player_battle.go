@@ -147,7 +147,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		members = p.db.BattleTeam.GetDefenseMembers()
 	} else if team_id == BATTLE_CAMPAIN_TEAM {
 		members = p.db.BattleTeam.GetCampaignMembers()
-	} else if team_id == BATTLE_TOWER_TEAM {
+	} else if team_id < BATTLE_MAX_TEAM {
 		if p.tmp_teams == nil {
 			p.tmp_teams = make(map[int32][]int32)
 		}

@@ -941,7 +941,7 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 	}
 
 	var err error
-	var stage_id int
+	var stage_id, stage_type int
 	stage_id, err = strconv.Atoi(args[0])
 	if err != nil {
 		log.Error("转换关卡[%v]失败[%v]", args[0], err.Error())
@@ -953,7 +953,18 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 		log.Error("关卡[%v]不存在", stage_id)
 		return -1
 	}
-	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(1, stage)
+
+	if len(args) > 1 {
+		stage_type, err = strconv.Atoi(args[1])
+		if err != nil {
+			log.Error("转换关卡类型[%v]失败[%v]", args[1], err.Error())
+			return -1
+		}
+	} else {
+		stage_type = 1
+	}
+
+	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage)
 	response := &msg_client_message.S2CBattleResultResponse{}
 	response.IsWin = is_win
 	response.MyTeam = my_team
@@ -1849,6 +1860,27 @@ func item_onekey_upgrade_cmd(p *Player, args []string) int32 {
 	return p.items_one_key_upgrade(item_ids)
 }
 
+func active_stage_data_cmd(p *Player, args []string) int32 {
+	return p.send_active_stage_data()
+}
+
+func fight_active_stage_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var active_stage_id int
+	var err error
+	active_stage_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("活动副本ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.fight_active_stage(int32(active_stage_id))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1914,6 +1946,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"rank_list":           rank_list_cmd,
 	"player_info":         player_info_cmd,
 	"item_onekey_upgrade": item_onekey_upgrade_cmd,
+	"active_stage_data":   active_stage_data_cmd,
+	"fight_active_stage":  fight_active_stage_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

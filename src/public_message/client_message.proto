@@ -441,7 +441,7 @@ message C2SCampaignHangupIncomeRequest {
 
 // 关卡战斗结果奖励
 message S2CCampaignHangupIncomeResponse {
-	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战斗奖励  3 爬塔奖励
+	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战斗奖励  3 爬塔奖励  4 活动副本奖励
 	repeated ItemInfo Rewards				= 2; // 奖励
 }
 
@@ -965,6 +965,7 @@ message PlayerTeamRole {
 	int32 TableId							= 1;
 	int32 Pos								= 2;
 	int32 Level								= 3;
+	int32 Rank								= 4;
 }
 
 message S2CArenaPlayerDefenseTeamResponse {
@@ -1012,240 +1013,99 @@ message S2CActiveStageRefreshNotify {
 
 // 活动副本选择好友助战角色
 message C2SActiveStageSelectAssistRoleRequest {
-	int32 FriendId							= 1;
-	int32 RoleId							= 2;
-	int32 Pos								= 3;
+	int32 FriendId							= 1; // 好友ID
+	int32 RoleId							= 2; // 好友角色ID
+	int32 Pos								= 3; // 阵型位置
 }
 
 message S2CActiveStageSelectAssistRoleResponse {
-	int32 FriendId							= 1;
-	int32 RoleId							= 2;
-	int32 Pos								= 3;
+	int32 FriendId							= 1; // 好友ID
+	int32 RoleId							= 2; // 好友角色ID
+	int32 Pos								= 3; // 阵型位置
 }
 
-//////////////////////////////////////////////////////////////////////////////
+// ----------------------------------- 好友 -----------------------------------
+message AskFriendInfo {
+	int32 Id								= 1; // ID
+	string Name								= 2; // 昵称
+	int32 Level								= 3; // 等级
+}
+
 message FriendInfo {
-	
+	int32 Id								= 1; // ID
+	string Name								= 2; // 名称
+	int32 Level								= 3; // 等级
+	bool IsOnline							= 4; // 是否在线
+	int32 OfflineSeconds				 	= 5; // 离线时间(秒)
 }
 
-// 按昵称查找好友信息
-message C2SFriendSearch {
-	string Key 			= 1; // 搜索内容
+// 请求好友列表
+message C2SFriendListRequest {
 }
 
-// 按ID查找好友
-message C2SFriendSearchById {
-	int32 PlayerId 		= 1; //玩家ID
+message S2CFriendListResponse {
+	repeated FriendInfo Friends				= 1; // 好友列表
 }
 
-// 返回好友信息
-message S2CFriendSearchResult {
-	repeated FriendInfo Result 		= 1; // 搜索结果
+// 申请好友
+message C2SFriendAskRequest {
+	int32 PlayerId							= 1; // 玩家ID
 }
 
-// 客户端向服务器获取好友相关列表
-message C2SGetFriendList {
-	bool HasFoster			= 1; // 是否获取寄养信息
+message S2CFriendAskResponse {
+	int32 PlayerId							= 1; // 玩家ID
 }
 
-// 加好友请求信息
-message FriendReq {
-	int32 PlayerId 		= 1; // 好友玩家Id
-	string Name 			= 2; // 好友名称
-	int32 Score 			= 3; // 好友积分
-	string Head			= 4; // 好友头像
+// 请求获得申请玩家列表
+message C2SFriendAskPlayerListRequest {
 }
 
-// 服务器向客户端返回好友列表
-message S2CRetFriendListResult {
-	int32 FriendType 		= 1; // 好友类型
-	repeated FriendInfo FriendList 	= 2; // 好友列表
-	repeated FriendReq Reqs 		= 3; // 加好友请求
-	int32 LeftGivePointsNum= 4; // 剩余赠送次数
+message S2CFriendAskPlayerListResponse {
+	repeated AskFriendInfo Players			= 1; // 申请列表
 }
 
-// 服务器通知好友状态
-message S2CFriendStateNotify {
-	int32 StateType 		= 1; // 0 更新  1 增加 
-	FriendInfo Info 		= 2; // 好友数据
+// 申请玩家列表增加通知
+message S2CFriendAskPlayerListAddNotify {
+	repeated AskFriendInfo PlayersAdd		= 1; // 列表
 }
 
-// 服务器通知好友请求
-message S2CFriendReqNotify {
-	FriendReq Req 			= 1;
+// 同意添加好友
+message C2SFriendAgreeRequest {
+	int32 PlayerId							= 1; // 玩家ID
 }
 
-// 客户端通过Id加好友
-message C2SAddFriendByPId {
-	int32 PlayerId 		= 1; // 玩家Id
+message S2CFriendAgreeResponse {
+	FriendInfo Friend                       = 1;
 }
 
-// 客户端通过昵称加好友
-message C2SAddFriendByName {
-	string Name 			= 1; // 玩家账号
+// 好友列表增加通知
+message S2CFriendListAddNotify {
+	repeated FriendInfo FriendsAdd			= 1;
 }
 
-// 服务器回复添加好友
-message S2CAddFriendResult {
-	int32 PlayerId 		= 1;
+// 拒绝添加好友
+message C2SFriendRefuseRequest {
+	int32 PlayerId							= 1;
 }
 
-// 客户端同意加好友
-message C2SAgreeFriend {
-	int32 PlayerId 		= 1; // 玩家Id
+message S2CFriendRefuseResponse {
+	int32 PlayerId							= 1;
 }
 
-// 服务器返回增加好友回复
-message S2CAgreeFriendResult {
-	int32 PlayerId 		= 1; // 好友玩家Id
-	string Name 			= 2; // 好友名称
-	int32 Score 			= 3; // 好友积分
-	int32 Level			= 4; // 等级
-	string Head			= 5; // 头像
-	int32 VipLevel		  	= 6; // VIP等级
-	int32 LastLogin		= 7; // 上次登陆时间
+// 删除好友
+message C2SFriendRemoveRequest {
+	int32 PlayerId							= 1;
 }
 
-// 客户端拒绝加好友
-message C2SRefuseFriend {
-	int32 PlayerId 		= 1; // 玩家Id
+message S2CFriendRemoveResponse {
+	int32 PlayerId							= 1;
 }
 
-// 服务器通知拒绝加好友
-message S2CRefuseFriendResult {
-	string Name 			= 1; // 对方名字
-	int32 PlayerId			= 2; // 对方ID
+// 被好友删除通知
+message S2CFriendRemovedNotify {
+	repeated int32 PlayerIds				= 1;
 }
 
-// 客户端删除好友
-message C2SRemoveFriend {
-	int32 PlayerId 		= 1; // 玩家id
-}
-
-// 服务器通知客户端删除好友
-message S2CRemoveFriendResult {
-	int32 PlayerId 		= 1; // 好友Id
-}
-
-// 赠送友情点
-message C2SGiveFriendPoints {
-	repeated int32 FriendId 		= 1;
-}
-
-message FriendPointsResult {
-	int32 FriendId 		= 1;
-	int32 Points 			= 2;
-	int32 Error			= 3; // 0成功  小于0表示错误码
-	int32 RemainSeconds	= 4; // 剩余友情点赠送时间
-	bool IsTodayGive		= 5; // 今天是否已赠送
-	int32 BackPoints		= 6; // 回馈友情点
-}
-
-message S2CGiveFriendPointsResult {
-	repeated FriendPointsResult PointsData = 1; // 赠送友情点数据
-	int32 LeftGivePointsNum 	   = 2; // 剩余赠送次数
-}
-
-// 收取友情点
-message C2SGetFriendPoints {
-	repeated int32 FriendId 		= 1;
-}
-message FriendPoints {
-	int32 FriendId 		= 1;
-	int32 Points 			= 2;
-}
-message S2CGetFriendPointsResult {
-	repeated FriendPoints PointsData = 1;
-}
-
-// 客户端给好友发送消息
-message C2SFriendChat {
-	int32 PlayerId = 1; // 玩家Id
-	bytes Content 	= 2; // 聊天内容
-}
-message S2CFriendChatResult {
-	int32 PlayerId = 1; // 玩家Id
-	bytes Content 	= 2; // 聊天内容
-}
-
-// 获取好友未读消息数量
-message C2SFriendGetUnreadMessageNum {
-	repeated int32 FriendIds 	= 1; // 好友ID
-}
-message FriendUnreadMessageNumData {
-	int32 FriendId     = 1; // 好友ID
-	int32 MessageNum 	= 2; // 未读消息数量
-}
-message S2CFriendGetUnreadMessageNumResult {
-	repeated FriendUnreadMessageNumData Data = 1;
-}
-
-// 拉取好友未读聊天消息
-message C2SFriendPullUnreadMessage {
-	int32 FriendId = 1; // 好友ID
-}
-message FriendChatData {
-	bytes Content 	= 1; // 内容
-	int32 SendTime = 2; // 发送时间
-}
-message S2CFriendPullUnreadMessageResult {
-	int32 FriendId 		= 1; // 好友ID
-	repeated FriendChatData Data 	= 2; // 聊天数据
-}
-
-// 确认聊天未读消息
-message C2SFriendConfirmUnreadMessage {
-	int32 FriendId  	= 1; // 好友ID
-	int32 MessageNum 	= 2; // 消息条数
-}
-message S2CFriendConfirmUnreadMessageResult {
-	int32 FriendId		= 1; // 好友ID
-	int32 MessageNum 	= 2; // 消息条数
-}
-
-// 客户端请求好友在线状态
-message C2SGetOnlineFriends {
-	int32 Key = 1; //  好友类型 1好友 2是关注 3是粉丝
-}
-
-// 服务器返回在线好友
-message S2CRetOnlineFriends {
-	repeated int32 PlayerIds = 1; // 在线好友Id
-	int32 Key = 2; //  好友类型 1好友 2是关注 3是粉丝
-}
-
-////////////////// shop ///////////////////////
-// 请求商店商品
-message C2SShopItems {
-	int32 shop_id = 1; // 商店ID
-}
-message S2CShopItem {
-	int32 item_id = 1; // 商店ID
-	int32 left_num = 2; //剩余数量
-	int32 remain_seconds = 3; // 剩余时间(秒)
-}
-message S2CShopItemsResult {
-	int32 shop_id = 1;
-	repeated S2CShopItem items = 2;
-}
-
-// 购买商店物品
-message C2SBuyShopItem {
-	int32 item_id 		= 1; // 商品ID
-	int32 item_num 	= 2; // 商品数量
-}
-
-// 购买返回的物品
-message S2CBuyShopItemResult {
-	int32 shop_id 			= 1; // 商店ID
-	int32 item_id 			= 2; // 商品ID
-	int32 item_num			= 3; // 商品数量
-	ItemInfo add_item 		= 4; // 买到的物品
-	//ResourceInfo cost_res 	= 5; // 花费的物品资源
-}
-// 通知客户端商店需要刷新
-message S2CShopNeedRefreshNotify {
-}
 ////////////////////////////////////////////////
 
 // ----------------------------------------------
