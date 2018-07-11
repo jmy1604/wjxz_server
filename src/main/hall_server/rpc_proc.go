@@ -102,8 +102,7 @@ func (this *R2H_FriendProc) AgreeAddFriend(args *rpc_common.R2H_AgreeAddFriend, 
 	}
 
 	d := &dbPlayerFriendData{}
-	d.FriendId = args.PlayerId
-	d.FriendName = args.PlayerName
+	d.PlayerId = args.PlayerId
 	p.db.Friends.Add(d)
 
 	reply.IsAgree = args.IsAgree

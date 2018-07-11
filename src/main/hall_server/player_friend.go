@@ -4,9 +4,12 @@ import (
 	"libs/log"
 	"libs/utils"
 	"main/rpc_common"
-	"main/table_config"
+	_ "main/table_config"
+	"math/rand"
 	_ "net/http"
 	"public_message/gen_go/client_message"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	_ "3p/code.google.com.protobuf/proto"
@@ -15,6 +18,118 @@ import (
 
 const FRIEND_UNREAD_MESSAGE_MAX_NUM int = 200
 const FRIEND_MESSAGE_MAX_LENGTH int = 200
+
+const MAX_FRIEND_RECOMMEND_PLAYER_NUM int32 = 10000
+
+type FriendRecommendMgr struct {
+	player_ids    map[int32]int32
+	players_array []int32
+	locker        *sync.RWMutex
+	add_chan      chan int32
+	to_end        int32
+}
+
+var friend_recommend_mgr FriendRecommendMgr
+
+func (this *FriendRecommendMgr) Init() {
+	this.player_ids = make(map[int32]int32)
+	this.players_array = make([]int32, MAX_FRIEND_RECOMMEND_PLAYER_NUM)
+	this.locker = &sync.RWMutex{}
+	this.add_chan = make(chan int32, 100)
+	this.to_end = 0
+}
+
+func (this *FriendRecommendMgr) CheckAndAddPlayer(player_id int32) bool {
+	p := player_mgr.GetPlayerById(player_id)
+	if p == nil {
+		return false
+	}
+
+	if _, o := this.player_ids[player_id]; o {
+		log.Warn("Player[%v] already added Friend Recommend mgr")
+		return false
+	}
+
+	var add_pos int32
+	num := int32(len(this.player_ids))
+	if num >= MAX_FRIEND_RECOMMEND_PLAYER_NUM {
+		add_pos = rand.Int31n(num)
+		// 删掉一个随机位置的
+		delete(this.player_ids, this.players_array[add_pos])
+		this.players_array[add_pos] = 0
+	} else {
+		add_pos = num
+	}
+
+	now_time := int32(time.Now().Unix())
+	if now_time-p.db.Info.GetLastLogout() > 24*3600*2 {
+		return false
+	}
+
+	if p.db.Friends.NumAll() >= global_config.FriendMaxNum {
+		return false
+	}
+
+	this.player_ids[player_id] = add_pos
+	this.players_array[add_pos] = player_id
+
+	log.Debug("Friend Recommend Manager add player[%v]", player_id)
+
+	return true
+}
+
+func (this *FriendRecommendMgr) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	last_check_remove_time := int32(time.Now().Unix())
+	for {
+		if atomic.LoadInt32(&this.to_end) > 0 {
+			break
+		}
+		// 处理操作队列
+		is_break := false
+		for !is_break {
+			select {
+			case player_id, ok := <-this.add_chan:
+				{
+					if !ok {
+						log.Error("conn timer wheel op chan receive invalid !!!!!")
+						return
+					}
+
+					this.CheckAndAddPlayer(player_id)
+				}
+			default:
+				{
+					is_break = true
+				}
+			}
+		}
+
+		now_time := int32(time.Now().Unix())
+		if now_time-last_check_remove_time >= 60*10 {
+			player_num := len(this.player_ids)
+			for i := 0; i < player_num; i++ {
+				p := player_mgr.GetPlayerById(this.players_array[i])
+				if p == nil {
+					continue
+				}
+				if now_time-p.db.Info.GetLastLogout() >= 2*24*3600 {
+					delete(this.player_ids, this.players_array[i])
+					this.players_array[i] = this.players_array[player_num-1]
+					player_num -= 1
+				}
+			}
+			last_check_remove_time = now_time
+		}
+
+		time.Sleep(time.Second * 1)
+	}
+}
 
 // ----------------------------------------------------------------------------
 
@@ -44,13 +159,6 @@ func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CFrie
 }
 
 func (this *dbPlayerFriendColumn) GetAviFriendId() int32 {
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.GetAviFriendId")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	for i := int32(1); i <= global_config.MaxFriendNum; i++ {
-		if nil == this.m_data[i] {
-			return i
-		}
-	}
 	return 0
 }
 
@@ -63,8 +171,8 @@ func (this dbPlayerFriendColumn) TryAddFriend(new_friend *dbPlayerFriendData) {
 	this.m_row.m_lock.UnSafeLock("dbPlayerFriendColumn.TryAddFriend")
 	defer this.m_row.m_lock.UnSafeUnlock()
 
-	if nil == this.m_data[new_friend.FriendId] {
-		this.m_data[new_friend.FriendId] = new_friend
+	if nil == this.m_data[new_friend.PlayerId] {
+		this.m_data[new_friend.PlayerId] = new_friend
 		this.m_changed = true
 	}
 
@@ -128,7 +236,6 @@ func (this *dbPlayerFriendReqColumn) CheckAndAdd(player_id int32, player_name st
 
 	d = &dbPlayerFriendReqData{}
 	d.PlayerId = player_id
-	d.PlayerName = player_name
 	this.m_data[player_id] = d
 	this.m_changed = true
 	return 1
@@ -155,7 +262,7 @@ func (this *dbPlayerFriendColumn) GetAllIds() (ret_ids []int32) {
 
 	ret_ids = make([]int32, 0, len(this.m_data))
 	for _, v := range this.m_data {
-		ret_ids = append(ret_ids, v.FriendId)
+		ret_ids = append(ret_ids, v.PlayerId)
 	}
 	return
 }
@@ -363,29 +470,14 @@ func (this *Player) agree_add_friend(id int32) int32 {
 		}
 
 		// 加到自己的好友列表
-		data.FriendId = id
-		data.FriendName = result.AgreePlayerName
-		data.Level = result.AgreePlayerLevel
-		data.VipLevel = result.AgreePlayerVipLevel
-		data.Head = result.AgreePlayerHead
-		data.LastLogin = result.AgreePlayerLastLogin
+		data.PlayerId = id
 	} else {
 		// 加到对方的好友列表
-		data.FriendId = this.Id
-		data.FriendName = this.db.GetName()
-		data.Level = this.db.Info.GetLvl()
-		data.VipLevel = this.db.Info.GetVipLvl()
-		data.Head = this.db.Info.GetIcon()
-		data.LastLogin = this.db.Info.GetLastLogin()
+		data.PlayerId = this.Id
 		agree_player.db.Friends.Add(&data)
 
 		// 加到自己的好友列表
-		data.FriendId = id
-		data.FriendName = agree_player.db.GetName()
-		data.Level = agree_player.db.Info.GetLvl()
-		data.VipLevel = agree_player.db.Info.GetVipLvl()
-		data.Head = agree_player.db.Info.GetIcon()
-		data.LastLogin = agree_player.db.Info.GetLastLogin()
+		data.PlayerId = id
 	}
 
 	this.db.Friends.Add(&data)
@@ -398,7 +490,7 @@ func (this *Player) agree_add_friend(id int32) int32 {
 	response.Name = proto.String(data.FriendName)
 	this.Send(response)*/
 
-	log.Debug("Player[%v] agree add friend request of player[%v][%v]", this.Id, id, data.FriendName)
+	log.Debug("Player[%v] agree add friend request of player[%v][%v]", this.Id, id)
 
 	return 1
 }
@@ -447,7 +539,6 @@ func (this *Player) remove_friend(player_id int32) int32 {
 }
 
 func (this *Player) refresh_friend_give_points(friend_id int32) bool {
-	this.db.FriendPoints.SetIsTodayGive(friend_id, 0)
 	return true
 }
 
@@ -457,24 +548,24 @@ func (this *Player) check_friends_give_points_refresh() (remain_seconds int32) {
 		return
 	}
 
-	rt := &global_config.FriendGivePointsRefreshTime
-	remain_seconds = utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, this.db.FriendRelative.GetLastRefreshTime())
+	//rt := &global_config.FriendGivePointsRefreshTime
+	//remain_seconds = utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, this.db.FriendRelative.GetLastRefreshTime())
 
-	if remain_seconds <= 0 {
-		/*for i := 0; i < len(friends); i++ {
-			friend := player_mgr.GetPlayerById(friends[i])
-			if friend != nil {
-				friend.refresh_friend_give_points(this.Id)
-			} else {
-				result := this.rpc_call_refresh_give_friend_point(friends[i])
-				if result == nil {
-					log.Error("Player[%v] to refresh friend[%v] give points error", this.Id, friends[i])
-				}
+	//if remain_seconds <= 0 {
+	/*for i := 0; i < len(friends); i++ {
+		friend := player_mgr.GetPlayerById(friends[i])
+		if friend != nil {
+			friend.refresh_friend_give_points(this.Id)
+		} else {
+			result := this.rpc_call_refresh_give_friend_point(friends[i])
+			if result == nil {
+				log.Error("Player[%v] to refresh friend[%v] give points error", this.Id, friends[i])
 			}
-		}*/
-		this.db.FriendRelative.SetLastRefreshTime(int32(time.Now().Unix()))
-		this.db.FriendRelative.SetGiveNumToday(0)
-	}
+		}
+	}*/
+	//this.db.FriendRelative.SetLastRefreshTime(int32(time.Now().Unix()))
+	//this.db.FriendRelative.SetGiveNumToday(0)
+	//}
 
 	return
 }
@@ -491,112 +582,12 @@ func (this *Player) get_friend_list(get_foster bool) int32 {
 }
 
 func (this *Player) store_friend_points(friend_id int32) (err int32, last_save int32, remain_seconds int32) {
-	last_save, o := this.db.FriendPoints.GetLastGiveTime(friend_id)
-	rt := &global_config.FriendGivePointsRefreshTime
-	remain_seconds = utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, last_save)
-	if remain_seconds > 0 {
-		err = int32(msg_client_message.E_ERR_FRIEND_GIVE_POINTS_FREQUENTLY)
-		return
-	}
 
-	now_time := time.Now()
-	if !o {
-		var data dbPlayerFriendPointData
-		data.FromPlayerId = friend_id
-		data.GivePoints = 1 //global_id.GiveFriendPointsOnce_30
-		data.LastGiveTime = int32(now_time.Unix())
-		//data.IsTodayGive = 1
-		this.db.FriendPoints.Add(&data)
-	} else {
-		this.db.FriendPoints.SetGivePoints(friend_id, 1 /*global_id.GiveFriendPointsOnce_30*/)
-		this.db.FriendPoints.SetLastGiveTime(friend_id, int32(now_time.Unix()))
-		//this.db.FriendPoints.SetIsTodayGive(friend_id, 1)
-	}
-	last_save = int32(now_time.Unix())
-	remain_seconds = 1 //global_id.GiveFriendPointsOnce_30
-	log.Debug("!!!!!!!! err[%v] last_save[%v] remain_seconds[%v]", err, last_save, remain_seconds)
 	return
 }
 
 func (this *Player) give_friend_points(friend_list []int32) int32 {
 	this.check_friends_give_points_refresh()
-
-	if int32(len(friend_list)) > 1 /*global_id.GiveFriendPointsPlayersCount_31*/ {
-		return int32(msg_client_message.E_ERR_FRIEND_TOO_MANY_FRIEND_GIVE_POINTS)
-	}
-
-	today_num := this.db.FriendRelative.GetGiveNumToday()
-	today_max_num := global_config.FriendGivePointsPlayerNumOneDay
-	if today_num >= today_max_num {
-		log.Error("Player[%v] give friend points num is max", this.Id)
-		return int32(msg_client_message.E_ERR_FRIEND_GIVE_POINTS_MAX_NUM_LIMIT)
-	}
-
-	n := int32(0)
-	/*points_result := make([]*msg_client_message.FriendPointsResult, len(friend_list))
-	for _, id := range friend_list {
-		if id == this.Id {
-			continue
-		}
-		if !this.db.Friends.HasIndex(id) {
-			log.Error("Player[%v] no friend[%v]", this.Id, id)
-			continue
-		}
-
-		if today_num >= today_max_num {
-			log.Warn("Player[%v] give friend[%v] points today_num[%v] >= max_num[%v]", this.Id, id, today_num, today_max_num)
-			break
-		}
-
-		points_result[n] = &msg_client_message.FriendPointsResult{}
-		var err, last_save, remain_seconds int32
-		p := player_mgr.GetPlayerById(id)
-		if p != nil {
-			err, last_save, remain_seconds = p.store_friend_points(this.Id)
-		} else {
-			result := this.rpc_give_friend_points(id)
-			if result == nil {
-				log.Error("Player[%v] remote rpc give friend[%v] points failed", this.Id, id)
-				continue
-			}
-			err = result.Error
-			last_save = result.LastSave
-			remain_seconds = result.RemainSeconds
-		}
-
-		if err < 0 {
-			log.Warn("Player[%v] give friend[%v] points error[%v]", this.Id, id, err)
-		} else {
-			today_num = this.db.FriendRelative.IncbyGiveNumToday(1)
-			this.AddFriendPoints(global_id.GiveFriendPointsOnce_30, "back_points", "friend")
-		}
-		this.db.Friends.SetLastGivePointsTime(id, last_save)
-
-		points_result[n].FriendId = proto.Int32(id)
-		points_result[n].Error = proto.Int32(err)
-		points_result[n].RemainSeconds = proto.Int32(remain_seconds)
-		//points_result[n].IsTodayGive = proto.Bool(true)
-		if err >= 0 {
-			points_result[n].Points = proto.Int32(global_id.GiveFriendPointsOnce_30)
-			points_result[n].BackPoints = proto.Int32(global_id.GiveFriendPointsOnce_30)
-		} else {
-			points_result[n].Points = proto.Int32(0)
-			points_result[n].BackPoints = proto.Int32(0)
-		}
-
-		n += 1
-	}
-
-	response := &msg_client_message.S2CGiveFriendPointsResult{
-		PointsData:        points_result[:n],
-		LeftGivePointsNum: proto.Int32(global_config.FriendGivePointsPlayerNumOneDay - this.db.FriendRelative.GetGiveNumToday()),
-	}
-
-	this.Send(response)*/
-
-	this.TaskUpdate(table_config.TASK_FINISH_GIVE_FRIEND_POINT, false, 0, n)
-
-	//log.Debug("Player[%v] give friend points: %v", this.Id, points_result)
 
 	return 1
 }
@@ -604,22 +595,6 @@ func (this *Player) give_friend_points(friend_list []int32) int32 {
 func (this *Player) get_friend_points(friend_list []int32) int32 {
 	this.check_friends_give_points_refresh()
 
-	/*points_result := make([]*msg_client_message.FriendPoints, len(friend_list))
-	for i, id := range friend_list {
-		points_result[i] = &msg_client_message.FriendPoints{}
-		points, o := this.db.FriendPoints.GetGivePoints(id)
-		if o && points > 0 {
-			this.AddFriendPoints(points, "from_friend", "friend")
-			this.db.FriendPoints.SetGivePoints(id, 0)
-		}
-		points_result[i].FriendId = proto.Int32(id)
-		points_result[i].Points = proto.Int32(points)
-	}
-	response := &msg_client_message.S2CGetFriendPointsResult{}
-	response.PointsData = points_result
-	this.Send(response)
-
-	log.Debug("Player[%v] get friend points: %v", this.Id, points_result)*/
 	return 1
 }
 

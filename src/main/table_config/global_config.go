@@ -69,8 +69,12 @@ type GlobalConfig struct {
 	ActiveStageChallengeNumOfDay int32      // 活动副本重置挑战次数
 	ActiveStageChallengeNumPrice int32      // 活动副本挑战次数购买价格
 	ActiveStageLoveHeartLimit    int32      // 活动副本每天获得爱心上限
-
-	MaxFriendNum int32
+	FriendMaxNum                 int32      // 好友最大数量
+	FriendRecommendNum           int32      // 好友推荐数
+	FriendPointItemId            int32      // 友情点ID
+	FriendStaminaItemId          int32      // 友情体力ID
+	FriendStaminaLimit           int32      // 友情体力上限
+	FriendRefreshTime            string     // 好友刷新时间
 
 	GooglePayUrl       string
 	FaceBookPayUrl     string

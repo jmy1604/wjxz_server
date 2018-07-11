@@ -196,6 +196,7 @@ message PlayerShopItem{
 	optional int32 Id=1;
 	optional int32 ShopItemId=2;
 	optional int32 LeftNum=3;
+	optional int32 ShopId=4;
 }
 
 message PlayerShopItemList{
@@ -230,6 +231,54 @@ message PlayerAssistRole{
 
 message PlayerAssistRoleList{
 	repeated PlayerAssistRole List=1;
+}
+
+message PlayerFriendCommon{
+	optional int32 HasBoss=1;
+}
+
+message PlayerFriend{
+	optional int32 PlayerId=1;
+	optional int32 LastGivePointsTime=7;
+}
+
+message PlayerFriendList{
+	repeated PlayerFriend List=1;
+}
+
+message PlayerFriendRecommend{
+	optional int32 PlayerId=1;
+}
+
+message PlayerFriendRecommendList{
+	repeated PlayerFriendRecommend List=1;
+}
+
+message PlayerFriendReq{
+	optional int32 PlayerId=1;
+}
+
+message PlayerFriendReqList{
+	repeated PlayerFriendReq List=1;
+}
+
+message PlayerFriendPoint{
+	optional int32 FromPlayerId=1;
+	optional int32 GivePoints=2;
+}
+
+message PlayerFriendPointList{
+	repeated PlayerFriendPoint List=1;
+}
+
+message PlayerFriendBoss{
+	optional int32 MonsterId=1;
+	optional int32 MonsterPos=2;
+	optional int32 MonsterHpPercent=3;
+}
+
+message PlayerFriendBossList{
+	repeated PlayerFriendBoss List=1;
 }
 
 message PlayerDialyTask{
@@ -285,47 +334,6 @@ message PlayerGuides{
 
 message PlayerGuidesList{
 	repeated PlayerGuides List=1;
-}
-
-message PlayerFriendRelative{
-	optional int32 LastGiveFriendPointsTime=1;
-	optional int32 GiveNumToday=2;
-	optional int32 LastRefreshTime=3;
-}
-
-message PlayerFriend{
-	optional int32 FriendId=1;
-	optional string FriendName=2;
-	optional string Head=3;
-	optional int32 Level=4;
-	optional int32 VipLevel=5;
-	optional int32 LastLogin=6;
-	optional int32 LastGivePointsTime=7;
-}
-
-message PlayerFriendList{
-	repeated PlayerFriend List=1;
-}
-
-message PlayerFriendReq{
-	optional int32 PlayerId=1;
-	optional string PlayerName=2;
-	optional int32 ReqUnix=3;
-}
-
-message PlayerFriendReqList{
-	repeated PlayerFriendReq List=1;
-}
-
-message PlayerFriendPoint{
-	optional int32 FromPlayerId=1;
-	optional int32 GivePoints=2;
-	optional int32 LastGiveTime=3;
-	optional int32 IsTodayGive=4;
-}
-
-message PlayerFriendPointList{
-	repeated PlayerFriendPoint List=1;
 }
 
 message PlayerFriendChatUnreadId{

@@ -383,7 +383,8 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"ShopItemId"},
-						{"Type":"int32","Index":3,"Name":"LeftNum","Incby":true}						
+						{"Type":"int32","Index":3,"Name":"LeftNum","Incby":true},
+						{"Type":"int32","Index":4,"Name":"ShopId"}			
 					]
 				},
 				{
@@ -438,6 +439,76 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"RoleId"}
+					]
+				},
+				{
+					"DBColumnName":"FriendCommon",
+					"InUse":true,
+					"ColumnName":"FriendCommon",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"HasBoss"}
+					]
+				},
+				{
+					"DBColumnName":"Friend",
+					"InUse":true,
+					"ColumnName":"Friend",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"PlayerId"},
+						{"Type":"int32","Index":7,"Name":"LastGivePointsTime"}
+					]
+				},
+				{
+					"DBColumnName":"FriendRecommend",
+					"InUse":true,
+					"ColumnName":"FriendRecommend",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"PlayerId"}
+					]
+				},
+				{
+					"DBColumnName":"FriendAsk",
+					"InUse":true,
+					"ColumnName":"FriendReq",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"PlayerId"}
+					]
+				},
+				{
+					"DBColumnName":"FriendPoint",
+					"InUse":true,
+					"ColumnName":"FriendPoint",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"FromPlayerId"},
+						{"Type":"int32","Index":2,"Name":"GivePoints"}
+					]
+				},
+				{
+					"DBColumnName":"FriendBoss",
+					"InUse":true,
+					"ColumnName":"FriendBoss",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"MonsterId"},
+						{"Type":"int32","Index":2,"Name":"MonsterPos"},
+						{"Type":"int32","Index":3,"Name":"MonsterHpPercent"}
 					]
 				},
 				{
@@ -511,63 +582,6 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"GuideId"},
 						{"Type":"int32","Index":2,"Name":"SetUnix"}
-					]
-				},
-				{
-					"DBColumnName":"FriendRelative",
-					"InUse":true,
-					"ColumnName":"FriendRelative",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"LastGiveFriendPointsTime"},
-						{"Type":"int32","Index":2,"Name":"GiveNumToday","Incby":true},
-						{"Type":"int32","Index":3,"Name":"LastRefreshTime"}
-					]
-				},
-				{
-					"DBColumnName":"Friend",
-					"InUse":true,
-					"ColumnName":"Friend",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"FriendId"},
-						{"Type":"string","Index":2,"Name":"FriendName"},
-						{"Type":"string","Index":3,"Name":"Head"},
-						{"Type":"int32","Index":4,"Name":"Level"},
-						{"Type":"int32","Index":5,"Name":"VipLevel"},
-						{"Type":"int32","Index":6,"Name":"LastLogin"},
-						{"Type":"int32","Index":7,"Name":"LastGivePointsTime"}
-					]
-				},
-				{
-					"DBColumnName":"FriendReq",
-					"InUse":true,
-					"ColumnName":"FriendReq",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"PlayerId"},
-						{"Type":"string","Index":2,"Name":"PlayerName"},
-						{"Type":"int32","Index":3,"Name":"ReqUnix"}
-					]
-				},
-				{
-					"DBColumnName":"FriendPoint",
-					"InUse":true,
-					"ColumnName":"FriendPoint",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"FromPlayerId"},
-						{"Type":"int32","Index":2,"Name":"GivePoints"},
-						{"Type":"int32","Index":3,"Name":"LastGiveTime"},
-						{"Type":"int32","Index":4,"Name":"IsTodayGive"}
 					]
 				},
 				{

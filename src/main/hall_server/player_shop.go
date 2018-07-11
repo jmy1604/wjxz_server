@@ -13,10 +13,6 @@ import (
 )
 
 func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
-	if this.db.ShopItems.NumAll() > 0 {
-		this.db.ShopItems.Clear()
-	}
-
 	if !this.db.Shops.HasIndex(shop.Id) {
 		this.db.Shops.Add(&dbPlayerShopData{
 			Id: shop.Id,
@@ -32,11 +28,16 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 				return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID)
 			}
 			curr_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
-			this.db.ShopItems.Add(&dbPlayerShopItemData{
-				Id:         curr_id,
-				ShopItemId: shop_item.Id,
-				LeftNum:    shop_item.StockNum,
-			})
+			if this.db.ShopItems.HasIndex(curr_id) {
+				this.db.ShopItems.SetShopItemId(curr_id, shop_item.Id)
+				this.db.ShopItems.SetLeftNum(curr_id, shop_item.StockNum)
+			} else {
+				this.db.ShopItems.Add(&dbPlayerShopItemData{
+					Id:         curr_id,
+					ShopItemId: shop_item.Id,
+					LeftNum:    shop_item.StockNum,
+				})
+			}
 		}
 	} else {
 		// 商店所有物品都刷
@@ -47,11 +48,16 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 		}
 		for _, item := range items_shop {
 			curr_id := this.db.Shops.IncbyCurrAutoId(shop.Id, 1)
-			this.db.ShopItems.Add(&dbPlayerShopItemData{
-				Id:         curr_id,
-				ShopItemId: item.Id,
-				LeftNum:    item.StockNum,
-			})
+			if this.db.ShopItems.HasIndex(curr_id) {
+				this.db.ShopItems.SetShopItemId(curr_id, item.Id)
+				this.db.ShopItems.SetLeftNum(curr_id, item.StockNum)
+			} else {
+				this.db.ShopItems.Add(&dbPlayerShopItemData{
+					Id:         curr_id,
+					ShopItemId: item.Id,
+					LeftNum:    item.StockNum,
+				})
+			}
 		}
 	}
 
@@ -61,18 +67,18 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (remain_secs int32, cost_res []int32) {
 	now_time := int32(time.Now().Unix())
 	last_refresh, _ := this.db.Shops.GetLastFreeRefreshTime(shop.Id)
-	if last_refresh == 0 {
-		this._refresh_shop(shop)
+	if shop.AutoRefreshTime == "" {
+		if last_refresh == 0 {
+			this._refresh_shop(shop)
+			this.db.Shops.SetLastFreeRefreshTime(shop.Id, now_time)
+		}
 	}
+
 	if shop.FreeRefreshTime > 0 {
 		remain_secs = shop.FreeRefreshTime - (now_time - last_refresh)
 		if remain_secs < 0 {
 			remain_secs = 0
 		}
-		// 免费
-		/*if remain_secs == 0 {
-			this.db.Shops.SetLastFreeRefreshTime(shop.Id, now_time)
-		}*/
 	} else {
 		remain_secs = -1
 	}
@@ -84,6 +90,9 @@ func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs 
 	var shop_items []*msg_client_message.ShopItem
 	item_ids := this.db.ShopItems.GetAllIndex()
 	for _, id := range item_ids {
+		if id/10000 != shop.Id {
+			continue
+		}
 		item_id, _ := this.db.ShopItems.GetShopItemId(id)
 		shop_item_tdata := shopitem_table_mgr.GetItem(item_id)
 		if shop_item_tdata == nil {
@@ -142,22 +151,18 @@ func (this *Player) check_shop_auto_refresh(shop *table_config.XmlShopItem, send
 		this.db.Shops.Add(&dbPlayerShopData{
 			Id: shop.Id,
 		})
-		this.db.Shops.SetLastAutoRefreshTime(shop.Id, now_time)
-		last_refresh = 0
-	}
-	if !utils.CheckDayTimeArrival(last_refresh, shop.AutoRefreshTime) {
-		return false
+	} else {
+		if !utils.CheckDayTimeArrival(last_refresh, shop.AutoRefreshTime) {
+			return false
+		}
 	}
 
-	res := this._refresh_shop(shop)
-	if res < 0 {
-		return false
-	}
+	this._refresh_shop(shop)
 
 	this.db.Shops.SetLastAutoRefreshTime(shop.Id, now_time)
-	this.send_shop(shop.Id)
 
 	if send_notify {
+		this.send_shop(shop.Id)
 		notify := &msg_client_message.S2CShopAutoRefreshNotify{
 			ShopId: shop.Id,
 		}
@@ -178,7 +183,7 @@ func (this *Player) send_shop(shop_id int32) int32 {
 	}
 
 	if this.check_shop_auto_refresh(shop_tdata, false) {
-		return 1
+		log.Debug("!!!!!!!!!!!!!!!!!! Player[%v] shop[%v] refreshed", this.Id, shop_id)
 	}
 
 	free_remain_secs, _ := this.get_shop_free_refresh_info(shop_tdata)

@@ -46,7 +46,12 @@
 	"ActiveStageChallengeNumPrice": 100,
 	"ActiveStageLoveHeartLimit": 10,
 	
-	"MaxFriendNum":200,
+	"FriendMaxNum": 30,
+	"FriendRecommendNum": 10,
+	"FriendPointItemId": 9,
+	"FriendStaminaItemId": 12,
+	"FriendStaminaLimit": 100,
+	"FriendRefreshTime": "00:00:00",
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
 	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
