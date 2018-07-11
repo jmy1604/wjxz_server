@@ -803,8 +803,8 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		}
 	} else {
 		if target.attrs[ATTR_SHIELD] < target_damage {
-			target.attrs[ATTR_SHIELD] = 0
 			target_damage -= target.attrs[ATTR_SHIELD]
+			target.attrs[ATTR_SHIELD] = 0
 		} else {
 			target.attrs[ATTR_SHIELD] -= target_damage
 			target_damage = 0
