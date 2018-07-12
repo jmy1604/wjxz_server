@@ -302,7 +302,9 @@ func (this *HallServer) Run() {
 		go conn_timer_wheel.Run()
 	}
 
-	arena_season_mgr.Run()
+	go arena_season_mgr.Run()
+
+	go friend_recommend_mgr.Run()
 
 	for {
 		select {

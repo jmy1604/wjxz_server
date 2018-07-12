@@ -64,12 +64,12 @@ func (this *MsgHandlerMgr) Init() bool {
 }
 
 func (this *MsgHandlerMgr) SetMsgHandler(msg_code uint16, msg_handler CLIENT_MSG_HANDLER) {
-	log.Info("set msg [%d] handler !", msg_code)
+	//log.Info("set msg [%d] handler !", msg_code)
 	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ msg_handler: msg_handler, if_player_msg: false}
 }
 
 func (this *MsgHandlerMgr) SetPlayerMsgHandler(msg_code uint16, msg_handler CLIENT_PLAYER_MSG_HANDLER) {
-	log.Info("set msg [%d] handler !", msg_code)
+	//log.Info("set msg [%d] handler !", msg_code)
 	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ player_msg_handler: msg_handler, if_player_msg: true}
 }
 

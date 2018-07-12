@@ -254,12 +254,12 @@ message PlayerFriendRecommendList{
 	repeated PlayerFriendRecommend List=1;
 }
 
-message PlayerFriendReq{
+message PlayerFriendAsk{
 	optional int32 PlayerId=1;
 }
 
-message PlayerFriendReqList{
-	repeated PlayerFriendReq List=1;
+message PlayerFriendAskList{
+	repeated PlayerFriendAsk List=1;
 }
 
 message PlayerFriendPoint{

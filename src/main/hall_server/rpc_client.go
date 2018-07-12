@@ -468,7 +468,7 @@ func (this *Player) rpc_friend_chat(player_id int32, message []byte) (result *rp
 
 // rpc请求 获取好友的关卡数据
 func (p *Player) rpc_get_friends_stage_info(stage_id int32) (result *rpc_common.H2R_FriendsStagePassDataResult) {
-	ids := p.db.Friends.GetAllIds()
+	/*ids := p.db.Friends.GetAllIds()
 	if ids == nil || len(ids) == 0 {
 		return
 	}
@@ -487,7 +487,7 @@ func (p *Player) rpc_get_friends_stage_info(stage_id int32) (result *rpc_common.
 		log.Error("RPC调用[%v]失败, err:%v", proc_string, err.Error())
 		return nil
 	}
-	log.Info("RPC调用[%v]成功", proc_string)
+	log.Info("RPC调用[%v]成功", proc_string)*/
 	return result
 }
 

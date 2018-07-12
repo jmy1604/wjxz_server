@@ -87,35 +87,33 @@ type Player struct {
 	total_msg_data_len int32
 	b_base_prop_chg    bool
 
-	used_drop_ids map[int32]int32 // 抽卡掉落ID统计
-
-	team_member_mgr      map[int32]*TeamMember                 // 成员map
-	tmp_teams            map[int32][]int32                     // 临时阵容，缓存爬塔活动等进攻阵容
-	attack_team          *BattleTeam                           // PVP进攻阵型
-	campaign_team        *BattleTeam                           // PVE战役阵型
-	tower_team           *BattleTeam                           // PVE爬塔阵型
-	active_stage_team    *BattleTeam                           // PVE活动关卡阵型
-	defense_team         *BattleTeam                           // PVP防守阵型
-	use_defense          int32                                 // 是否正在使用防守阵型
-	target_stage_team    *BattleTeam                           // PVE关卡防守阵型
-	stage_id             int32                                 // 关卡ID
-	stage_wave           int32                                 // 当前关卡怪物第几波
-	roles_power          map[int32]int32                       // 角色战力
-	roles_power_max_data map[int32][]*table_config.XmlItemItem // 角色战力最高的装备
-
-	battle_record_list  []int32 // 战斗录像，按时间排序
-	battle_record_count int32   // 录像数
-
-	roles_id_change_info IdChangeInfo    // 角色增删更新
-	items_changed_info   map[int32]int32 // 物品增删更新
-	tmp_cache_items      map[int32]int32 // 用于临时缓存物品
-	is_handbook_adds     bool            // 是否新增角色图鉴
-	states_changed       map[int32]int32 // 提示状态变化
-	new_mail_list_locker *sync.Mutex     // 新邮件列表锁
-	new_mail_ids         []int32         // 新邮件ID列表
-
-	tmp_left_slot_equip_id int32 // 左槽升级临时保存
-	already_upgrade        bool  // 一键合成
+	used_drop_ids          map[int32]int32                       // 抽卡掉落ID统计
+	team_member_mgr        map[int32]*TeamMember                 // 成员map
+	tmp_teams              map[int32][]int32                     // 临时阵容，缓存爬塔活动等进攻阵容
+	attack_team            *BattleTeam                           // PVP进攻阵型
+	campaign_team          *BattleTeam                           // PVE战役阵型
+	tower_team             *BattleTeam                           // PVE爬塔阵型
+	active_stage_team      *BattleTeam                           // PVE活动关卡阵型
+	defense_team           *BattleTeam                           // PVP防守阵型
+	use_defense            int32                                 // 是否正在使用防守阵型
+	target_stage_team      *BattleTeam                           // PVE关卡防守阵型
+	stage_id               int32                                 // 关卡ID
+	stage_wave             int32                                 // 当前关卡怪物第几波
+	roles_power            map[int32]int32                       // 角色战力
+	roles_power_max_data   map[int32][]*table_config.XmlItemItem // 角色战力最高的装备
+	battle_record_list     []int32                               // 战斗录像，按时间排序
+	battle_record_count    int32                                 // 录像数
+	roles_id_change_info   IdChangeInfo                          // 角色增删更新
+	items_changed_info     map[int32]int32                       // 物品增删更新
+	tmp_cache_items        map[int32]int32                       // 用于临时缓存物品
+	is_handbook_adds       bool                                  // 是否新增角色图鉴
+	states_changed         map[int32]int32                       // 提示状态变化
+	new_mail_list_locker   *sync.Mutex                           // 新邮件列表锁
+	new_mail_ids           []int32                               // 新邮件ID列表
+	tmp_left_slot_equip_id int32                                 // 左槽升级临时保存
+	already_upgrade        bool                                  // 一键合成
+	friend_ask_add         []int32                               // 增加的好友申请
+	friend_add             []int32                               // 增加的好友
 
 	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data PlayerAnouncementData // 公告缓存数据
@@ -315,6 +313,8 @@ func (this *Player) OnLogin() {
 	gm_command_mgr.OnPlayerLogin(this)
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
+	friend_recommend_mgr.AddPlayer(this.Id)
+	log.Info("Player[%v] login", this.Id)
 }
 
 func (this *Player) OnLogout() {

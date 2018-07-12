@@ -1881,6 +1881,12 @@ func fight_active_stage_cmd(p *Player, args []string) int32 {
 	return p.fight_active_stage(int32(active_stage_id))
 }
 
+func friend_recommend_cmd(p *Player, args []string) int32 {
+	player_ids := friend_recommend_mgr.Random(p.Id)
+	log.Debug("Recommended friend ids: %v", player_ids)
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1948,6 +1954,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"item_onekey_upgrade": item_onekey_upgrade_cmd,
 	"active_stage_data":   active_stage_data_cmd,
 	"fight_active_stage":  fight_active_stage_cmd,
+	"friend_recommend":    friend_recommend_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

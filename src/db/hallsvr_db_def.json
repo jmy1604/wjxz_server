@@ -478,7 +478,7 @@
 				{
 					"DBColumnName":"FriendAsk",
 					"InUse":true,
-					"ColumnName":"FriendReq",
+					"ColumnName":"FriendAsk",
 					"Preload":true,
 					"Map":true,
 					"AutoIndex":false,

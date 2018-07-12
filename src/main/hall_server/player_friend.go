@@ -2,12 +2,13 @@ package main
 
 import (
 	"libs/log"
-	"libs/utils"
-	"main/rpc_common"
+	_ "libs/utils"
+	_ "main/rpc_common"
 	_ "main/table_config"
 	"math/rand"
 	_ "net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -16,8 +17,8 @@ import (
 	_ "github.com/golang/protobuf/proto"
 )
 
-const FRIEND_UNREAD_MESSAGE_MAX_NUM int = 200
-const FRIEND_MESSAGE_MAX_LENGTH int = 200
+//const FRIEND_UNREAD_MESSAGE_MAX_NUM int = 200
+//const FRIEND_MESSAGE_MAX_LENGTH int = 200
 
 const MAX_FRIEND_RECOMMEND_PLAYER_NUM int32 = 10000
 
@@ -35,8 +36,13 @@ func (this *FriendRecommendMgr) Init() {
 	this.player_ids = make(map[int32]int32)
 	this.players_array = make([]int32, MAX_FRIEND_RECOMMEND_PLAYER_NUM)
 	this.locker = &sync.RWMutex{}
-	this.add_chan = make(chan int32, 100)
+	this.add_chan = make(chan int32, 10000)
 	this.to_end = 0
+}
+
+func (this *FriendRecommendMgr) AddPlayer(player_id int32) {
+	this.add_chan <- player_id
+	log.Debug("Friend Recommend Manager to add player[%v]", player_id)
 }
 
 func (this *FriendRecommendMgr) CheckAndAddPlayer(player_id int32) bool {
@@ -46,7 +52,7 @@ func (this *FriendRecommendMgr) CheckAndAddPlayer(player_id int32) bool {
 	}
 
 	if _, o := this.player_ids[player_id]; o {
-		log.Warn("Player[%v] already added Friend Recommend mgr")
+		log.Warn("Player[%v] already added Friend Recommend mgr", player_id)
 		return false
 	}
 
@@ -62,7 +68,7 @@ func (this *FriendRecommendMgr) CheckAndAddPlayer(player_id int32) bool {
 	}
 
 	now_time := int32(time.Now().Unix())
-	if now_time-p.db.Info.GetLastLogout() > 24*3600*2 {
+	if now_time-p.db.Info.GetLastLogout() > 24*3600*2 && p.is_logout {
 		return false
 	}
 
@@ -73,7 +79,7 @@ func (this *FriendRecommendMgr) CheckAndAddPlayer(player_id int32) bool {
 	this.player_ids[player_id] = add_pos
 	this.players_array[add_pos] = player_id
 
-	log.Debug("Friend Recommend Manager add player[%v]", player_id)
+	log.Debug("Friend Recommend Manager add player[%v], total count[%v], player_ids: %v, players_array: %v", player_id, len(this.player_ids), this.player_ids, this.players_array[:len(this.player_ids)])
 
 	return true
 }
@@ -100,7 +106,6 @@ func (this *FriendRecommendMgr) Run() {
 						log.Error("conn timer wheel op chan receive invalid !!!!!")
 						return
 					}
-
 					this.CheckAndAddPlayer(player_id)
 				}
 			default:
@@ -112,18 +117,20 @@ func (this *FriendRecommendMgr) Run() {
 
 		now_time := int32(time.Now().Unix())
 		if now_time-last_check_remove_time >= 60*10 {
+			this.locker.Lock()
 			player_num := len(this.player_ids)
 			for i := 0; i < player_num; i++ {
 				p := player_mgr.GetPlayerById(this.players_array[i])
 				if p == nil {
 					continue
 				}
-				if now_time-p.db.Info.GetLastLogout() >= 2*24*3600 {
+				if (now_time-p.db.Info.GetLastLogout() >= 2*24*3600 && p.is_logout) || p.db.Friends.NumAll() >= global_config.FriendMaxNum {
 					delete(this.player_ids, this.players_array[i])
 					this.players_array[i] = this.players_array[player_num-1]
 					player_num -= 1
 				}
 			}
+			this.locker.Unlock()
 			last_check_remove_time = now_time
 		}
 
@@ -131,409 +138,278 @@ func (this *FriendRecommendMgr) Run() {
 	}
 }
 
+func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
+	cnt := int32(len(this.player_ids))
+	if cnt == 0 {
+		return
+	}
+
+	if cnt > global_config.FriendRecommendNum {
+		cnt = global_config.FriendRecommendNum
+	}
+	rand.Seed(time.Now().Unix())
+	for i := int32(0); i < cnt; i++ {
+		r := rand.Int31n(int32(len(this.player_ids)))
+		sr := r
+		for {
+			has := false
+			if this.players_array[sr] == player_id {
+				has = true
+			} else {
+				if ids != nil {
+					for n := 0; n < len(ids); n++ {
+						if ids[n] == this.players_array[sr] {
+							has = true
+							break
+						}
+					}
+				}
+			}
+			if !has {
+				break
+			}
+			sr = (sr + 1) % int32(len(this.player_ids))
+			if sr == r {
+				log.Info("Friend Recommend Mgr player count[%v] not enough to random a player to recommend", len(this.player_ids))
+				return
+			}
+		}
+		pid := this.players_array[sr]
+		if pid <= 0 {
+			break
+		}
+		ids = append(ids, pid)
+	}
+	return ids
+}
+
 // ----------------------------------------------------------------------------
 
-func (this *dbPlayerFriendColumn) FillAllListMsg(msg *msg_client_message.S2CFriendListResponse) {
-	//var tmp_info *msg_client_message.FriendInfo
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.FillAllListMsg")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	msg.Friends = make([]*msg_client_message.FriendInfo, 0, len(this.m_data))
-	for _, val := range this.m_data {
-		if nil == val {
-			continue
-		}
-
-		/*tmp_info = &msg_client_message.FriendInfo{}
-		tmp_info.PlayerId = val.FriendId
-		tmp_info.Name = val.FriendName
-		tmp_info.Level = val.Level
-		tmp_info.VipLevel = val.VipLevel
-		tmp_info.LastLogin = val.LastLogin
-		tmp_info.Head = val.Head
-		tmp_info.IsOnline = true
-		log.Info("附加值到好友列表 %v", tmp_info)
-		msg.FriendList = append(msg.FriendList, tmp_info)*/
+func _format_friend_info(p *Player, now_time int32) (friend_info *msg_client_message.FriendInfo) {
+	offline_seconds := int32(0)
+	if p.is_logout {
+		offline_seconds = now_time - p.db.Info.GetLastLogout()
 	}
-
+	friend_info = &msg_client_message.FriendInfo{
+		Id:             p.Id,
+		Name:           p.db.GetName(),
+		Level:          p.db.Info.GetLvl(),
+		IsOnline:       !p.is_logout,
+		OfflineSeconds: offline_seconds,
+	}
 	return
 }
 
-func (this *dbPlayerFriendColumn) GetAviFriendId() int32 {
-	return 0
-}
-
-func (this dbPlayerFriendColumn) TryAddFriend(new_friend *dbPlayerFriendData) {
-	if nil == new_friend {
-		log.Error("dbPlayerFriendColumn TryAddFriend ")
-		return
-	}
-
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendColumn.TryAddFriend")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	if nil == this.m_data[new_friend.PlayerId] {
-		this.m_data[new_friend.PlayerId] = new_friend
-		this.m_changed = true
-	}
-
-	return
-}
-
-func (this *dbPlayerFriendReqColumn) FillAllListMsg(msg *msg_client_message.S2CFriendListResponse) {
-
-	/*var tmp_info *msg_client_message.FriendReq
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendReqColumn.FillAllListMsg")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-
-	msg.Reqs = make([]*msg_client_message.FriendReq, 0, len(this.m_data))
-	for _, val := range this.m_data {
-		if nil == val {
-			continue
-		}
-
-		tmp_info = &msg_client_message.FriendReq{}
-		tmp_info.PlayerId = val.PlayerId
-		tmp_info.Name = val.PlayerName
-		msg.Reqs = append(msg.Reqs, tmp_info)
-	}*/
-
-	return
-}
-
-func send_search_player_msg(p *Player, players_info []*rpc_common.H2R_SearchPlayerInfo) {
-	var results []*msg_client_message.FriendInfo
-	if players_info == nil || len(players_info) == 0 {
-		results = make([]*msg_client_message.FriendInfo, 0)
+func _format_friends_info(friend_ids []int32) (friends_info []*msg_client_message.FriendInfo) {
+	if friend_ids == nil || len(friend_ids) == 0 {
+		friends_info = make([]*msg_client_message.FriendInfo, 0)
 	} else {
-		results = make([]*msg_client_message.FriendInfo, len(players_info))
-		for i := 0; i < len(players_info); i++ {
-			r := &msg_client_message.FriendInfo{
-			/*PlayerId:  players_info[i].Id,
-			Name:      players_info[i].Nick,
-			Head:      players_info[i].Head,
-			Level:     players_info[i].Level,
-			VipLevel:  players_info[i].VipLevel,
-			LastLogin: players_info[i].LastLogin,*/
+		now_time := int32(time.Now().Unix())
+		for i := 0; i < len(friend_ids); i++ {
+			p := player_mgr.GetPlayerById(friend_ids[i])
+			if p == nil {
+				continue
 			}
-			results[i] = r
+			player := _format_friend_info(p, now_time)
+			friends_info = append(friends_info, player)
 		}
-
-	}
-	/*response := msg_client_message.S2CFriendSearchResult{}
-	response.Result = results
-	p.Send(&response)*/
-}
-
-func (this *dbPlayerFriendReqColumn) CheckAndAdd(player_id int32, player_name string) int32 {
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendReqColumn.CheckAndAdd")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	d := this.m_data[player_id]
-	if d != nil {
-		log.Warn("!!! Player[%v,%v] already in request list of player[%v]", player_id, player_name, this.m_row.GetPlayerId())
-		return int32(msg_client_message.E_ERR_FRIEND_THE_PLAYER_REQUESTED)
-	}
-
-	d = &dbPlayerFriendReqData{}
-	d.PlayerId = player_id
-	this.m_data[player_id] = d
-	this.m_changed = true
-	return 1
-}
-
-func (this *dbPlayerFriendReqColumn) AgreeFriend(friend_id int32) bool {
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendReqColumn.AgreeFriend")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	d := this.m_data[friend_id]
-	if d != nil {
-
-	}
-	return true
-}
-
-func (this *dbPlayerFriendColumn) GetAllIds() (ret_ids []int32) {
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.GetAllIds")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	tmp_len := len(this.m_data)
-	if tmp_len <= 0 {
-		return nil
-	}
-
-	ret_ids = make([]int32, 0, len(this.m_data))
-	for _, v := range this.m_data {
-		ret_ids = append(ret_ids, v.PlayerId)
 	}
 	return
 }
 
-func (this *dbPlayerFriendColumn) GetFriendInfoMsg(friend_id int32) *msg_client_message.FriendInfo {
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.GetMsgFriendInfo")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-
-	d := this.m_data[friend_id]
-	if d == nil {
-		return nil
-	}
-
-	return &msg_client_message.FriendInfo{
-	/*PlayerId:  d.FriendId,
-	Name:      d.FriendName,
-	Head:      d.Head,
-	Level:     d.Level,
-	VipLevel:  d.VipLevel,
-	LastLogin: d.LastLogin,*/
-	}
-}
-
-func (this *dbPlayerFriendChatUnreadIdColumn) CheckUnreadNumFull(friend_id int32) (full bool, next_id int32) {
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendChatUnreadIdColumn.CheckUnreadNumFull")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	d := this.m_data[friend_id]
-	if d == nil {
-		next_id = 1
-		this.m_changed = true
-	} else if len(d.MessageIds) < FRIEND_UNREAD_MESSAGE_MAX_NUM {
-		if d.CurrMessageId >= int32(FRIEND_UNREAD_MESSAGE_MAX_NUM) {
-			d.CurrMessageId = 1
-		} else {
-			d.CurrMessageId += 1
-		}
-		next_id = d.CurrMessageId
-		this.m_changed = true
+func _format_ask_friends_info(friend_ids []int32) (ask_friends_info []*msg_client_message.AskFriendInfo) {
+	if friend_ids == nil || len(friend_ids) == 0 {
+		ask_friends_info = make([]*msg_client_message.AskFriendInfo, 0)
 	} else {
-		full = true
-	}
+		for i := 0; i < len(friend_ids); i++ {
+			p := player_mgr.GetPlayerById(friend_ids[i])
+			if p == nil {
+				continue
+			}
 
+			player := &msg_client_message.AskFriendInfo{
+				Id:    friend_ids[i],
+				Name:  p.db.GetName(),
+				Level: p.db.Info.GetLvl(),
+			}
+			ask_friends_info = append(ask_friends_info, player)
+		}
+	}
 	return
 }
 
-func (this *dbPlayerFriendChatUnreadIdColumn) AddNewMessageId(friend_id, message_id int32) int32 {
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendChatUnreadIdColumn.AddNewMessageId")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	d := this.m_data[friend_id]
-	if d == nil {
-		this.m_data[friend_id] = &dbPlayerFriendChatUnreadIdData{
-			FriendId:   friend_id,
-			MessageIds: []int32{message_id},
-		}
-	} else {
-		if len(d.MessageIds) >= FRIEND_UNREAD_MESSAGE_MAX_NUM {
-			return int32(msg_client_message.E_ERR_FRIEND_MESSAGE_NUM_MAX)
-		}
-		d.MessageIds = append(d.MessageIds, message_id)
+// 好友推荐列表
+func (this *Player) send_recommend_friends() int32 {
+	player_ids := friend_recommend_mgr.Random(this.Id)
+	players := _format_friends_info(player_ids)
+	response := &msg_client_message.S2CFriendRecommendResponse{
+		Players: players,
 	}
-
-	this.m_changed = true
-
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_RECOMMEND_RESPONSE), response)
+	log.Debug("Player[%v] recommend friends %v", this.Id, response)
 	return 1
 }
 
-func (this *dbPlayerFriendChatUnreadIdColumn) GetUnreadMessageNum(friend_id int32) int32 {
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendChatUnreadIdColumn.GetUnreadMessageNum")
-	defer this.m_row.m_lock.UnSafeRUnlock()
+// 好友列表
+func (this *Player) send_friend_list() int32 {
+	friend_ids := this.db.Friends.GetAllIndex()
+	friends := _format_friends_info(friend_ids)
+	response := &msg_client_message.S2CFriendListResponse{
+		Friends: friends,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_LIST_RESPONSE), response)
+	log.Debug("Player[%v] friend list: %v", this.Id, response)
+	return 1
+}
 
-	d := this.m_data[friend_id]
-	if d == nil {
+// 检测是否好友增加
+func (this *Player) check_and_send_friend_add() int32 {
+	if this.friend_add == nil || len(this.friend_add) == 0 {
 		return 0
 	}
-
-	return int32(len(d.MessageIds))
-}
-
-func (this *dbPlayerFriendChatUnreadIdColumn) ConfirmUnreadIds(friend_id, unread_num int32) (res int32, remove_ids []int32) {
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendChatUnreadIdColumn.ConfirmUnreadIds")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	d := this.m_data[friend_id]
-	if d == nil {
-		log.Error("Player[%v] no unread message from friend[%v]", this.m_row.m_PlayerId, friend_id)
-		res = int32(msg_client_message.E_ERR_FRIEND_NO_UNREAD_MESSAGE)
-		return
+	friends := _format_friends_info(this.friend_add)
+	this.friend_add = nil
+	response := &msg_client_message.S2CFriendListAddNotify{
+		FriendsAdd: friends,
 	}
-
-	if unread_num == 0 || len(d.MessageIds) <= int(unread_num) {
-		remove_ids = d.MessageIds
-		d.MessageIds = make([]int32, 0)
-	} else {
-		remove_ids = d.MessageIds[:unread_num]
-		d.MessageIds = d.MessageIds[unread_num:]
-	}
-
-	this.m_changed = true
-
-	res = 1
-	return
-}
-
-func (this *dbPlayerFriendChatUnreadMessageColumn) RemoveMessages(friend_id int32, message_ids []int32) {
-	if message_ids == nil || len(message_ids) == 0 {
-		return
-	}
-
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendChatUnreadMessageColumn.RemoveMessages")
-	defer this.m_row.m_lock.UnSafeUnlock()
-
-	for i := 0; i < len(message_ids); i++ {
-		player_message_id := utils.Int64From2Int32(friend_id, message_ids[i])
-		delete(this.m_data, player_message_id)
-	}
-	this.m_changed = true
-}
-
-func (this *Player) search_friend(key string) int32 {
-	result := this.rpc_search_friend_by_key(key)
-	if result == nil {
-		log.Error("查找玩家[%v]数据失败", key)
-		return -1
-	}
-
-	send_search_player_msg(this, result.Players)
-
-	log.Info("Player[%v] searched friend with key[%v]", this.Id, key)
-
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_LIST_ADD_NOTIFY), response)
+	log.Debug("Player[%v] friend add: %v", this.Id, response)
 	return 1
 }
 
-func (this *Player) add_friend_by_name(name string) int32 {
-	result := this.rpc_add_friend_by_name(name)
-	if result == nil {
-		log.Error("Player[%v] request add friend[%v] failed", this.Id, name)
-		return -1
-	}
-
-	/*response := &msg_client_message.S2CAddFriendResult{}
-	response.PlayerId = proto.Int32(result.AddPlayerId)
-	this.Send(response)*/
-
-	log.Info("Player[%v] requested add friend[%v]", this.Id, name)
-
-	return 1
-}
-
-func (this *Player) add_friend_by_id(id int32) int32 {
-	// 已是好友
-	if this.db.Friends.HasIndex(id) {
-		log.Error("!!! Player[%v] already added player[%v] to friend", this.Id, id)
-		return int32(msg_client_message.E_ERR_FRIEND_THE_PLAYER_ALREADY_FRIEND)
-	}
-
-	add_player := player_mgr.GetPlayerById(id)
-	if add_player != nil {
-		res := add_player.db.FriendReqs.CheckAndAdd(this.Id, this.db.GetName())
-		if res < 0 {
-			log.Error("!!! Player[%v] request add friend to other player[%v] already exist", this.Id, id)
-			return res
-		}
-	} else {
-		// rpc调用
-		result := this.rpc_add_friend(id)
-		if result == nil {
-			log.Error("!!! Player[%v] request add friend to other player[%v] failed", this.Id, id)
-			return -1
-		}
-		if result.Error < 0 {
-			return result.Error
-		}
-	}
-
-	/*response := &msg_client_message.S2CAddFriendResult{}
-	response.PlayerId = proto.Int32(id)
-	this.Send(response)*/
-
-	log.Info("Player[%v] requested add friend[%v]", this.Id, id)
-
-	return 1
-}
-
-func (this *Player) agree_add_friend(id int32) int32 {
-	// 该玩家已是好友
-	if this.db.Friends.HasIndex(id) {
-		log.Error("Player[%v] already have friend[%v]", this.Id, id)
-		return -1
-	}
-
-	if !this.db.FriendReqs.HasIndex(id) {
-		log.Error("Player[%v] no player[%v]'s friend request", this.Id, id)
-		return -1
-	}
-
-	var data dbPlayerFriendData
-	agree_player := player_mgr.GetPlayerById(id)
-	if agree_player == nil {
-		result := this.rpc_agree_add_friend(id, true)
-		if result == nil {
-			log.Error("Player[%v] agree add friend with player[%v] failed", this.Id, id)
-			return -1
-		}
-
-		// 加到自己的好友列表
-		data.PlayerId = id
-	} else {
-		// 加到对方的好友列表
-		data.PlayerId = this.Id
-		agree_player.db.Friends.Add(&data)
-
-		// 加到自己的好友列表
-		data.PlayerId = id
-	}
-
-	this.db.Friends.Add(&data)
-
-	// request remove
-	this.db.FriendReqs.Remove(id)
-
-	/*response := &msg_client_message.S2CAgreeFriendResult{}
-	response.PlayerId = proto.Int32(id)
-	response.Name = proto.String(data.FriendName)
-	this.Send(response)*/
-
-	log.Debug("Player[%v] agree add friend request of player[%v][%v]", this.Id, id)
-
-	return 1
-}
-
-func (this *Player) refuse_add_friend(player_id int32) int32 {
-
-	return 1
-}
-
-func (this *Player) remove_friend_data(friend_id int32) {
-	this.db.Friends.Remove(friend_id)
-	this.db.FriendPoints.Remove(friend_id)
-	message_ids, o := this.db.FriendChatUnreadIds.GetMessageIds(friend_id)
-	if o {
-		this.db.FriendChatUnreadMessages.RemoveMessages(friend_id, message_ids)
-		this.db.FriendChatUnreadIds.Remove(friend_id)
-	}
-}
-
-func (this *Player) remove_friend(player_id int32) int32 {
-	if !this.db.Friends.HasIndex(player_id) {
-		log.Error("Player[%v] have not friend[%v], remove failed", this.Id, player_id)
-		return -1
-	}
-
+// 申请好友
+func (this *Player) friend_ask(player_id int32) int32 {
 	p := player_mgr.GetPlayerById(player_id)
 	if p == nil {
-		result := this.rpc_remove_friend2(player_id)
-		if result == nil {
-			log.Error("Player[%v] remove friend[%v] failed", this.Id, player_id)
-			return int32(msg_client_message.E_ERR_FRIEND_REMOVE_FRIEND_FAILED)
-		}
-	} else {
-		p.remove_friend_data(this.Id)
+		log.Error("Player[%v] not found", player_id)
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
 
-	this.remove_friend_data(player_id)
+	if this.db.Friends.HasIndex(player_id) {
+		log.Error("Player[%v] already add player[%v] to friend", this.Id, player_id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_ALREADY_ADD)
+	}
 
-	response := &msg_client_message.S2CFriendRemoveResponse{}
-	//response.PlayerId = player_id
-	this.Send(1, response)
+	if p.db.FriendAsks.HasIndex(this.Id) {
+		log.Error("Player[%v] already asked player[%v] to friend", this.Id, player_id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_ALREADY_ASKED)
+	}
 
-	log.Debug("Player[%v] removed friend[%v]", this.Id, player_id)
+	p.db.FriendAsks.Add(&dbPlayerFriendAskData{
+		PlayerId: this.Id,
+	})
+
+	response := &msg_client_message.S2CFriendAskResponse{
+		PlayerId: player_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_ASK_RESPONSE), response)
+
+	this.friend_ask_add = append(this.friend_ask_add, player_id)
+
+	log.Debug("Player[%v] asked player[%v] to friend", this.Id, player_id)
+
+	return 1
+}
+
+// 检测好友申请增加
+func (this *Player) check_and_send_friend_ask_add() int32 {
+	if this.friend_ask_add == nil || len(this.friend_ask_add) == 0 {
+		return 0
+	}
+	players := _format_ask_friends_info(this.friend_ask_add)
+	this.friend_ask_add = nil
+
+	response := &msg_client_message.S2CFriendAskPlayerListAddNotify{
+		PlayersAdd: players,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_ASK_PLAYER_LIST_ADD_NOTIFY), response)
+	log.Debug("Player[%v] checked friend ask add %v", this.Id, response)
+	return 1
+}
+
+// 好友申请列表
+func (this *Player) send_friend_ask_list() int32 {
+	friend_ask_ids := this.db.FriendAsks.GetAllIndex()
+	players := _format_ask_friends_info(friend_ask_ids)
+	response := &msg_client_message.S2CFriendAskPlayerListResponse{
+		Players: players,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_ASK_PLAYER_LIST_RESPONSE), response)
+	log.Debug("Player[%v] friend ask list %v", this.Id, response)
+	return 1
+}
+
+// 同意加为好友
+func (this *Player) agree_friend_ask(player_ids []int32) int32 {
+	for i := 0; i < len(player_ids); i++ {
+		p := player_mgr.GetPlayerById(player_ids[i])
+		if p == nil {
+			log.Error("Player[%v] not found on agree friend ask", player_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		}
+		if !this.db.FriendAsks.HasIndex(player_ids[i]) {
+			log.Error("Player[%v] friend ask list not player[%v]", this.Id, player_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_PLAYER_NO_IN_ASK_LIST)
+		}
+	}
+
+	for i := 0; i < len(player_ids); i++ {
+		this.db.Friends.Add(&dbPlayerFriendData{
+			PlayerId: player_ids[i],
+		})
+		this.db.FriendAsks.Remove(player_ids[i])
+	}
+
+	response := &msg_client_message.S2CFriendAgreeResponse{
+		Friends: _format_friends_info(player_ids),
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_AGREE_RESPONSE), response)
+
+	this.friend_add = append(this.friend_add, player_ids...)
+
+	log.Debug("Player[%v] agreed players[%v] friend ask", this.Id, player_ids)
+	return 1
+}
+
+// 拒绝申请
+func (this *Player) refuse_friend_ask(player_id int32) int32 {
+	if !this.db.FriendAsks.HasIndex(player_id) {
+		log.Error("Player[%v] ask list no player[%v]", this.Id, player_id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_PLAYER_NO_IN_ASK_LIST)
+	}
+
+	this.db.FriendAsks.Remove(player_id)
+	response := &msg_client_message.S2CFriendRefuseResponse{
+		PlayerId: player_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_REFUSE_RESPONSE), response)
+
+	log.Debug("Player[%v] refuse player[%v] friend ask", this.Id, player_id)
+
+	return 1
+}
+
+func (this *Player) remove_friend(friend_ids []int32) int32 {
+	for i := 0; i < len(friend_ids); i++ {
+		if !this.db.Friends.HasIndex(friend_ids[i]) {
+			log.Error("Player[%v] no friend[%v]", this.Id, friend_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NOT_FOUND)
+		}
+	}
+
+	for i := 0; i < len(friend_ids); i++ {
+		this.db.Friends.Remove(friend_ids[i])
+	}
+
+	response := &msg_client_message.S2CFriendRemoveResponse{
+		PlayerIds: friend_ids,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_REMOVE_RESPONSE), response)
+
+	log.Debug("Player[%v] removed friends: %v", this.Id, friend_ids)
 
 	return 1
 }
@@ -574,9 +450,6 @@ func (this *Player) get_friend_list(get_foster bool) int32 {
 	//remain_seconds := this.check_friends_give_points_refresh()
 
 	response := &msg_client_message.S2CFriendListResponse{}
-	this.db.Friends.FillAllListMsg(response)
-	this.db.FriendReqs.FillAllListMsg(response)
-
 	this.Send(1, response)
 	return 1
 }
@@ -600,7 +473,7 @@ func (this *Player) get_friend_points(friend_list []int32) int32 {
 
 func (this *Player) friend_chat_add(friend_id int32, message []byte) int32 {
 	// 未读消息数量
-	is_full, next_id := this.db.FriendChatUnreadIds.CheckUnreadNumFull(friend_id)
+	/*is_full, next_id := this.db.FriendChatUnreadIds.CheckUnreadNumFull(friend_id)
 	if is_full {
 		log.Debug("Player[%v] chat message from friend[%v] is full", this.Id, friend_id)
 		return int32(msg_client_message.E_ERR_FRIEND_MESSAGE_NUM_MAX)
@@ -627,13 +500,13 @@ func (this *Player) friend_chat_add(friend_id int32, message []byte) int32 {
 		return res
 	}
 
-	log.Debug("Player[%v] add friend[%v] chat message[id:%v, long_id:%v, content:%v]", this.Id, friend_id, next_id, new_long_id, message)
+	log.Debug("Player[%v] add friend[%v] chat message[id:%v, long_id:%v, content:%v]", this.Id, friend_id, next_id, new_long_id, message)*/
 
 	return 1
 }
 
 func (this *Player) friend_chat(friend_id int32, message []byte) int32 {
-	if !this.db.Friends.HasIndex(friend_id) {
+	/*if !this.db.Friends.HasIndex(friend_id) {
 		log.Error("Player[%v] no friend[%v], chat failed", this.Id, friend_id)
 		return int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
 	}
@@ -661,7 +534,7 @@ func (this *Player) friend_chat(friend_id int32, message []byte) int32 {
 		}
 	}
 
-	/*response := &msg_client_message.S2CFriendChatResult{}
+	response := &msg_client_message.S2CFriendChatResult{}
 	response.PlayerId = proto.Int32(friend_id)
 	response.Content = message
 	this.Send(response)*/
@@ -692,12 +565,12 @@ func (this *Player) friend_get_unread_message_num(friend_ids []int32) int32 {
 }
 
 func (this *Player) friend_pull_unread_message(friend_id int32) int32 {
-	if !this.db.Friends.HasIndex(friend_id) {
+	/*if !this.db.Friends.HasIndex(friend_id) {
 		log.Error("Player[%v] no friend[%v], pull unread message failed", this.Id, friend_id)
 		return int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
 	}
 
-	/*c := 0
+	c := 0
 	var data []*msg_client_message.FriendChatData
 	all_unread_ids, o := this.db.FriendChatUnreadIds.GetMessageIds(friend_id)
 	if !o || all_unread_ids == nil || len(all_unread_ids) == 0 {
@@ -731,7 +604,7 @@ func (this *Player) friend_pull_unread_message(friend_id int32) int32 {
 }
 
 func (this *Player) friend_confirm_unread_message(friend_id int32, message_num int32) int32 {
-	if !this.db.Friends.HasIndex(friend_id) {
+	/*if !this.db.Friends.HasIndex(friend_id) {
 		log.Error("Player[%v] no friend[%v], confirm unread message failed", this.Id, friend_id)
 		return int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
 	}
@@ -743,7 +616,7 @@ func (this *Player) friend_confirm_unread_message(friend_id int32, message_num i
 
 	this.db.FriendChatUnreadMessages.RemoveMessages(friend_id, remove_ids)
 
-	/*response := &msg_client_message.S2CFriendConfirmUnreadMessageResult{}
+	response := &msg_client_message.S2CFriendConfirmUnreadMessageResult{}
 	response.FriendId = proto.Int32(friend_id)
 	response.MessageNum = proto.Int32(message_num)
 	this.Send(response)*/

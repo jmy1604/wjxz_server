@@ -419,6 +419,8 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	}
 	p.send_notify_state()
 	p.check_and_send_tower_data()
+	p.check_and_send_friend_ask_add()
+	p.check_and_send_friend_add()
 
 	return 1
 }

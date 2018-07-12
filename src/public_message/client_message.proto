@@ -116,32 +116,20 @@ enum E_ERR {
 	
 	// 排行榜
 	RANK_LIST_TYPE_INVALID					= -20000; // 排行榜类型错误
-		
-	// 玩家
+	
+	// 好友
+	PLAYER_FRIEND_ALREADY_ADD				= -21000; // 已加为好友
+	PLAYER_FRIEND_ALREADY_ASKED				= -21001; // 已经申请了好友
+	PLAYER_FRIEND_PLAYER_NO_IN_ASK_LIST		= -21002; // 玩家不再申请列表中
+	PLAYER_FRIEND_NOT_FOUND					= -21003; // 没有该好友
+	
+	// 充值
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
 	CHARGE_ORDER_DATA_INVALID				= -200001;
 	CHARGE_ORDER_SIGNATURE_INVALID			= -200002;
 	CHARGE_ORDER_SN_EMPTY					= -200003;
 	CHARGE_ORDER_SN_ALREDY_USED				= -200004;
 	CHARGE_ORDER_VERIFY_FAILED				= -200005;
-	
-	FRIEND_MESSAGE_NUM_MAX					= -300000;
-	FRIEND_NO_UNREAD_MESSAGE				= -300001;
-	FRIEND_THE_PLAYER_ALREADY_FRIEND		= -300002;
-	FRIEND_THE_PLAYER_REQUESTED				= -300003;
-	FRIEND_REMOVE_FRIEND_FAILED				= -300004;
-	FRIEND_GIVE_POINTS_FREQUENTLY			= -300005;
-	FRIEND_TOO_MANY_FRIEND_GIVE_POINTS		= -300006;
-	FRIEND_GIVE_POINTS_MAX_NUM_LIMIT		= -300007;
-	FRIEND_NO_THE_FRIEND					= -300008;
-	FRIEND_MESSAGE_TOO_LONG					= -300009;
-	FRIEND_CHAT_FAILED						= -300010;
-	
-	SHOP_NOT_FOUND							= -400000;
-	SHOP_PURCHASED_FAILED					= -400001;
-	SHOP_ITEM_NOT_FOUND						= -400002;
-	SHOP_LIMITED_TYPE_INVALID				= -400003;
-	SHOP_ITEM_NOT_ENOUGH					= -400004;
 	
 	// 任务错误码
 	TASK_NOT_FOUND							= -101600; // 任务不存在
@@ -1039,6 +1027,14 @@ message FriendInfo {
 	int32 OfflineSeconds				 	= 5; // 离线时间(秒)
 }
 
+// 请求推荐好友
+message C2SFriendRecommendRequest {
+}
+
+message S2CFriendRecommendResponse {
+	repeated FriendInfo Players             = 1;
+}
+
 // 请求好友列表
 message C2SFriendListRequest {
 }
@@ -1071,11 +1067,11 @@ message S2CFriendAskPlayerListAddNotify {
 
 // 同意添加好友
 message C2SFriendAgreeRequest {
-	int32 PlayerId							= 1; // 玩家ID
+	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
 message S2CFriendAgreeResponse {
-	FriendInfo Friend                       = 1;
+	repeated FriendInfo Friends             = 1;
 }
 
 // 好友列表增加通知
@@ -1094,15 +1090,10 @@ message S2CFriendRefuseResponse {
 
 // 删除好友
 message C2SFriendRemoveRequest {
-	int32 PlayerId							= 1;
+	repeated int32 PlayerIds				= 1;
 }
 
 message S2CFriendRemoveResponse {
-	int32 PlayerId							= 1;
-}
-
-// 被好友删除通知
-message S2CFriendRemovedNotify {
 	repeated int32 PlayerIds				= 1;
 }
 

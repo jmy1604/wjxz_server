@@ -62,14 +62,9 @@ func (this *R2H_FriendProc) AddFriendById(args *rpc_common.R2H_AddFriendById, re
 		log.Error("RPC R2H_FriendProc @@@ not found player[%v], cant add player[%v] to friend", args.AddPlayerId, args.PlayerId)
 	} else {
 		if p.db.Friends.HasIndex(args.PlayerId) {
-			reply.Error = int32(msg_client_message.E_ERR_FRIEND_THE_PLAYER_ALREADY_FRIEND)
-			log.Error("RPC R2H_FriendProc @@@ player[%v] and player[%v] already friends", args.AddPlayerId, args.PlayerId)
+
 		} else {
-			res := p.db.FriendReqs.CheckAndAdd(args.PlayerId, args.PlayerName)
-			if res < 0 {
-				reply.Error = res
-				log.Error("RPC R2H_FriendProc @@@ player[%v] already has player[%v] request to friend", args.AddPlayerId, args.PlayerId)
-			}
+
 		}
 	}
 
@@ -177,7 +172,7 @@ func (this *H2H_FriendProc) AddFriend(args *rpc_common.H2H_AddFriend, reply *rpc
 		}
 	}()
 
-	p := player_mgr.GetPlayerById(args.ToPlayerId)
+	/*p := player_mgr.GetPlayerById(args.ToPlayerId)
 	if p == nil {
 		err_str := fmt.Sprintf("RPC H2H_FriendProc::AddFriend @@@ not found player[%v], add friend failed", args.ToPlayerId)
 		return errors.New(err_str)
@@ -198,31 +193,13 @@ func (this *H2H_FriendProc) AddFriend(args *rpc_common.H2H_AddFriend, reply *rpc
 	reply.FromPlayerId = args.FromPlayerId
 	reply.ToPlayerId = args.ToPlayerId
 
-	log.Debug("RPC H2H_FriendProc @@@ player[%v] added friend[%v]", args.FromPlayerId, args.ToPlayerId)
+	log.Debug("RPC H2H_FriendProc @@@ player[%v] added friend[%v]", args.FromPlayerId, args.ToPlayerId)*/
 
 	return nil
 }
 
 // 删除好友
 func (this *H2H_FriendProc) RemoveFriend(args *rpc_common.H2H_RemoveFriend, reply *rpc_common.H2H_RemoveFriendResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	p := player_mgr.GetPlayerById(args.ToPlayerId)
-	if p == nil {
-		err_str := fmt.Sprintf("RPC H2H_FriendProc::RemoveFriend @@@ not found player[%v], player[%v] remove friend failed", args.ToPlayerId, args.FromPlayerId)
-		return errors.New(err_str)
-	}
-
-	p.remove_friend_data(args.FromPlayerId)
-
-	reply.FromPlayerId = args.FromPlayerId
-	reply.ToPlayerId = args.ToPlayerId
-
-	log.Debug("RPC H2H_FriendProc @@@ player[%v] removed friend[%v]", args.FromPlayerId, args.ToPlayerId)
 
 	return nil
 }
