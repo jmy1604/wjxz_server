@@ -77,5 +77,5 @@
      <item BuffID="1006" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="6,1006" CancelMutexID="6,1006" />
      <item BuffID="1007" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="7,1007" CancelMutexID="7,1007" />
      <item BuffID="1008" Effect="0" Type="4" ResistCountMax="0" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="8,1008" CancelMutexID="8,1008" />
-     <item BuffID="1111" Effect="0" Type="4" ResistCountMax="2" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="6,1111" CancelMutexID="6,1111" />
+     <item BuffID="1111" Effect="0" Type="4" ResistCountMax="1" MutexType="0" ResistMutexType="" CancelMutexType="" ResistMutexID="6,1111" CancelMutexID="6,1111" />
 </Config>
