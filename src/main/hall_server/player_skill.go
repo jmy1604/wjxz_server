@@ -770,7 +770,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		critical = 0
 	} else {
 		// 触发暴击
-		if critical*10000/(10000+math.Max(0, block)) > rand.Int31n(10000) {
+		if critical*10000/(10000.0+math.Max(0, block)) > rand.Int31n(10000) {
 			target_damage *= int32(math.Max(1.5, float64(20000+self.attrs[ATTR_CRITICAL_MULTI])/10000))
 			is_critical = true
 		}
