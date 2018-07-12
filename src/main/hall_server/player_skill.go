@@ -742,7 +742,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		defense = 0
 	}
 	attack := self.attrs[ATTR_ATTACK] - defense
-	attack1 := self.attrs[ATTR_ATTACK] * self.attrs[ATTR_ATTACK] / (self.attrs[ATTR_ATTACK] + defense) / 5
+	attack1 := self.attrs[ATTR_ATTACK] * self.attrs[ATTR_ATTACK] / (self.attrs[ATTR_ATTACK] + defense) / 2
 	if attack < attack1 {
 		attack = attack1
 	}
@@ -753,8 +753,8 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	// 基础技能伤害
 	base_skill_damage := attack * effect[1] / 10000
 	var delta_damage float64
-	if damage_add-damage_sub < -5000 {
-		delta_damage = 10000 / float64(10000+(damage_sub-damage_add)*2)
+	if damage_add-damage_sub < 0 {
+		delta_damage = 10000 / float64(10000+(damage_sub-damage_add))
 	} else {
 		delta_damage = float64(10000+damage_add-damage_sub) / 10000
 	}
@@ -778,7 +778,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		// 实际格挡率
 		block := target.attrs[ATTR_BLOCK_RATE] - self.attrs[ATTR_BREAK_BLOCK_RATE] + 600
 		if block > rand.Int31n(10000) {
-			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64((5000-target.attrs[ATTR_BLOCK_DEFENSE_RATE]))/10000))))
+			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64(5000/(10000+target.attrs[ATTR_BLOCK_DEFENSE_RATE]))))))
 			is_block = true
 		}
 	}
