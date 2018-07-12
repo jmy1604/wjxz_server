@@ -778,7 +778,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 		// 实际格挡率
 		block := target.attrs[ATTR_BLOCK_RATE] - self.attrs[ATTR_BREAK_BLOCK_RATE] + 600
 		if block > rand.Int31n(10000) {
-			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64(5000/(10000+target.attrs[ATTR_BLOCK_DEFENSE_RATE]))))))
+			target_damage = int32(math.Max(1, float64(target_damage)*math.Max(0.1, math.Min(0.9, float64(5000)/float64(10000+target.attrs[ATTR_BLOCK_DEFENSE_RATE])))))
 			is_block = true
 		}
 	}
