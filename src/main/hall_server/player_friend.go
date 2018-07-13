@@ -2,8 +2,7 @@ package main
 
 import (
 	"libs/log"
-	_ "libs/utils"
-	_ "main/rpc_common"
+	"libs/utils"
 	_ "main/table_config"
 	"math/rand"
 	_ "net/http"
@@ -188,22 +187,25 @@ func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
 
 // ----------------------------------------------------------------------------
 
-func _format_friend_info(p *Player, now_time int32) (friend_info *msg_client_message.FriendInfo) {
+func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info *msg_client_message.FriendInfo) {
 	offline_seconds := int32(0)
 	if p.is_logout {
 		offline_seconds = now_time - p.db.Info.GetLastLogout()
 	}
+	last_give_time, _ := this.db.Friends.GetLastGivePointsTime(p.Id)
+	remain_give_points_seconds := utils.GetRemainSeconds2NextDayTime(last_give_time, global_config.FriendRefreshTime)
 	friend_info = &msg_client_message.FriendInfo{
-		Id:             p.Id,
-		Name:           p.db.GetName(),
-		Level:          p.db.Info.GetLvl(),
-		IsOnline:       !p.is_logout,
-		OfflineSeconds: offline_seconds,
+		Id:                      p.Id,
+		Name:                    p.db.GetName(),
+		Level:                   p.db.Info.GetLvl(),
+		IsOnline:                !p.is_logout,
+		OfflineSeconds:          offline_seconds,
+		RemainGivePointsSeconds: remain_give_points_seconds,
 	}
 	return
 }
 
-func _format_friends_info(friend_ids []int32) (friends_info []*msg_client_message.FriendInfo) {
+func (this *Player) _format_friends_info(friend_ids []int32) (friends_info []*msg_client_message.FriendInfo) {
 	if friend_ids == nil || len(friend_ids) == 0 {
 		friends_info = make([]*msg_client_message.FriendInfo, 0)
 	} else {
@@ -213,29 +215,29 @@ func _format_friends_info(friend_ids []int32) (friends_info []*msg_client_messag
 			if p == nil {
 				continue
 			}
-			player := _format_friend_info(p, now_time)
+			player := this._format_friend_info(p, now_time)
 			friends_info = append(friends_info, player)
 		}
 	}
 	return
 }
 
-func _format_ask_friends_info(friend_ids []int32) (ask_friends_info []*msg_client_message.AskFriendInfo) {
-	if friend_ids == nil || len(friend_ids) == 0 {
-		ask_friends_info = make([]*msg_client_message.AskFriendInfo, 0)
+func _format_players_info(player_ids []int32) (players_info []*msg_client_message.PlayerInfo) {
+	if player_ids == nil || len(player_ids) == 0 {
+		players_info = make([]*msg_client_message.PlayerInfo, 0)
 	} else {
-		for i := 0; i < len(friend_ids); i++ {
-			p := player_mgr.GetPlayerById(friend_ids[i])
+		for i := 0; i < len(player_ids); i++ {
+			p := player_mgr.GetPlayerById(player_ids[i])
 			if p == nil {
 				continue
 			}
 
-			player := &msg_client_message.AskFriendInfo{
-				Id:    friend_ids[i],
+			player := &msg_client_message.PlayerInfo{
+				Id:    player_ids[i],
 				Name:  p.db.GetName(),
 				Level: p.db.Info.GetLvl(),
 			}
-			ask_friends_info = append(ask_friends_info, player)
+			players_info = append(players_info, player)
 		}
 	}
 	return
@@ -243,8 +245,23 @@ func _format_ask_friends_info(friend_ids []int32) (ask_friends_info []*msg_clien
 
 // 好友推荐列表
 func (this *Player) send_recommend_friends() int32 {
-	player_ids := friend_recommend_mgr.Random(this.Id)
-	players := _format_friends_info(player_ids)
+	var player_ids []int32
+	last_recommend_time := this.db.FriendCommon.GetLastRecommendTime()
+	if last_recommend_time == 0 || utils.CheckDayTimeArrival(last_recommend_time, global_config.FriendRefreshTime) {
+		player_ids = friend_recommend_mgr.Random(this.Id)
+		if player_ids != nil {
+			this.db.FriendRecommends.Clear()
+			for i := 0; i < len(player_ids); i++ {
+				this.db.FriendRecommends.Add(&dbPlayerFriendRecommendData{
+					PlayerId: player_ids[i],
+				})
+			}
+		}
+		this.db.FriendCommon.SetLastRecommendTime(int32(time.Now().Unix()))
+	} else {
+		player_ids = this.db.FriendRecommends.GetAllIndex()
+	}
+	players := this._format_friends_info(player_ids)
 	response := &msg_client_message.S2CFriendRecommendResponse{
 		Players: players,
 	}
@@ -256,7 +273,7 @@ func (this *Player) send_recommend_friends() int32 {
 // 好友列表
 func (this *Player) send_friend_list() int32 {
 	friend_ids := this.db.Friends.GetAllIndex()
-	friends := _format_friends_info(friend_ids)
+	friends := this._format_friends_info(friend_ids)
 	response := &msg_client_message.S2CFriendListResponse{
 		Friends: friends,
 	}
@@ -270,7 +287,7 @@ func (this *Player) check_and_send_friend_add() int32 {
 	if this.friend_add == nil || len(this.friend_add) == 0 {
 		return 0
 	}
-	friends := _format_friends_info(this.friend_add)
+	friends := this._format_friends_info(this.friend_add)
 	this.friend_add = nil
 	response := &msg_client_message.S2CFriendListAddNotify{
 		FriendsAdd: friends,
@@ -319,7 +336,7 @@ func (this *Player) check_and_send_friend_ask_add() int32 {
 	if this.friend_ask_add == nil || len(this.friend_ask_add) == 0 {
 		return 0
 	}
-	players := _format_ask_friends_info(this.friend_ask_add)
+	players := _format_players_info(this.friend_ask_add)
 	this.friend_ask_add = nil
 
 	response := &msg_client_message.S2CFriendAskPlayerListAddNotify{
@@ -333,7 +350,7 @@ func (this *Player) check_and_send_friend_ask_add() int32 {
 // 好友申请列表
 func (this *Player) send_friend_ask_list() int32 {
 	friend_ask_ids := this.db.FriendAsks.GetAllIndex()
-	players := _format_ask_friends_info(friend_ask_ids)
+	players := _format_players_info(friend_ask_ids)
 	response := &msg_client_message.S2CFriendAskPlayerListResponse{
 		Players: players,
 	}
@@ -361,10 +378,11 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 			PlayerId: player_ids[i],
 		})
 		this.db.FriendAsks.Remove(player_ids[i])
+		this.db.FriendRecommends.Remove(player_ids[i])
 	}
 
 	response := &msg_client_message.S2CFriendAgreeResponse{
-		Friends: _format_friends_info(player_ids),
+		Friends: this._format_friends_info(player_ids),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_AGREE_RESPONSE), response)
 
@@ -374,7 +392,7 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	return 1
 }
 
-// 拒绝申请
+// 拒绝好友申请
 func (this *Player) refuse_friend_ask(player_id int32) int32 {
 	if !this.db.FriendAsks.HasIndex(player_id) {
 		log.Error("Player[%v] ask list no player[%v]", this.Id, player_id)
@@ -392,6 +410,7 @@ func (this *Player) refuse_friend_ask(player_id int32) int32 {
 	return 1
 }
 
+// 删除好友
 func (this *Player) remove_friend(friend_ids []int32) int32 {
 	for i := 0; i < len(friend_ids); i++ {
 		if !this.db.Friends.HasIndex(friend_ids[i]) {
@@ -414,59 +433,279 @@ func (this *Player) remove_friend(friend_ids []int32) int32 {
 	return 1
 }
 
-func (this *Player) refresh_friend_give_points(friend_id int32) bool {
-	return true
-}
-
-func (this *Player) check_friends_give_points_refresh() (remain_seconds int32) {
-	friends := this.db.Friends.GetAllIndex()
-	if friends == nil || len(friends) <= 0 {
-		return
+// 赠送友情点
+func (this *Player) give_friends_points(friend_ids []int32) int32 {
+	for i := 0; i < len(friend_ids); i++ {
+		if !this.db.Friends.HasIndex(friend_ids[i]) {
+			log.Error("Player[%v] no friend[%v]", this.Id, friend_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NOT_FOUND)
+		}
 	}
 
-	//rt := &global_config.FriendGivePointsRefreshTime
-	//remain_seconds = utils.GetRemainSeconds4NextRefresh(rt.Hour, rt.Minute, rt.Second, this.db.FriendRelative.GetLastRefreshTime())
+	is_gived := make([]bool, len(friend_ids))
+	now_time := int32(time.Now().Unix())
+	for i := 0; i < len(friend_ids); i++ {
+		last_give_time, _ := this.db.Friends.GetLastGivePointsTime(friend_ids[i])
+		if utils.CheckDayTimeArrival(last_give_time, global_config.FriendRefreshTime) {
+			this.db.Friends.SetLastGivePointsTime(friend_ids[i], now_time)
+			is_gived[i] = true
+		}
+	}
 
-	//if remain_seconds <= 0 {
-	/*for i := 0; i < len(friends); i++ {
-		friend := player_mgr.GetPlayerById(friends[i])
-		if friend != nil {
-			friend.refresh_friend_give_points(this.Id)
-		} else {
-			result := this.rpc_call_refresh_give_friend_point(friends[i])
-			if result == nil {
-				log.Error("Player[%v] to refresh friend[%v] give points error", this.Id, friends[i])
+	response := &msg_client_message.S2CFriendGivePointsResponse{
+		FriendIds:    friend_ids,
+		IsGivePoints: is_gived,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GIVE_POINTS_RESPONSE), response)
+
+	log.Debug("Player[%v] give friends %v points, is gived %v", this.Id, friend_ids, is_gived)
+
+	return 1
+}
+
+// 收取友情点
+func (this *Player) get_friend_points(friend_ids []int32) int32 {
+	for i := 0; i < len(friend_ids); i++ {
+		if !this.db.Friends.HasIndex(friend_ids[i]) {
+			log.Error("Player[%v] no friend[%v]", this.Id, friend_ids[i])
+			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NOT_FOUND)
+		}
+	}
+
+	get_points := make([]int32, len(friend_ids))
+	for i := 0; i < len(friend_ids); i++ {
+		last_give_time, _ := this.db.Friends.GetLastGivePointsTime(friend_ids[i])
+		if utils.GetRemainSeconds2NextDayTime(last_give_time, global_config.FriendRefreshTime) > 0 {
+			this.add_resource(global_config.FriendPointItemId, global_config.FriendPointsOnceGive)
+			get_points[i] = global_config.FriendPointsOnceGive
+		}
+	}
+
+	this.check_and_send_items_change()
+
+	response := &msg_client_message.S2CFriendGetPointsResponse{
+		FriendIds: friend_ids,
+		GetPoints: get_points,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GET_POINTS_RESPONSE), response)
+
+	log.Debug("Player[%v] get friends %v points %v", this.Id, friend_ids, get_points)
+
+	return 1
+}
+
+// 搜索BOSS
+func (this *Player) search_friend_boss() int32 {
+	now_time := int32(time.Now().Unix())
+	last_refresh_time := this.db.FriendCommon.GetLastBossRefreshTime()
+	if last_refresh_time > 0 && now_time-last_refresh_time < global_config.FriendSearchBossRefreshHours*3600 {
+		log.Error("Player[%v] friend boss search is cool down", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_REFRESH_IS_COOLDOWN)
+	}
+
+	friend_boss_tdata := friend_boss_table_mgr.GetWithLevel(this.db.Info.GetLvl())
+	if friend_boss_tdata == nil {
+		log.Error("Player[%v] cant searched friend boss with level %v", this.Id, this.db.Info.GetLvl())
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_DATA_NOT_FOUND)
+	}
+
+	var stage_id int32
+	var items []*msg_client_message.ItemInfo
+	r := rand.Int31n(10000)
+	if r >= friend_boss_tdata.SearchBossChance {
+		// 掉落
+		o, item := this.drop_item_by_id(friend_boss_tdata.SearchItemDropID, true, nil)
+		if !o {
+			log.Error("Player[%v] search friend boss to drop item with id %v failed", this.Id, friend_boss_tdata.SearchItemDropID)
+			return -1
+		}
+		items = []*msg_client_message.ItemInfo{item}
+	} else {
+		stage_id = friend_boss_tdata.BossStageID
+		this.db.FriendCommon.SetFriendBossTableId(friend_boss_tdata.Id)
+		stage := stage_table_mgr.Get(stage_id)
+		if stage == nil {
+			log.Error("Stage[%v] table data not found in friend boss", stage_id)
+			return -1
+		}
+		if stage.Monsters == nil {
+			log.Error("Stage[%v] monster list is empty", stage_id)
+			return -1
+		}
+
+		this.db.FriendBosss.Clear()
+		for i := 0; i < len(stage.Monsters); i++ {
+			this.db.FriendBosss.Add(&dbPlayerFriendBossData{
+				MonsterPos: stage.Monsters[i].Slot,
+				MonsterId:  stage.Monsters[i].MonsterID,
+			})
+		}
+	}
+
+	this.db.FriendCommon.SetLastBossRefreshTime(now_time)
+
+	response := &msg_client_message.S2CFriendBossSearchResponse{
+		StageId: stage_id,
+		Items:   items,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_BOSS_SEARCH_RESPONSE), response)
+
+	if stage_id > 0 {
+		log.Debug("Player[%v] search friend boss get stage_id %v", this.Id, stage_id)
+	} else {
+		log.Debug("Player[%v] search friend boss get items %v", this.Id, items)
+	}
+
+	return 1
+}
+
+// 获得好友BOSS列表
+func (this *Player) get_friends_boss_list() int32 {
+	friend_ids := this.db.Friends.GetAllIndex()
+	if friend_ids == nil || len(friend_ids) == 0 {
+		log.Error("Player[%v] no friends", this.Id)
+		return -1
+	}
+
+	now_time := int32(time.Now().Unix())
+	level := this.db.Info.GetLvl()
+	var friend_boss_list []*msg_client_message.FriendBossInfo
+	for i := 0; i < len(friend_ids); i++ {
+		p := player_mgr.GetPlayerById(friend_ids[i])
+		if p == nil {
+			continue
+		}
+		last_refresh_time := p.db.FriendCommon.GetLastBossRefreshTime()
+		if now_time-last_refresh_time >= global_config.FriendSearchBossRefreshHours*3600 {
+			continue
+		}
+		friend_boss_table_id := p.db.FriendCommon.GetFriendBossTableId()
+		if friend_boss_table_id == 0 {
+			continue
+		}
+		friend_boss_tdata := friend_boss_table_mgr.Get(friend_boss_table_id)
+		if friend_boss_tdata == nil {
+			log.Error("Player[%v] stored friend boss table id[%v] not found", friend_ids[i], friend_boss_table_id)
+			continue
+		}
+
+		if friend_boss_tdata.LevelMin > level || friend_boss_tdata.LevelMax < level {
+			continue
+		}
+		friend_boss_info := &msg_client_message.FriendBossInfo{
+			FriendBossTableId:   friend_boss_table_id,
+			FriendBossHpPercent: p.db.FriendCommon.GetFriendBossHpPercent(),
+		}
+		friend_boss_list = append(friend_boss_list, friend_boss_info)
+	}
+
+	response := &msg_client_message.S2CFriendsBossListResponse{
+		BossList: friend_boss_list,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIENDS_BOSS_LIST_RESPONSE), response)
+
+	log.Debug("Player[%v] get friend boss list %v", this.Id, response)
+
+	return 1
+}
+
+func (this *Player) is_friend_boss_fighting() bool {
+	return atomic.CompareAndSwapInt32(&this.fighing_friend_boss, 0, 1)
+}
+
+func (this *Player) cancel_friend_boss_fighting() bool {
+	return atomic.CompareAndSwapInt32(&this.fighing_friend_boss, 1, 0)
+}
+
+// 挑战好友BOSS
+func (this *Player) friend_boss_challenge(friend_id int32) int32 {
+	p := player_mgr.GetPlayerById(friend_id)
+	if p == nil {
+		log.Error("Player[%v] not found", friend_id)
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+	}
+
+	// 是否正在挑战好友BOSS
+	if !p.is_friend_boss_fighting() {
+		log.Warn("Player[%v] friend boss is fighting", p.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FIGHTING)
+	}
+
+	last_refresh_time := p.db.FriendCommon.GetLastBossRefreshTime()
+	now_time := int32(time.Now().Unix())
+	if now_time-last_refresh_time >= global_config.FriendSearchBossRefreshHours*3600 {
+		p.cancel_friend_boss_fighting()
+		log.Error("Player[%v] friend boss is finished, wait to next refresh", p.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FINISHED)
+	}
+
+	friend_boss_table_id := p.db.FriendCommon.GetFriendBossTableId()
+	friend_boss_tdata := friend_boss_table_mgr.Get(friend_boss_table_id)
+	if friend_boss_tdata == nil {
+		p.cancel_friend_boss_fighting()
+		log.Error("Player[%v] stored friend boss table id %v not found", p.Id, friend_boss_table_id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_DATA_NOT_FOUND)
+	}
+
+	stage := stage_table_mgr.Get(friend_boss_tdata.BossStageID)
+	if stage == nil {
+		p.cancel_friend_boss_fighting()
+		log.Error("Friend Boss Stage %v not found")
+		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
+	}
+
+	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(5, stage, p)
+
+	attack_list := p.db.FriendCommon.GetAttackBossPlayerList()
+	if attack_list == nil {
+		attack_list = []int32{this.Id}
+	} else {
+		has := false
+		for i := 0; i < len(attack_list); i++ {
+			if attack_list[i] == this.Id {
+				has = true
+				break
 			}
 		}
-	}*/
-	//this.db.FriendRelative.SetLastRefreshTime(int32(time.Now().Unix()))
-	//this.db.FriendRelative.SetGiveNumToday(0)
-	//}
+		if !has {
+			attack_list = append(attack_list, this.Id)
+		}
+	}
+	p.db.FriendCommon.SetAttackBossPlayerList(attack_list)
 
-	return
-}
+	// 退出挑战
+	p.cancel_friend_boss_fighting()
 
-func (this *Player) get_friend_list(get_foster bool) int32 {
-	//remain_seconds := this.check_friends_give_points_refresh()
+	if enter_reports == nil {
+		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
+	}
+	if rounds == nil {
+		rounds = make([]*msg_client_message.BattleRoundReports, 0)
+	}
 
-	response := &msg_client_message.S2CFriendListResponse{}
-	this.Send(1, response)
-	return 1
-}
+	member_damages := this.friend_boss_team.common_data.members_damage
+	member_cures := this.friend_boss_team.common_data.members_cure
+	response := &msg_client_message.S2CBattleResultResponse{
+		IsWin:               is_win,
+		EnterReports:        enter_reports,
+		Rounds:              rounds,
+		MyTeam:              my_team,
+		TargetTeam:          target_team,
+		MyMemberDamages:     member_damages[this.friend_boss_team.side],
+		TargetMemberDamages: member_damages[this.target_stage_team.side],
+		MyMemberCures:       member_cures[this.friend_boss_team.side],
+		TargetMemberCures:   member_cures[this.target_stage_team.side],
+		HasNextWave:         has_next_wave,
+		BattleType:          5,
+		BattleParam:         friend_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
-func (this *Player) store_friend_points(friend_id int32) (err int32, last_save int32, remain_seconds int32) {
+	if is_win && !has_next_wave {
+		this.send_stage_reward(stage, 5)
+	}
 
-	return
-}
-
-func (this *Player) give_friend_points(friend_list []int32) int32 {
-	this.check_friends_give_points_refresh()
-
-	return 1
-}
-
-func (this *Player) get_friend_points(friend_list []int32) int32 {
-	this.check_friends_give_points_refresh()
+	Output_S2CBattleResult(this, response)
 
 	return 1
 }

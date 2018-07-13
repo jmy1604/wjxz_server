@@ -964,7 +964,7 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 		stage_type = 1
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage)
+	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage, nil)
 	response := &msg_client_message.S2CBattleResultResponse{}
 	response.IsWin = is_win
 	response.MyTeam = my_team

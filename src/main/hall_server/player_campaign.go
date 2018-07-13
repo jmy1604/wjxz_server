@@ -99,7 +99,7 @@ func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int
 	return true, next_campaign.Difficulty
 }
 
-func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem) (is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
+func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player) (is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
 	var attack_team *BattleTeam
 	var team_type int32
 	if stage_type == 1 {
@@ -126,6 +126,12 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		}
 		attack_team = this.active_stage_team
 		team_type = BATTLE_ACTIVE_STAGE_TEAM
+	} else if stage_type == 5 {
+		if this.friend_boss_team == nil {
+			this.friend_boss_team = &BattleTeam{}
+		}
+		attack_team = this.friend_boss_team
+		team_type = BATTLE_FRIEND_BOSS_TEAM
 	} else {
 		log.Error("Stage type %v invalid", stage_type)
 		return
@@ -151,7 +157,7 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		}
 	}
 
-	if !this.target_stage_team.InitWithStage(1, stage.Id, this.stage_wave) {
+	if !this.target_stage_team.InitWithStage(1, stage.Id, this.stage_wave, friend) {
 		log.Error("Player[%v] init stage[%v] wave[%v] team failed", this.Id, stage.Id, this.stage_wave)
 		return
 	}
@@ -172,6 +178,10 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 }
 
 func (this *Player) send_stage_reward(stage *table_config.XmlPassItem, reward_type int32) {
+	if stage.RewardList == nil || len(stage.RewardList) == 0 {
+		return
+	}
+
 	rewards_msg := &msg_client_message.S2CCampaignHangupIncomeResponse{}
 	// 奖励
 	for i := 0; i < len(stage.RewardList)/2; i++ {
@@ -210,7 +220,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage)
+	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage, nil)
 
 	next_campaign_id := int32(0)
 	if is_win && !has_next_wave {

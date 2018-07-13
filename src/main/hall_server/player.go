@@ -94,6 +94,8 @@ type Player struct {
 	campaign_team          *BattleTeam                           // PVE战役阵型
 	tower_team             *BattleTeam                           // PVE爬塔阵型
 	active_stage_team      *BattleTeam                           // PVE活动关卡阵型
+	friend_boss_team       *BattleTeam                           // PVE好友BOSS关卡阵型
+	fighing_friend_boss    int32                                 // 是否有好友正在挑战
 	defense_team           *BattleTeam                           // PVP防守阵型
 	use_defense            int32                                 // 是否正在使用防守阵型
 	target_stage_team      *BattleTeam                           // PVE关卡防守阵型
@@ -874,6 +876,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		this.attack_team = &BattleTeam{}
 	}
 	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+		p.CancelDefensing()
 		log.Error("Player[%v] init attack team failed", this.Id)
 		return -1
 	}
@@ -886,6 +889,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 			p.defense_team = &BattleTeam{}
 		}
 		if !p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) {
+			p.CancelDefensing()
 			log.Error("Player[%v] init defense team failed", player_id)
 			return -1
 		}
@@ -895,6 +899,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		target_team = p.defense_team
 	} else {
 		if !robot.defense_team.InitWithArenaRobot(robot.robot_data, 1) {
+			p.CancelDefensing()
 			log.Error("Robot[%v] init defense team failed", player_id)
 			return -1
 		}

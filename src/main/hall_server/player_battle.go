@@ -136,6 +136,7 @@ type BattleTeam struct {
 	temp_curr_id int32             // 临时ID，用于标识召唤的角色
 	members      []*TeamMember     // 成员
 	common_data  *BattleCommonData // 每回合战报
+	friend       *Player           // 用于好友BOSS
 }
 
 // 利用玩家初始化
@@ -204,7 +205,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 }
 
 // init with stage
-func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave int32) bool {
+func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave int32, friend *Player) bool {
 	stage := stage_table_mgr.Get(stage_id)
 	if stage == nil {
 		log.Warn("Cant found stage %v", stage_id)
@@ -237,6 +238,10 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 				return false
 			}
 
+			if friend != nil && !friend.db.FriendBosss.HasIndex(pos) {
+				continue
+			}
+
 			role_card := card_table_mgr.GetRankCard(monster.MonsterID, monster.Rank)
 			if role_card == nil {
 				log.Error("Cant get card by role_id[%v] and rank[%v]", monster.MonsterID, monster.Rank)
@@ -246,8 +251,21 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 			m := team_member_pool.Get()
 
 			m.init_all(this, 0, monster.Level, role_card, pos, monster.EquipID)
+
+			if friend != nil {
+				hp, _ := friend.db.FriendBosss.GetMonsterHp(pos)
+				if hp > 0 {
+					m.attrs[ATTR_HP] = hp
+					m.hp = m.attrs[ATTR_HP]
+				}
+			}
+
 			this.members[pos] = m
 		}
+	}
+
+	if friend != nil {
+		this.friend = friend
 	}
 
 	return true
@@ -635,6 +653,32 @@ func (this *BattleTeam) GetMembersEnergy() (energy map[int32]int32) {
 	return
 }
 
+// 好友BOSS更新血量
+func (this *BattleTeam) UpdateFriendBossHP() {
+	if this.friend == nil {
+		return
+	}
+
+	var boss *TeamMember
+	for i := int32(0); i < BATTLE_TEAM_MEMBER_MAX_NUM; i++ {
+		if this.members[i] == nil {
+			continue
+		}
+		if !this.friend.db.FriendBosss.HasIndex(i) {
+			continue
+		}
+		if this.members[i].is_dead() {
+			this.friend.db.FriendBosss.Remove(i)
+			continue
+		}
+		this.friend.db.FriendBosss.SetMonsterHp(i, this.members[i].hp)
+		boss = this.members[i]
+	}
+	if boss != nil {
+		this.friend.db.FriendCommon.SetFriendBossHpPercent(100 * boss.hp / boss.attrs[ATTR_HP_MAX])
+	}
+}
+
 // 开打
 func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) (is_win bool, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports) {
 	round_max := end_param
@@ -694,6 +738,10 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	this.OnFinish()
 	target_team.OnFinish()
+
+	if !is_win && this.friend != nil {
+		target_team.UpdateFriendBossHP()
+	}
 
 	return
 }
@@ -778,19 +826,12 @@ func (this *BattleTeam) DelaySkillEffect() {
 		return
 	}
 
-	c := 0
 	d := dl.head
 	for d != nil {
-		//log.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] To Delay Skill[%v] Effect trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
-		//	c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
 		one_passive_skill_effect(d.trigger_event, d.skill, d.user, d.target_team, d.trigger_pos, true)
-		//.Debug("*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@ [%v] Delay Skill[%v] Effected trigger_event[%v] user[%v,%v] target_team[%v] trigger_pos[%v]",
-		//	c+1, d.skill.Id, d.trigger_event, d.user.team.side, d.user.pos, d.target_team.side, d.trigger_pos)
-
 		n := d.next
 		delay_skill_pool.Put(d)
 		d = n
-		c += 1
 	}
 	dl.head = nil
 	dl.tail = nil
@@ -843,10 +884,15 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 			}
 		} else {
 			team_type := int32(-1)
-			if req.GetBattleType() == 3 { // 爬塔阵容
+			if req.GetBattleType() == 3 {
+				// 爬塔阵容
 				team_type = BATTLE_TOWER_TEAM
-			} else if req.GetBattleType() == 4 { // 活动副本阵容
+			} else if req.GetBattleType() == 4 {
+				// 活动副本阵容
 				team_type = BATTLE_ACTIVE_STAGE_TEAM
+			} else if req.GetBattleType() == 5 {
+				// 好友BOSS
+				team_type = BATTLE_FRIEND_BOSS_TEAM
 			} else {
 				log.Error("Player[%v] set team[%v] invalid", p.Id, team_type)
 				return -1
@@ -872,6 +918,10 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 			res = p.FightInCampaign(req.BattleParam)
 		} else if req.BattleType == 3 {
 			res = p.fight_tower(req.BattleParam)
+		} else if req.BattleType == 4 {
+
+		} else if req.BattleType == 5 {
+			res = p.friend_boss_challenge(req.BattleParam)
 		} else {
 			res = -1
 		}

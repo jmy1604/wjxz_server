@@ -206,25 +206,7 @@ func (this *H2H_FriendProc) RemoveFriend(args *rpc_common.H2H_RemoveFriend, repl
 
 // 赠送友情点
 func (this *H2H_FriendProc) GiveFriendPoints(args *rpc_common.H2H_GiveFriendPoints, reply *rpc_common.H2H_GiveFriendPointsResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
 
-	reply.FromPlayerId = args.FromPlayerId
-	reply.ToPlayerId = args.ToPlayerId
-	var err_str string
-	p := player_mgr.GetPlayerById(args.ToPlayerId)
-	if p == nil {
-		reply.Error = 1
-		err_str = fmt.Sprintf("RPC H2H_FriendProc::GiveFriendPoints @@@ not found Player[%v], get player info failed", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	reply.Error, reply.LastSave, reply.RemainSeconds = p.store_friend_points(args.FromPlayerId)
-
-	log.Debug("RPC H2H_FriendProc @@@ Player[%v] Gived Friend[%v] Points[%v] Error[%v]", args.FromPlayerId, args.ToPlayerId, args.GivePoints, reply.Error)
 	return nil
 }
 
@@ -257,19 +239,6 @@ func (this *H2H_FriendProc) Chat(args *rpc_common.H2H_FriendChat, reply *rpc_com
 
 // 刷新赠送好友
 func (this *H2H_FriendProc) RefreshGivePoints(args *rpc_common.H2H_RefreshGiveFriendPoints, reply *rpc_common.H2H_RefreshGiveFriendPointsResult) error {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-	}()
-
-	friend := player_mgr.GetPlayerById(args.ToPlayerId)
-	if friend == nil {
-		err_str := fmt.Sprintf("RPC H2H_FriendProc::RefreshGivePoints @@@ not found Player[%v]", args.ToPlayerId)
-		return errors.New(err_str)
-	}
-
-	friend.refresh_friend_give_points(args.FromPlayerId)
 	return nil
 }
 

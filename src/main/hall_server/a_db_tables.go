@@ -1117,22 +1117,48 @@ func (this* dbPlayerAssistRoleData)clone_to(d *dbPlayerAssistRoleData){
 	return
 }
 type dbPlayerFriendCommonData struct{
-	HasBoss int32
+	LastRecommendTime int32
+	LastBossRefreshTime int32
+	FriendBossTableId int32
+	FriendBossHpPercent int32
+	AttackBossPlayerList []int32
 }
 func (this* dbPlayerFriendCommonData)from_pb(pb *db.PlayerFriendCommon){
 	if pb == nil {
+		this.AttackBossPlayerList = make([]int32,0)
 		return
 	}
-	this.HasBoss = pb.GetHasBoss()
+	this.LastRecommendTime = pb.GetLastRecommendTime()
+	this.LastBossRefreshTime = pb.GetLastBossRefreshTime()
+	this.FriendBossTableId = pb.GetFriendBossTableId()
+	this.FriendBossHpPercent = pb.GetFriendBossHpPercent()
+	this.AttackBossPlayerList = make([]int32,len(pb.GetAttackBossPlayerList()))
+	for i, v := range pb.GetAttackBossPlayerList() {
+		this.AttackBossPlayerList[i] = v
+	}
 	return
 }
 func (this* dbPlayerFriendCommonData)to_pb()(pb *db.PlayerFriendCommon){
 	pb = &db.PlayerFriendCommon{}
-	pb.HasBoss = proto.Int32(this.HasBoss)
+	pb.LastRecommendTime = proto.Int32(this.LastRecommendTime)
+	pb.LastBossRefreshTime = proto.Int32(this.LastBossRefreshTime)
+	pb.FriendBossTableId = proto.Int32(this.FriendBossTableId)
+	pb.FriendBossHpPercent = proto.Int32(this.FriendBossHpPercent)
+	pb.AttackBossPlayerList = make([]int32, len(this.AttackBossPlayerList))
+	for i, v := range this.AttackBossPlayerList {
+		pb.AttackBossPlayerList[i]=v
+	}
 	return
 }
 func (this* dbPlayerFriendCommonData)clone_to(d *dbPlayerFriendCommonData){
-	d.HasBoss = this.HasBoss
+	d.LastRecommendTime = this.LastRecommendTime
+	d.LastBossRefreshTime = this.LastBossRefreshTime
+	d.FriendBossTableId = this.FriendBossTableId
+	d.FriendBossHpPercent = this.FriendBossHpPercent
+	d.AttackBossPlayerList = make([]int32, len(this.AttackBossPlayerList))
+	for _ii, _vv := range this.AttackBossPlayerList {
+		d.AttackBossPlayerList[_ii]=_vv
+	}
 	return
 }
 type dbPlayerFriendData struct{
@@ -1196,54 +1222,31 @@ func (this* dbPlayerFriendAskData)clone_to(d *dbPlayerFriendAskData){
 	d.PlayerId = this.PlayerId
 	return
 }
-type dbPlayerFriendPointData struct{
-	FromPlayerId int32
-	GivePoints int32
-}
-func (this* dbPlayerFriendPointData)from_pb(pb *db.PlayerFriendPoint){
-	if pb == nil {
-		return
-	}
-	this.FromPlayerId = pb.GetFromPlayerId()
-	this.GivePoints = pb.GetGivePoints()
-	return
-}
-func (this* dbPlayerFriendPointData)to_pb()(pb *db.PlayerFriendPoint){
-	pb = &db.PlayerFriendPoint{}
-	pb.FromPlayerId = proto.Int32(this.FromPlayerId)
-	pb.GivePoints = proto.Int32(this.GivePoints)
-	return
-}
-func (this* dbPlayerFriendPointData)clone_to(d *dbPlayerFriendPointData){
-	d.FromPlayerId = this.FromPlayerId
-	d.GivePoints = this.GivePoints
-	return
-}
 type dbPlayerFriendBossData struct{
-	MonsterId int32
 	MonsterPos int32
-	MonsterHpPercent int32
+	MonsterId int32
+	MonsterHp int32
 }
 func (this* dbPlayerFriendBossData)from_pb(pb *db.PlayerFriendBoss){
 	if pb == nil {
 		return
 	}
-	this.MonsterId = pb.GetMonsterId()
 	this.MonsterPos = pb.GetMonsterPos()
-	this.MonsterHpPercent = pb.GetMonsterHpPercent()
+	this.MonsterId = pb.GetMonsterId()
+	this.MonsterHp = pb.GetMonsterHp()
 	return
 }
 func (this* dbPlayerFriendBossData)to_pb()(pb *db.PlayerFriendBoss){
 	pb = &db.PlayerFriendBoss{}
-	pb.MonsterId = proto.Int32(this.MonsterId)
 	pb.MonsterPos = proto.Int32(this.MonsterPos)
-	pb.MonsterHpPercent = proto.Int32(this.MonsterHpPercent)
+	pb.MonsterId = proto.Int32(this.MonsterId)
+	pb.MonsterHp = proto.Int32(this.MonsterHp)
 	return
 }
 func (this* dbPlayerFriendBossData)clone_to(d *dbPlayerFriendBossData){
-	d.MonsterId = this.MonsterId
 	d.MonsterPos = this.MonsterPos
-	d.MonsterHpPercent = this.MonsterHpPercent
+	d.MonsterId = this.MonsterId
+	d.MonsterHp = this.MonsterHp
 	return
 }
 type dbPlayerDialyTaskData struct{
@@ -5770,16 +5773,74 @@ func (this *dbPlayerFriendCommonColumn)Set(v dbPlayerFriendCommonData ){
 	this.m_changed=true
 	return
 }
-func (this *dbPlayerFriendCommonColumn)GetHasBoss( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetHasBoss")
+func (this *dbPlayerFriendCommonColumn)GetLastRecommendTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetLastRecommendTime")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.HasBoss
+	v = this.m_data.LastRecommendTime
 	return
 }
-func (this *dbPlayerFriendCommonColumn)SetHasBoss(v int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetHasBoss")
+func (this *dbPlayerFriendCommonColumn)SetLastRecommendTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetLastRecommendTime")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.HasBoss = v
+	this.m_data.LastRecommendTime = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerFriendCommonColumn)GetLastBossRefreshTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetLastBossRefreshTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastBossRefreshTime
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetLastBossRefreshTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetLastBossRefreshTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastBossRefreshTime = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerFriendCommonColumn)GetFriendBossTableId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetFriendBossTableId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.FriendBossTableId
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetFriendBossTableId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetFriendBossTableId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.FriendBossTableId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerFriendCommonColumn)GetFriendBossHpPercent( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetFriendBossHpPercent")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.FriendBossHpPercent
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetFriendBossHpPercent(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetFriendBossHpPercent")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.FriendBossHpPercent = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerFriendCommonColumn)GetAttackBossPlayerList( )(v []int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetAttackBossPlayerList")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = make([]int32, len(this.m_data.AttackBossPlayerList))
+	for _ii, _vv := range this.m_data.AttackBossPlayerList {
+		v[_ii]=_vv
+	}
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetAttackBossPlayerList(v []int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetAttackBossPlayerList")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.AttackBossPlayerList = make([]int32, len(v))
+	for _ii, _vv := range v {
+		this.m_data.AttackBossPlayerList[_ii]=_vv
+	}
 	this.m_changed = true
 	return
 }
@@ -6186,155 +6247,6 @@ func (this *dbPlayerFriendAskColumn)NumAll()(n int32){
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
 }
-type dbPlayerFriendPointColumn struct{
-	m_row *dbPlayerRow
-	m_data map[int32]*dbPlayerFriendPointData
-	m_changed bool
-}
-func (this *dbPlayerFriendPointColumn)load(data []byte)(err error){
-	if data == nil || len(data) == 0 {
-		this.m_changed = false
-		return nil
-	}
-	pb := &db.PlayerFriendPointList{}
-	err = proto.Unmarshal(data, pb)
-	if err != nil {
-		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	for _, v := range pb.List {
-		d := &dbPlayerFriendPointData{}
-		d.from_pb(v)
-		this.m_data[int32(d.FromPlayerId)] = d
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerFriendPointColumn)save( )(data []byte,err error){
-	pb := &db.PlayerFriendPointList{}
-	pb.List=make([]*db.PlayerFriendPoint,len(this.m_data))
-	i:=0
-	for _, v := range this.m_data {
-		pb.List[i] = v.to_pb()
-		i++
-	}
-	data, err = proto.Marshal(pb)
-	if err != nil {
-		log.Error("Marshal %v", this.m_row.GetPlayerId())
-		return
-	}
-	this.m_changed = false
-	return
-}
-func (this *dbPlayerFriendPointColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendPointColumn.HasIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	_, has = this.m_data[id]
-	return
-}
-func (this *dbPlayerFriendPointColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendPointColumn.GetAllIndex")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]int32, len(this.m_data))
-	i := 0
-	for k, _ := range this.m_data {
-		list[i] = k
-		i++
-	}
-	return
-}
-func (this *dbPlayerFriendPointColumn)GetAll()(list []dbPlayerFriendPointData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendPointColumn.GetAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbPlayerFriendPointData, len(this.m_data))
-	i := 0
-	for _, v := range this.m_data {
-		v.clone_to(&list[i])
-		i++
-	}
-	return
-}
-func (this *dbPlayerFriendPointColumn)Get(id int32)(v *dbPlayerFriendPointData){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendPointColumn.Get")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return nil
-	}
-	v=&dbPlayerFriendPointData{}
-	d.clone_to(v)
-	return
-}
-func (this *dbPlayerFriendPointColumn)Set(v dbPlayerFriendPointData)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendPointColumn.Set")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.FromPlayerId)]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.FromPlayerId)
-		return false
-	}
-	v.clone_to(d)
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerFriendPointColumn)Add(v *dbPlayerFriendPointData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendPointColumn.Add")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.FromPlayerId)]
-	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.FromPlayerId)
-		return false
-	}
-	d:=&dbPlayerFriendPointData{}
-	v.clone_to(d)
-	this.m_data[int32(v.FromPlayerId)]=d
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerFriendPointColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendPointColumn.Remove")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[id]
-	if has {
-		delete(this.m_data,id)
-	}
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerFriendPointColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendPointColumn.Clear")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbPlayerFriendPointData)
-	this.m_changed = true
-	return
-}
-func (this *dbPlayerFriendPointColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendPointColumn.NumAll")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	return int32(len(this.m_data))
-}
-func (this *dbPlayerFriendPointColumn)GetGivePoints(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendPointColumn.GetGivePoints")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.GivePoints
-	return v,true
-}
-func (this *dbPlayerFriendPointColumn)SetGivePoints(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendPointColumn.SetGivePoints")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.GivePoints = v
-	this.m_changed = true
-	return true
-}
 type dbPlayerFriendBossColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerFriendBossData
@@ -6354,7 +6266,7 @@ func (this *dbPlayerFriendBossColumn)load(data []byte)(err error){
 	for _, v := range pb.List {
 		d := &dbPlayerFriendBossData{}
 		d.from_pb(v)
-		this.m_data[int32(d.MonsterId)] = d
+		this.m_data[int32(d.MonsterPos)] = d
 	}
 	this.m_changed = false
 	return
@@ -6417,9 +6329,9 @@ func (this *dbPlayerFriendBossColumn)Get(id int32)(v *dbPlayerFriendBossData){
 func (this *dbPlayerFriendBossColumn)Set(v dbPlayerFriendBossData)(has bool){
 	this.m_row.m_lock.UnSafeLock("dbPlayerFriendBossColumn.Set")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[int32(v.MonsterId)]
+	d := this.m_data[int32(v.MonsterPos)]
 	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.MonsterId)
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), v.MonsterPos)
 		return false
 	}
 	v.clone_to(d)
@@ -6429,14 +6341,14 @@ func (this *dbPlayerFriendBossColumn)Set(v dbPlayerFriendBossData)(has bool){
 func (this *dbPlayerFriendBossColumn)Add(v *dbPlayerFriendBossData)(ok bool){
 	this.m_row.m_lock.UnSafeLock("dbPlayerFriendBossColumn.Add")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	_, has := this.m_data[int32(v.MonsterId)]
+	_, has := this.m_data[int32(v.MonsterPos)]
 	if has {
-		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.MonsterId)
+		log.Error("already added %v %v",this.m_row.GetPlayerId(), v.MonsterPos)
 		return false
 	}
 	d:=&dbPlayerFriendBossData{}
 	v.clone_to(d)
-	this.m_data[int32(v.MonsterId)]=d
+	this.m_data[int32(v.MonsterPos)]=d
 	this.m_changed = true
 	return true
 }
@@ -6462,47 +6374,47 @@ func (this *dbPlayerFriendBossColumn)NumAll()(n int32){
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
 }
-func (this *dbPlayerFriendBossColumn)GetMonsterPos(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendBossColumn.GetMonsterPos")
+func (this *dbPlayerFriendBossColumn)GetMonsterId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendBossColumn.GetMonsterId")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		return
 	}
-	v = d.MonsterPos
+	v = d.MonsterId
 	return v,true
 }
-func (this *dbPlayerFriendBossColumn)SetMonsterPos(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendBossColumn.SetMonsterPos")
+func (this *dbPlayerFriendBossColumn)SetMonsterId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendBossColumn.SetMonsterId")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
 		return
 	}
-	d.MonsterPos = v
+	d.MonsterId = v
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerFriendBossColumn)GetMonsterHpPercent(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendBossColumn.GetMonsterHpPercent")
+func (this *dbPlayerFriendBossColumn)GetMonsterHp(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendBossColumn.GetMonsterHp")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		return
 	}
-	v = d.MonsterHpPercent
+	v = d.MonsterHp
 	return v,true
 }
-func (this *dbPlayerFriendBossColumn)SetMonsterHpPercent(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerFriendBossColumn.SetMonsterHpPercent")
+func (this *dbPlayerFriendBossColumn)SetMonsterHp(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendBossColumn.SetMonsterHp")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
 		return
 	}
-	d.MonsterHpPercent = v
+	d.MonsterHp = v
 	this.m_changed = true
 	return true
 }
@@ -8530,7 +8442,6 @@ type dbPlayerRow struct {
 	Friends dbPlayerFriendColumn
 	FriendRecommends dbPlayerFriendRecommendColumn
 	FriendAsks dbPlayerFriendAskColumn
-	FriendPoints dbPlayerFriendPointColumn
 	FriendBosss dbPlayerFriendBossColumn
 	DialyTasks dbPlayerDialyTaskColumn
 	Achieves dbPlayerAchieveColumn
@@ -8614,8 +8525,6 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.FriendRecommends.m_data=make(map[int32]*dbPlayerFriendRecommendData)
 	this.FriendAsks.m_row=this
 	this.FriendAsks.m_data=make(map[int32]*dbPlayerFriendAskData)
-	this.FriendPoints.m_row=this
-	this.FriendPoints.m_data=make(map[int32]*dbPlayerFriendPointData)
 	this.FriendBosss.m_row=this
 	this.FriendBosss.m_data=make(map[int32]*dbPlayerFriendBossData)
 	this.DialyTasks.m_row=this
@@ -8655,7 +8564,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(50)
+		db_args:=new_db_args(49)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
@@ -8835,12 +8744,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dFriendAsks)
-		dFriendPoints,db_err:=this.FriendPoints.save()
-		if db_err!=nil{
-			log.Error("insert save FriendPoint failed")
-			return db_err,false,0,"",nil
-		}
-		db_args.Push(dFriendPoints)
 		dFriendBosss,db_err:=this.FriendBosss.save()
 		if db_err!=nil{
 			log.Error("insert save FriendBoss failed")
@@ -8934,9 +8837,9 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStage.m_changed||this.AssistRoles.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendPoints.m_changed||this.FriendBosss.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStage.m_changed||this.AssistRoles.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.DialyTasks.m_changed||this.Achieves.m_changed||this.FinishedAchieves.m_changed||this.DailyTaskWholeDailys.m_changed||this.SevenActivitys.m_changed||this.Guidess.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.ChaterOpenRequest.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.WorldChat.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(50)
+			db_args:=new_db_args(49)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -9214,15 +9117,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dFriendAsks)
 			}
-			if this.FriendPoints.m_changed{
-				update_string+="FriendPoints=?,"
-				dFriendPoints,err:=this.FriendPoints.save()
-				if err!=nil{
-					log.Error("insert save FriendPoint failed")
-					return err,false,0,"",nil
-				}
-				db_args.Push(dFriendPoints)
-			}
 			if this.FriendBosss.m_changed{
 				update_string+="FriendBosss=?,"
 				dFriendBosss,err:=this.FriendBosss.save()
@@ -9399,7 +9293,6 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Friends.m_changed = false
 	this.FriendRecommends.m_changed = false
 	this.FriendAsks.m_changed = false
-	this.FriendPoints.m_changed = false
 	this.FriendBosss.m_changed = false
 	this.DialyTasks.m_changed = false
 	this.Achieves.m_changed = false
@@ -9778,14 +9671,6 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasFriendPoint := columns["FriendPoints"]
-	if !hasFriendPoint {
-		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN FriendPoints LONGBLOB")
-		if err != nil {
-			log.Error("ADD COLUMN FriendPoints failed")
-			return
-		}
-	}
 	_, hasFriendBoss := columns["FriendBosss"]
 	if !hasFriendBoss {
 		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN FriendBosss LONGBLOB")
@@ -9909,7 +9794,7 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStage,AssistRoles,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendPoints,FriendBosss,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStage,AssistRoles,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -9917,7 +9802,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStage,AssistRoles,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendPoints,FriendBosss,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStage,AssistRoles,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,DialyTasks,Achieves,FinishedAchieves,DailyTaskWholeDailys,SevenActivitys,Guidess,FriendChatUnreadIds,FriendChatUnreadMessages,ChaterOpenRequest,HeadItems,SuitAwards,WorldChat,Anouncement,FirstDrawCards) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -9995,7 +9880,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dFriends []byte
 	var dFriendRecommends []byte
 	var dFriendAsks []byte
-	var dFriendPoints []byte
 	var dFriendBosss []byte
 	var dDialyTasks []byte
 	var dAchieves []byte
@@ -10013,7 +9897,7 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dFirstDrawCards []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStage,&dAssistRoles,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendPoints,&dFriendBosss,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStage,&dAssistRoles,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dDialyTasks,&dAchieves,&dFinishedAchieves,&dDailyTaskWholeDailys,&dSevenActivitys,&dGuidess,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dChaterOpenRequest,&dHeadItems,&dSuitAwards,&dWorldChat,&dAnouncement,&dFirstDrawCards)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -10169,11 +10053,6 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.FriendAsks.load(dFriendAsks)
 		if err != nil {
 			log.Error("FriendAsks %v", PlayerId)
-			return
-		}
-		err = row.FriendPoints.load(dFriendPoints)
-		if err != nil {
-			log.Error("FriendPoints %v", PlayerId)
 			return
 		}
 		err = row.FriendBosss.load(dFriendBosss)

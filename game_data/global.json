@@ -49,9 +49,11 @@
 	"FriendMaxNum": 30,
 	"FriendRecommendNum": 10,
 	"FriendPointItemId": 9,
+	"FriendPointsOnceGive": 20,
 	"FriendStaminaItemId": 12,
 	"FriendStaminaLimit": 100,
 	"FriendRefreshTime": "00:00:00",
+	"FriendSearchBossRefreshHours": 8,
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
 	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",

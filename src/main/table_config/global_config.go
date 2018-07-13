@@ -72,9 +72,11 @@ type GlobalConfig struct {
 	FriendMaxNum                 int32      // 好友最大数量
 	FriendRecommendNum           int32      // 好友推荐数
 	FriendPointItemId            int32      // 友情点ID
+	FriendPointsOnceGive         int32      // 一次赠送的友情点
 	FriendStaminaItemId          int32      // 友情体力ID
 	FriendStaminaLimit           int32      // 友情体力上限
 	FriendRefreshTime            string     // 好友刷新时间
+	FriendSearchBossRefreshHours int32      // 好友BOSS刷新时间间隔
 
 	GooglePayUrl       string
 	FaceBookPayUrl     string

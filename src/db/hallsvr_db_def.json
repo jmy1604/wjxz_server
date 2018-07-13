@@ -449,7 +449,11 @@
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"HasBoss"}
+						{"Type":"int32","Index":1,"Name":"LastRecommendTime"},
+						{"Type":"int32","Index":2,"Name":"LastBossRefreshTime"},
+						{"Type":"int32","Index":3,"Name":"FriendBossTableId"},
+						{"Type":"int32","Index":4,"Name":"FriendBossHpPercent"},
+						{"Type":"int32","Index":5,"Name":"AttackBossPlayerList","Repeated":true}
 					]
 				},
 				{
@@ -461,7 +465,7 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"PlayerId"},
-						{"Type":"int32","Index":7,"Name":"LastGivePointsTime"}
+						{"Type":"int32","Index":2,"Name":"LastGivePointsTime"}
 					]
 				},
 				{
@@ -487,18 +491,6 @@
 					]
 				},
 				{
-					"DBColumnName":"FriendPoint",
-					"InUse":true,
-					"ColumnName":"FriendPoint",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"FromPlayerId"},
-						{"Type":"int32","Index":2,"Name":"GivePoints"}
-					]
-				},
-				{
 					"DBColumnName":"FriendBoss",
 					"InUse":true,
 					"ColumnName":"FriendBoss",
@@ -506,9 +498,9 @@
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"MonsterId"},
-						{"Type":"int32","Index":2,"Name":"MonsterPos"},
-						{"Type":"int32","Index":3,"Name":"MonsterHpPercent"}
+						{"Type":"int32","Index":1,"Name":"MonsterPos"},
+						{"Type":"int32","Index":2,"Name":"MonsterId"},
+						{"Type":"int32","Index":3,"Name":"MonsterHp"}
 					]
 				},
 				{

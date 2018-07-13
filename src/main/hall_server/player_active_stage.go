@@ -83,7 +83,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		return -1
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(4, stage)
+	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(4, stage, nil)
 	this.db.ActiveStage.IncbyCanChallengeNum(-1)
 	member_damages := this.active_stage_team.common_data.members_damage
 	member_cures := this.active_stage_team.common_data.members_cure

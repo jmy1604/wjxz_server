@@ -250,6 +250,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("active_stage_table_mgr init success")
 	}
 
+	if !friend_boss_table_mgr.Init() {
+		log.Error("friend_boss_table_mgr init failed")
+		return errors.New("friend_boss_table_mgr init failed")
+	} else {
+		log.Info("friend_boss_table_mgr init success")
+	}
+
 	if !arena_season_mgr.Init() {
 		log.Error("arena_season_mgr init failed")
 		return errors.New("arena_season_mgr init failed")
@@ -438,6 +445,7 @@ var arena_division_table_mgr table_config.ArenaDivisionTableMgr
 var arena_robot_table_mgr table_config.ArenaRobotTableMgr
 var arena_bonus_table_mgr table_config.ArenaBonusTableMgr
 var active_stage_table_mgr table_config.ActiveStageTableMgr
+var friend_boss_table_mgr table_config.FriendBossTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool
