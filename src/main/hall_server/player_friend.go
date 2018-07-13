@@ -609,7 +609,7 @@ func (this *Player) get_friends_boss_list() int32 {
 	return 1
 }
 
-func (this *Player) is_friend_boss_fighting() bool {
+func (this *Player) set_friend_boss_fighting() bool {
 	return atomic.CompareAndSwapInt32(&this.fighing_friend_boss, 0, 1)
 }
 
@@ -626,7 +626,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	}
 
 	// 是否正在挑战好友BOSS
-	if !p.is_friend_boss_fighting() {
+	if !p.set_friend_boss_fighting() {
 		log.Warn("Player[%v] friend boss is fighting", p.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FIGHTING)
 	}
