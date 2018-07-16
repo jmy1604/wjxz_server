@@ -834,7 +834,7 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 	return 1
 }
 
-func (this *Player) IsDefensing() bool {
+func (this *Player) SetDefensing() bool {
 	return atomic.CompareAndSwapInt32(&this.use_defense, 0, 1)
 }
 
@@ -864,9 +864,9 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ARENA_SEASON_IS_RESETING)
 	}
 
-	// 是否正在防守
+	// 设置正在防守
 	if p != nil {
-		if !p.IsDefensing() {
+		if !p.SetDefensing() {
 			log.Warn("Player[%v] is defensing, player[%v] fight failed", player_id, this.Id)
 			return int32(msg_client_message.E_ERR_PLAYER_IS_DEFENSING)
 		}
