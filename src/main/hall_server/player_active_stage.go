@@ -59,7 +59,82 @@ func (this *Player) send_active_stage_data() int32 {
 	return 1
 }
 
-func (this *Player) active_stage_select_friend_role(friend_id int32, role_id int32, pos int32) int32 {
+func (this *Player) active_stage_get_friends_assist_role_list() int32 {
+	roles := make(map[int32]*msg_client_message.Role)
+	friend_ids := this.db.Friends.GetAllIndex()
+	if friend_ids != nil && len(friend_ids) > 0 {
+		for i := 0; i < len(friend_ids); i++ {
+			friend := player_mgr.GetPlayerById(friend_ids[i])
+			if friend == nil {
+				continue
+			}
+			role_id := friend.db.FriendCommon.GetAssistRoleId()
+			if role_id == 0 || friend.db.Roles.HasIndex(role_id) {
+				continue
+			}
+			table_id, _ := friend.db.Roles.GetTableId(role_id)
+			level, _ := friend.db.Roles.GetLevel(role_id)
+			rank, _ := friend.db.Roles.GetRank(role_id)
+			equips, _ := friend.db.Roles.GetEquip(role_id)
+			roles[friend_ids[i]] = &msg_client_message.Role{
+				Id:      role_id,
+				TableId: table_id,
+				Level:   level,
+				Rank:    rank,
+				Equips:  equips,
+			}
+		}
+	}
+	response := &msg_client_message.S2CActiveStageAssistRoleListResponse{
+		Roles: roles,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_ASSIST_ROLE_LIST_RESPONSE), response)
+
+	log.Debug("Player[%v] active stage get assist role list %v", response)
+
+	return 1
+}
+
+func (this *Player) active_stage_select_friend_role(friend_id int32, role_id int32) int32 {
+	friend := player_mgr.GetPlayerById(friend_id)
+	if friend == nil {
+		log.Error("Player[%v] not found", friend_id)
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+	}
+
+	if !friend.db.Roles.HasIndex(role_id) {
+		log.Error("Player[%v] not have role %v", friend_id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	this.assist_friend_id = friend_id
+	this.assist_role_id = role_id
+
+	return 1
+}
+
+func (this *Player) active_stage_set_assist_role(pos int32) int32 {
+	if this.assist_friend_id <= 0 {
+		log.Error("Player[%v] no set the assist friend")
+		return -1
+	}
+
+	friend := player_mgr.GetPlayerById(this.assist_friend_id)
+	if friend == nil {
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+	}
+
+	if this.assist_role_id <= 0 {
+		log.Error("Player[%v] no set the assist role")
+		return -1
+	}
+
+	if !friend.db.Roles.HasIndex(this.assist_role_id) {
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	this.assist_role_pos = pos
+
 	return 1
 }
 
@@ -128,5 +203,5 @@ func C2SActiveStageSelectFriendRoleHandler(w http.ResponseWriter, r *http.Reques
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.active_stage_select_friend_role(req.GetFriendId(), req.GetRoleId(), req.GetPos())
+	return p.active_stage_select_friend_role(req.GetFriendId(), req.GetRoleId())
 }

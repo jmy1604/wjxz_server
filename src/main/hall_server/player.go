@@ -118,6 +118,9 @@ type Player struct {
 	friend_ask_add_locker  *sync.Mutex                           // 好友申请锁
 	friend_add             []int32                               // 增加的好友
 	friend_add_locker      *sync.Mutex                           // 好友锁
+	assist_friend_id       int32                                 // 助战好友ID
+	assist_role_id         int32                                 // 助战好友角色ID
+	assist_role_pos        int32                                 // 助战角色位置
 
 	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data PlayerAnouncementData // 公告缓存数据
@@ -704,7 +707,11 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 
 	used_id := make(map[int32]bool)
 	for i := 0; i < len(team); i++ {
-		if team[i] <= 0 {
+		if this.assist_friend_id > 0 {
+			if this.assist_role_pos == int32(i) {
+				continue
+			}
+		} else if team[i] <= 0 {
 			continue
 		}
 		if _, o := used_id[team[i]]; o {
@@ -717,7 +724,11 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
 			break
 		}
-		if team[i] <= 0 {
+		if this.assist_friend_id > 0 {
+			if this.assist_role_pos == int32(i) {
+				continue
+			}
+		} else if team[i] <= 0 {
 			continue
 		}
 		if !this.db.Roles.HasIndex(team[i]) {

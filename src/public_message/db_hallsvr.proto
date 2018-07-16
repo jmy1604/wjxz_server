@@ -225,14 +225,6 @@ message PlayerActiveStage{
 	optional int32 LastRefreshTime=2;
 }
 
-message PlayerAssistRole{
-	optional int32 RoleId=1;
-}
-
-message PlayerAssistRoleList{
-	repeated PlayerAssistRole List=1;
-}
-
 message PlayerFriendCommon{
 	optional int32 LastRecommendTime=1;
 	optional int32 LastBossRefreshTime=2;
@@ -240,6 +232,7 @@ message PlayerFriendCommon{
 	optional int32 FriendBossHpPercent=4;
 	repeated int32 AttackBossPlayerList=5;
 	optional int32 LastGetStaminaTime=6;
+	optional int32 AssistRoleId=7;
 }
 
 message PlayerFriend{

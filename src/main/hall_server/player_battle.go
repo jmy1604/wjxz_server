@@ -675,7 +675,13 @@ func (this *BattleTeam) UpdateFriendBossHP() {
 		boss = this.members[i]
 	}
 	if boss != nil {
-		this.friend.db.FriendCommon.SetFriendBossHpPercent(100 * boss.hp / boss.attrs[ATTR_HP_MAX])
+		r := float64(boss.hp) / float64(boss.attrs[ATTR_HP_MAX])
+		if r < 0.01 {
+			r = 0.01
+		}
+		percent := int32(100 * r)
+		this.friend.db.FriendCommon.SetFriendBossHpPercent(percent)
+		log.Debug("!!!!!!!!!!!!!!!!!!!!!!!! Update player[%v] friend boss hp percent %v", this.friend.Id, percent)
 	}
 }
 
@@ -739,7 +745,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	this.OnFinish()
 	target_team.OnFinish()
 
-	if !is_win && this.friend != nil {
+	if !is_win && target_team.friend != nil {
 		target_team.UpdateFriendBossHP()
 	}
 
@@ -897,6 +903,12 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 				log.Error("Player[%v] set team[%v] invalid", p.Id, team_type)
 				return -1
 			}
+
+			// 助战
+			p.assist_friend_id = req.GetAssistFriendId()
+			p.assist_role_id = req.GetAssistRoleId()
+			p.assist_role_pos = req.GetAssistPos()
+
 			res := p.SetTeam(team_type, req.AttackMembers)
 			if res < 0 {
 				log.Error("Player[%v] set team[%v] failed", p.Id, team_type)

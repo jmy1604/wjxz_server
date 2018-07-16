@@ -121,6 +121,7 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		attack_team = this.tower_team
 		team_type = BATTLE_TOWER_TEAM
 	} else if stage_type == 4 {
+		// 活动副本，助战角色
 		if this.active_stage_team == nil {
 			this.active_stage_team = &BattleTeam{}
 		}

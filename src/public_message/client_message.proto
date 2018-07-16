@@ -127,6 +127,7 @@ enum E_ERR {
 	PLAYER_FRIEND_BOSS_REFRESH_IS_COOLDOWN	= -21005; // 好友BOSS刷新还在冷却中
 	PLAYER_FRIEND_BOSS_IS_FIGHTING			= -21006; // 好友BOSS正被挑战
 	PLAYER_FRIEND_BOSS_IS_FINISHED			= -21007; // 好友BOSS已经结束
+	PLAYER_FRIEND_BOSS_NOT_FOUND			= -21008; // 好友BOSS不存在
 	
 	// 充值
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
@@ -361,6 +362,9 @@ message C2SBattleResultRequest {
 	int32 CampaignId						= 3; // 战役ID
 	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS 
 	int32 BattleParam						= 5; // 战斗参数   1 玩家ID  2 战役ID  3 塔层ID  4 活动副本ID   5 好友ID
+	int32 AssistFriendId					= 6; // 助战好友ID
+	int32 AssistRoleId					 	= 7; // 助战角色ID
+	int32 AssistPos							= 8; // 助战角色阵型位置
 }
 message S2CBattleResultResponse {
 	bool IsWin								= 1; // true 赢  false 输
@@ -1004,17 +1008,32 @@ message S2CActiveStageChallengeNumBuyResponse {
 message S2CActiveStageRefreshNotify {
 }
 
+// 获取好友列表的助战角色
+message C2SActiveStageAssistRoleListRequest {
+}
+
+message S2CActiveStageAssistRoleListResponse {
+	map<int32, Role> Roles					= 1; // key 好友ID  value 角色数据
+}
+
 // 活动副本选择好友助战角色
 message C2SActiveStageSelectAssistRoleRequest {
 	int32 FriendId							= 1; // 好友ID
 	int32 RoleId							= 2; // 好友角色ID
-	int32 Pos								= 3; // 阵型位置
 }
 
 message S2CActiveStageSelectAssistRoleResponse {
 	int32 FriendId							= 1; // 好友ID
 	int32 RoleId							= 2; // 好友角色ID
-	int32 Pos								= 3; // 阵型位置
+}
+
+// 活动副本放置好友角色到阵型
+message C2SActiveStageSetAssistRoleRequest {
+	int32 Pos								= 1;
+}
+
+message S2CActiveStageSetAssistRoleResponse {
+	int32 Pos								= 1;
 }
 
 // ----------------------------------- 好友 -----------------------------------
@@ -1137,8 +1156,9 @@ message C2SFriendsBossListRequest {
 }
 
 message FriendBossInfo {
-	int32 FriendBossTableId 				= 1;
-	int32 FriendBossHpPercent				= 2;
+	int32 FriendId							= 1;
+	int32 FriendBossTableId 				= 2;
+	int32 FriendBossHpPercent				= 3;
 }
 
 message S2CFriendsBossListResponse {
@@ -1160,10 +1180,24 @@ message C2SFriendDataRequest {
 
 message S2CFriendDataResponse {
 	int32 StaminaItemId 					= 1; // 体力物品ID
-	int32 GetStamina						= 2; // 获得体力
+	int32 AddStamina						= 2; // 增加的体力
 	int32 RemainSecondsNextStamina			= 3; // 下一点体力剩余秒数
 	int32 StaminaLimit						= 4; // 体力上限
 	int32 StaminaResumeOneCostTime			= 5; // 恢复一点体力需要时间(小时)
+}
+
+// 击打好友BOSS获取的奖励
+message S2CFriendBossAttackRewardNotify {
+	repeated ItemInfo Items					= 1;
+}
+
+// 设置助战角色给好友
+message C2SFriendSetAssistRoleRequest {
+	int32 RoleId							= 1;
+}
+
+message S2CFriendSetAssistRoleResponse {
+	int32 RoleId							= 1;
 }
 
 ////////////////////////////////////////////////

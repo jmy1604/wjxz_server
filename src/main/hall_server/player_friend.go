@@ -137,6 +137,11 @@ func (this *FriendRecommendMgr) Run() {
 }
 
 func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
+	player := player_mgr.GetPlayerById(player_id)
+	if player == nil {
+		return
+	}
+
 	this.locker.RLock()
 	defer this.locker.RUnlock()
 
@@ -154,7 +159,7 @@ func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
 		sr := r
 		for {
 			has := false
-			if this.players_array[sr] == player_id {
+			if this.players_array[sr] == player_id || player.db.Friends.HasIndex(this.players_array[sr]) || player.db.FriendAsks.HasIndex(this.players_array[sr]) {
 				has = true
 			} else {
 				if ids != nil {
@@ -301,10 +306,10 @@ func (this *Player) check_and_send_friend_add() int32 {
 }
 
 // 申请好友增加
-func (this *Player) friend_ask_add_id(player_id int32) {
+func (this *Player) friend_ask_add_ids(player_ids []int32) {
 	this.friend_ask_add_locker.Lock()
 	defer this.friend_ask_add_locker.Unlock()
-	this.friend_ask_add = append(this.friend_ask_add, player_id)
+	this.friend_ask_add = append(this.friend_ask_add, player_ids...)
 }
 
 // 申请好友
@@ -337,7 +342,7 @@ func (this *Player) friend_ask(player_ids []int32) int32 {
 		p.db.FriendAsks.Add(&dbPlayerFriendAskData{
 			PlayerId: this.Id,
 		})
-		p.friend_ask_add_id(this.Id)
+		p.friend_ask_add_ids([]int32{this.Id})
 	}
 
 	response := &msg_client_message.S2CFriendAskResponse{
@@ -458,6 +463,10 @@ func (this *Player) remove_friend(friend_ids []int32) int32 {
 
 	for i := 0; i < len(friend_ids); i++ {
 		this.db.Friends.Remove(friend_ids[i])
+		friend := player_mgr.GetPlayerById(friend_ids[i])
+		if friend != nil {
+			friend.db.Friends.Remove(this.Id)
+		}
 	}
 
 	response := &msg_client_message.S2CFriendRemoveResponse{
@@ -559,7 +568,6 @@ func (this *Player) friend_search_boss() int32 {
 		items = []*msg_client_message.ItemInfo{item}
 	} else {
 		stage_id = friend_boss_tdata.BossStageID
-		this.db.FriendCommon.SetFriendBossTableId(friend_boss_tdata.Id)
 		stage := stage_table_mgr.Get(stage_id)
 		if stage == nil {
 			log.Error("Stage[%v] table data not found in friend boss", stage_id)
@@ -570,6 +578,7 @@ func (this *Player) friend_search_boss() int32 {
 			return -1
 		}
 
+		this.db.FriendCommon.SetFriendBossTableId(friend_boss_tdata.Id)
 		this.db.FriendBosss.Clear()
 		for i := 0; i < len(stage.Monsters); i++ {
 			this.db.FriendBosss.Add(&dbPlayerFriendBossData{
@@ -607,6 +616,8 @@ func (this *Player) get_friends_boss_list() int32 {
 
 	now_time := int32(time.Now().Unix())
 	level := this.db.Info.GetLvl()
+	// 加上自己的
+	friend_ids = append(friend_ids, this.Id)
 	var friend_boss_list []*msg_client_message.FriendBossInfo
 	for i := 0; i < len(friend_ids); i++ {
 		p := player_mgr.GetPlayerById(friend_ids[i])
@@ -630,9 +641,15 @@ func (this *Player) get_friends_boss_list() int32 {
 		if friend_boss_tdata.LevelMin > level || friend_boss_tdata.LevelMax < level {
 			continue
 		}
+
+		hp_percent := p.db.FriendCommon.GetFriendBossHpPercent()
+		if hp_percent == 0 {
+			hp_percent = 100
+		}
 		friend_boss_info := &msg_client_message.FriendBossInfo{
+			FriendId:            friend_ids[i],
 			FriendBossTableId:   friend_boss_table_id,
-			FriendBossHpPercent: p.db.FriendCommon.GetFriendBossHpPercent(),
+			FriendBossHpPercent: hp_percent,
 		}
 		friend_boss_list = append(friend_boss_list, friend_boss_info)
 	}
@@ -663,6 +680,10 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
 
+	if friend_id == this.Id {
+		p = this
+	}
+
 	// 是否正在挑战好友BOSS
 	if !p.can_friend_boss_to_fight() {
 		log.Warn("Player[%v] friend boss is fighting", p.Id)
@@ -670,6 +691,11 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	}
 
 	last_refresh_time := p.db.FriendCommon.GetLastBossRefreshTime()
+	if last_refresh_time == 0 {
+		log.Error("Player[%v] fight friend[%v] boss not found")
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NOT_FOUND)
+	}
+
 	now_time := int32(time.Now().Unix())
 	if now_time-last_refresh_time >= global_config.FriendSearchBossRefreshHours*3600 {
 		p.cancel_friend_boss_fight()
@@ -741,8 +767,21 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
-	if is_win && !has_next_wave {
+	// 最后一击
+	if is_win {
 		this.send_stage_reward(stage, 5)
+		SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Friend Boss Last Hit Reward", "Friend Boss Last Hit Reward", friend_boss_tdata.RewardLastHit)
+		SendMail2(nil, friend_id, MAIL_TYPE_SYSTEM, "Friend Boss Reward Owner", "Friend Boss Reward Owner", friend_boss_tdata.RewardOwner)
+	} else {
+		o, item := this.drop_item_by_id(friend_boss_tdata.ChallengeDropID, true, nil)
+		if !o {
+			log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, friend_boss_tdata.ChallengeDropID)
+			return -1
+		}
+		notify := &msg_client_message.S2CFriendBossAttackRewardNotify{
+			Items: []*msg_client_message.ItemInfo{item},
+		}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_BOSS_ATTACK_REWARD_NOTIFY), notify)
 	}
 
 	Output_S2CBattleResult(this, response)
@@ -794,19 +833,19 @@ func (this *Player) friend_boss_get_attack_list(friend_id int32) int32 {
 }
 
 // 检测好友体力数据
-func (this *Player) check_and_add_friend_stamina() (get_stamina int32, remain_seconds int32) {
+func (this *Player) check_and_add_friend_stamina() (add_stamina int32, remain_seconds int32) {
 	now_time := int32(time.Now().Unix())
 	last_get_stamina_time := this.db.FriendCommon.GetLastGetStaminaTime()
 	if last_get_stamina_time == 0 {
 		this.add_resource(global_config.FriendStaminaItemId, global_config.FriendStartStamina)
-		get_stamina = global_config.FriendStartStamina
+		add_stamina = global_config.FriendStartStamina
 		remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours * 3600
 	} else {
 		cost_seconds := now_time - last_get_stamina_time
 		y := cost_seconds % (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
-		get_stamina = (cost_seconds - y) / (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
-		if get_stamina > 0 {
-			this.add_resource(global_config.FriendStaminaItemId, get_stamina)
+		add_stamina = (cost_seconds - y) / (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
+		if add_stamina > 0 {
+			this.add_resource(global_config.FriendStaminaItemId, add_stamina)
 		}
 		now_time -= y
 		remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours*3600 - y
@@ -818,11 +857,11 @@ func (this *Player) check_and_add_friend_stamina() (get_stamina int32, remain_se
 
 // 获取好友相关数据
 func (this *Player) friend_data(send bool) int32 {
-	get_stamina, remain_seconds := this.check_and_add_friend_stamina()
+	add_stamina, remain_seconds := this.check_and_add_friend_stamina()
 	if send {
 		response := &msg_client_message.S2CFriendDataResponse{
 			StaminaItemId:            global_config.FriendStaminaItemId,
-			GetStamina:               get_stamina,
+			AddStamina:               add_stamina,
 			RemainSecondsNextStamina: remain_seconds,
 			StaminaLimit:             global_config.FriendStaminaLimit,
 			StaminaResumeOneCostTime: global_config.FriendStaminaResumeOnePointNeedHours,
@@ -830,7 +869,33 @@ func (this *Player) friend_data(send bool) int32 {
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_DATA_RESPONSE), response)
 	}
 
-	log.Debug("Player[%v] friend data, get stamina %v, remain seconds to next stamina %v", get_stamina, remain_seconds)
+	log.Debug("Player[%v] friend data, add stamina %v, remain seconds to next stamina %v", this.Id, add_stamina, remain_seconds)
+
+	return 1
+}
+
+// 设置助战角色
+func (this *Player) friend_set_assist_role(role_id int32) int32 {
+	if !this.db.Roles.HasIndex(role_id) {
+		log.Error("Player[%v] not have role %v", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	}
+
+	_, o := this.db.Roles.GetIsLock(role_id)
+	if !o {
+		log.Error("Player[%v] role[%v] is locked", this.Id, role_id)
+		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
+	}
+
+	this.db.FriendCommon.SetAssistRoleId(role_id)
+	this.db.Roles.SetIsLock(role_id, 1)
+
+	response := &msg_client_message.S2CFriendSetAssistRoleResponse{
+		RoleId: role_id,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_SET_ASSIST_ROLE_RESPONSE), response)
+
+	log.Debug("Player[%v] set assist role %v for friends", this.Id, role_id)
 
 	return 1
 }
@@ -965,4 +1030,14 @@ func C2SFriendDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 		return -1
 	}
 	return p.friend_data(true)
+}
+
+func C2SFriendSetAssistRoleHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendSetAssistRoleRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.friend_set_assist_role(req.GetRoleId())
 }

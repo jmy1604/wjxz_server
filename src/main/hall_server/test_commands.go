@@ -2015,6 +2015,36 @@ func friend_boss_attacks_cmd(p *Player, args []string) int32 {
 	return p.friend_boss_get_attack_list(int32(player_id))
 }
 
+func friend_fight_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var friend_id int
+	var err error
+	friend_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	return p.friend_boss_challenge(int32(friend_id))
+}
+
+func friend_set_assist(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var role_id int
+	var err error
+	role_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	return p.friend_set_assist_role(int32(role_id))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2095,6 +2125,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"friend_search_boss":  friend_search_boss_cmd,
 	"friend_boss_list":    friend_boss_list_cmd,
 	"friend_boss_attacks": friend_boss_attacks_cmd,
+	"friend_fight":        friend_fight_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
