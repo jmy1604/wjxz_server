@@ -168,8 +168,12 @@ enum MSGID {
 	S2C_FRIEND_GIVE_POINTS_RESPONSE			= 11417; // 赠送友情点返回 S2CFriendGivePointsResponse
 	C2S_FRIEND_GET_POINTS_REQUEST			= 11418; // 请求领取友情点 C2SFriendGetPointsRequest
 	S2C_FRIEND_GET_POINTS_RESPONSE			= 11419; // 领取友情点返回 S2CFriendGetPointsResponse
-	C2S_FRIEND_BOSS_SEARCH_REQUEST			= 11420; // 请求搜索好友BOSS C2SFriendBossSearchRequest
-	S2C_FRIEND_BOSS_SEARCH_RESPONSE			= 11421; // 返回搜索好友BOSS S2CFriendBossSearchResponse
-	C2S_FRIENDS_BOSS_LIST_REQUEST			= 11422; // C2SFriendsBossListRequest 请求好友BOSS列表
-	S2C_FRIENDS_BOSS_LIST_RESPONSE			= 11423; // S2CFriendsBossListResponse 好友BOSS列表返回
+	C2S_FRIEND_SEARCH_BOSS_REQUEST			= 11420; // 请求搜索好友BOSS C2SFriendSearchBossRequest
+	S2C_FRIEND_SEARCH_BOSS_RESPONSE			= 11421; // 返回搜索好友BOSS S2CFriendSearchBossResponse
+	C2S_FRIENDS_BOSS_LIST_REQUEST			= 11422; // 请求好友BOSS列表 C2SFriendsBossListRequest
+	S2C_FRIENDS_BOSS_LIST_RESPONSE			= 11423; // 好友BOSS列表返回 S2CFriendsBossListResponse
+	C2S_FRIEND_BOSS_ATTACK_LIST_REQUEST		= 11424; // 获取好友BOSS助战列表 C2SFriendBossAttackListRequest
+	S2C_FRIEND_BOSS_ATTACK_LIST_RESPONSE	= 11425; // 获取好友BOSS助战列表返回 S2CFriendBossAttackListResponse
+	C2S_FRIEND_DATA_REQUEST					= 11426; // 好友相关数据 C2SFriendDataRequest
+	S2C_FRIEND_DATA_RESPONSE				= 11427; // 好友相关数据返回 S2CFriendDataResponse
 }

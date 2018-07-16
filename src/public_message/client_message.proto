@@ -1124,10 +1124,10 @@ message S2CFriendGetPointsResponse {
 }
 
 // 好友BOSS搜索
-message C2SFriendBossSearchRequest {
+message C2SFriendSearchBossRequest {
 }
 
-message S2CFriendBossSearchResponse {
+message S2CFriendSearchBossResponse {
 	int32 StageId							= 1; // 搜索到的关卡ID
 	repeated ItemInfo Items				 	= 2; // 搜索不到关卡的掉落物品
 }
@@ -1145,13 +1145,25 @@ message S2CFriendsBossListResponse {
 	repeated FriendBossInfo	BossList		= 1;
 }
 
-// 获得好友BOSS攻击列表
+// 获得好友BOSS助战列表
 message C2SFriendBossAttackListRequest {
 	int32 FriendId							= 1;
 }
 
 message S2CFriendBossAttackListResponse {
 	repeated PlayerInfo AttackList			= 1;
+}
+
+// 好友一般数据(体力之类)
+message C2SFriendDataRequest {
+}
+
+message S2CFriendDataResponse {
+	int32 StaminaItemId 					= 1; // 体力物品ID
+	int32 GetStamina						= 2; // 获得体力
+	int32 RemainSecondsNextStamina			= 3; // 下一点体力剩余秒数
+	int32 StaminaLimit						= 4; // 体力上限
+	int32 StaminaResumeOneCostTime			= 5; // 恢复一点体力需要时间(小时)
 }
 
 ////////////////////////////////////////////////

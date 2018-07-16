@@ -5,15 +5,14 @@ import (
 	"libs/utils"
 	_ "main/table_config"
 	"math/rand"
-	_ "net/http"
+	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	_ "3p/code.google.com.protobuf/proto"
-	_ "github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 //const FRIEND_UNREAD_MESSAGE_MAX_NUM int = 200
@@ -495,7 +494,7 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 }
 
 // 搜索BOSS
-func (this *Player) search_friend_boss() int32 {
+func (this *Player) friend_search_boss() int32 {
 	now_time := int32(time.Now().Unix())
 	last_refresh_time := this.db.FriendCommon.GetLastBossRefreshTime()
 	if last_refresh_time > 0 && now_time-last_refresh_time < global_config.FriendSearchBossRefreshHours*3600 {
@@ -543,12 +542,13 @@ func (this *Player) search_friend_boss() int32 {
 	}
 
 	this.db.FriendCommon.SetLastBossRefreshTime(now_time)
+	this.db.FriendCommon.SetAttackBossPlayerList(nil)
 
-	response := &msg_client_message.S2CFriendBossSearchResponse{
+	response := &msg_client_message.S2CFriendSearchBossResponse{
 		StageId: stage_id,
 		Items:   items,
 	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_BOSS_SEARCH_RESPONSE), response)
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_SEARCH_BOSS_RESPONSE), response)
 
 	if stage_id > 0 {
 		log.Debug("Player[%v] search friend boss get stage_id %v", this.Id, stage_id)
@@ -609,11 +609,11 @@ func (this *Player) get_friends_boss_list() int32 {
 	return 1
 }
 
-func (this *Player) is_friend_boss_fighting() bool {
+func (this *Player) can_friend_boss_to_fight() bool {
 	return atomic.CompareAndSwapInt32(&this.fighing_friend_boss, 0, 1)
 }
 
-func (this *Player) cancel_friend_boss_fighting() bool {
+func (this *Player) cancel_friend_boss_fight() bool {
 	return atomic.CompareAndSwapInt32(&this.fighing_friend_boss, 1, 0)
 }
 
@@ -626,7 +626,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	}
 
 	// 是否正在挑战好友BOSS
-	if !p.is_friend_boss_fighting() {
+	if !p.can_friend_boss_to_fight() {
 		log.Warn("Player[%v] friend boss is fighting", p.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FIGHTING)
 	}
@@ -634,7 +634,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	last_refresh_time := p.db.FriendCommon.GetLastBossRefreshTime()
 	now_time := int32(time.Now().Unix())
 	if now_time-last_refresh_time >= global_config.FriendSearchBossRefreshHours*3600 {
-		p.cancel_friend_boss_fighting()
+		p.cancel_friend_boss_fight()
 		log.Error("Player[%v] friend boss is finished, wait to next refresh", p.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FINISHED)
 	}
@@ -642,23 +642,25 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	friend_boss_table_id := p.db.FriendCommon.GetFriendBossTableId()
 	friend_boss_tdata := friend_boss_table_mgr.Get(friend_boss_table_id)
 	if friend_boss_tdata == nil {
-		p.cancel_friend_boss_fighting()
+		p.cancel_friend_boss_fight()
 		log.Error("Player[%v] stored friend boss table id %v not found", p.Id, friend_boss_table_id)
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_DATA_NOT_FOUND)
 	}
 
 	stage := stage_table_mgr.Get(friend_boss_tdata.BossStageID)
 	if stage == nil {
-		p.cancel_friend_boss_fighting()
+		p.cancel_friend_boss_fight()
 		log.Error("Friend Boss Stage %v not found")
 		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 
 	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(5, stage, p)
 
+	// 助战玩家列表
 	attack_list := p.db.FriendCommon.GetAttackBossPlayerList()
 	if attack_list == nil {
 		attack_list = []int32{this.Id}
+		p.db.FriendCommon.SetAttackBossPlayerList(attack_list)
 	} else {
 		has := false
 		for i := 0; i < len(attack_list); i++ {
@@ -669,12 +671,12 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		}
 		if !has {
 			attack_list = append(attack_list, this.Id)
+			p.db.FriendCommon.SetAttackBossPlayerList(attack_list)
 		}
 	}
-	p.db.FriendCommon.SetAttackBossPlayerList(attack_list)
 
 	// 退出挑战
-	p.cancel_friend_boss_fighting()
+	p.cancel_friend_boss_fight()
 
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
@@ -710,159 +712,219 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	return 1
 }
 
-func (this *Player) friend_chat_add(friend_id int32, message []byte) int32 {
-	// 未读消息数量
-	/*is_full, next_id := this.db.FriendChatUnreadIds.CheckUnreadNumFull(friend_id)
-	if is_full {
-		log.Debug("Player[%v] chat message from friend[%v] is full", this.Id, friend_id)
-		return int32(msg_client_message.E_ERR_FRIEND_MESSAGE_NUM_MAX)
-	}
-
-	new_long_id := utils.Int64From2Int32(friend_id, next_id)
-	message_data := &dbPlayerFriendChatUnreadMessageData{
-		PlayerMessageId: new_long_id,
-		Message:         message,
-		SendTime:        int32(time.Now().Unix()),
-		IsRead:          int32(0),
-	}
-
-	if !this.db.FriendChatUnreadMessages.Add(message_data) {
-		log.Error("Player[%v] add friend[%v] chat message failed", this.Id, friend_id)
-		return -1
-	}
-
-	res := this.db.FriendChatUnreadIds.AddNewMessageId(friend_id, next_id)
-	if res < 0 {
-		// 增加新ID失败则删除刚加入的消息
-		this.db.FriendChatUnreadMessages.Remove(new_long_id)
-		log.Error("Player[%v] add new message id[%v,%v] from friend[%v] failed", this.Id, next_id, new_long_id)
-		return res
-	}
-
-	log.Debug("Player[%v] add friend[%v] chat message[id:%v, long_id:%v, content:%v]", this.Id, friend_id, next_id, new_long_id, message)*/
-
-	return 1
-}
-
-func (this *Player) friend_chat(friend_id int32, message []byte) int32 {
-	/*if !this.db.Friends.HasIndex(friend_id) {
-		log.Error("Player[%v] no friend[%v], chat failed", this.Id, friend_id)
-		return int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
-	}
-
-	if len(message) > FRIEND_MESSAGE_MAX_LENGTH {
-		log.Error("Player[%v] from friend[%v] chat content is too long[%v]", this.Id, friend_id, len(message))
-		return int32(msg_client_message.E_ERR_FRIEND_MESSAGE_TOO_LONG)
-	}
-
+// 获取好友BOSS助战列表
+func (this *Player) friend_boss_get_attack_list(friend_id int32) int32 {
 	friend := player_mgr.GetPlayerById(friend_id)
-	if friend != nil {
-		res := friend.friend_chat_add(this.Id, message)
-		if res < 0 {
-			return res
-		}
+	if friend == nil {
+		log.Error("Player[%v] not found", friend_id)
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+	}
+
+	now_time := int32(time.Now().Unix())
+	if now_time-friend.db.FriendCommon.GetLastBossRefreshTime() >= global_config.FriendSearchBossRefreshHours*3600 {
+		log.Error("Player[%v] friend boss is finished")
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FINISHED)
+	}
+
+	var player_list []*msg_client_message.PlayerInfo
+	attack_list := friend.db.FriendCommon.GetAttackBossPlayerList()
+	if attack_list == nil || len(attack_list) == 0 {
+		player_list = make([]*msg_client_message.PlayerInfo, 0)
 	} else {
-		result := this.rpc_friend_chat(friend_id, message)
-		if result == nil {
-			log.Error("Player[%v] chat message[%v] to friend[%v] failed", this.Id, message, friend_id)
-			return int32(msg_client_message.E_ERR_FRIEND_CHAT_FAILED)
-		}
-		if result.Error < 0 {
-			log.Error("Player[%v] chat message[%v] to friend[%v] error[%v]", this.Id, message, friend_id, result.Error)
-			return result.Error
-		}
-	}
-
-	response := &msg_client_message.S2CFriendChatResult{}
-	response.PlayerId = proto.Int32(friend_id)
-	response.Content = message
-	this.Send(response)*/
-
-	return 1
-}
-
-func (this *Player) friend_get_unread_message_num(friend_ids []int32) int32 {
-	/*data := make([]*msg_client_message.FriendUnreadMessageNumData, len(friend_ids))
-	for i := 0; i < len(friend_ids); i++ {
-		message_num := int32(0)
-		if !this.db.Friends.HasIndex(friend_ids[i]) {
-			message_num = int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
-			log.Error("Player[%v] no friend[%v], get unread message num failed", this.Id, friend_ids[i])
-		} else {
-			message_num = this.db.FriendChatUnreadIds.GetUnreadMessageNum(friend_ids[i])
-		}
-		data[i] = &msg_client_message.FriendUnreadMessageNumData{
-			FriendId:   proto.Int32(friend_ids[i]),
-			MessageNum: proto.Int32(message_num),
-		}
-	}
-
-	response := &msg_client_message.S2CFriendGetUnreadMessageNumResult{}
-	response.Data = data
-	this.Send(response)*/
-	return 1
-}
-
-func (this *Player) friend_pull_unread_message(friend_id int32) int32 {
-	/*if !this.db.Friends.HasIndex(friend_id) {
-		log.Error("Player[%v] no friend[%v], pull unread message failed", this.Id, friend_id)
-		return int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
-	}
-
-	c := 0
-	var data []*msg_client_message.FriendChatData
-	all_unread_ids, o := this.db.FriendChatUnreadIds.GetMessageIds(friend_id)
-	if !o || all_unread_ids == nil || len(all_unread_ids) == 0 {
-		data = make([]*msg_client_message.FriendChatData, 0)
-	} else {
-		data = make([]*msg_client_message.FriendChatData, len(all_unread_ids))
-		for i := 0; i < len(all_unread_ids); i++ {
-			long_id := utils.Int64From2Int32(friend_id, all_unread_ids[i])
-			content, o := this.db.FriendChatUnreadMessages.GetMessage(long_id)
-			if !o {
-				log.Warn("Player[%v] no unread message[%v] from friend[%v]", this.Id, all_unread_ids[i], friend_id)
+		for i := 0; i < len(attack_list); i++ {
+			attacker := player_mgr.GetPlayerById(attack_list[i])
+			if attacker == nil {
 				continue
 			}
-			send_time, _ := this.db.FriendChatUnreadMessages.GetSendTime(long_id)
-			data[c] = &msg_client_message.FriendChatData{
-				Content:  content,
-				SendTime: proto.Int32(send_time),
+			player_info := &msg_client_message.PlayerInfo{
+				Id:    attack_list[i],
+				Name:  attacker.db.GetName(),
+				Level: attacker.db.Info.GetLvl(),
 			}
-			c += 1
+			player_list = append(player_list, player_info)
 		}
 	}
 
-	response := &msg_client_message.S2CFriendPullUnreadMessageResult{}
-	response.Data = data[:c]
-	response.FriendId = proto.Int32(friend_id)
-	this.Send(response)
+	response := &msg_client_message.S2CFriendBossAttackListResponse{
+		AttackList: player_list,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_BOSS_ATTACK_LIST_RESPONSE), response)
 
-	log.Debug("Player[%v] pull unread message[%v] from friend[%v]", this.Id, response.Data, friend_id)*/
+	log.Debug("Player[%v] get friend[%v] boss attack list: %v", this.Id, friend_id, response)
 
 	return 1
 }
 
-func (this *Player) friend_confirm_unread_message(friend_id int32, message_num int32) int32 {
-	/*if !this.db.Friends.HasIndex(friend_id) {
-		log.Error("Player[%v] no friend[%v], confirm unread message failed", this.Id, friend_id)
-		return int32(msg_client_message.E_ERR_FRIEND_NO_THE_FRIEND)
+// 检测好友体力数据
+func (this *Player) check_and_add_friend_stamina() (get_stamina int32, remain_seconds int32) {
+	now_time := int32(time.Now().Unix())
+	last_get_stamina_time := this.db.FriendCommon.GetLastGetStaminaTime()
+	if last_get_stamina_time == 0 {
+		this.add_resource(global_config.FriendStaminaItemId, global_config.FriendStartStamina)
+		get_stamina = global_config.FriendStartStamina
+		remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours * 3600
+	} else {
+		cost_seconds := now_time - last_get_stamina_time
+		y := cost_seconds % (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
+		get_stamina = (cost_seconds - y) / (global_config.FriendStaminaResumeOnePointNeedHours * 3600)
+		if get_stamina > 0 {
+			this.add_resource(global_config.FriendStaminaItemId, get_stamina)
+		}
+		now_time -= y
+		remain_seconds = global_config.FriendStaminaResumeOnePointNeedHours*3600 - y
 	}
 
-	res, remove_ids := this.db.FriendChatUnreadIds.ConfirmUnreadIds(friend_id, message_num)
-	if res < 0 {
-		return res
+	this.db.FriendCommon.SetLastGetStaminaTime(now_time)
+	return
+}
+
+// 获取好友相关数据
+func (this *Player) friend_data(send bool) int32 {
+	get_stamina, remain_seconds := this.check_and_add_friend_stamina()
+	if send {
+		response := &msg_client_message.S2CFriendDataResponse{
+			StaminaItemId:            global_config.FriendStaminaItemId,
+			GetStamina:               get_stamina,
+			RemainSecondsNextStamina: remain_seconds,
+			StaminaLimit:             global_config.FriendStaminaLimit,
+			StaminaResumeOneCostTime: global_config.FriendStaminaResumeOnePointNeedHours,
+		}
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_DATA_RESPONSE), response)
 	}
 
-	this.db.FriendChatUnreadMessages.RemoveMessages(friend_id, remove_ids)
-
-	response := &msg_client_message.S2CFriendConfirmUnreadMessageResult{}
-	response.FriendId = proto.Int32(friend_id)
-	response.MessageNum = proto.Int32(message_num)
-	this.Send(response)*/
-
-	log.Debug("Player[%v] confirm friend[%v] unread message num[%v]", this.Id, friend_id, message_num)
+	log.Debug("Player[%v] friend data, get stamina %v, remain seconds to next stamina %v", get_stamina, remain_seconds)
 
 	return 1
 }
 
 // ------------------------------------------------------
+
+func C2SFriendsRecommendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendRecommendRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.send_recommend_friends()
+}
+
+func C2SFriendListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.send_friend_list()
+}
+
+func C2SFriendAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendAskPlayerListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.send_friend_ask_list()
+}
+
+func C2SFriendAskHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendAskRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.friend_ask(req.GetPlayerId())
+}
+
+func C2SFriendAgreeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendAgreeRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.agree_friend_ask(req.GetPlayerIds())
+}
+
+func C2SFriendRefuseHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendRefuseRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.refuse_friend_ask(req.GetPlayerId())
+}
+
+func C2SFriendRemoveHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendRemoveRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.remove_friend(req.GetPlayerIds())
+}
+
+func C2SFriendGivePointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendGivePointsRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.give_friends_points(req.GetFriendIds())
+}
+
+func C2SFriendGetPointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendGetPointsRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.get_friend_points(req.GetFriendIds())
+}
+
+func C2SFriendSearchBossHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendSearchBossRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.friend_search_boss()
+}
+
+func C2SFriendGetBossListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendsBossListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.get_friends_boss_list()
+}
+
+func C2SFriendBossAttackListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendBossAttackListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.friend_boss_get_attack_list(req.GetFriendId())
+}
+
+func C2SFriendDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendDataRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.friend_data(true)
+}

@@ -1887,6 +1887,134 @@ func friend_recommend_cmd(p *Player, args []string) int32 {
 	return 1
 }
 
+func friend_data_cmd(p *Player, args []string) int32 {
+	return p.friend_data(true)
+}
+
+func friend_ask_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("玩家ID[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+
+	return p.friend_ask(int32(player_id))
+}
+
+func friend_agree_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.agree_friend_ask([]int32{int32(player_id)})
+}
+
+func friend_refuse_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.refuse_friend_ask(int32(player_id))
+}
+
+func friend_remove_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	return p.remove_friend([]int32{int32(player_id)})
+}
+
+func friend_list_cmd(p *Player, args []string) int32 {
+	return p.send_friend_list()
+}
+
+func friend_ask_list_cmd(p *Player, args []string) int32 {
+	return p.send_friend_ask_list()
+}
+
+func friend_give_points_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	return p.give_friends_points([]int32{int32(player_id)})
+}
+
+func friend_get_points_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	return p.get_friend_points([]int32{int32(player_id)})
+}
+
+func friend_search_boss_cmd(p *Player, args []string) int32 {
+	return p.friend_search_boss()
+}
+
+func friend_boss_list_cmd(p *Player, args []string) int32 {
+	return p.get_friends_boss_list()
+}
+
+func friend_boss_attacks_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var player_id int
+	var err error
+	player_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	return p.friend_boss_get_attack_list(int32(player_id))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1955,6 +2083,18 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"active_stage_data":   active_stage_data_cmd,
 	"fight_active_stage":  fight_active_stage_cmd,
 	"friend_recommend":    friend_recommend_cmd,
+	"friend_data":         friend_data_cmd,
+	"friend_ask":          friend_ask_cmd,
+	"friend_agree":        friend_agree_cmd,
+	"friend_refuse":       friend_refuse_cmd,
+	"friend_remove":       friend_remove_cmd,
+	"friend_list":         friend_list_cmd,
+	"friend_ask_list":     friend_ask_list_cmd,
+	"friend_give_points":  friend_give_points_cmd,
+	"friend_get_points":   friend_get_points_cmd,
+	"friend_search_boss":  friend_search_boss_cmd,
+	"friend_boss_list":    friend_boss_list_cmd,
+	"friend_boss_attacks": friend_boss_attacks_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

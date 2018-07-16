@@ -1122,6 +1122,7 @@ type dbPlayerFriendCommonData struct{
 	FriendBossTableId int32
 	FriendBossHpPercent int32
 	AttackBossPlayerList []int32
+	LastGetStaminaTime int32
 }
 func (this* dbPlayerFriendCommonData)from_pb(pb *db.PlayerFriendCommon){
 	if pb == nil {
@@ -1136,6 +1137,7 @@ func (this* dbPlayerFriendCommonData)from_pb(pb *db.PlayerFriendCommon){
 	for i, v := range pb.GetAttackBossPlayerList() {
 		this.AttackBossPlayerList[i] = v
 	}
+	this.LastGetStaminaTime = pb.GetLastGetStaminaTime()
 	return
 }
 func (this* dbPlayerFriendCommonData)to_pb()(pb *db.PlayerFriendCommon){
@@ -1148,6 +1150,7 @@ func (this* dbPlayerFriendCommonData)to_pb()(pb *db.PlayerFriendCommon){
 	for i, v := range this.AttackBossPlayerList {
 		pb.AttackBossPlayerList[i]=v
 	}
+	pb.LastGetStaminaTime = proto.Int32(this.LastGetStaminaTime)
 	return
 }
 func (this* dbPlayerFriendCommonData)clone_to(d *dbPlayerFriendCommonData){
@@ -1159,6 +1162,7 @@ func (this* dbPlayerFriendCommonData)clone_to(d *dbPlayerFriendCommonData){
 	for _ii, _vv := range this.AttackBossPlayerList {
 		d.AttackBossPlayerList[_ii]=_vv
 	}
+	d.LastGetStaminaTime = this.LastGetStaminaTime
 	return
 }
 type dbPlayerFriendData struct{
@@ -5841,6 +5845,19 @@ func (this *dbPlayerFriendCommonColumn)SetAttackBossPlayerList(v []int32){
 	for _ii, _vv := range v {
 		this.m_data.AttackBossPlayerList[_ii]=_vv
 	}
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerFriendCommonColumn)GetLastGetStaminaTime( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendCommonColumn.GetLastGetStaminaTime")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastGetStaminaTime
+	return
+}
+func (this *dbPlayerFriendCommonColumn)SetLastGetStaminaTime(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendCommonColumn.SetLastGetStaminaTime")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastGetStaminaTime = v
 	this.m_changed = true
 	return
 }

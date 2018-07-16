@@ -218,7 +218,7 @@ func (this *H2H_FriendProc) Chat(args *rpc_common.H2H_FriendChat, reply *rpc_com
 		}
 	}()
 
-	p := player_mgr.GetPlayerById(args.ToPlayerId)
+	/*p := player_mgr.GetPlayerById(args.ToPlayerId)
 	if p == nil {
 		err_str := fmt.Sprintf("RPC H2H_FriendProc::Chat @@@ not found Player[%v]", args.ToPlayerId)
 		return errors.New(err_str)
@@ -233,7 +233,7 @@ func (this *H2H_FriendProc) Chat(args *rpc_common.H2H_FriendChat, reply *rpc_com
 		reply.ToPlayerId = args.ToPlayerId
 		reply.Message = args.Message
 		log.Debug("RPC H2H_FriendProc @@@ Player[%v] chat friend[%v] message[%v]", args.FromPlayerId, args.ToPlayerId, args.Message)
-	}
+	}*/
 	return nil
 }
 

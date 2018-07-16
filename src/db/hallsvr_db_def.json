@@ -453,7 +453,8 @@
 						{"Type":"int32","Index":2,"Name":"LastBossRefreshTime"},
 						{"Type":"int32","Index":3,"Name":"FriendBossTableId"},
 						{"Type":"int32","Index":4,"Name":"FriendBossHpPercent"},
-						{"Type":"int32","Index":5,"Name":"AttackBossPlayerList","Repeated":true}
+						{"Type":"int32","Index":5,"Name":"AttackBossPlayerList","Repeated":true},
+						{"Type":"int32","Index":6,"Name":"LastGetStaminaTime"}
 					]
 				},
 				{

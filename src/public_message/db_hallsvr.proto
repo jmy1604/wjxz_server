@@ -239,6 +239,7 @@ message PlayerFriendCommon{
 	optional int32 FriendBossTableId=3;
 	optional int32 FriendBossHpPercent=4;
 	repeated int32 AttackBossPlayerList=5;
+	optional int32 LastGetStaminaTime=6;
 }
 
 message PlayerFriend{
