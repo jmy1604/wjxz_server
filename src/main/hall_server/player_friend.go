@@ -283,11 +283,15 @@ func (this *Player) send_friend_list() int32 {
 
 // 检测是否好友增加
 func (this *Player) check_and_send_friend_add() int32 {
+	this.friend_add_locker.Lock()
 	if this.friend_add == nil || len(this.friend_add) == 0 {
+		this.friend_add_locker.Unlock()
 		return 0
 	}
 	friends := this._format_friends_info(this.friend_add)
 	this.friend_add = nil
+	this.friend_add_locker.Unlock()
+
 	response := &msg_client_message.S2CFriendListAddNotify{
 		FriendsAdd: friends,
 	}
@@ -296,47 +300,66 @@ func (this *Player) check_and_send_friend_add() int32 {
 	return 1
 }
 
+// 申请好友增加
+func (this *Player) friend_ask_add_id(player_id int32) {
+	this.friend_ask_add_locker.Lock()
+	defer this.friend_ask_add_locker.Unlock()
+	this.friend_ask_add = append(this.friend_ask_add, player_id)
+}
+
 // 申请好友
-func (this *Player) friend_ask(player_id int32) int32 {
-	p := player_mgr.GetPlayerById(player_id)
-	if p == nil {
-		log.Error("Player[%v] not found", player_id)
-		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+func (this *Player) friend_ask(player_ids []int32) int32 {
+	for i := 0; i < len(player_ids); i++ {
+		player_id := player_ids[i]
+		p := player_mgr.GetPlayerById(player_id)
+		if p == nil {
+			log.Error("Player[%v] not found", player_id)
+			return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		}
+
+		if this.db.Friends.HasIndex(player_id) {
+			log.Error("Player[%v] already add player[%v] to friend", this.Id, player_id)
+			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_ALREADY_ADD)
+		}
+
+		if p.db.FriendAsks.HasIndex(this.Id) {
+			log.Error("Player[%v] already asked player[%v] to friend", this.Id, player_id)
+			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_ALREADY_ASKED)
+		}
 	}
 
-	if this.db.Friends.HasIndex(player_id) {
-		log.Error("Player[%v] already add player[%v] to friend", this.Id, player_id)
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_ALREADY_ADD)
+	for i := 0; i < len(player_ids); i++ {
+		player_id := player_ids[i]
+		p := player_mgr.GetPlayerById(player_id)
+		if p == nil {
+			continue
+		}
+		p.db.FriendAsks.Add(&dbPlayerFriendAskData{
+			PlayerId: this.Id,
+		})
+		p.friend_ask_add_id(this.Id)
 	}
-
-	if p.db.FriendAsks.HasIndex(this.Id) {
-		log.Error("Player[%v] already asked player[%v] to friend", this.Id, player_id)
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_ALREADY_ASKED)
-	}
-
-	p.db.FriendAsks.Add(&dbPlayerFriendAskData{
-		PlayerId: this.Id,
-	})
 
 	response := &msg_client_message.S2CFriendAskResponse{
-		PlayerId: player_id,
+		PlayerIds: player_ids,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_ASK_RESPONSE), response)
 
-	this.friend_ask_add = append(this.friend_ask_add, player_id)
-
-	log.Debug("Player[%v] asked player[%v] to friend", this.Id, player_id)
+	log.Debug("Player[%v] asked players[%v] to friend", this.Id, player_ids)
 
 	return 1
 }
 
 // 检测好友申请增加
 func (this *Player) check_and_send_friend_ask_add() int32 {
+	this.friend_ask_add_locker.Lock()
 	if this.friend_ask_add == nil || len(this.friend_ask_add) == 0 {
+		this.friend_ask_add_locker.Unlock()
 		return 0
 	}
 	players := _format_players_info(this.friend_ask_add)
 	this.friend_ask_add = nil
+	this.friend_ask_add_locker.Unlock()
 
 	response := &msg_client_message.S2CFriendAskPlayerListAddNotify{
 		PlayersAdd: players,
@@ -358,6 +381,13 @@ func (this *Player) send_friend_ask_list() int32 {
 	return 1
 }
 
+// 好友增加
+func (this *Player) friend_add_ids(player_ids []int32) {
+	this.friend_add_locker.Lock()
+	defer this.friend_add_locker.Unlock()
+	this.friend_add = append(this.friend_add, player_ids...)
+}
+
 // 同意加为好友
 func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	for i := 0; i < len(player_ids); i++ {
@@ -373,6 +403,14 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	}
 
 	for i := 0; i < len(player_ids); i++ {
+		p := player_mgr.GetPlayerById(player_ids[i])
+		if p == nil {
+			continue
+		}
+		p.db.Friends.Add(&dbPlayerFriendData{
+			PlayerId: this.Id,
+		})
+		p.friend_add_ids([]int32{this.Id})
 		this.db.Friends.Add(&dbPlayerFriendData{
 			PlayerId: player_ids[i],
 		})
@@ -385,7 +423,7 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_AGREE_RESPONSE), response)
 
-	this.friend_add = append(this.friend_add, player_ids...)
+	this.friend_add_ids(player_ids)
 
 	log.Debug("Player[%v] agreed players[%v] friend ask", this.Id, player_ids)
 	return 1
@@ -836,7 +874,7 @@ func C2SFriendAskHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 		log.Error("Unmarshal msg failed err(%s)", err.Error())
 		return -1
 	}
-	return p.friend_ask(req.GetPlayerId())
+	return p.friend_ask(req.GetPlayerIds())
 }
 
 func C2SFriendAgreeHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

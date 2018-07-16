@@ -516,6 +516,7 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 							}
 						}
 					}
+					return true
 				} else if effect_cond[0] == SKILL_COND_TYPE_NO_BUFF {
 					if !mem.has_buff(effect_cond[1]) {
 						return true

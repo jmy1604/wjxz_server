@@ -7,7 +7,7 @@ import (
 )
 
 type XmlFriendBossItem struct {
-	Id               int32  `xml:"Id,attr"`
+	Id               int32  `xml:"ID,attr"`
 	LevelMin         int32  `xml:"LevelMin,attr"`
 	LevelMax         int32  `xml:"LevelMax,attr"`
 	SearchBossChance int32  `xml:"SearchBossChance,attr"`
@@ -89,7 +89,7 @@ func (this *FriendBossTableMgr) Get(id int32) *XmlFriendBossItem {
 func (this *FriendBossTableMgr) GetWithLevel(level int32) *XmlFriendBossItem {
 	for i := 0; i < len(this.Array); i++ {
 		d := this.Array[i]
-		if d.LevelMin <= level && level >= d.LevelMax {
+		if d.LevelMin <= level && level <= d.LevelMax {
 			return d
 		}
 	}

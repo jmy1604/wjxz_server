@@ -115,7 +115,9 @@ type Player struct {
 	tmp_left_slot_equip_id int32                                 // 左槽升级临时保存
 	already_upgrade        bool                                  // 一键合成
 	friend_ask_add         []int32                               // 增加的好友申请
+	friend_ask_add_locker  *sync.Mutex                           // 好友申请锁
 	friend_add             []int32                               // 增加的好友
+	friend_add_locker      *sync.Mutex                           // 好友锁
 
 	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data PlayerAnouncementData // 公告缓存数据
@@ -138,6 +140,8 @@ func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
 	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
 
 	ret_p.new_mail_list_locker = &sync.Mutex{}
+	ret_p.friend_ask_add_locker = &sync.Mutex{}
+	ret_p.friend_add_locker = &sync.Mutex{}
 
 	return ret_p
 }
@@ -160,6 +164,8 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
 
 	ret_p.new_mail_list_locker = &sync.Mutex{}
+	ret_p.friend_ask_add_locker = &sync.Mutex{}
+	ret_p.friend_add_locker = &sync.Mutex{}
 
 	// 载入竞技场排名
 	ret_p.LoadArenaScore()

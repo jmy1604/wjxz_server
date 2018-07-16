@@ -1038,7 +1038,7 @@ message C2SFriendRecommendRequest {
 }
 
 message S2CFriendRecommendResponse {
-	repeated FriendInfo Players             = 1;
+	repeated FriendInfo Players             = 1; // 推荐列表
 }
 
 // 请求好友列表
@@ -1051,11 +1051,11 @@ message S2CFriendListResponse {
 
 // 申请好友
 message C2SFriendAskRequest {
-	int32 PlayerId							= 1; // 玩家ID
+	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
 message S2CFriendAskResponse {
-	int32 PlayerId							= 1; // 玩家ID
+	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
 // 请求获得申请玩家列表
@@ -1063,12 +1063,12 @@ message C2SFriendAskPlayerListRequest {
 }
 
 message S2CFriendAskPlayerListResponse {
-	repeated PlayerInfo Players			= 1; // 申请列表
+	repeated PlayerInfo Players				= 1; // 申请列表
 }
 
 // 申请玩家列表增加通知
 message S2CFriendAskPlayerListAddNotify {
-	repeated PlayerInfo PlayersAdd		= 1; // 列表
+	repeated PlayerInfo PlayersAdd			= 1; // 列表
 }
 
 // 同意添加好友
