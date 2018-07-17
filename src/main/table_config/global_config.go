@@ -68,7 +68,6 @@ type GlobalConfig struct {
 	ActiveStageRefreshTime               string     // 活动副本数据重置时间
 	ActiveStageChallengeNumOfDay         int32      // 活动副本重置挑战次数
 	ActiveStageChallengeNumPrice         int32      // 活动副本挑战次数购买价格
-	ActiveStageLoveHeartLimit            int32      // 活动副本每天获得爱心上限
 	FriendMaxNum                         int32      // 好友最大数量
 	FriendRecommendNum                   int32      // 好友推荐数
 	FriendPointItemId                    int32      // 友情点ID

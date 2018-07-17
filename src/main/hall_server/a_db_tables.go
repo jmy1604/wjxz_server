@@ -1077,6 +1077,7 @@ func (this* dbPlayerEquipData)clone_to(d *dbPlayerEquipData){
 type dbPlayerActiveStageData struct{
 	CanChallengeNum int32
 	LastRefreshTime int32
+	GetPointsDay int32
 }
 func (this* dbPlayerActiveStageData)from_pb(pb *db.PlayerActiveStage){
 	if pb == nil {
@@ -1084,17 +1085,20 @@ func (this* dbPlayerActiveStageData)from_pb(pb *db.PlayerActiveStage){
 	}
 	this.CanChallengeNum = pb.GetCanChallengeNum()
 	this.LastRefreshTime = pb.GetLastRefreshTime()
+	this.GetPointsDay = pb.GetGetPointsDay()
 	return
 }
 func (this* dbPlayerActiveStageData)to_pb()(pb *db.PlayerActiveStage){
 	pb = &db.PlayerActiveStage{}
 	pb.CanChallengeNum = proto.Int32(this.CanChallengeNum)
 	pb.LastRefreshTime = proto.Int32(this.LastRefreshTime)
+	pb.GetPointsDay = proto.Int32(this.GetPointsDay)
 	return
 }
 func (this* dbPlayerActiveStageData)clone_to(d *dbPlayerActiveStageData){
 	d.CanChallengeNum = this.CanChallengeNum
 	d.LastRefreshTime = this.LastRefreshTime
+	d.GetPointsDay = this.GetPointsDay
 	return
 }
 type dbPlayerFriendCommonData struct{
@@ -5587,6 +5591,26 @@ func (this *dbPlayerActiveStageColumn)SetLastRefreshTime(v int32){
 	this.m_data.LastRefreshTime = v
 	this.m_changed = true
 	return
+}
+func (this *dbPlayerActiveStageColumn)GetGetPointsDay( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActiveStageColumn.GetGetPointsDay")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.GetPointsDay
+	return
+}
+func (this *dbPlayerActiveStageColumn)SetGetPointsDay(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageColumn.SetGetPointsDay")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.GetPointsDay = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerActiveStageColumn)IncbyGetPointsDay(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageColumn.IncbyGetPointsDay")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.GetPointsDay += v
+	this.m_changed = true
+	return this.m_data.GetPointsDay
 }
 type dbPlayerFriendCommonColumn struct{
 	m_row *dbPlayerRow

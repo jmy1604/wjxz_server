@@ -129,15 +129,14 @@ func (this *BattleCommonData) Recycle() {
 }
 
 type BattleTeam struct {
-	player        *Player
-	team_type     int32
-	curr_attack   int32             // 当前进攻的索引
-	side          int32             // 0 左边 1 右边
-	temp_curr_id  int32             // 临时ID，用于标识召唤的角色
-	members       []*TeamMember     // 成员
-	common_data   *BattleCommonData // 每回合战报
-	friend        *Player           // 用于好友BOSS
-	assist_member *TeamMember       // 助战成员
+	player       *Player
+	team_type    int32
+	curr_attack  int32             // 当前进攻的索引
+	side         int32             // 0 左边 1 右边
+	temp_curr_id int32             // 临时ID，用于标识召唤的角色
+	members      []*TeamMember     // 成员
+	common_data  *BattleCommonData // 每回合战报
+	friend       *Player           // 用于好友BOSS
 }
 
 // 利用玩家初始化
@@ -190,7 +189,8 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 			continue
 		}
 
-		m := p.get_team_member_by_role(members[i], this, int32(i))
+		var m *TeamMember
+		m = p.get_team_member_by_role(members[i], this, int32(i))
 		if m == nil {
 			log.Error("Player[%v] init battle team get member with role_id[%v] error", p.Id, members[i])
 			continue

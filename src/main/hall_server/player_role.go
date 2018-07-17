@@ -246,40 +246,73 @@ func (this *Player) send_roles() {
 
 func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos int32) (m *TeamMember) {
 	var table_id, rank, level int32
-	var o bool
-	table_id, o = this.db.Roles.GetTableId(role_id)
-	if !o {
-		log.Error("Cant get table id by role id[%v]", role_id)
-		return
+	var o, use_assist bool
+
+	if this.assist_friend != nil && this.assist_role_id > 0 && this.assist_role_pos == pos {
+		use_assist = true
 	}
-	rank, o = this.db.Roles.GetRank(role_id)
-	if !o {
-		log.Error("Cant get rank by role id[%v]", role_id)
-		return
-	}
-	level, o = this.db.Roles.GetLevel(role_id)
-	if !o {
-		log.Error("Cant get level by role id[%v]", role_id)
-		return
+
+	if !use_assist {
+		table_id, o = this.db.Roles.GetTableId(role_id)
+		if !o {
+			log.Error("Cant get table id by role id[%v]", role_id)
+			return
+		}
+		rank, o = this.db.Roles.GetRank(role_id)
+		if !o {
+			log.Error("Cant get rank by role id[%v]", role_id)
+			return
+		}
+		level, o = this.db.Roles.GetLevel(role_id)
+		if !o {
+			log.Error("Cant get level by role id[%v]", role_id)
+			return
+		}
+	} else {
+		table_id, o = this.assist_friend.db.Roles.GetTableId(this.assist_role_id)
+		if !o {
+			return
+		}
+		rank, o = this.assist_friend.db.Roles.GetRank(this.assist_role_id)
+		if !o {
+			return
+		}
+		level, o = this.assist_friend.db.Roles.GetLevel(this.assist_role_id)
+		if !o {
+			return
+		}
 	}
 	role_card := card_table_mgr.GetRankCard(table_id, rank)
 	if role_card == nil {
-		log.Error("Cant get card by role_id[%v] and rank[%v]", table_id, rank)
+		log.Error("Cant get card by table id[%v] and rank[%v]", table_id, rank)
 		return
 	}
 
-	if this.team_member_mgr == nil {
-		this.team_member_mgr = make(map[int32]*TeamMember)
+	if !use_assist {
+		if this.team_member_mgr == nil {
+			this.team_member_mgr = make(map[int32]*TeamMember)
+		}
+		m = this.team_member_mgr[role_id]
+		if m == nil {
+			m = team_member_pool.Get()
+			this.team_member_mgr[role_id] = m
+		}
+	} else {
+		if this.assist_member == nil {
+			this.assist_member = team_member_pool.Get()
+		}
+		m = this.assist_member
 	}
-	m = this.team_member_mgr[role_id]
-	if m == nil {
-		m = team_member_pool.Get()
-		this.team_member_mgr[role_id] = m
-	}
+
 	if team == nil {
+		// 计算属性
 		m.init_attrs_equips_skills(level, role_card, nil)
 		this.role_update_suit_attr_power(role_id, true, true)
 	} else {
+		// 初始化阵型
+		if use_assist {
+			role_id = -1
+		}
 		m.init_all(team, role_id, level, role_card, pos, nil)
 	}
 	return
@@ -1053,10 +1086,20 @@ func (this *Player) get_role_power(role_id int32) (power int32) {
 }
 
 func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, get_power bool) int32 {
-	equips, o := this.db.Roles.GetEquip(role_id)
-	if !o {
-		log.Error("Player[%v] not found role[%v], update suits failed", this.Id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+	var equips []int32
+	var o bool
+	if role_id > 0 {
+		equips, o = this.db.Roles.GetEquip(role_id)
+		if !o {
+			log.Error("Player[%v] not found role[%v], update suits failed", this.Id, role_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+		}
+	} else {
+		equips, o = this.assist_friend.db.Roles.GetEquip(this.assist_role_id)
+		if !o {
+			log.Error("Assist friend[%v] not found role[%v], update suits failed", this.assist_friend.Id, this.assist_role_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
+		}
 	}
 
 	if equips == nil {
@@ -1099,7 +1142,11 @@ func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, ge
 
 	var mem *TeamMember
 	if get_suit_attr {
-		mem = this.team_member_mgr[role_id]
+		if role_id > 0 {
+			mem = this.team_member_mgr[role_id]
+		} else {
+			mem = this.assist_member
+		}
 	}
 
 	for s, n := range suits {

@@ -380,6 +380,9 @@ message S2CBattleResultResponse {
 	int32 NextCampaignId					= 11; // 下一个战役ID
 	int32 BattleType						= 12; // 战斗类型
 	int32 BattleParam						= 13; // 战斗参数
+	int32 AssistFriendId					= 14; // 助战好友ID
+	int32 AssistRoleId					 	= 15; // 助战角色ID
+	int32 AssistPos							= 16; // 助战角色阵型位置
 }
 
 // 请求录像列表

@@ -117,8 +117,30 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 
 	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(4, stage, nil)
 	this.db.ActiveStage.IncbyCanChallengeNum(-1)
+	if is_win {
+		this.db.ActiveStage.IncbyCanChallengeNum(-1)
+		this.send_stage_reward(stage, 4)
+	}
+
 	member_damages := this.active_stage_team.common_data.members_damage
 	member_cures := this.active_stage_team.common_data.members_cure
+	var assist_friend_id int32
+	if this.assist_friend != nil {
+		// 给提供助战角色的玩家增加友情点
+		if utils.CheckDayTimeArrival(this.assist_friend.db.ActiveStage.GetLastRefreshTime(), global_config.ActiveStageRefreshTime) {
+			this.assist_friend.db.ActiveStage.SetLastRefreshTime(int32(time.Now().Unix()))
+			this.assist_friend.db.ActiveStage.SetGetPointsDay(0)
+		}
+		var add_points int32
+		if this.assist_friend.db.ActiveStage.GetGetPointsDay()+global_config.FriendAssistPointsGet >= global_config.FriendPointsGetLimitDay {
+			add_points = global_config.FriendPointsGetLimitDay - this.assist_friend.db.ActiveStage.GetGetPointsDay()
+		} else {
+			add_points = global_config.FriendAssistPointsGet
+		}
+		this.assist_friend.db.ActiveStage.IncbyGetPointsDay(add_points)
+		this.assist_friend.add_item(global_config.FriendPointItemId, add_points)
+		assist_friend_id = this.assist_friend.Id
+	}
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:               is_win,
 		MyTeam:              my_team,
@@ -131,13 +153,11 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		TargetMemberCures:   member_cures[this.target_stage_team.side],
 		BattleType:          4,
 		BattleParam:         active_stage_id,
+		AssistFriendId:      assist_friend_id,
+		AssistRoleId:        this.assist_role_id,
+		AssistPos:           this.assist_role_pos,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
-
-	if is_win {
-		this.db.ActiveStage.IncbyCanChallengeNum(-1)
-		this.send_stage_reward(stage, 4)
-	}
 
 	Output_S2CBattleResult(this, response)
 

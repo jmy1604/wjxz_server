@@ -383,6 +383,7 @@
      <item ID="20011" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,3000,20,3000" EquipSkill="900001,900002,900003,900004" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="20012" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,3000,20,3000" EquipSkill="900005,900006,900007,900008" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="20013" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,3000,20,3000" EquipSkill="900009,900010,900011,900012" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
+     <item ID="20021" ItemType="2" EquipType="2" SellReward="" Quality="0" ShowStar ="0" EquipAttr="36,990000" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="21001" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,100,16,100" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="21002" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,200,16,200" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />
      <item ID="21003" ItemType="2" EquipType="1" SellReward="" Quality="0" ShowStar ="0" EquipAttr="15,300,16,300" EquipSkill="" ComposeNum="0" ComposeType="0" ComposeDropID="0" BattlePower="0" SuitID="0" />

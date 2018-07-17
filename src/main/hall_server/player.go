@@ -121,6 +121,7 @@ type Player struct {
 	assist_role_id         int32                                 // 助战好友角色ID
 	assist_role_pos        int32                                 // 助战角色位置
 	assist_friend          *Player                               // 助战好友
+	assist_member          *TeamMember                           // 助战成员
 
 	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
 	anouncement_data PlayerAnouncementData // 公告缓存数据

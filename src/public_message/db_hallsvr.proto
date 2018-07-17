@@ -223,6 +223,7 @@ message PlayerEquip{
 message PlayerActiveStage{
 	optional int32 CanChallengeNum=1;
 	optional int32 LastRefreshTime=2;
+	optional int32 GetPointsDay=3;
 }
 
 message PlayerFriendCommon{
