@@ -326,6 +326,7 @@ func (this *Player) OnLogin() {
 	this.ChkPlayerDialyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	friend_recommend_mgr.AddPlayer(this.Id)
+	atomic.StoreInt32(&this.is_lock, 0)
 	log.Info("Player[%v] login", this.Id)
 }
 
@@ -342,7 +343,6 @@ func (this *Player) OnLogout() {
 	this.hangup_income_get(0, true)
 	this.hangup_income_get(1, true)
 	this.is_logout = true
-	atomic.StoreInt32(&this.is_lock, 0)
 	log.Info("玩家[%d] 登出 ！！", this.Id)
 }
 

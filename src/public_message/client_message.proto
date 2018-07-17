@@ -118,6 +118,10 @@ enum E_ERR {
 	// 排行榜
 	RANK_LIST_TYPE_INVALID					= -20000; // 排行榜类型错误
 	
+	// 活动副本
+	PLAYER_ACTIVE_STAGE_PURCHASE_NUM_OUT	= -20100; // 活动副本购买挑战次数用完
+	PLAYER_ACTIVE_STAGE_CHALLENGE_NUM_MAX	= -20101; // 活动副本挑战次数最大
+	
 	// 好友
 	PLAYER_FRIEND_ALREADY_ADD				= -21000; // 已加为好友
 	PLAYER_FRIEND_ALREADY_ASKED				= -21001; // 已经申请了好友
@@ -994,18 +998,18 @@ message C2SActiveStageDataRequest {
 }
 
 message S2CActiveStageDataResponse{
-	int32 CanChallengeNum					= 1; // 可挑战次数
+	int32 RemainChallengeNum				= 1; // 剩余挑战次数
 	int32 MaxChallengeNum					= 2; // 最大挑战次数
-	int32 RemainSeconds4ChallengeNum		= 3; // 挑战次数刷新剩余秒数
+	int32 RemainSeconds4Refresh				= 3; // 刷新剩余秒数
 	int32 ChallengeNumPrice					= 4; // 挑战次数购买价格
+	int32 RemainBuyChallengeNum				= 5; // 剩余购买次数
 }
 
 // 活动副本挑战次数购买
-message C2SActiveStageChallengeNumBuyRequest {
+message C2SActiveStageBuyChallengeNumRequest {
 }
 
-message S2CActiveStageChallengeNumBuyResponse {
-	int32 CanChallengeNum					= 1; // 可挑战次数
+message S2CActiveStageBuyChallengeNumResponse {
 }
 
 // 活动副本刷新通知
@@ -1140,22 +1144,22 @@ message C2SFriendsBossListRequest {
 }
 
 message FriendBossInfo {
-	int32 FriendId							= 1;
-	int32 FriendBossTableId 				= 2;
-	int32 FriendBossHpPercent				= 3;
+	int32 FriendId							= 1; // 好友ID
+	int32 FriendBossTableId 				= 2; // 好友BOSS配置ID
+	int32 FriendBossHpPercent				= 3; // 好友BOSS血量百分比
 }
 
 message S2CFriendsBossListResponse {
-	repeated FriendBossInfo	BossList		= 1;
+	repeated FriendBossInfo	BossList		= 1; // BOSS列表
 }
 
 // 获得好友BOSS助战列表
 message C2SFriendBossAttackListRequest {
-	int32 FriendId							= 1;
+	int32 FriendId							= 1; // 好友ID
 }
 
 message S2CFriendBossAttackListResponse {
-	repeated PlayerInfo AttackList			= 1;
+	repeated PlayerInfo AttackList			= 1; // 攻击列表
 }
 
 // 好友一般数据(体力之类)
@@ -1172,16 +1176,16 @@ message S2CFriendDataResponse {
 
 // 击打好友BOSS获取的奖励
 message S2CFriendBossAttackRewardNotify {
-	repeated ItemInfo Items					= 1;
+	repeated ItemInfo Items					= 1; // 奖励物品
 }
 
 // 设置助战角色给好友
 message C2SFriendSetAssistRoleRequest {
-	int32 RoleId							= 1;
+	int32 RoleId							= 1; // 角色ID
 }
 
 message S2CFriendSetAssistRoleResponse {
-	int32 RoleId							= 1;
+	int32 RoleId							= 1; // 角色ID
 }
 
 ////////////////////////////////////////////////

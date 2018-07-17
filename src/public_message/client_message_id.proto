@@ -142,8 +142,8 @@ enum MSGID {
 	
 	C2S_ACTIVE_STAGE_DATA_REQUEST			= 11300; // 请求活动副本数据 C2SActiveStageDataRequest
 	S2C_ACTIVE_STAGE_DATA_RESPONSE			= 11301; // 活动副本数据返回 S2CActiveStageDataResponse
-	C2S_ACTIVE_STAGE_CHALLENGE_NUM_BUY_REQUEST = 11302; // 请求购买活动副本挑战次数 C2SActiveStageChallengeNumBuyRequest
-	S2C_ACTIVE_STAGE_CHALLENGE_NUM_BUY_RESPONSE = 11303; // 购买活动副本挑战次数返回 S2CActiveStageChallengeNumBuyResponse
+	C2S_ACTIVE_STAGE_BUY_CHALLENGE_NUM_REQUEST = 11302; // 请求购买活动副本挑战次数 C2SActiveStageChallengeNumBuyRequest
+	S2C_ACTIVE_STAGE_BUY_CHALLENGE_NUM_RESPONSE = 11303; // 购买活动副本挑战次数返回 S2CActiveStageChallengeNumBuyResponse
 	S2C_ACTIVE_STAGE_REFRESH_NOTIFY			= 11304; // 活动副本刷新通知 S2CActiveStageRefreshNotify
 	C2S_ACTIVE_STAGE_SELECT_ASSIST_ROLE_REQUEST= 11305; // 活动副本选择好友角色助战 C2SActiveStageSelectAssistRoleRequest
 	S2C_ACTIVE_STAGE_SELECT_ASSIST_ROLE_RESPONSE = 11306; // 活动副本选择好友助战返回 S2CActiveStageSelectAssistRoleResponse

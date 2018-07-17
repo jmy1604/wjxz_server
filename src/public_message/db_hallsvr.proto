@@ -224,6 +224,7 @@ message PlayerActiveStage{
 	optional int32 CanChallengeNum=1;
 	optional int32 LastRefreshTime=2;
 	optional int32 GetPointsDay=3;
+	optional int32 PurchasedNum=4;
 }
 
 message PlayerFriendCommon{

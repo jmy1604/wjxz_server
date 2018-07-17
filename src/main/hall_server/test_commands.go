@@ -1864,6 +1864,10 @@ func active_stage_data_cmd(p *Player, args []string) int32 {
 	return p.send_active_stage_data()
 }
 
+func active_stage_buy_cmd(p *Player, args []string) int32 {
+	return p.active_stage_challenge_num_purchase()
+}
+
 func fight_active_stage_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
@@ -2030,7 +2034,11 @@ func friend_fight_cmd(p *Player, args []string) int32 {
 	return p.friend_boss_challenge(int32(friend_id))
 }
 
-func friend_set_assist(p *Player, args []string) int32 {
+func assist_list_cmd(p *Player, args []string) int32 {
+	return p.active_stage_get_friends_assist_role_list()
+}
+
+func friend_set_assist_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
 		return -1
@@ -2043,6 +2051,37 @@ func friend_set_assist(p *Player, args []string) int32 {
 		return -1
 	}
 	return p.friend_set_assist_role(int32(role_id))
+}
+
+func use_assist_cmd(p *Player, args []string) int32 {
+	if len(args) < 5 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var battle_type, battle_param, friend_id, role_id, member_pos int
+	var err error
+	battle_type, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	battle_param, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+	friend_id, err = strconv.Atoi(args[2])
+	if err != nil {
+		return -1
+	}
+	role_id, err = strconv.Atoi(args[3])
+	if err != nil {
+		return -1
+	}
+	member_pos, err = strconv.Atoi(args[4])
+	if err != nil {
+		return -1
+	}
+	return p.fight(nil, int32(battle_type), int32(battle_param), int32(friend_id), int32(role_id), int32(member_pos))
 }
 
 type test_cmd_func func(*Player, []string) int32
@@ -2111,6 +2150,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"player_info":         player_info_cmd,
 	"item_onekey_upgrade": item_onekey_upgrade_cmd,
 	"active_stage_data":   active_stage_data_cmd,
+	"active_stage_buy":    active_stage_buy_cmd,
 	"fight_active_stage":  fight_active_stage_cmd,
 	"friend_recommend":    friend_recommend_cmd,
 	"friend_data":         friend_data_cmd,
@@ -2126,6 +2166,9 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"friend_boss_list":    friend_boss_list_cmd,
 	"friend_boss_attacks": friend_boss_attacks_cmd,
 	"friend_fight":        friend_fight_cmd,
+	"assist_list":         assist_list_cmd,
+	"set_assist":          friend_set_assist_cmd,
+	"use_assist":          use_assist_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

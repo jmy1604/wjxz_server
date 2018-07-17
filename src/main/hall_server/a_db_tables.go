@@ -1078,6 +1078,7 @@ type dbPlayerActiveStageData struct{
 	CanChallengeNum int32
 	LastRefreshTime int32
 	GetPointsDay int32
+	PurchasedNum int32
 }
 func (this* dbPlayerActiveStageData)from_pb(pb *db.PlayerActiveStage){
 	if pb == nil {
@@ -1086,6 +1087,7 @@ func (this* dbPlayerActiveStageData)from_pb(pb *db.PlayerActiveStage){
 	this.CanChallengeNum = pb.GetCanChallengeNum()
 	this.LastRefreshTime = pb.GetLastRefreshTime()
 	this.GetPointsDay = pb.GetGetPointsDay()
+	this.PurchasedNum = pb.GetPurchasedNum()
 	return
 }
 func (this* dbPlayerActiveStageData)to_pb()(pb *db.PlayerActiveStage){
@@ -1093,12 +1095,14 @@ func (this* dbPlayerActiveStageData)to_pb()(pb *db.PlayerActiveStage){
 	pb.CanChallengeNum = proto.Int32(this.CanChallengeNum)
 	pb.LastRefreshTime = proto.Int32(this.LastRefreshTime)
 	pb.GetPointsDay = proto.Int32(this.GetPointsDay)
+	pb.PurchasedNum = proto.Int32(this.PurchasedNum)
 	return
 }
 func (this* dbPlayerActiveStageData)clone_to(d *dbPlayerActiveStageData){
 	d.CanChallengeNum = this.CanChallengeNum
 	d.LastRefreshTime = this.LastRefreshTime
 	d.GetPointsDay = this.GetPointsDay
+	d.PurchasedNum = this.PurchasedNum
 	return
 }
 type dbPlayerFriendCommonData struct{
@@ -5611,6 +5615,26 @@ func (this *dbPlayerActiveStageColumn)IncbyGetPointsDay(v int32)(r int32){
 	this.m_data.GetPointsDay += v
 	this.m_changed = true
 	return this.m_data.GetPointsDay
+}
+func (this *dbPlayerActiveStageColumn)GetPurchasedNum( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActiveStageColumn.GetPurchasedNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.PurchasedNum
+	return
+}
+func (this *dbPlayerActiveStageColumn)SetPurchasedNum(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageColumn.SetPurchasedNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PurchasedNum = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerActiveStageColumn)IncbyPurchasedNum(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageColumn.IncbyPurchasedNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.PurchasedNum += v
+	this.m_changed = true
+	return this.m_data.PurchasedNum
 }
 type dbPlayerFriendCommonColumn struct{
 	m_row *dbPlayerRow

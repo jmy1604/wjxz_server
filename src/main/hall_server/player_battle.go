@@ -864,32 +864,32 @@ func (this *BattleTeam) HasDelayTriggerEventSkill(trigger_event int32, behiter *
 	return false
 }
 
-func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
-	var req msg_client_message.C2SBattleResultRequest
-	err := proto.Unmarshal(msg_data, &req)
-	if nil != err {
-		log.Error("Unmarshal msg failed err(%s) !", err.Error())
-		return -1
-	}
+func (this *Player) send_battle_team(tt int32, team_members []int32) {
+	response := &msg_client_message.S2CSetTeamResponse{}
+	response.TeamType = tt
+	response.TeamMembers = team_members
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_SET_TEAM_RESPONSE), response)
+}
 
-	if p.Id == req.GetFightPlayerId() {
+func (this *Player) fight(team_members []int32, battle_type, battle_param, assist_friend_id, assist_role_id, assist_pos int32) int32 {
+	if battle_type == 1 && this.Id == battle_param {
 		log.Error("Cant fight with self")
 		return -1
 	}
 
 	// 助战
-	if req.GetAssistFriendId() > 0 {
-		if p.db.Friends.HasIndex(req.GetAssistFriendId()) {
-			assist_friend := player_mgr.GetPlayerById(req.GetAssistFriendId())
+	if assist_friend_id > 0 {
+		if this.db.Friends.HasIndex(assist_friend_id) {
+			assist_friend := player_mgr.GetPlayerById(assist_friend_id)
 			if assist_friend != nil {
-				if assist_friend.db.Roles.HasIndex(req.GetAssistRoleId()) {
-					if req.GetAssistPos() >= 0 && req.GetAssistPos() < BATTLE_TEAM_MEMBER_MAX_NUM {
-						p.assist_friend = assist_friend
-						p.assist_role_id = req.GetAssistRoleId()
-						p.assist_role_pos = req.GetAssistPos()
+				if assist_friend.db.Roles.HasIndex(assist_role_id) && assist_friend.db.FriendCommon.GetAssistRoleId() == assist_role_id {
+					if assist_pos >= 0 && assist_pos < BATTLE_TEAM_MEMBER_MAX_NUM {
+						this.assist_friend = assist_friend
+						this.assist_role_id = assist_role_id
+						this.assist_role_pos = assist_pos
 
-						if req.AttackMembers != nil && len(req.AttackMembers) > int(p.assist_role_pos) {
-							req.AttackMembers[p.assist_role_pos] = 0
+						if team_members != nil && len(team_members) > int(this.assist_role_pos) {
+							team_members[this.assist_role_pos] = 0
 						}
 					}
 				}
@@ -897,89 +897,93 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 		}
 	}
 
-	if req.GetAttackMembers() != nil && len(req.GetAttackMembers()) > 0 {
-		if req.BattleType == 1 {
-			res := p.SetAttackTeam(req.AttackMembers)
+	if team_members != nil && len(team_members) > 0 {
+		if battle_type == 1 {
+			res := this.SetAttackTeam(team_members)
 			if res < 0 {
-				p.assist_friend = nil
-				log.Error("Player[%v] set attack members[%v] failed", p.Id, req.AttackMembers)
+				this.assist_friend = nil
+				log.Error("Player[%v] set attack members[%v] failed", this.Id, team_members)
 				return res
 			}
-		} else if req.BattleType == 2 {
-			res := p.SetCampaignTeam(req.AttackMembers)
+		} else if battle_type == 2 {
+			res := this.SetCampaignTeam(team_members)
 			if res < 0 {
-				p.assist_friend = nil
-				log.Error("Player[%v] set campaign members[%v] failed", p.Id, req.AttackMembers)
+				this.assist_friend = nil
+				log.Error("Player[%v] set campaign members[%v] failed", this.Id, team_members)
 				return res
 			}
 		} else {
 			team_type := int32(-1)
-			if req.GetBattleType() == 3 {
+			if battle_type == 3 {
 				// 爬塔阵容
 				team_type = BATTLE_TOWER_TEAM
-			} else if req.GetBattleType() == 4 {
+			} else if battle_type == 4 {
 				// 活动副本阵容
 				team_type = BATTLE_ACTIVE_STAGE_TEAM
-			} else if req.GetBattleType() == 5 {
+			} else if battle_type == 5 {
 				// 好友BOSS
 				team_type = BATTLE_FRIEND_BOSS_TEAM
 			} else {
-				p.assist_friend = nil
-				log.Error("Player[%v] set team[%v] invalid", p.Id, team_type)
+				this.assist_friend = nil
+				log.Error("Player[%v] set team[%v] invalid", this.Id, team_type)
 				return -1
 			}
 
-			res := p.SetTeam(team_type, req.AttackMembers)
+			res := this.SetTeam(team_type, team_members)
 			if res < 0 {
-				p.assist_friend = nil
-				log.Error("Player[%v] set team[%v] failed", p.Id, team_type)
+				this.assist_friend = nil
+				log.Error("Player[%v] set team[%v] failed", this.Id, team_type)
 				return res
 			}
 		}
-		p.send_teams()
+		this.send_teams()
 	}
 
 	var res int32
-	if req.FightPlayerId > 0 {
-		res = p.Fight2Player(req.FightPlayerId)
-	} else if req.CampaignId > 0 {
-		res = p.FightInCampaign(req.CampaignId)
+	if battle_type == 1 {
+		res = this.Fight2Player(battle_param)
+	} else if battle_type == 2 {
+		res = this.FightInCampaign(battle_param)
+	} else if battle_type == 3 {
+		res = this.fight_tower(battle_param)
+	} else if battle_type == 4 {
+		res = this.fight_active_stage(battle_param)
+	} else if battle_type == 5 {
+		res = this.friend_boss_challenge(battle_param)
 	} else {
-		if req.BattleType == 1 {
-			res = p.Fight2Player(req.GetBattleParam())
-		} else if req.BattleType == 2 {
-			res = p.FightInCampaign(req.GetBattleParam())
-		} else if req.BattleType == 3 {
-			res = p.fight_tower(req.GetBattleParam())
-		} else if req.BattleType == 4 {
-			res = p.fight_active_stage(req.GetBattleParam())
-		} else if req.BattleType == 5 {
-			res = p.friend_boss_challenge(req.GetBattleParam())
-		} else {
-			res = -1
-		}
+		res = -1
 	}
 
-	p.assist_friend = nil
+	this.assist_friend = nil
 
 	if res > 0 {
-		if req.BattleType == 1 {
-			p.send_battle_team(BATTLE_ATTACK_TEAM, req.GetAttackMembers())
-		} else if req.BattleType == 2 {
-			p.send_battle_team(BATTLE_CAMPAIN_TEAM, req.GetAttackMembers())
-		} else if req.BattleType == 3 {
-			p.send_battle_team(BATTLE_TOWER_TEAM, req.GetAttackMembers())
+		if battle_type == 1 {
+			this.send_battle_team(BATTLE_ATTACK_TEAM, team_members)
+		} else if battle_type == 2 {
+			this.send_battle_team(BATTLE_CAMPAIN_TEAM, team_members)
+		} else if battle_type == 3 {
+			this.send_battle_team(BATTLE_TOWER_TEAM, team_members)
 		}
 	}
 
 	return res
 }
 
-func (this *Player) send_battle_team(tt int32, team_members []int32) {
-	response := &msg_client_message.S2CSetTeamResponse{}
-	response.TeamType = tt
-	response.TeamMembers = team_members
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_SET_TEAM_RESPONSE), response)
+func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SBattleResultRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if nil != err {
+		log.Error("Unmarshal msg failed err(%s) !", err.Error())
+		return -1
+	}
+	if req.GetFightPlayerId() > 0 {
+		req.BattleType = 1
+		req.BattleParam = req.GetFightPlayerId()
+	} else if req.GetCampaignId() > 0 {
+		req.BattleType = 2
+		req.BattleParam = req.GetCampaignId()
+	}
+	return p.fight(req.GetAttackMembers(), req.GetBattleType(), req.GetBattleParam(), req.GetAssistFriendId(), req.GetAssistRoleId(), req.GetAssistPos())
 }
 
 func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

@@ -304,6 +304,11 @@ func (this *PlayerManager) RegMsgHandler() {
 	// 排行榜
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_RANK_LIST_REQUEST), C2SRankListHandler)
 
+	// 活动副本
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACTIVE_STAGE_DATA_REQUEST), C2SActiveStageDataHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACTIVE_STAGE_BUY_CHALLENGE_NUM_REQUEST), C2SActiveStageBuyChallengeNumHandler)
+	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_ACTIVE_STAGE_ASSIST_ROLE_LIST_REQUEST), C2SActiveStageGetAssistRoleListHandler)
+
 	// 好友
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_FRIEND_RECOMMEND_REQUEST), C2SFriendsRecommendHandler)
 	msg_handler_mgr.SetPlayerMsgHandler(uint16(msg_client_message_id.MSGID_C2S_FRIEND_LIST_REQUEST), C2SFriendListHandler)

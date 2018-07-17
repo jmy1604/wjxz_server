@@ -291,7 +291,10 @@ func (this *Player) get_rank_list_items(rank_type, start_rank, num int32) int32 
 		return int32(msg_client_message.E_ERR_RANK_LIST_TYPE_INVALID)
 	}
 
-	self_value := value.(int32)
+	var self_value int32
+	if value != nil {
+		self_value = value.(int32)
+	}
 	self_value2 := int32(0)
 	self_top_rank := int32(0)
 	if rank_type == RANK_LIST_TYPE_ARENA {

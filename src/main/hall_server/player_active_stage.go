@@ -14,13 +14,18 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+const (
+	ACTIVE_STAGE_PURCHASE_NUM = 10
+)
+
 func (this *Player) _send_active_stage_data() {
 	last_refresh := this.db.ActiveStage.GetLastRefreshTime()
 	response := &msg_client_message.S2CActiveStageDataResponse{
-		CanChallengeNum:            this.db.ActiveStage.GetCanChallengeNum(),
-		MaxChallengeNum:            global_config.ActiveStageChallengeNumOfDay,
-		RemainSeconds4ChallengeNum: utils.GetRemainSeconds2NextDayTime(last_refresh, global_config.ActiveStageRefreshTime),
-		ChallengeNumPrice:          global_config.ActiveStageChallengeNumPrice,
+		RemainChallengeNum:    this.db.ActiveStage.GetCanChallengeNum(),
+		MaxChallengeNum:       global_config.ActiveStageChallengeNumOfDay,
+		RemainSeconds4Refresh: utils.GetRemainSeconds2NextDayTime(last_refresh, global_config.ActiveStageRefreshTime),
+		ChallengeNumPrice:     global_config.ActiveStageChallengeNumPrice,
+		RemainBuyChallengeNum: ACTIVE_STAGE_PURCHASE_NUM - this.db.ActiveStage.GetPurchasedNum(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_DATA_RESPONSE), response)
 	log.Debug("Player[%v] active stage data: %v", this.Id, response)
@@ -40,6 +45,7 @@ func (this *Player) check_active_stage_refresh() bool {
 	}
 
 	this.db.ActiveStage.SetCanChallengeNum(global_config.ActiveStageChallengeNumOfDay)
+	this.db.ActiveStage.SetPurchasedNum(0)
 	this.db.ActiveStage.SetLastRefreshTime(now_time)
 
 	this._send_active_stage_data()
@@ -59,6 +65,34 @@ func (this *Player) send_active_stage_data() int32 {
 	return 1
 }
 
+func (this *Player) active_stage_challenge_num_purchase() int32 {
+	diamond := this.get_resource(ITEM_RESOURCE_ID_DIAMOND)
+	if diamond < global_config.ActiveStageChallengeNumPrice {
+		log.Error("Player[%v] buy active stage challenge num failed, diamond %v not enough, need %v", this.Id, diamond, global_config.ActiveStageChallengeNumPrice)
+		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
+	}
+
+	// 挑战次数最大
+	if this.db.ActiveStage.GetCanChallengeNum() >= global_config.ActiveStageChallengeNumOfDay {
+		log.Error("Player[%v] no need to purchase num for active stage", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_CHALLENGE_NUM_MAX)
+	}
+
+	// 剩余购买次数
+	if ACTIVE_STAGE_PURCHASE_NUM-this.db.ActiveStage.GetPurchasedNum() <= 0 {
+		log.Error("Player[%v] purchased num for active stage used out", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_PURCHASE_NUM_OUT)
+	}
+
+	this.db.ActiveStage.IncbyCanChallengeNum(1)
+	this.db.ActiveStage.IncbyPurchasedNum(1)
+	this.add_resource(ITEM_RESOURCE_ID_DIAMOND, -global_config.ActiveStageChallengeNumPrice)
+
+	this._send_active_stage_data()
+
+	return 1
+}
+
 func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 	roles := make(map[int32]*msg_client_message.Role)
 	friend_ids := this.db.Friends.GetAllIndex()
@@ -69,7 +103,7 @@ func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 				continue
 			}
 			role_id := friend.db.FriendCommon.GetAssistRoleId()
-			if role_id == 0 || friend.db.Roles.HasIndex(role_id) {
+			if role_id == 0 || !friend.db.Roles.HasIndex(role_id) {
 				continue
 			}
 			table_id, _ := friend.db.Roles.GetTableId(role_id)
@@ -90,7 +124,7 @@ func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_ASSIST_ROLE_LIST_RESPONSE), response)
 
-	log.Debug("Player[%v] active stage get assist role list %v", response)
+	log.Debug("Player[%v] active stage get assist role list %v", this.Id, response)
 
 	return 1
 }
@@ -116,7 +150,6 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	}
 
 	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(4, stage, nil)
-	this.db.ActiveStage.IncbyCanChallengeNum(-1)
 	if is_win {
 		this.db.ActiveStage.IncbyCanChallengeNum(-1)
 		this.send_stage_reward(stage, 4)
@@ -172,4 +205,24 @@ func C2SActiveStageDataHandler(w http.ResponseWriter, r *http.Request, p *Player
 		return -1
 	}
 	return p.send_active_stage_data()
+}
+
+func C2SActiveStageBuyChallengeNumHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SActiveStageBuyChallengeNumRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.active_stage_challenge_num_purchase()
+}
+
+func C2SActiveStageGetAssistRoleListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SActiveStageAssistRoleListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.active_stage_get_friends_assist_role_list()
 }
