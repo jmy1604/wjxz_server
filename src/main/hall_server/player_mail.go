@@ -55,6 +55,8 @@ func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailB
 			Id:            v.Id,
 			Type:          int32(v.Type),
 			Title:         v.Title,
+			SenderId:      v.SenderId,
+			SenderName:    v.SenderName,
 			SendTime:      v.SendUnix,
 			IsRead:        is_read,
 			IsGetAttached: is_get_attached,
@@ -101,6 +103,8 @@ func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg
 			Type:          int32(md.Type),
 			Title:         md.Title,
 			SendTime:      md.SendUnix,
+			SenderId:      md.SenderId,
+			SenderName:    md.SenderName,
 			IsRead:        is_read,
 			IsGetAttached: is_get_attached,
 			HasAttached:   has_attached,
@@ -156,7 +160,7 @@ func (this *dbPlayerMailColumn) HasUnreadMail() bool {
 	return false
 }
 
-func (this *Player) new_mail(typ int32, sender_id int32, title, content string) int32 {
+func (this *Player) new_mail(typ int32, sender_id int32, sender_name, title, content string) int32 {
 	mail_max := global_config.MailMaxCount
 	if this.db.Mails.NumAll() >= mail_max {
 		first_id := int32(0)
@@ -174,11 +178,13 @@ func (this *Player) new_mail(typ int32, sender_id int32, title, content string) 
 	}
 	new_id := this.db.MailCommon.IncbyCurrId(1)
 	this.db.Mails.Add(&dbPlayerMailData{
-		Id:       new_id,
-		Type:     int8(typ),
-		Title:    title,
-		Content:  content,
-		SendUnix: int32(time.Now().Unix()),
+		Id:         new_id,
+		Type:       int8(typ),
+		Title:      title,
+		Content:    content,
+		SendUnix:   int32(time.Now().Unix()),
+		SenderId:   sender_id,
+		SenderName: sender_name,
 	})
 
 	return new_id
@@ -284,10 +290,12 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 	}
 
 	var sender_id int32
+	var sender_name string
 	if sender != nil {
 		sender_id = sender.Id
+		sender_name = sender.db.GetName()
 	}
-	mail_id := receiver.new_mail(mail_type, sender_id, title, content)
+	mail_id := receiver.new_mail(mail_type, sender_id, sender_name, title, content)
 	if mail_id <= 0 {
 		log.Error("new mail create failed")
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)

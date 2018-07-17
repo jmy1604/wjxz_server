@@ -125,9 +125,9 @@ message PlayerMail{
 	repeated int32 AttachItemIds=6;
 	repeated int32 AttachItemNums=7;
 	optional int32 IsRead=8;
-	optional int32 PrevId=9;
-	optional int32 NextId=10;
 	optional int32 IsGetAttached=11;
+	optional int32 SenderId=12;
+	optional string SenderName=13;
 }
 
 message PlayerMailList{

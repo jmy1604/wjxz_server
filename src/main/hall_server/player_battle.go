@@ -129,14 +129,15 @@ func (this *BattleCommonData) Recycle() {
 }
 
 type BattleTeam struct {
-	player       *Player
-	team_type    int32
-	curr_attack  int32             // 当前进攻的索引
-	side         int32             // 0 左边 1 右边
-	temp_curr_id int32             // 临时ID，用于标识召唤的角色
-	members      []*TeamMember     // 成员
-	common_data  *BattleCommonData // 每回合战报
-	friend       *Player           // 用于好友BOSS
+	player        *Player
+	team_type     int32
+	curr_attack   int32             // 当前进攻的索引
+	side          int32             // 0 左边 1 右边
+	temp_curr_id  int32             // 临时ID，用于标识召唤的角色
+	members       []*TeamMember     // 成员
+	common_data   *BattleCommonData // 每回合战报
+	friend        *Player           // 用于好友BOSS
+	assist_member *TeamMember       // 助战成员
 }
 
 // 利用玩家初始化

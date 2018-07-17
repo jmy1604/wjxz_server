@@ -715,9 +715,9 @@ type dbPlayerMailData struct{
 	AttachItemIds []int32
 	AttachItemNums []int32
 	IsRead int32
-	PrevId int32
-	NextId int32
 	IsGetAttached int32
+	SenderId int32
+	SenderName string
 }
 func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 	if pb == nil {
@@ -739,9 +739,9 @@ func (this* dbPlayerMailData)from_pb(pb *db.PlayerMail){
 		this.AttachItemNums[i] = v
 	}
 	this.IsRead = pb.GetIsRead()
-	this.PrevId = pb.GetPrevId()
-	this.NextId = pb.GetNextId()
 	this.IsGetAttached = pb.GetIsGetAttached()
+	this.SenderId = pb.GetSenderId()
+	this.SenderName = pb.GetSenderName()
 	return
 }
 func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
@@ -761,9 +761,9 @@ func (this* dbPlayerMailData)to_pb()(pb *db.PlayerMail){
 		pb.AttachItemNums[i]=v
 	}
 	pb.IsRead = proto.Int32(this.IsRead)
-	pb.PrevId = proto.Int32(this.PrevId)
-	pb.NextId = proto.Int32(this.NextId)
 	pb.IsGetAttached = proto.Int32(this.IsGetAttached)
+	pb.SenderId = proto.Int32(this.SenderId)
+	pb.SenderName = proto.String(this.SenderName)
 	return
 }
 func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
@@ -781,9 +781,9 @@ func (this* dbPlayerMailData)clone_to(d *dbPlayerMailData){
 		d.AttachItemNums[_ii]=_vv
 	}
 	d.IsRead = this.IsRead
-	d.PrevId = this.PrevId
-	d.NextId = this.NextId
 	d.IsGetAttached = this.IsGetAttached
+	d.SenderId = this.SenderId
+	d.SenderName = this.SenderName
 	return
 }
 type dbPlayerBattleSaveData struct{
@@ -4013,50 +4013,6 @@ func (this *dbPlayerMailColumn)SetIsRead(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
-func (this *dbPlayerMailColumn)GetPrevId(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetPrevId")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.PrevId
-	return v,true
-}
-func (this *dbPlayerMailColumn)SetPrevId(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetPrevId")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.PrevId = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerMailColumn)GetNextId(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetNextId")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.NextId
-	return v,true
-}
-func (this *dbPlayerMailColumn)SetNextId(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetNextId")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.NextId = v
-	this.m_changed = true
-	return true
-}
 func (this *dbPlayerMailColumn)GetIsGetAttached(id int32)(v int32 ,has bool){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetIsGetAttached")
 	defer this.m_row.m_lock.UnSafeRUnlock()
@@ -4076,6 +4032,50 @@ func (this *dbPlayerMailColumn)SetIsGetAttached(id int32,v int32)(has bool){
 		return
 	}
 	d.IsGetAttached = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerMailColumn)GetSenderId(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetSenderId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.SenderId
+	return v,true
+}
+func (this *dbPlayerMailColumn)SetSenderId(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetSenderId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.SenderId = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerMailColumn)GetSenderName(id int32)(v string ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerMailColumn.GetSenderName")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.SenderName
+	return v,true
+}
+func (this *dbPlayerMailColumn)SetSenderName(id int32,v string)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerMailColumn.SetSenderName")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.SenderName = v
 	this.m_changed = true
 	return true
 }

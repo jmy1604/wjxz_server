@@ -281,9 +281,9 @@
 						{"Type":"int32","Index":6,"Name":"AttachItemIds","Repeated":true},
 						{"Type":"int32","Index":7,"Name":"AttachItemNums","Repeated":true},
 						{"Type":"int32","Index":8,"Name":"IsRead"},
-						{"Type":"int32","Index":9,"Name":"PrevId"},
-						{"Type":"int32","Index":10,"Name":"NextId"},
-						{"Type":"int32","Index":11,"Name":"IsGetAttached"}
+						{"Type":"int32","Index":11,"Name":"IsGetAttached"},
+						{"Type":"int32","Index":12,"Name":"SenderId"},
+						{"Type":"string","Index":13,"Name":"SenderName"}
 					]
 				},
 				{
