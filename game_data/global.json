@@ -70,7 +70,6 @@
 	"ChgNameCost":[0,10,20,30,40,50],
 	"FirstPayReward":6801,
 	
-	"RankingListOnceGetItemsNum": 20,
 	"WorldChatMaxMsgNum": 200,
 	"WorldChatPullMaxMsgNum": 50,
 	"WorldChatPullMsgCooldown": 3,
@@ -80,12 +79,5 @@
 	"AnouncementMaxNum": 1000,
 	"AnouncementSendCooldown": 15,
 	"AnouncementSendMaxNum": 10,
-	"AnouncementExistTime": 10,
-	
-	"FriendGivePointsRefreshTime":{
-		"Hour": 5,
-		"Minute": 30,
-		"Second": 0
-	},
-	"FriendGivePointsPlayerNumOneDay": 100
+	"AnouncementExistTime": 10
 }

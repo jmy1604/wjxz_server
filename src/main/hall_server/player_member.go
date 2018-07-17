@@ -558,21 +558,21 @@ func (this *TeamMember) init_equips() {
 }
 
 func (this *TeamMember) calculate_max_hp() {
-	max_hp := (this.attrs[ATTR_HP_MAX] + this.card.BaseHP + (this.level-1)*this.card.GrowthHP/100) * (10000 + this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
-	this.attrs[ATTR_HP_MAX] = max_hp
+	max_hp := int64(this.attrs[ATTR_HP_MAX]+this.card.BaseHP+(this.level-1)*this.card.GrowthHP/100) * int64(10000+this.attrs[ATTR_HP_PERCENT_BONUS]) / 10000
+	this.attrs[ATTR_HP_MAX] = int32(max_hp)
 	this.attrs[ATTR_HP] = this.attrs[ATTR_HP_MAX]
 	this.hp = this.attrs[ATTR_HP]
 }
 
 func (this *TeamMember) calculate_attack() {
-	attack := (this.attack + this.card.BaseAttack + (this.level-1)*this.card.GrowthAttack/100) * (10000 + this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
-	this.attrs[ATTR_ATTACK] = attack
+	attack := int64(this.attack+this.card.BaseAttack+(this.level-1)*this.card.GrowthAttack/100) * int64(10000+this.attrs[ATTR_ATTACK_PERCENT_BONUS]) / 10000
+	this.attrs[ATTR_ATTACK] = int32(attack)
 	this.attack = this.attrs[ATTR_ATTACK]
 }
 
 func (this *TeamMember) calculate_defense() {
-	defense := (this.defense + this.card.BaseDefence + (this.level-1)*this.card.GrowthDefence/100) * (10000 + this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
-	this.attrs[ATTR_DEFENSE] = defense
+	defense := int64(this.defense+this.card.BaseDefence+(this.level-1)*this.card.GrowthDefence/100) * int64(10000+this.attrs[ATTR_DEFENSE_PERCENT_BONUS]) / 10000
+	this.attrs[ATTR_DEFENSE] = int32(defense)
 	this.defense = this.attrs[ATTR_DEFENSE]
 }
 

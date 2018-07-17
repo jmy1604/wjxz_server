@@ -94,11 +94,6 @@ type GlobalConfig struct {
 
 	FirstPayReward int32
 
-	ShopStartRefreshTime string
-	ShopRefreshTime      string
-
-	RankingListOnceGetItemsNum int32 // 排行榜一次能取的最大数量
-
 	WorldChatMaxMsgNum       int32 // 世界聊天最大消息数
 	WorldChatPullMaxMsgNum   int32 // 世界聊天拉取的消息数量最大值
 	WorldChatPullMsgCooldown int32 // 世界聊天拉取CD
@@ -109,9 +104,6 @@ type GlobalConfig struct {
 	AnouncementSendCooldown int32 // 公告发送间隔冷却时间(分钟)
 	AnouncementSendMaxNum   int32 // 公告一次发送最大数量
 	AnouncementExistTime    int32 // 公告存在时间
-
-	FriendGivePointsRefreshTime     TimeData // 赠送友情点刷新时间
-	FriendGivePointsPlayerNumOneDay int32    // 好友赠送点数每天最大人数
 }
 
 func (this *GlobalConfig) Init(conf_path string) bool {
