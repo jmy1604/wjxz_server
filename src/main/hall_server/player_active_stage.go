@@ -95,49 +95,6 @@ func (this *Player) active_stage_get_friends_assist_role_list() int32 {
 	return 1
 }
 
-func (this *Player) active_stage_select_friend_role(friend_id int32, role_id int32) int32 {
-	friend := player_mgr.GetPlayerById(friend_id)
-	if friend == nil {
-		log.Error("Player[%v] not found", friend_id)
-		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
-	}
-
-	if !friend.db.Roles.HasIndex(role_id) {
-		log.Error("Player[%v] not have role %v", friend_id, role_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
-	}
-
-	this.assist_friend_id = friend_id
-	this.assist_role_id = role_id
-
-	return 1
-}
-
-func (this *Player) active_stage_set_assist_role(pos int32) int32 {
-	if this.assist_friend_id <= 0 {
-		log.Error("Player[%v] no set the assist friend")
-		return -1
-	}
-
-	friend := player_mgr.GetPlayerById(this.assist_friend_id)
-	if friend == nil {
-		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
-	}
-
-	if this.assist_role_id <= 0 {
-		log.Error("Player[%v] no set the assist role")
-		return -1
-	}
-
-	if !friend.db.Roles.HasIndex(this.assist_role_id) {
-		return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
-	}
-
-	this.assist_role_pos = pos
-
-	return 1
-}
-
 func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	var active_stage *table_config.XmlActiveStageItem
 	active_stage = active_stage_table_mgr.Get(active_stage_id)
@@ -178,6 +135,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	if is_win {
+		this.db.ActiveStage.IncbyCanChallengeNum(-1)
 		this.send_stage_reward(stage, 4)
 	}
 
@@ -194,14 +152,4 @@ func C2SActiveStageDataHandler(w http.ResponseWriter, r *http.Request, p *Player
 		return -1
 	}
 	return p.send_active_stage_data()
-}
-
-func C2SActiveStageSelectFriendRoleHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
-	var req msg_client_message.C2SActiveStageSelectAssistRoleRequest
-	err := proto.Unmarshal(msg_data, &req)
-	if err != nil {
-		log.Error("Unmarshal msg failed err(%s)!", err.Error())
-		return -1
-	}
-	return p.active_stage_select_friend_role(req.GetFriendId(), req.GetRoleId())
 }

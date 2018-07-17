@@ -887,6 +887,10 @@ func (this *Player) friend_set_assist_role(role_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_ROLE_IS_LOCKED)
 	}
 
+	old_assist_role := this.db.FriendCommon.GetAssistRoleId()
+	if old_assist_role > 0 {
+		this.db.Roles.SetIsLock(old_assist_role, 0)
+	}
 	this.db.FriendCommon.SetAssistRoleId(role_id)
 	this.db.Roles.SetIsLock(role_id, 1)
 

@@ -149,8 +149,6 @@ enum MSGID {
 	S2C_ACTIVE_STAGE_SELECT_ASSIST_ROLE_RESPONSE = 11306; // 活动副本选择好友助战返回 S2CActiveStageSelectAssistRoleResponse
 	C2S_ACTIVE_STAGE_ASSIST_ROLE_LIST_REQUEST = 11307; // 活动副本获取好友的助战角色列表 C2SFriendsAssistRoleListRequest
 	S2C_ACTIVE_STAGE_ASSIST_ROLE_LIST_RESPONSE = 11308; // 活动副本获取好友助战角色列表返回 S2CFriendAssistRoleListResponse
-	C2S_ACTIVE_STAGE_SET_ASSIST_ROLE_REQUEST=11309; // 活动副本设置助战角色 C2SActiveStageSetAssistRoleRequest
-	S2C_ACTIVE_STAGE_SET_ASSIST_ROLE_RESPONSE = 11310; // 活动副本设置助战角色 S2CActiveStageSetAssistRoleResponse
 	
 	C2S_FRIEND_RECOMMEND_REQUEST			= 11400; // 请求好友推荐 C2SFriendRecommendRequest
 	S2C_FRIEND_RECOMMEND_RESPONSE			= 11401; // 好友推荐返回 S2CFriendRecommendResponse

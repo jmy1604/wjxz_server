@@ -164,6 +164,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	if members == nil {
 		return false
 	}
+
 	is_empty := true
 	// 检测是否为空
 	for i := 0; i < len(members); i++ {
@@ -875,16 +876,38 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 		return -1
 	}
 
+	// 助战
+	if req.GetAssistFriendId() > 0 {
+		if p.db.Friends.HasIndex(req.GetAssistFriendId()) {
+			assist_friend := player_mgr.GetPlayerById(req.GetAssistFriendId())
+			if assist_friend != nil {
+				if assist_friend.db.Roles.HasIndex(req.GetAssistRoleId()) {
+					if req.GetAssistPos() >= 0 && req.GetAssistPos() < BATTLE_TEAM_MEMBER_MAX_NUM {
+						p.assist_friend = assist_friend
+						p.assist_role_id = req.GetAssistRoleId()
+						p.assist_role_pos = req.GetAssistPos()
+
+						if req.AttackMembers != nil && len(req.AttackMembers) > int(p.assist_role_pos) {
+							req.AttackMembers[p.assist_role_pos] = 0
+						}
+					}
+				}
+			}
+		}
+	}
+
 	if req.GetAttackMembers() != nil && len(req.GetAttackMembers()) > 0 {
 		if req.BattleType == 1 {
 			res := p.SetAttackTeam(req.AttackMembers)
 			if res < 0 {
+				p.assist_friend = nil
 				log.Error("Player[%v] set attack members[%v] failed", p.Id, req.AttackMembers)
 				return res
 			}
 		} else if req.BattleType == 2 {
 			res := p.SetCampaignTeam(req.AttackMembers)
 			if res < 0 {
+				p.assist_friend = nil
 				log.Error("Player[%v] set campaign members[%v] failed", p.Id, req.AttackMembers)
 				return res
 			}
@@ -900,17 +923,14 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 				// 好友BOSS
 				team_type = BATTLE_FRIEND_BOSS_TEAM
 			} else {
+				p.assist_friend = nil
 				log.Error("Player[%v] set team[%v] invalid", p.Id, team_type)
 				return -1
 			}
 
-			// 助战
-			p.assist_friend_id = req.GetAssistFriendId()
-			p.assist_role_id = req.GetAssistRoleId()
-			p.assist_role_pos = req.GetAssistPos()
-
 			res := p.SetTeam(team_type, req.AttackMembers)
 			if res < 0 {
+				p.assist_friend = nil
 				log.Error("Player[%v] set team[%v] failed", p.Id, team_type)
 				return res
 			}
@@ -925,19 +945,21 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 		res = p.FightInCampaign(req.CampaignId)
 	} else {
 		if req.BattleType == 1 {
-			res = p.Fight2Player(req.BattleParam)
+			res = p.Fight2Player(req.GetBattleParam())
 		} else if req.BattleType == 2 {
-			res = p.FightInCampaign(req.BattleParam)
+			res = p.FightInCampaign(req.GetBattleParam())
 		} else if req.BattleType == 3 {
-			res = p.fight_tower(req.BattleParam)
+			res = p.fight_tower(req.GetBattleParam())
 		} else if req.BattleType == 4 {
-
+			res = p.fight_active_stage(req.GetBattleParam())
 		} else if req.BattleType == 5 {
-			res = p.friend_boss_challenge(req.BattleParam)
+			res = p.friend_boss_challenge(req.GetBattleParam())
 		} else {
 			res = -1
 		}
 	}
+
+	p.assist_friend = nil
 
 	if res > 0 {
 		if req.BattleType == 1 {

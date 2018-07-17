@@ -156,7 +156,7 @@ func (this *dbPlayerMailColumn) HasUnreadMail() bool {
 	return false
 }
 
-func (this *Player) new_mail(typ int32, title, content string) int32 {
+func (this *Player) new_mail(typ int32, sender_id int32, title, content string) int32 {
 	mail_max := global_config.MailMaxCount
 	if this.db.Mails.NumAll() >= mail_max {
 		first_id := int32(0)
@@ -282,7 +282,12 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 		log.Error("Mail receiver[%v] not found", receiver_id)
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_RECEIVER_NOT_FOUND)
 	}
-	mail_id := receiver.new_mail(mail_type, title, content)
+
+	var sender_id int32
+	if sender != nil {
+		sender_id = sender.Id
+	}
+	mail_id := receiver.new_mail(mail_type, sender_id, title, content)
 	if mail_id <= 0 {
 		log.Error("new mail create failed")
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)
@@ -440,8 +445,6 @@ func (this *Player) GetMailAttachedItems(mail_ids []int32) int32 {
 				attached_items[item_id] += item_num
 			}
 		}
-		//this.db.Mails.SetAttachItemIds(mail_id, nil)
-		//this.db.Mails.SetAttachItemNums(mail_id, nil)
 		this.db.Mails.SetIsGetAttached(mail_id, 1)
 	}
 	response := &msg_client_message.S2CMailGetAttachedItemsResponse{

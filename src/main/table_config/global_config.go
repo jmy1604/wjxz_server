@@ -81,6 +81,8 @@ type GlobalConfig struct {
 	FriendBossAttackCooldown             int32      // 攻击好友BOSS冷却时间
 	FriendRefreshTime                    string     // 好友刷新时间
 	FriendSearchBossRefreshHours         int32      // 好友BOSS刷新时间间隔
+	FriendAssistPointsGet                int32      // 助战好友获得友情点数
+	FriendPointsGetLimitDay              int32      // 每天获得友情点上限
 
 	GooglePayUrl       string
 	FaceBookPayUrl     string
