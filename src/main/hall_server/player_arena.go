@@ -135,6 +135,10 @@ func (this *ArenaRobot) _calculate_power() {
 			}
 			this.power += equip_item.BattlePower
 		}
+		card := card_table_mgr.GetRankCard(card_list[i].MonsterID, card_list[i].Rank)
+		if card != nil {
+			this.power += calc_power_by_card(card, card_list[i].Level)
+		}
 	}
 }
 

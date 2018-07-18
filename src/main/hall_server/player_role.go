@@ -1106,6 +1106,10 @@ func (this *Player) get_role_power(role_id int32) (power int32) {
 	return this.roles_power[role_id]
 }
 
+func calc_power_by_card(card *table_config.XmlCardItem, level int32) int32 {
+	return card.BattlePower + (level-1)*card.BattlePowerGrowth/100
+}
+
 func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, get_power bool) int32 {
 	var equips []int32
 	var table_id, rank, level int32
@@ -1139,7 +1143,7 @@ func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, ge
 		return -1
 	}
 
-	power := role_tdata.BattlePower + (level-1)*role_tdata.BattlePowerGrowth/100
+	power := calc_power_by_card(role_tdata, level)
 	suits := make(map[*table_config.XmlSuitItem]int32)
 	for _, e := range equips {
 		if e <= 0 {
