@@ -295,6 +295,7 @@ func (this *Player) OnCreate() {
 	this.add_init_roles()
 	this.db.Info.IncbyDiamond(global_config.InitDiamond)
 	this.db.Info.IncbyGold(global_config.InitCoin)
+	this.db.SetName(this.Account) // 昵称用默认账号名
 
 	// 新任务
 	this.UpdateNewTasks(1, false)
@@ -383,6 +384,7 @@ func (this *Player) send_info() {
 		Diamond:  this.db.Info.GetDiamond(),
 		Icon:     this.db.Info.GetIcon(),
 		VipLevel: this.db.Info.GetVipLvl(),
+		Name:     this.db.GetName(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_INFO_RESPONSE), response)
 	log.Debug("Player[%v] info: %v", this.Id, response)

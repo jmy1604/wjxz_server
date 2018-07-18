@@ -281,6 +281,7 @@ message S2CPlayerInfoResponse {
 	int32 Diamond					= 4; // 钻石
 	string Icon						= 5; // 头像
 	int32 VipLevel					= 6; // VIP等级
+	string Name						= 7; // 昵称
 }
 
 //----------------------------------- 战斗 -----------------------------------
