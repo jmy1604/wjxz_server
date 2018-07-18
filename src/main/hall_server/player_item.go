@@ -608,10 +608,12 @@ func (this *Player) item_one_key_upgrade(item_id int32, cost_items map[int32]int
 			log.Error("item[%v] table data not found on item one key upgrade", next_item_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ITEM_TABLE_ID_NOT_FOUND)
 		}
+
 		if item.EquipType < 1 && item.EquipType >= EQUIP_TYPE_LEFT_SLOT {
 			res = 0
 			break
 		}
+
 		item_upgrade := item_upgrade_table_mgr.GetByItemId(next_item_id)
 		if item_upgrade == nil {
 			if next_item_id == item_id {
@@ -619,6 +621,7 @@ func (this *Player) item_one_key_upgrade(item_id int32, cost_items map[int32]int
 			}
 			break
 		}
+
 		if item_upgrade.ResCondition == nil {
 			if next_item_id == item_id {
 				res = 0
@@ -659,19 +662,21 @@ func (this *Player) item_one_key_upgrade(item_id int32, cost_items map[int32]int
 				break
 			}
 		}
+
 		if res == 0 {
 			if next_item_id != item_id {
 				res = 1
 			}
 			break
 		}
+
 		drop_data := drop_table_mgr.Map[item_upgrade.ResultDropId]
 		if drop_data == nil {
-			//_item_one_key_insert_result_item(item_id, result_item_id, 1, result_items)
 			res = 0
 			log.Error("Drop id[%v] data not found on player[%v] one key upgrade item", item_upgrade.ResultDropId, this.Id)
 			break
 		}
+
 		if drop_data.DropItems == nil || len(drop_data.DropItems) == 0 {
 			res = 0
 			break
@@ -687,6 +692,7 @@ func (this *Player) item_one_key_upgrade(item_id int32, cost_items map[int32]int
 		result_item_id = drop_data.DropItems[0].DropItemID
 		this.add_item(result_item_id, 1)
 		result_items[result_item_id] += 1
+
 		// 消耗资源
 		for n := 0; n < len(item_upgrade.ResCondition)/2; n++ {
 			res_id := item_upgrade.ResCondition[2*n]
@@ -697,12 +703,12 @@ func (this *Player) item_one_key_upgrade(item_id int32, cost_items map[int32]int
 			this.add_resource(res_id, -res_num)
 			cost_items[res_id] += res_num
 		}
+
 		// 删除老装备
 		this.del_item(next_item_id, 1)
 		cost_items[next_item_id] += 1
 
 		next_item_id = result_item_id
-
 		this.already_upgrade = true
 	}
 	return res

@@ -878,19 +878,17 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 	}
 
 	// 助战
-	if assist_friend_id > 0 {
-		if this.db.Friends.HasIndex(assist_friend_id) {
-			assist_friend := player_mgr.GetPlayerById(assist_friend_id)
-			if assist_friend != nil {
-				if assist_friend.db.Roles.HasIndex(assist_role_id) && assist_friend.db.FriendCommon.GetAssistRoleId() == assist_role_id {
-					if assist_pos >= 0 && assist_pos < BATTLE_TEAM_MEMBER_MAX_NUM {
-						this.assist_friend = assist_friend
-						this.assist_role_id = assist_role_id
-						this.assist_role_pos = assist_pos
+	if assist_friend_id > 0 && this.db.Friends.HasIndex(assist_friend_id) {
+		assist_friend := player_mgr.GetPlayerById(assist_friend_id)
+		if assist_friend != nil {
+			if assist_friend.db.Roles.HasIndex(assist_role_id) && assist_friend.db.FriendCommon.GetAssistRoleId() == assist_role_id {
+				if assist_pos >= 0 && assist_pos < BATTLE_TEAM_MEMBER_MAX_NUM {
+					this.assist_friend = assist_friend
+					this.assist_role_id = assist_role_id
+					this.assist_role_pos = assist_pos
 
-						if team_members != nil && len(team_members) > int(this.assist_role_pos) {
-							team_members[this.assist_role_pos] = 0
-						}
+					if team_members != nil && len(team_members) > int(this.assist_role_pos) {
+						team_members[this.assist_role_pos] = 0
 					}
 				}
 			}
