@@ -172,11 +172,12 @@ func (this *Player) role_is_using(role_id int32) bool {
 
 	members_array := [][]int32{this.db.BattleTeam.GetAttackMembers(), this.db.BattleTeam.GetCampaignMembers(), this.db.BattleTeam.GetDefenseMembers()}
 	for n := 0; n < len(members_array); n++ {
-		if members_array[n] != nil {
-			for i := 0; i < len(members_array[n]); i++ {
-				if members_array[n][i] == role_id {
-					return true
-				}
+		if members_array[n] == nil {
+			continue
+		}
+		for i := 0; i < len(members_array[n]); i++ {
+			if members_array[n][i] == role_id {
+				return true
 			}
 		}
 	}
@@ -600,17 +601,6 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
 		}*/
 
-		//if this.team_has_role(BATTLE_ATTACK_TEAM, role_id) {
-		//log.Error("Player[%v] attack team has role[%v], cant decompose", this.Id, role_id)
-		//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
-		//continue
-		//}
-
-		//if this.team_has_role(BATTLE_DEFENSE_TEAM, role_id) {
-		//log.Error("Player[%v] defense team has role[%v], cant decompose", this.Id, role_id)
-		//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
-		//continue
-		//}
 		if this.role_is_using(role_id) {
 			continue
 		}
