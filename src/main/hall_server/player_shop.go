@@ -199,6 +199,11 @@ func (this *Player) send_shop(shop_id int32) int32 {
 
 // 商店购买
 func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
+	if buy_num < 0 {
+		log.Error("Player[%v] buy shop item num[%v] must greater than 0", this.Id, buy_num)
+		return -1
+	}
+
 	shop_tdata := shop_table_mgr.Get(shop_id)
 	if shop_tdata == nil {
 		log.Error("Shop[%v] table data not found", shop_id)

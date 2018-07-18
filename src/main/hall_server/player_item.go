@@ -362,8 +362,8 @@ func (this *Player) unequip(role_id, equip_type int32) int32 {
 }
 
 func (this *Player) fusion_item(piece_id int32, fusion_num int32) int32 {
-	if fusion_num >= 1000 {
-		log.Error("!!!!!!! Player[%v] fusion num %v too big", this.Id, fusion_num)
+	if fusion_num <= 0 || fusion_num >= 1000 {
+		log.Error("!!!!!!! Player[%v] fusion num %v too small or big", this.Id, fusion_num)
 		return -1
 	}
 
@@ -446,6 +446,11 @@ func (this *Player) item_to_resource(item_id int32) []*msg_client_message.ItemIn
 }
 
 func (this *Player) sell_item(item_id, item_num int32) int32 {
+	if item_num <= 0 {
+		log.Error("Player[%v] cant sell item with num[%v]", this.Id, item_num)
+		return -1
+	}
+
 	item := item_table_mgr.Get(item_id)
 	if item == nil {
 		log.Error("Cant found item[%v] table data", item_id)
@@ -486,7 +491,7 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		return int32(msg_client_message.E_ERR_PLAYER_ITEM_UPGRADE_TYPE_INVALID)
 	}
 
-	if item_num == 0 {
+	if item_num <= 0 {
 		item_num = 1
 	}
 
