@@ -165,6 +165,29 @@ func (this *Player) rand_role() int32 {
 	return id
 }
 
+func (this *Player) role_is_using(role_id int32) bool {
+	if role_id <= 0 {
+		return false
+	}
+
+	members_array := [][]int32{this.db.BattleTeam.GetAttackMembers(), this.db.BattleTeam.GetCampaignMembers(), this.db.BattleTeam.GetDefenseMembers()}
+	for n := 0; n < len(members_array); n++ {
+		if members_array[n] != nil {
+			for i := 0; i < len(members_array[n]); i++ {
+				if members_array[n][i] == role_id {
+					return true
+				}
+			}
+		}
+	}
+
+	if this.db.FriendCommon.GetAssistRoleId() == role_id {
+		return true
+	}
+
+	return false
+}
+
 func (this *Player) delete_role(role_id int32) bool {
 	if !this.db.Roles.HasIndex(role_id) {
 		return false
@@ -173,6 +196,11 @@ func (this *Player) delete_role(role_id int32) bool {
 	if is_lock > 0 {
 		return false
 	}
+
+	if this.role_is_using(role_id) {
+		return false
+	}
+
 	// 脱下装备
 	equips, _ := this.db.Roles.GetEquip(role_id)
 	if equips != nil {
@@ -311,7 +339,7 @@ func (this *Player) get_team_member_by_role(role_id int32, team *BattleTeam, pos
 	} else {
 		// 初始化阵型
 		if use_assist {
-			role_id = -1
+			role_id = -role_id
 		}
 		m.init_all(team, role_id, level, role_card, pos, nil)
 	}
@@ -572,15 +600,18 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 			return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
 		}*/
 
-		if this.team_has_role(BATTLE_ATTACK_TEAM, role_id) {
-			log.Error("Player[%v] attack team has role[%v], cant decompose", this.Id, role_id)
-			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
-			continue
-		}
+		//if this.team_has_role(BATTLE_ATTACK_TEAM, role_id) {
+		//log.Error("Player[%v] attack team has role[%v], cant decompose", this.Id, role_id)
+		//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+		//continue
+		//}
 
-		if this.team_has_role(BATTLE_DEFENSE_TEAM, role_id) {
-			log.Error("Player[%v] defense team has role[%v], cant decompose", this.Id, role_id)
-			//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+		//if this.team_has_role(BATTLE_DEFENSE_TEAM, role_id) {
+		//log.Error("Player[%v] defense team has role[%v], cant decompose", this.Id, role_id)
+		//return int32(msg_client_message.E_ERR_PLAYER_ROLE_IN_TEAM_CANT_DECOMPOSE)
+		//continue
+		//}
+		if this.role_is_using(role_id) {
 			continue
 		}
 
@@ -1087,6 +1118,7 @@ func (this *Player) get_role_power(role_id int32) (power int32) {
 
 func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, get_power bool) int32 {
 	var equips []int32
+	var table_id, rank, level int32
 	var o bool
 	if role_id > 0 {
 		equips, o = this.db.Roles.GetEquip(role_id)
@@ -1094,19 +1126,30 @@ func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, ge
 			log.Error("Player[%v] not found role[%v], update suits failed", this.Id, role_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 		}
+		table_id, _ = this.db.Roles.GetTableId(role_id)
+		rank, _ = this.db.Roles.GetRank(role_id)
+		level, _ = this.db.Roles.GetLevel(role_id)
 	} else {
 		equips, o = this.assist_friend.db.Roles.GetEquip(this.assist_role_id)
 		if !o {
 			log.Error("Assist friend[%v] not found role[%v], update suits failed", this.assist_friend.Id, this.assist_role_id)
 			return int32(msg_client_message.E_ERR_PLAYER_ROLE_NOT_FOUND)
 		}
+		table_id, _ = this.assist_friend.db.Roles.GetTableId(this.assist_role_id)
+		rank, _ = this.assist_friend.db.Roles.GetRank(this.assist_role_id)
+		level, _ = this.assist_friend.db.Roles.GetLevel(this.assist_role_id)
 	}
 
 	if equips == nil {
 		return -1
 	}
 
-	power := int32(0)
+	role_tdata := card_table_mgr.GetRankCard(table_id, rank)
+	if role_tdata == nil {
+		return -1
+	}
+
+	power := role_tdata.BattlePower + (level-1)*role_tdata.BattlePowerGrowth/100
 	suits := make(map[*table_config.XmlSuitItem]int32)
 	for _, e := range equips {
 		if e <= 0 {

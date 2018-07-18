@@ -738,7 +738,7 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
 			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
 		}
-		this.db.Roles.SetIsLock(team[i], 1)
+		//this.db.Roles.SetIsLock(team[i], 1)
 	}
 
 	if team_type == BATTLE_ATTACK_TEAM {
@@ -783,7 +783,7 @@ func (this *Player) SetAttackTeam(team []int32) int32 {
 			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
 			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
 		}
-		this.db.Roles.SetIsLock(team[i], 1)
+		//this.db.Roles.SetIsLock(team[i], 1)
 	}
 	this.db.BattleTeam.SetAttackMembers(team)
 	return 1
@@ -815,7 +815,7 @@ func (this *Player) SetCampaignTeam(team []int32) int32 {
 			log.Warn("Player[%v] not has role[%v] for set campaign team", this.Id, team[i])
 			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
 		}
-		this.db.Roles.SetIsLock(team[i], 1)
+		//this.db.Roles.SetIsLock(team[i], 1)
 	}
 	this.db.BattleTeam.SetCampaignMembers(team)
 	return 1
@@ -848,7 +848,7 @@ func (this *Player) SetDefenseTeam(team []int32) int32 {
 			log.Warn("Player[%v] not has role[%v] for set defense team", this.Id, team[i])
 			return int32(msg_client_message.E_ERR_PLAYER_SET_DEFENSE_MEMBERS_FAILED)
 		}
-		this.db.Roles.SetIsLock(team[i], 1)
+		//this.db.Roles.SetIsLock(team[i], 1)
 	}
 	this.db.BattleTeam.SetDefenseMembers(team)
 	return 1

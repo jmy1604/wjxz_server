@@ -889,10 +889,10 @@ func (this *Player) friend_set_assist_role(role_id int32) int32 {
 
 	old_assist_role := this.db.FriendCommon.GetAssistRoleId()
 	if old_assist_role > 0 {
-		this.db.Roles.SetIsLock(old_assist_role, 0)
+		//this.db.Roles.SetIsLock(old_assist_role, 0)
 	}
 	this.db.FriendCommon.SetAssistRoleId(role_id)
-	this.db.Roles.SetIsLock(role_id, 1)
+	//this.db.Roles.SetIsLock(role_id, 1)
 
 	response := &msg_client_message.S2CFriendSetAssistRoleResponse{
 		RoleId: role_id,

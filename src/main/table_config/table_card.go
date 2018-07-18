@@ -35,6 +35,8 @@ type XmlCardItem struct {
 	PassiveSkillIds   []int32
 	DecomposeResStr   string `xml:"DecomposeRes,attr"`
 	DecomposeRes      []int32
+	BattlePower       int32 `xml:"BattlePower,attr"`
+	BattlePowerGrowth int32 `xml:"BattlePowerGrowth,attr"`
 }
 
 type XmlCardConfig struct {
