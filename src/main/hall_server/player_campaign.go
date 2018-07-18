@@ -99,7 +99,7 @@ func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int
 	return true, next_campaign.Difficulty
 }
 
-func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player) (is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
+func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player) (err int32, is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
 	var attack_team *BattleTeam
 	var team_type int32
 	if stage_type == 1 {
@@ -134,6 +134,7 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		attack_team = this.friend_boss_team
 		team_type = BATTLE_FRIEND_BOSS_TEAM
 	} else {
+		err = int32(msg_client_message.E_ERR_PLAYER_TEAM_TYPE_INVALID)
 		log.Error("Stage type %v invalid", stage_type)
 		return
 	}
@@ -145,13 +146,15 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 	// 新的关卡初始化
 	if stage.Id != this.stage_id {
 		this.stage_wave = 0
-		if !attack_team.Init(this, team_type, 0) {
+		err = attack_team.Init(this, team_type, 0)
+		if err < 0 {
 			log.Error("Player[%v] init attack team failed", this.Id)
 			return
 		}
 	} else {
 		if this.stage_wave == 0 {
-			if !attack_team.Init(this, team_type, 0) {
+			err = attack_team.Init(this, team_type, 0)
+			if err < 0 {
 				log.Error("Player[%v] init attack team failed", this.Id)
 				return
 			}
@@ -174,6 +177,8 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 	} else {
 		has_next_wave = true
 	}
+
+	err = 1
 
 	return
 }
@@ -221,7 +226,11 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage, nil)
+	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage, nil)
+	if err < 0 {
+		log.Error("Player[%v] fight campaign %v failed, team is empty")
+		return err
+	}
 
 	next_campaign_id := int32(0)
 	if is_win && !has_next_wave {

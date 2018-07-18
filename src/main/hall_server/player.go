@@ -895,7 +895,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	if this.attack_team == nil {
 		this.attack_team = &BattleTeam{}
 	}
-	if !this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) {
+	if this.attack_team.Init(this, BATTLE_ATTACK_TEAM, 0) < 0 {
 		p.CancelDefensing()
 		log.Error("Player[%v] init attack team failed", this.Id)
 		return -1
@@ -908,7 +908,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		if p.defense_team == nil {
 			p.defense_team = &BattleTeam{}
 		}
-		if !p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) {
+		if p.defense_team.Init(p, BATTLE_DEFENSE_TEAM, 1) < 0 {
 			p.CancelDefensing()
 			log.Error("Player[%v] init defense team failed", player_id)
 			return -1

@@ -718,7 +718,12 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(5, stage, p)
+	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(5, stage, p)
+	if err < 0 {
+		p.cancel_friend_boss_fight()
+		log.Error("Player[%v] fight friend %v boss %v failed, team is empty", this.Id, friend_id, friend_boss_table_id)
+		return err
+	}
 
 	// 助战玩家列表
 	attack_list := p.db.FriendCommon.GetAttackBossPlayerList()

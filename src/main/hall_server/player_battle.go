@@ -140,7 +140,7 @@ type BattleTeam struct {
 }
 
 // 利用玩家初始化
-func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
+func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	var members []int32
 	if team_id == BATTLE_ATTACK_TEAM {
 		members = p.db.BattleTeam.GetAttackMembers()
@@ -158,11 +158,11 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		members = p.tmp_teams[team_id]
 	} else {
 		log.Warn("Unknown team id %v", team_id)
-		return false
+		return int32(msg_client_message.E_ERR_PLAYER_TEAM_TYPE_INVALID)
 	}
 
 	if members == nil {
-		return false
+		return int32(msg_client_message.E_ERR_PLAYER_TEAM_MEMBERS_IS_EMPTY)
 	}
 
 	is_empty := true
@@ -174,7 +174,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 		}
 	}
 	if is_empty {
-		return false
+		return int32(msg_client_message.E_ERR_PLAYER_TEAM_MEMBERS_IS_EMPTY)
 	}
 
 	if this.members == nil {
@@ -203,7 +203,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) bool {
 	this.side = side
 	this.temp_curr_id = p.db.Global.GetCurrentRoleId() + 1
 
-	return true
+	return 1
 }
 
 // init with stage

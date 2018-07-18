@@ -109,7 +109,12 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TOWER_NOT_ENOUGH_STAMINA)
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(3, stage, nil)
+	err, is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(3, stage, nil)
+	if err < 0 {
+		log.Error("Player[%v] fight tower %v failed, team is empty", this.Id, tower_id)
+		return err
+	}
+
 	//this.db.TowerCommon.SetKeys(keys - 1)
 	this.add_resource(global_config.TowerKeyId, -1)
 	tower_key_max := global_config.TowerKeyMax

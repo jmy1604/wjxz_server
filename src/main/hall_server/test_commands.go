@@ -964,7 +964,12 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 		stage_type = 1
 	}
 
-	is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage, nil)
+	err_code, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage, nil)
+	if err_code < 0 {
+		log.Error("Player[%v] fight stage %v, team is empty", p.Id, stage_id)
+		return err_code
+	}
+
 	response := &msg_client_message.S2CBattleResultResponse{}
 	response.IsWin = is_win
 	response.MyTeam = my_team
