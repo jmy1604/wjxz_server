@@ -361,15 +361,15 @@ func (this *Player) send_enter_game(acc string, id int32) {
 func (this *Player) send_teams() {
 	msg := &msg_client_message.S2CTeamsResponse{}
 	attack_team := &msg_client_message.TeamData{
-		TeamType:    0,
+		TeamType:    BATTLE_ATTACK_TEAM,
 		TeamMembers: this.db.BattleTeam.GetAttackMembers(),
 	}
 	defense_team := &msg_client_message.TeamData{
-		TeamType:    1,
+		TeamType:    BATTLE_DEFENSE_TEAM,
 		TeamMembers: this.db.BattleTeam.GetDefenseMembers(),
 	}
 	campaign_team := &msg_client_message.TeamData{
-		TeamType:    2,
+		TeamType:    BATTLE_CAMPAIN_TEAM,
 		TeamMembers: this.db.BattleTeam.GetCampaignMembers(),
 	}
 	msg.Teams = []*msg_client_message.TeamData{attack_team, defense_team, campaign_team}
