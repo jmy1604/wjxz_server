@@ -1192,9 +1192,11 @@ func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, ge
 			mem.add_attrs(attrs)
 		}
 		if get_power {
-			pow := s.SuitPowers[n]
-			if pow > 0 {
-				power += pow
+			for i := int32(2); i <= n; i++ {
+				pow := s.SuitPowers[i]
+				if pow > 0 {
+					power += pow
+				}
 			}
 		}
 	}
