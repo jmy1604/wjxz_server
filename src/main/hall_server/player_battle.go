@@ -994,10 +994,12 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_da
 
 	var res int32
 	tt := req.GetTeamType()
-	if tt == 0 {
+	if tt == BATTLE_ATTACK_TEAM {
 		res = p.SetAttackTeam(req.TeamMembers)
-	} else if tt == 1 {
+	} else if tt == BATTLE_DEFENSE_TEAM {
 		res = p.SetDefenseTeam(req.TeamMembers)
+	} else if tt == BATTLE_CAMPAIN_TEAM {
+		res = p.SetTeam(BATTLE_CAMPAIN_TEAM, req.TeamMembers)
 	} else {
 		log.Warn("Unknown team type[%v] to player[%v]", tt, p.Id)
 	}
