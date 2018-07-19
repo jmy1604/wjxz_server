@@ -355,14 +355,22 @@ func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, t
 				skill_id = self.temp_normal_skill
 				self.use_temp_skill = true
 			} else {
-				skill_id = self.card.NormalSkillID
+				if self.card.NormalSkillID == 0 {
+					skill_id = self.card.SuperSkillID
+				} else {
+					skill_id = self.card.NormalSkillID
+				}
 			}
 		} else {
 			if self.temp_super_skill > 0 {
 				skill_id = self.temp_super_skill
 				self.use_temp_skill = true
 			} else {
-				skill_id = self.card.SuperSkillID
+				if self.card.SuperSkillID == 0 {
+					skill_id = self.card.NormalSkillID
+				} else {
+					skill_id = self.card.SuperSkillID
+				}
 			}
 		}
 	} else {
