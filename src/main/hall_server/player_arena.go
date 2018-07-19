@@ -309,8 +309,25 @@ func (this *Player) MatchArenaPlayer() (player_id int32) {
 		if left < 1 {
 			left = 1
 		}
+
 		if right > last_rank {
 			right = last_rank
+		}
+
+		if right-left < 20 {
+			if left > 1 {
+				left -= (20 - (right - left))
+				if left < 1 {
+					left = 1
+				}
+			} else {
+				if right < last_rank {
+					right += (20 - (right - left))
+				}
+				if right > last_rank {
+					right = last_rank
+				}
+			}
 		}
 
 		start_rank = left
