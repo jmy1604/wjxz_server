@@ -1111,6 +1111,9 @@ func calc_power_by_card(card *table_config.XmlCardItem, level int32) int32 {
 }
 
 func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, get_power bool) int32 {
+	if role_id == 0 {
+		return 0
+	}
 	var equips []int32
 	var table_id, rank, level int32
 	var o bool
@@ -1215,6 +1218,9 @@ func (this *Player) get_defense_team_power() (power int32) {
 	}
 
 	for _, m := range team {
+		if m == 0 {
+			continue
+		}
 		this.role_update_suit_attr_power(m, false, true)
 		power += this.get_role_power(m)
 	}
