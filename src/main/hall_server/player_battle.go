@@ -371,7 +371,7 @@ func (this *BattleTeam) FindTargets(self *TeamMember, target_team *BattleTeam, t
 
 	skill = skill_table_mgr.Get(skill_id)
 	if skill == nil {
-		log.Error("Cant get skill by id[%v]", skill_id)
+		log.Error("Self[%v] member[%v] Cant get skill by id[%v] to target[%v]", self.team.side, self.pos, skill_id, target_team.side)
 		return
 	}
 

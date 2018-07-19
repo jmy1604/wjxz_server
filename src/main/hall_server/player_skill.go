@@ -969,7 +969,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 
 			if skill_data.SkillTarget != SKILL_TARGET_TYPE_EMPTY_POS {
 				if !skill_effect_cond_check(self, target, skill_data.EffectsCond1s[i], skill_data.EffectsCond2s[i]) {
-					log.Warn("self[%v] cant use skill[%v] to target[%v]", self_pos, skill_data.Id, target_pos[j])
+					log.Warn("self[%v] member[%v] cant use skill[%v] to target[%v] member[%v]", self_team.side, self_pos, skill_data.Id, target_team.side, target_pos[j])
 					continue
 				}
 			}
