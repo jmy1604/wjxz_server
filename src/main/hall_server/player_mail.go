@@ -319,7 +319,7 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 		}
 		if sender != nil {
 			for i := 0; i < len(items)/2; i++ {
-				sender.add_item(items[2*i], items[2*i+1])
+				sender.add_resource(items[2*i], -items[2*i+1])
 			}
 		}
 	}

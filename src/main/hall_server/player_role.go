@@ -1127,6 +1127,10 @@ func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, ge
 		rank, _ = this.db.Roles.GetRank(role_id)
 		level, _ = this.db.Roles.GetLevel(role_id)
 	} else {
+		if this.assist_friend == nil {
+			log.Error("Player[%v] Assist friend not found", this.Id)
+			return -1
+		}
 		equips, o = this.assist_friend.db.Roles.GetEquip(this.assist_role_id)
 		if !o {
 			log.Error("Assist friend[%v] not found role[%v], update suits failed", this.assist_friend.Id, this.assist_role_id)
