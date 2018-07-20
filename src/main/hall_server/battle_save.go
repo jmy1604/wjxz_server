@@ -70,7 +70,7 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 	}
 	defenser := player_mgr.GetPlayerById(defenser_id)
 	if defenser == nil {
-		return false
+		//return false
 	}
 
 	row := this.saves.AddRow()
@@ -86,19 +86,22 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 		now_time := int32(time.Now().Unix())
 		row.Data.SetData(data)
 		row.SetSaveTime(now_time)
+
 		attacker.db.BattleSaves.Add(&dbPlayerBattleSaveData{
 			Id:       row.GetId(),
 			Side:     0,
 			SaveTime: now_time,
 		})
-		defenser.db.BattleSaves.Add(&dbPlayerBattleSaveData{
-			Id:       row.GetId(),
-			Side:     1,
-			SaveTime: now_time,
-		})
-
 		attacker.push_battle_record(row.GetId())
-		defenser.push_battle_record(row.GetId())
+
+		if defenser != nil {
+			defenser.db.BattleSaves.Add(&dbPlayerBattleSaveData{
+				Id:       row.GetId(),
+				Side:     1,
+				SaveTime: now_time,
+			})
+			defenser.push_battle_record(row.GetId())
+		}
 
 		log.Debug("Battle Record[%v] saved with attacker[%v] and defenser[%v]", row.GetId(), attacker_id, defenser_id)
 	}
