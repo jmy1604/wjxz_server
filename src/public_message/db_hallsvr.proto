@@ -25,6 +25,7 @@ message PlayerInfo{
 	optional int32 LastLogout=9;
 	optional int32 LastLogin=10;
 	optional int32 VipLvl=16;
+	optional int32 Head=17;
 }
 
 message PlayerGlobal{

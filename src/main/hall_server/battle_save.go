@@ -293,6 +293,10 @@ func (this *Player) GetBattleRecordList() int32 {
 				if defenser != nil {
 					record.DefenserName = defenser.db.GetName()
 				}
+				record.AttackerLevel = attacker.db.Info.GetLvl()
+				record.DefenserLevel = defenser.db.Info.GetLvl()
+				record.AttackerHead = attacker.db.Info.GetHead()
+				record.DefenserHead = defenser.db.Info.GetHead()
 				record_list = append(record_list, record)
 			}
 		}

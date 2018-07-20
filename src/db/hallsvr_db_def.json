@@ -120,7 +120,8 @@
 						{"Type":"string","Index":7,"Name":"Icon"},
 						{"Type":"int32","Index":9,"Name":"LastLogout"},
 						{"Type":"int32","Index":10,"Name":"LastLogin"},
-						{"Type":"int32","Index":16,"Name":"VipLvl"}
+						{"Type":"int32","Index":16,"Name":"VipLvl"},
+						{"Type":"int32","Index":17,"Name":"Head"}
 					]
 				},
 				{

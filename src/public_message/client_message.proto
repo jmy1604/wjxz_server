@@ -404,6 +404,10 @@ message BattleRecordData {
 	int32 RecordTime						= 6; // 录像时间
 	bool IsWin								= 7; // 是否赢
 	int32 AddScore							= 8; // 增加积分
+	int32 AttackerLevel						= 9;
+	int32 DefenserLevel						= 10;
+	int32 AttackerHead						= 11;
+	int32 DefenserHead						= 12;
 }
 message S2CBattleRecordListResponse {
 	repeated BattleRecordData Records		= 1; // 录像列表

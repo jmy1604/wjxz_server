@@ -309,6 +309,7 @@ type dbPlayerInfoData struct{
 	LastLogout int32
 	LastLogin int32
 	VipLvl int32
+	Head int32
 }
 func (this* dbPlayerInfoData)from_pb(pb *db.PlayerInfo){
 	if pb == nil {
@@ -324,6 +325,7 @@ func (this* dbPlayerInfoData)from_pb(pb *db.PlayerInfo){
 	this.LastLogout = pb.GetLastLogout()
 	this.LastLogin = pb.GetLastLogin()
 	this.VipLvl = pb.GetVipLvl()
+	this.Head = pb.GetHead()
 	return
 }
 func (this* dbPlayerInfoData)to_pb()(pb *db.PlayerInfo){
@@ -338,6 +340,7 @@ func (this* dbPlayerInfoData)to_pb()(pb *db.PlayerInfo){
 	pb.LastLogout = proto.Int32(this.LastLogout)
 	pb.LastLogin = proto.Int32(this.LastLogin)
 	pb.VipLvl = proto.Int32(this.VipLvl)
+	pb.Head = proto.Int32(this.Head)
 	return
 }
 func (this* dbPlayerInfoData)clone_to(d *dbPlayerInfoData){
@@ -351,6 +354,7 @@ func (this* dbPlayerInfoData)clone_to(d *dbPlayerInfoData){
 	d.LastLogout = this.LastLogout
 	d.LastLogin = this.LastLogin
 	d.VipLvl = this.VipLvl
+	d.Head = this.Head
 	return
 }
 type dbPlayerGlobalData struct{
@@ -2145,6 +2149,19 @@ func (this *dbPlayerInfoColumn)SetVipLvl(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetVipLvl")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.VipLvl = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerInfoColumn)GetHead( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerInfoColumn.GetHead")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.Head
+	return
+}
+func (this *dbPlayerInfoColumn)SetHead(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerInfoColumn.SetHead")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.Head = v
 	this.m_changed = true
 	return
 }
