@@ -985,6 +985,7 @@ message PlayerTeamRole {
 message S2CArenaPlayerDefenseTeamResponse {
 	int32 PlayerId							= 1;
 	map<int32,PlayerTeamRole> DefenseTeam	= 2;
+	int32 Power								= 3;
 }
 
 // 请求竞技场匹配

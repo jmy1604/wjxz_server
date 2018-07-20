@@ -418,6 +418,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 	}
 	response := &msg_client_message.S2CArenaPlayerDefenseTeamResponse{
 		DefenseTeam: team,
+		Power:       p.get_defense_team_power(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE), response)
 	log.Debug("Player[%v] get arena player[%v] defense team[%v]", this.Id, player_id, team)
