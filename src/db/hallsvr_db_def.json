@@ -738,6 +738,32 @@
 					"Fields":[
 					]
 				},
+				{
+					"ColumnName":"IsWin",
+					"DBColumnName":"IsWin",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"AddScore",
+					"DBColumnName":"AddScore",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[
+					]
+				},
 			]
 		},
 		{

@@ -209,8 +209,7 @@ func (this *Player) LoadArenaScore() {
 	this._update_arena_score(&data)
 }
 
-func (this *Player) UpdateArenaScore(is_win bool) (score int32) {
-	var add_score int32
+func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 	now_score := this.db.Arena.GetScore()
 	division := arena_division_table_mgr.GetByScore(now_score)
 	if division == nil {

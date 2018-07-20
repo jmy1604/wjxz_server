@@ -402,6 +402,8 @@ message BattleRecordData {
 	int32 DefenserId						= 4; // 防守者ID
 	string DefenserName						= 5; // 防守者昵称
 	int32 RecordTime						= 6; // 录像时间
+	bool IsWin								= 7; // 是否赢
+	int32 AddScore							= 8; // 增加积分
 }
 message S2CBattleRecordListResponse {
 	repeated BattleRecordData Records		= 1; // 录像列表

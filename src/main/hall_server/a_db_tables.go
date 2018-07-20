@@ -10283,6 +10283,30 @@ func (this *dbBattleSaveRow)SetDeleteState(v int32){
 	this.m_DeleteState_changed=true
 	return
 }
+func (this *dbBattleSaveRow)GetIsWin( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveIsWinColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_IsWin)
+}
+func (this *dbBattleSaveRow)SetIsWin(v int32){
+	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveIsWinColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_IsWin=int32(v)
+	this.m_IsWin_changed=true
+	return
+}
+func (this *dbBattleSaveRow)GetAddScore( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbBattleSaveRow.GetdbBattleSaveAddScoreColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_AddScore)
+}
+func (this *dbBattleSaveRow)SetAddScore(v int32){
+	this.m_lock.UnSafeLock("dbBattleSaveRow.SetdbBattleSaveAddScoreColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_AddScore=int32(v)
+	this.m_AddScore_changed=true
+	return
+}
 type dbBattleSaveRow struct {
 	m_table *dbBattleSaveTable
 	m_lock       *RWMutex
@@ -10302,6 +10326,10 @@ type dbBattleSaveRow struct {
 	m_Defenser int32
 	m_DeleteState_changed bool
 	m_DeleteState int32
+	m_IsWin_changed bool
+	m_IsWin int32
+	m_AddScore_changed bool
+	m_AddScore int32
 }
 func new_dbBattleSaveRow(table *dbBattleSaveTable, Id int32) (r *dbBattleSaveRow) {
 	this := &dbBattleSaveRow{}
@@ -10312,6 +10340,8 @@ func new_dbBattleSaveRow(table *dbBattleSaveTable, Id int32) (r *dbBattleSaveRow
 	this.m_Attacker_changed=true
 	this.m_Defenser_changed=true
 	this.m_DeleteState_changed=true
+	this.m_IsWin_changed=true
+	this.m_AddScore_changed=true
 	this.Data.m_row=this
 	this.Data.m_data=&dbBattleSaveDataData{}
 	return this
@@ -10323,7 +10353,7 @@ func (this *dbBattleSaveRow) save_data(release bool) (err error, released bool, 
 	this.m_lock.UnSafeLock("dbBattleSaveRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(6)
+		db_args:=new_db_args(8)
 		db_args.Push(this.m_Id)
 		dData,db_err:=this.Data.save()
 		if db_err!=nil{
@@ -10335,12 +10365,14 @@ func (this *dbBattleSaveRow) save_data(release bool) (err error, released bool, 
 		db_args.Push(this.m_Attacker)
 		db_args.Push(this.m_Defenser)
 		db_args.Push(this.m_DeleteState)
+		db_args.Push(this.m_IsWin)
+		db_args.Push(this.m_AddScore)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.Data.m_changed||this.m_SaveTime_changed||this.m_Attacker_changed||this.m_Defenser_changed||this.m_DeleteState_changed{
+		if this.Data.m_changed||this.m_SaveTime_changed||this.m_Attacker_changed||this.m_Defenser_changed||this.m_DeleteState_changed||this.m_IsWin_changed||this.m_AddScore_changed{
 			update_string = "UPDATE BattleSaves SET "
-			db_args:=new_db_args(6)
+			db_args:=new_db_args(8)
 			if this.Data.m_changed{
 				update_string+="Data=?,"
 				dData,err:=this.Data.save()
@@ -10366,6 +10398,14 @@ func (this *dbBattleSaveRow) save_data(release bool) (err error, released bool, 
 				update_string+="DeleteState=?,"
 				db_args.Push(this.m_DeleteState)
 			}
+			if this.m_IsWin_changed{
+				update_string+="IsWin=?,"
+				db_args.Push(this.m_IsWin)
+			}
+			if this.m_AddScore_changed{
+				update_string+="AddScore=?,"
+				db_args.Push(this.m_AddScore)
+			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE Id=?"
 			db_args.Push(this.m_Id)
@@ -10379,6 +10419,8 @@ func (this *dbBattleSaveRow) save_data(release bool) (err error, released bool, 
 	this.m_Attacker_changed = false
 	this.m_Defenser_changed = false
 	this.m_DeleteState_changed = false
+	this.m_IsWin_changed = false
+	this.m_AddScore_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -10541,10 +10583,26 @@ func (this *dbBattleSaveTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasIsWin := columns["IsWin"]
+	if !hasIsWin {
+		_, err = this.m_dbc.Exec("ALTER TABLE BattleSaves ADD COLUMN IsWin int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN IsWin failed")
+			return
+		}
+	}
+	_, hasAddScore := columns["AddScore"]
+	if !hasAddScore {
+		_, err = this.m_dbc.Exec("ALTER TABLE BattleSaves ADD COLUMN AddScore int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN AddScore failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbBattleSaveTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Data,SaveTime,Attacker,Defenser,DeleteState FROM BattleSaves")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Data,SaveTime,Attacker,Defenser,DeleteState,IsWin,AddScore FROM BattleSaves")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -10552,7 +10610,7 @@ func (this *dbBattleSaveTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbBattleSaveTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO BattleSaves (Id,Data,SaveTime,Attacker,Defenser,DeleteState) VALUES (?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO BattleSaves (Id,Data,SaveTime,Attacker,Defenser,DeleteState,IsWin,AddScore) VALUES (?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -10610,8 +10668,10 @@ func (this *dbBattleSaveTable) Preload() (err error) {
 	var dAttacker int32
 	var dDefenser int32
 	var dDeleteState int32
+	var dIsWin int32
+	var dAddScore int32
 	for r.Next() {
-		err = r.Scan(&Id,&dData,&dSaveTime,&dAttacker,&dDefenser,&dDeleteState)
+		err = r.Scan(&Id,&dData,&dSaveTime,&dAttacker,&dDefenser,&dDeleteState,&dIsWin,&dAddScore)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -10631,10 +10691,14 @@ func (this *dbBattleSaveTable) Preload() (err error) {
 		row.m_Attacker=dAttacker
 		row.m_Defenser=dDefenser
 		row.m_DeleteState=dDeleteState
+		row.m_IsWin=dIsWin
+		row.m_AddScore=dAddScore
 		row.m_SaveTime_changed=false
 		row.m_Attacker_changed=false
 		row.m_Defenser_changed=false
 		row.m_DeleteState_changed=false
+		row.m_IsWin_changed=false
+		row.m_AddScore_changed=false
 		row.m_valid = true
 		this.m_rows[Id]=row
 	}

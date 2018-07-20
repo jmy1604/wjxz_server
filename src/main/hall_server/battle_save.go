@@ -63,7 +63,7 @@ func (this *BattleSaveManager) Init() {
 	this.saves = dbc.BattleSaves
 }
 
-func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []byte) bool {
+func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []byte, is_win int32, add_score int32) bool {
 	attacker := player_mgr.GetPlayerById(attacker_id)
 	if attacker == nil {
 		return false
@@ -77,6 +77,8 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 	if row != nil {
 		row.SetAttacker(attacker_id)
 		row.SetDefenser(defenser_id)
+		row.SetIsWin(is_win)
+		row.SetAddScore(add_score)
 		data = compress_battle_record_data(data)
 		if data == nil {
 			return false
@@ -103,7 +105,7 @@ func (this *BattleSaveManager) SaveNew(attacker_id, defenser_id int32, data []by
 	return true
 }
 
-func (this *BattleSaveManager) GetRecord(requester_id, record_id int32) (attacker_id, defenser_id int32, record_data []byte, save_time int32) {
+func (this *BattleSaveManager) GetRecord(requester_id, record_id int32) (attacker_id, defenser_id int32, record_data []byte, save_time int32, is_win int32, add_score int32) {
 	row := this.saves.GetRow(record_id)
 	if row == nil {
 		return
@@ -123,6 +125,8 @@ func (this *BattleSaveManager) GetRecord(requester_id, record_id int32) (attacke
 	defenser_id = row.GetDefenser()
 	record_data = row.Data.GetData()
 	save_time = row.GetSaveTime()
+	is_win = row.GetIsWin()
+	add_score = row.GetAddScore()
 	return
 }
 
@@ -307,7 +311,7 @@ func (this *Player) GetBattleRecordList() int32 {
 }
 
 func (this *Player) GetBattleRecord(record_id int32) int32 {
-	attacker_id, defenser_id, record_data, record_time := battle_record_mgr.GetRecord(this.Id, record_id)
+	attacker_id, defenser_id, record_data, record_time, _, _ := battle_record_mgr.GetRecord(this.Id, record_id)
 	if attacker_id == 0 {
 		return int32(msg_client_message.E_ERR_PLAYER_BATTLE_RECORD_NOT_FOUND)
 	}

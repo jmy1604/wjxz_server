@@ -940,6 +940,9 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 
 	this.db.Arena.SetMatchedPlayerId(0)
 
+	// 竞技场加分
+	_, add_score := this.UpdateArenaScore(is_win)
+
 	if enter_reports == nil {
 		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
 	}
@@ -966,11 +969,12 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 
 	// 保存录像
 	if d != nil {
-		battle_record_mgr.SaveNew(this.Id, player_id, d)
+		var win int32
+		if is_win {
+			win = 1
+		}
+		battle_record_mgr.SaveNew(this.Id, player_id, d, win, add_score)
 	}
-
-	// 竞技场加分
-	this.UpdateArenaScore(is_win)
 
 	Output_S2CBattleResult(this, response)
 	return 1
