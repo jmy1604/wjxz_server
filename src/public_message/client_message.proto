@@ -1001,6 +1001,11 @@ message S2CArenaMatchPlayerResponse {
 	int32 PlayerPower						= 7; // 战力
 }
 
+// 段位奖励
+message S2CArenaGradeRewardNotify {
+	int32 Grade								= 1; // 段位
+}
+
 // ---------------------------------- 活动副本 --------------------------------
 // 活动副本数据
 message C2SActiveStageDataRequest {

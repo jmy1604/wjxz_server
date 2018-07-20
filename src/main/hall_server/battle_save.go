@@ -286,6 +286,13 @@ func (this *Player) GetBattleRecordList() int32 {
 				record := &msg_client_message.BattleRecordData{}
 				record.RecordId = row.GetId()
 				record.RecordTime = row.GetSaveTime()
+				record.AddScore = row.GetAddScore()
+				record.IsWin = func() bool {
+					if row.GetIsWin() > 0 {
+						return true
+					}
+					return false
+				}()
 				record.AttackerId = row.GetAttacker()
 				attacker := player_mgr.GetPlayerById(record.AttackerId)
 				if attacker != nil {
@@ -300,6 +307,7 @@ func (this *Player) GetBattleRecordList() int32 {
 				record.DefenserLevel = defenser.db.Info.GetLvl()
 				record.AttackerHead = attacker.db.Info.GetHead()
 				record.DefenserHead = defenser.db.Info.GetHead()
+
 				record_list = append(record_list, record)
 			}
 		}

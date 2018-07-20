@@ -247,6 +247,16 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 		if rank < top_rank {
 			this.db.Arena.SetHistoryTopRank(rank)
 		}
+
+		// 段位奖励
+		new_division := arena_division_table_mgr.GetByScore(score)
+		if new_division != nil && new_division.Id > division.Id {
+			SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Arena Grade Reward", "", new_division.RewardList)
+			notify := &msg_client_message.S2CArenaGradeRewardNotify{
+				Grade: new_division.Id,
+			}
+			this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_GRADE_REWARD_NOTIFY), notify)
+		}
 	}
 
 	return
