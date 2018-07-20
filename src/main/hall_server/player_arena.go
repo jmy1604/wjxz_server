@@ -406,8 +406,8 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 		defense_team = p.db.BattleTeam.GetDefenseMembers()
 	}
 
+	var power int32
 	team := make(map[int32]*msg_client_message.PlayerTeamRole)
-
 	if defense_team != nil {
 		for i := 0; i < len(defense_team); i++ {
 			m := defense_team[i]
@@ -424,6 +424,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 				Rank:    rank,
 			}
 		}
+		power = p.get_defense_team_power()
 	} else {
 		for i := 0; i < len(robot.robot_data.RobotCardList); i++ {
 			m := robot.robot_data.RobotCardList[i]
@@ -437,12 +438,13 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 				Rank:    m.Rank,
 			}
 		}
+		power = robot.power
 	}
 
 	response := &msg_client_message.S2CArenaPlayerDefenseTeamResponse{
 		PlayerId:    player_id,
 		DefenseTeam: team,
-		Power:       p.get_defense_team_power(),
+		Power:       power,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE), response)
 	log.Debug("Player[%v] get arena player[%v] defense team[%v]", this.Id, player_id, team)
