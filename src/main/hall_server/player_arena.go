@@ -323,15 +323,15 @@ func (this *Player) MatchArenaPlayer() (player_id int32) {
 			right = last_rank
 		}
 
-		if right-left < 20 {
+		if right-left < match_num {
 			if left > 1 {
-				left -= (20 - (right - left))
+				left -= (match_num - (right - left))
 				if left < 1 {
 					left = 1
 				}
 			} else {
 				if right < last_rank {
-					right += (20 - (right - left))
+					right += (match_num - (right - left))
 				}
 				if right > last_rank {
 					right = last_rank
