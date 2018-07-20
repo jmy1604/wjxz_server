@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"public_message/gen_go/client_message"
 	_ "reflect"
+	"runtime/debug"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -145,6 +146,7 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
+			debug.PrintStack()
 		}
 	}()
 

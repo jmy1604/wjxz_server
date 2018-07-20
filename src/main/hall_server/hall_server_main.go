@@ -8,6 +8,7 @@ import (
 	"libs/log"
 	"os"
 	_ "public_message/gen_go/server_message"
+	"runtime/debug"
 	"time"
 )
 
@@ -59,6 +60,7 @@ func main() {
 		log.Event("关闭服务器", nil)
 		if err := recover(); err != nil {
 			log.Stack(err)
+			debug.PrintStack()
 		}
 		time.Sleep(time.Second * 5)
 		hall_server.Shutdown()

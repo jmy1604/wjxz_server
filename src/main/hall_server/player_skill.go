@@ -913,6 +913,9 @@ func skill_effect_clear_temp_attrs(self_mem *TeamMember) {
 func _get_battle_report(report *msg_client_message.BattleReportItem, skill_id int32, self_team *BattleTeam, self_pos, self_dmg int32, target_team *BattleTeam, target_pos, target_dmg int32, is_critical, is_block, is_absorb bool, anti_type int32) (*msg_client_message.BattleReportItem, *msg_client_message.BattleFighter) {
 	if report == nil {
 		report = build_battle_report_item(self_team, self_pos, 0, skill_id)
+		if report == nil {
+			return nil, nil
+		}
 		self_team.common_data.reports = append(self_team.common_data.reports, report)
 	}
 	report.User.Damage += self_dmg

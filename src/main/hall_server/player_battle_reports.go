@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "libs/log"
+	"libs/log"
 	"public_message/gen_go/client_message"
 )
 
@@ -34,6 +34,7 @@ func (this *TeamMember) build_battle_member() *msg_client_message.BattleMemberIt
 func build_battle_report_item(self_team *BattleTeam, self_pos int32, self_damage int32, skill_id int32) *msg_client_message.BattleReportItem {
 	self := self_team.members[self_pos]
 	if self == nil {
+		log.Error("+++++++++++++++++++++++++-------------------- self_team[%v] member[%v] not found", self_team.side, self_pos)
 		return nil
 	}
 	item := msg_battle_reports_item_pool.Get()

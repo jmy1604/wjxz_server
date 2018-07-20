@@ -258,7 +258,7 @@ func (this *TeamMember) add_skill_attr(skill_id int32) {
 		return
 	}
 	this.add_attrs(skill.SkillAttr)
-	log.Debug("!!!!!!!!!!!!! add skill[%v] attrs[%v]", skill_id, skill.SkillAttr)
+	//log.Debug("!!!!!!!!!!!!! add skill[%v] attrs[%v]", skill_id, skill.SkillAttr)
 }
 
 func (this *TeamMember) init_passive_data(skills []int32) {
