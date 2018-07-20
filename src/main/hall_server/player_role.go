@@ -1094,7 +1094,7 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 
 func (this *Player) set_role_power(role_id, pow int32) {
 	if this.roles_power == nil {
-		return
+		this.roles_power = make(map[int32]int32)
 	}
 	this.roles_power[role_id] = pow
 }
