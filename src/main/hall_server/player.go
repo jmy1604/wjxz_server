@@ -919,7 +919,6 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		target_team = p.defense_team
 	} else {
 		if !robot.defense_team.InitWithArenaRobot(robot.robot_data, 1) {
-			p.CancelDefensing()
 			log.Error("Robot[%v] init defense team failed", player_id)
 			return -1
 		}

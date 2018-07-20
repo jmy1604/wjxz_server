@@ -32,10 +32,13 @@ func (this *TeamMember) build_battle_member() *msg_client_message.BattleMemberIt
 }
 
 func build_battle_report_item(self_team *BattleTeam, self_pos int32, self_damage int32, skill_id int32) *msg_client_message.BattleReportItem {
+	self := self_team.members[self_pos]
+	if self == nil {
+		return nil
+	}
 	item := msg_battle_reports_item_pool.Get()
 	item.Side = self_team.side
 	item.SkillId = skill_id
-	self := self_team.members[self_pos]
 	item.User = self.build_battle_fighter(self_damage)
 	item.BeHiters = make([]*msg_client_message.BattleFighter, 0)
 	item.SummonNpcs = make([]*msg_client_message.BattleMemberItem, 0)

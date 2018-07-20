@@ -392,31 +392,55 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 	if this.check_arena_tickets_refresh() > 0 {
 
 	}
+
+	var defense_team []int32
+	var robot *ArenaRobot
 	p := player_mgr.GetPlayerById(player_id)
 	if p == nil {
-		log.Error("Player[%v] not found", player_id)
-		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		robot = arena_robot_mgr.Get(player_id)
+		if robot == nil {
+			log.Error("Player[%v] not found", player_id)
+			return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
+		}
+	} else {
+		defense_team = p.db.BattleTeam.GetDefenseMembers()
 	}
-	defense_team := p.db.BattleTeam.GetDefenseMembers()
+
 	team := make(map[int32]*msg_client_message.PlayerTeamRole)
+
 	if defense_team != nil {
 		for i := 0; i < len(defense_team); i++ {
 			m := defense_team[i]
 			if m <= 0 {
 				continue
 			}
-			table_id, _ := this.db.Roles.GetTableId(m)
-			level, _ := this.db.Roles.GetLevel(m)
-			rank, _ := this.db.Roles.GetRank(m)
-			team[m] = &msg_client_message.PlayerTeamRole{
+			table_id, _ := p.db.Roles.GetTableId(m)
+			level, _ := p.db.Roles.GetLevel(m)
+			rank, _ := p.db.Roles.GetRank(m)
+			team[int32(i)] = &msg_client_message.PlayerTeamRole{
 				TableId: table_id,
 				Pos:     int32(i),
 				Level:   level,
 				Rank:    rank,
 			}
 		}
+	} else {
+		for i := 0; i < len(robot.robot_data.RobotCardList); i++ {
+			m := robot.robot_data.RobotCardList[i]
+			if m == nil {
+				continue
+			}
+			team[m.Slot] = &msg_client_message.PlayerTeamRole{
+				TableId: m.MonsterID,
+				Pos:     m.Slot,
+				Level:   m.Level,
+				Rank:    m.Rank,
+			}
+		}
 	}
+
 	response := &msg_client_message.S2CArenaPlayerDefenseTeamResponse{
+		PlayerId:    player_id,
 		DefenseTeam: team,
 		Power:       p.get_defense_team_power(),
 	}
