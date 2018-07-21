@@ -918,13 +918,16 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		target_team_format = p.defense_team._format_members_for_msg()
 		target_team = p.defense_team
 	} else {
-		if !robot.defense_team.InitWithArenaRobot(robot.robot_data, 1) {
+		if this.target_stage_team == nil {
+			this.target_stage_team = &BattleTeam{}
+		}
+		if !this.target_stage_team.InitWithArenaRobot(robot.robot_data, 1) {
 			log.Error("Robot[%v] init defense team failed", player_id)
 			return -1
 		}
 
-		target_team_format = robot.defense_team._format_members_for_msg()
-		target_team = robot.defense_team
+		target_team_format = this.target_stage_team._format_members_for_msg()
+		target_team = this.target_stage_team
 	}
 
 	my_team_format := this.attack_team._format_members_for_msg()

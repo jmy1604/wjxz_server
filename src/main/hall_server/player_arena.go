@@ -110,14 +110,14 @@ func (this *ArenaRankItem) CopyDataTo(node interface{}) {
 }
 
 type ArenaRobot struct {
-	robot_data   *table_config.XmlArenaRobotItem
-	defense_team *BattleTeam
-	power        int32
+	robot_data *table_config.XmlArenaRobotItem
+	//defense_team *BattleTeam
+	power int32
 }
 
 func (this *ArenaRobot) Init(robot *table_config.XmlArenaRobotItem) {
 	this.robot_data = robot
-	this.defense_team = &BattleTeam{}
+	//this.defense_team = &BattleTeam{}
 	this._calculate_power()
 }
 
