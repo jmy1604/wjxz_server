@@ -208,7 +208,7 @@ func (this *Player) get_tower_record_data(tower_fight_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_BATTLE_RECORD_DATA_INVALID)
 	}
 	response := &msg_client_message.S2CTowerRecordDataResponse{
-		RecordData: row.Data.GetData(),
+		RecordData: record_data,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_RECORD_DATA_RESPONSE), response)
 
