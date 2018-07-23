@@ -595,7 +595,7 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 }
 
 func skill_check_cond(self *TeamMember, target_pos []int32, target_team *BattleTeam, effect_cond1 []int32, effect_cond2 []int32) bool {
-	if len(effect_cond1) == 0 && len(effect_cond2) == 0 {
+	if (effect_cond1 == nil || len(effect_cond1) == 0) && (effect_cond2 == nil || len(effect_cond2) == 0) {
 		return true
 	}
 
@@ -603,7 +603,10 @@ func skill_check_cond(self *TeamMember, target_pos []int32, target_team *BattleT
 		return false
 	}
 
-	// 有一个满足就满足
+	if effect_cond2 == nil || len(effect_cond2) == 0 {
+		return true
+	}
+
 	if target_team != nil {
 		n := 0
 		if target_pos != nil {
@@ -611,7 +614,6 @@ func skill_check_cond(self *TeamMember, target_pos []int32, target_team *BattleT
 		} else {
 			n = BATTLE_TEAM_MEMBER_MAX_NUM
 		}
-		b := false
 		for i := 0; i < n; i++ {
 			pos := int32(0)
 			if target_pos != nil {
@@ -620,13 +622,13 @@ func skill_check_cond(self *TeamMember, target_pos []int32, target_team *BattleT
 				pos = int32(i)
 			}
 			target := target_team.members[pos]
-			if target != nil && _skill_check_cond(target, effect_cond2) {
-				b = true
+			if target == nil {
+				continue
+			}
+			if _skill_check_cond(target, effect_cond2) {
 				break
 			}
-			if !b {
-				return false
-			}
+			return false
 		}
 	}
 
