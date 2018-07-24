@@ -22,10 +22,14 @@ func (this *Player) send_tower_data(check bool) int32 {
 		this.check_tower_keys()
 	}
 	tower_keys := this.get_resource(global_config.TowerKeyId)
+	remain_seconds := global_config.TowerKeyGetInterval - (int32(time.Now().Unix()) - this.db.TowerCommon.GetLastGetNewKeyTime())
+	if remain_seconds < 0 {
+		remain_seconds = 0
+	}
 	response := &msg_client_message.S2CTowerDataResponse{
-		CurrTowerId:    this.db.TowerCommon.GetCurrId(),
-		TowerKeys:      tower_keys,
-		LastGetKeyTime: this.db.TowerCommon.GetLastGetNewKeyTime(),
+		CurrTowerId:   this.db.TowerCommon.GetCurrId(),
+		TowerKeys:     tower_keys,
+		RemainSeconds: remain_seconds,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_DATA_RESPONSE), response)
 	return 1
@@ -154,6 +158,7 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 				if data != nil {
 					row.Data.SetData(data)
 					row.SetAttacker(this.Id)
+					row.SetTowerId(tower_id)
 					row.SetSaveTime(int32(time.Now().Unix()))
 				}
 				break
