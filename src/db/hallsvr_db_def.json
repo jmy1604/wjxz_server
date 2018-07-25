@@ -162,7 +162,7 @@
 						{"Type":"int32","Index":5,"Name":"Attr","Repeated":true},
 						{"Type":"int32","Index":6,"Name":"Equip","Repeated":true},
 						{"Type":"int32","Index":7,"Name":"IsLock"},
-						{"Type":"int32","Index":8,"Name":"LeftSlotIsOpen"}
+						{"Type":"int32","Index":8,"Name":"State"}
 					]
 				},
 				{
@@ -498,51 +498,99 @@
 					]
 				},
 				{
-					"DBColumnName":"DialyTask",
+					"DBColumnName":"TaskCommon",
 					"InUse":true,
-					"ColumnName":"DialyTask",
+					"ColumnName":"TaskCommon",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"LastRefreshTime"}
+					]
+				},
+				{
+					"DBColumnName":"Task",
+					"InUse":true,
+					"ColumnName":"Task",
 					"Preload":true,
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"TaskId"},
+						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"Value","Incby":true},
-						{"Type":"int32","Index":3,"Name":"RewardUnix"}
+						{"Type":"int32","Index":3,"Name":"State"}
 					]
 				},
 				{
-					"DBColumnName":"Achieve",
+					"DBColumnName":"FinishedTask",
 					"InUse":true,
-					"ColumnName":"Achieve",
+					"ColumnName":"FinishedTask",
 					"Preload":true,
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"AchieveId"},
-						{"Type":"int32","Index":2,"Name":"Value","Incby":true},
-						{"Type":"int32","Index":3,"Name":"RewardUnix"}
+						{"Type":"int32","Index":1,"Name":"Id"}
 					]
 				},
 				{
-					"DBColumnName":"FinishedAchieve",
+					"DBColumnName":"DailyTaskAllDaily",
 					"InUse":true,
-					"ColumnName":"FinishedAchieve",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"AchieveId"}
-					]
-				},
-				{
-					"DBColumnName":"DailyTaskWholeDaily",
-					"InUse":true,
-					"ColumnName":"DailyTaskWholeDaily",
+					"ColumnName":"DailyTaskAllDaily",
 					"Preload":true,
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"CompleteTaskId"}
+					]
+				},
+				{
+					"DBColumnName":"ExploreCommon",
+					"InUse":true,
+					"ColumnName":"ExploreCommon",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"LastRefreshTime"},
+						{"Type":"int32","Index":2,"Name":"CurrentId","Incby":true}
+					]
+				},
+				{
+					"DBColumnName":"Explore",
+					"InUse":true,
+					"ColumnName":"Explore",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"TaskId"},
+						{"Type":"int32","Index":3,"Name":"State"},
+						{"Type":"int32","Index":4,"Name":"RoleCampsCanSel","Repeated":true},
+						{"Type":"int32","Index":5,"Name":"RoleTypesCanSel","Repeated":true},
+						{"Type":"int32","Index":6,"Name":"RoleId4TaskTitle"},
+						{"Type":"int32","Index":7,"Name":"NameId4TaskTitle"},
+						{"Type":"int32","Index":8,"Name":"StartTime"},
+						{"Type":"int32","Index":9,"Name":"RoleIds","Repeated":true},
+						{"Type":"int32","Index":10,"Name":"IsLock"}
+					]
+				},
+				{
+					"DBColumnName":"ExploreStory",
+					"InUse":true,
+					"ColumnName":"ExploreStory",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"TaskId"},
+						{"Type":"int32","Index":2,"Name":"State"},
+						{"Type":"int32","Index":3,"Name":"RoleCampsCanSel","Repeated":true},
+						{"Type":"int32","Index":4,"Name":"RoleTypesCanSel","Repeated":true},
+						{"Type":"int32","Index":5,"Name":"RoleId4TaskTitle"},
+						{"Type":"int32","Index":6,"Name":"NameId4TaskTitle"},
+						{"Type":"int32","Index":7,"Name":"StartTime"},
+						{"Type":"int32","Index":8,"Name":"RoleIds","Repeated":true}
 					]
 				},
 				{
@@ -595,17 +643,6 @@
 						{"Type":"bytes","Index":2,"Name":"Message"},
 						{"Type":"int32","Index":3,"Name":"SendTime"},
 						{"Type":"int32","Index":4,"Name":"IsRead"}
-					]
-				},
-				{
-					"DBColumnName":"ChaterOpenRequest",
-					"InUse":true,
-					"ColumnName":"ChaterOpenRequest",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"bytes","Index":1,"Name":"CustomData"}
 					]
 				},
 				{
@@ -810,6 +847,20 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"TowerId",
+					"DBColumnName":"TowerId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
 					"Fields":[
 					]
 				}

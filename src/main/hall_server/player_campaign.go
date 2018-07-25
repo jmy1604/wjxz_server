@@ -239,6 +239,11 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		})
 		next_campaign_id = get_next_campaign_id(campaign_id)
 		this.db.CampaignCommon.SetCurrentCampaignId(next_campaign_id)
+		// 产生剧情探索任务
+		campaign := campaign_table_mgr.Get(campaign_id)
+		if campaign != nil && campaign.CampaignTask > 0 {
+			this.explore_gen_story_task(campaign.CampaignTask)
+		}
 	} else {
 		this.db.CampaignCommon.SetCurrentCampaignId(campaign_id)
 	}

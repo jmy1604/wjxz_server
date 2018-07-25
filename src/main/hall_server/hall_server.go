@@ -257,6 +257,20 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("friend_boss_table_mgr init success")
 	}
 
+	if !explore_task_mgr.Init() {
+		log.Error("explore_task_mgr init failed")
+		return errors.New("explore_task_mgr init failed")
+	} else {
+		log.Info("explore_task_mgr init success")
+	}
+
+	if !explore_task_boss_mgr.Init() {
+		log.Error("explore_task_boss_mgr init failed")
+		return errors.New("explore_task_boss_mgr init failed")
+	} else {
+		log.Info("explore_task_boss_mgr init success")
+	}
+
 	if !arena_season_mgr.Init() {
 		log.Error("arena_season_mgr init failed")
 		return errors.New("arena_season_mgr init failed")
@@ -446,6 +460,8 @@ var arena_robot_table_mgr table_config.ArenaRobotTableMgr
 var arena_bonus_table_mgr table_config.ArenaBonusTableMgr
 var active_stage_table_mgr table_config.ActiveStageTableMgr
 var friend_boss_table_mgr table_config.FriendBossTableMgr
+var explore_task_mgr table_config.SearchTaskTableMgr
+var explore_task_boss_mgr table_config.SearchTaskBossTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

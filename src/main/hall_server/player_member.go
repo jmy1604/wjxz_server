@@ -85,6 +85,7 @@ const (
 	BATTLE_TOWER_TEAM        = 4 // tower
 	BATTLE_ACTIVE_STAGE_TEAM = 5 // active stage
 	BATTLE_FRIEND_BOSS_TEAM  = 6 // friend boss
+	BATTLE_EXPLORE_TEAM      = 7 // explore
 	BATTLE_MAX_TEAM          = 100
 )
 

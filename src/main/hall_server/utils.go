@@ -14,6 +14,30 @@ func rand31n_from_range(min, max int32) (bool, int32) {
 	return true, (rand.Int31n(max-min) + min)
 }
 
+func randn_different(array []int32, n int32) (nums []int32) {
+	if n > int32(len(array)) {
+		return
+	}
+
+	for i := int32(0); i < n; i++ {
+		r := rand.Int31n(n)
+		if nums != nil {
+			f := true
+			for !f {
+				for j := 0; j < len(nums); j++ {
+					if array[r] == nums[j] {
+						f = false
+						break
+					}
+				}
+				r = (r + 1) % int32(len(array))
+			}
+		}
+		nums = append(nums, array[r])
+	}
+	return
+}
+
 func GetRemainSeconds(start_time int32, duration int32) int32 {
 	now := time.Now().Unix()
 	if duration <= (int32(now) - start_time) {

@@ -18,6 +18,7 @@ type XmlCampaignItem struct {
 	RandomDropSec       int32  `xml:"RandomDropSec,attr"`
 	RandomDropIDListStr string `xml:"RandomDropIDList,attr"`
 	RandomDropIDList    []int32
+	CampaignTask        int32 `xml:"CampainTask,attr"`
 }
 
 type XmlCampaignConfig struct {

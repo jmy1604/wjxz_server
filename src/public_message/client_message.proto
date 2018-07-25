@@ -367,8 +367,8 @@ message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
 	int32 CampaignId						= 3; // 战役ID
-	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS 
-	int32 BattleParam						= 5; // 战斗参数   1 玩家ID  2 战役ID  3 塔层ID  4 活动副本ID   5 好友ID
+	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务
+	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID
 	int32 AssistFriendId					= 6; // 助战好友ID
 	int32 AssistRoleId					 	= 7; // 助战角色ID
 	int32 AssistPos							= 8; // 助战角色阵型位置
@@ -796,7 +796,7 @@ message C2STowerDataRequest {
 message S2CTowerDataResponse {
 	int32 CurrTowerId 						= 1; // 当前层
 	int32 TowerKeys							= 2; // 钥匙数
-	int32 LastGetKeyTime					= 3; // 上次获取钥匙的时间点
+	int32 RemainSeconds						= 3; // 剩余秒数
 }
 
 // 请求爬塔某层录像
@@ -1203,84 +1203,122 @@ message S2CFriendSetAssistRoleResponse {
 	int32 RoleId							= 1; // 角色ID
 }
 
-////////////////////////////////////////////////
+// ------------------------------------ 任务 ----------------------------------
 
-// ----------------------------------------------
-
-// 日常任务数据
-message DialyTaskData {
-	int32 TaskId = 1; // 任务Id
-	int32 TaskValue = 2; // 任务值
-	int32 TaskState = 3; // 任务状态 0 未完成 1 完成 2 已领奖
-	//int32 RewardUnix = 4; // 领取奖励时间戳 如果大于零则表示已经领奖
+// 任务数据
+message TaskData {
+	int32 Id 								= 1; // 任务Id
+	int32 Value 							= 2; // 任务值
+	int32 State 							= 3; // 任务状态   0 未完成 1 完成 2 已领奖
 }
 
 // 客户端向服务器请求日常任务数据
-message C2SGetDialyTaskInfo {
+message C2STaskDataRequest {
+	int32 TaskType							= 1; // 任务类型   1 日常  2 成就
 }
 
 // 服务器向客户端发送任务数据
-message S2CSyncDialyTask {
-	repeated DialyTaskData TaskList = 1; // 任务数据
+message S2CTaskDataResponse {
+	int32 TaskType							= 1; // 任务类型
+	repeated TaskData TaskList 				= 2; // 任务数据列表
 }
 
 // 服务器向客户端通知任务值变化
-message S2CNotifyTaskValueChg {
-	int32 TaskId = 1; // 任务Id
-	int32 TaskValue = 2; // 任务值
-	int32 TaskState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
+message S2CTaskValueNotify {
+	TaskData Data							= 1; // 任务状态变化或者有新任务
 }
 
-// 成就数据
-message AchieveData {
-	int32 AchieveId = 1; // 任务Id
-	int32 AchieveValue = 2; // 任务数据
-	int32 AchieveState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
-	//int32 RewardUnix = 4; // 领取奖励时间戳 如果大于零则表示已经领奖
-}
-
-// 客户端向服务器请求成就数据
-message C2SGetAchieve {
-}
-
-// 服务器向客户端发送成就数据
-message S2CSyncAchieveData {
-	repeated AchieveData AchieveList = 1; // 成就任务数据
-}
-
-// 服务器向客户端通知成就值变化
-message S2CNotifyAchieveValueChg {
-	int32 AchieveId = 1; // 任务Id
-	int32 AchieveValue = 2; // 任务值
-	int32 AchieveState = 3; // 任务状态  0 未完成 1 完成 2 已领奖
-}
-
-// 客户端向服务器请求日常任务奖励
-message C2SGetTaskReward {
-	int32 TaskId = 1;
+// 客户端向服务器请求任务奖励
+message C2STaskRewardRequest {
+	int32 TaskId 							= 1; // 任务ID
 }
 
 // 服务器向客户端发送任务结果
-message S2CRetTaskReward {
-	int32 TaskId = 1; // 任务Id
-	int32 Coin = 2; // 金币
-	int32 Diamond = 3; // 钻石奖励
-	int32 Exp = 4; // 当前经验
-	int32 CurLvl = 5; // 当前等级
+message S2CTaskRewardResponse {
+	int32 TaskId 							= 1; // 任务Id
 }
 
-// 客户端向服务器请求成就奖励
-message C2SGetAchieveReward {
-	int32 AchieveReward = 1; // 成就Id
+// ------------------------------------ 探索 ----------------------------------
+// 探索数据
+message ExploreData {
+	int32 Id								= 1; // 服务器生成的ID
+	int32 TaskId							= 2; // 配置表中的ID
+	repeated int32 RoleCampsCanSel			= 3; // 可选择的角色阵营，未开始时
+	repeated int32 RoleTypesCanSel			= 4; // 可选择的角色类型，未开始时
+	int32 State								= 5; // 0 未开始  1 进行中  2 完成
+	int32 RoleId4Title						= 6; // 任务标题的角色ID
+	int32 NameId4Title						= 7; // 任务标题的语言表ID
+	repeated int32 RoleIds					= 8; // 已选择角色
+	int32 RemainSeconds						= 9; // 任务剩余秒数
 }
 
-// 服务器向客户端完成成就
-message S2CRetAchieveReward {
-	int32 TaskId = 1; // 任务Id
-	int32 Coin = 2; // 金币
-	int32 Diamond = 3; // 钻石奖励
-	int32 Exp = 4; // 当前经验
-	int32 CurLvl = 5; // 当前等级
+// 请求探索数据
+message C2SExploreDataRequest {
+}
+
+message S2CExploreDataResponse {
+	repeated ExploreData Datas				= 1; // 任务列表
+	repeated ExploreData StoryDatas			= 2; // 剧情任务列表
+}
+
+// 选择探索角色
+message C2SExploreSelRoleRequest {
+	int32 Id								= 1; // 服务器生成的任务ID 
+	repeated int32 RoleIds					= 2; // 角色列表
+}
+
+message S2CExploresSelRoleResponse {
+	int32 Id								= 1; // 服务器生成的任务ID 
+	repeated int32 RoleIds					= 2; // 角色列表
+}
+
+// 开始探索
+message C2SExploreStartRequest {
+	repeated int32 Ids						= 1; // ID列表
+}
+
+message S2CExploreStartResponse {
+	repeated int32 Ids						= 1; // ID列表
+	bool IsLock								= 2; // 是否锁定
+}
+
+// 刷新探索任务
+message C2SExploreRefreshRequest {
+}
+
+message S2CExploreRefreshResponse {
+	repeated ExploreData Datas				= 1; // 数据列表
+}
+
+// 自动刷新通知
+message S2CExploreAutoRefreshNotify {
+}
+
+// 锁定或解锁探索任务
+message C2SExploreLockRequest {
+	repeated int32 Ids						= 1; // ID列表
+	bool IsLock								= 2; // 是否锁定
+}
+
+message S2CExploreLockResponse {
+	repeated int32 Ids						= 1; // ID列表
+	bool IsLock								= 2; // 是否锁定
+}
+
+// 探索奖励
+message C2SExploreGetRewardRequest {
+	int32 Id 								= 1; // ID
+}
+
+message S2CExploreGetRewardResponse {
+	int32 Id								= 1; // ID
+	repeated ItemInfo RandomItems			= 2; // 随机奖励
+	bool HasRewardStage						= 3; // 是否有奖励关卡
+}
+
+// 剧情探索任务通知
+message S2CExploreStoryNewNotify {
+	int32 TaskId							= 1; // 探索任务配置ID
 }
 
 // ----------------------------------------------------------------------------

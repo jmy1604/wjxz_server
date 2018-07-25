@@ -268,6 +268,9 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_BUY_ITEM_RESPONSE), response)
 
+	// 更新任务
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_BUY_ITEM_NUM_ON_SHOP, false, 0, buy_num)
+
 	log.Debug("Player[%v] in shop[%v] buy item[%v] num[%v], cost resource %v  add item %v", this.Id, shop_id, id, buy_num, shopitem_tdata.BuyCost, shopitem_tdata.Item)
 
 	return 1

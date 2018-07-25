@@ -49,7 +49,7 @@ message PlayerRole{
 	repeated int32 Attr=5;
 	repeated int32 Equip=6;
 	optional int32 IsLock=7;
-	optional int32 LeftSlotIsOpen=8;
+	optional int32 State=8;
 }
 
 message PlayerRoleList{
@@ -273,40 +273,71 @@ message PlayerFriendBossList{
 	repeated PlayerFriendBoss List=1;
 }
 
-message PlayerDialyTask{
-	optional int32 TaskId=1;
+message PlayerTaskCommon{
+	optional int32 LastRefreshTime=1;
+}
+
+message PlayerTask{
+	optional int32 Id=1;
 	optional int32 Value=2;
-	optional int32 RewardUnix=3;
+	optional int32 State=3;
 }
 
-message PlayerDialyTaskList{
-	repeated PlayerDialyTask List=1;
+message PlayerTaskList{
+	repeated PlayerTask List=1;
 }
 
-message PlayerAchieve{
-	optional int32 AchieveId=1;
-	optional int32 Value=2;
-	optional int32 RewardUnix=3;
+message PlayerFinishedTask{
+	optional int32 Id=1;
 }
 
-message PlayerAchieveList{
-	repeated PlayerAchieve List=1;
+message PlayerFinishedTaskList{
+	repeated PlayerFinishedTask List=1;
 }
 
-message PlayerFinishedAchieve{
-	optional int32 AchieveId=1;
-}
-
-message PlayerFinishedAchieveList{
-	repeated PlayerFinishedAchieve List=1;
-}
-
-message PlayerDailyTaskWholeDaily{
+message PlayerDailyTaskAllDaily{
 	optional int32 CompleteTaskId=1;
 }
 
-message PlayerDailyTaskWholeDailyList{
-	repeated PlayerDailyTaskWholeDaily List=1;
+message PlayerDailyTaskAllDailyList{
+	repeated PlayerDailyTaskAllDaily List=1;
+}
+
+message PlayerExploreCommon{
+	optional int32 LastRefreshTime=1;
+	optional int32 CurrentId=2;
+}
+
+message PlayerExplore{
+	optional int32 Id=1;
+	optional int32 TaskId=2;
+	optional int32 State=3;
+	repeated int32 RoleCampsCanSel=4;
+	repeated int32 RoleTypesCanSel=5;
+	optional int32 RoleId4TaskTitle=6;
+	optional int32 NameId4TaskTitle=7;
+	optional int32 StartTime=8;
+	repeated int32 RoleIds=9;
+	optional int32 IsLock=10;
+}
+
+message PlayerExploreList{
+	repeated PlayerExplore List=1;
+}
+
+message PlayerExploreStory{
+	optional int32 TaskId=1;
+	optional int32 State=2;
+	repeated int32 RoleCampsCanSel=3;
+	repeated int32 RoleTypesCanSel=4;
+	optional int32 RoleId4TaskTitle=5;
+	optional int32 NameId4TaskTitle=6;
+	optional int32 StartTime=7;
+	repeated int32 RoleIds=8;
+}
+
+message PlayerExploreStoryList{
+	repeated PlayerExploreStory List=1;
 }
 
 message PlayerSevenActivity{
@@ -347,10 +378,6 @@ message PlayerFriendChatUnreadMessage{
 
 message PlayerFriendChatUnreadMessageList{
 	repeated PlayerFriendChatUnreadMessage List=1;
-}
-
-message PlayerChaterOpenRequest{
-	optional bytes CustomData=1;
 }
 
 message PlayerHeadItem{

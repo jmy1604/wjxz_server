@@ -83,6 +83,8 @@ type GlobalConfig struct {
 	FriendAssistPointsGet                int32      // 助战好友获得友情点数
 	FriendPointsGetLimitDay              int32      // 每天获得友情点上限
 	DailyTaskRefreshTime                 string     // 日常任务刷新时间
+	ExploreTaskRefreshCostDiamond        int32      // 探索任务刷新花费钻石
+	ExploreTaskRefreshTime               string     // 探索任务刷新时间
 
 	GooglePayUrl       string
 	FaceBookPayUrl     string

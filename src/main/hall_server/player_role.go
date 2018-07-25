@@ -17,6 +17,12 @@ const (
 	ROLE_MAX_COUNT = 300
 )
 
+const (
+	ROLE_STATE_NONE    = iota
+	ROLE_STATE_TEAM    = 1
+	ROLE_STATE_EXPLORE = 2
+)
+
 func (this *dbPlayerRoleColumn) BuildMsg() (roles []*msg_client_message.Role) {
 	this.m_row.m_lock.UnSafeRLock("dbPlayerRoleColumn.BuildMsg")
 	defer this.m_row.m_lock.UnSafeRUnlock()

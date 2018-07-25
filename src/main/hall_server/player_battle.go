@@ -929,6 +929,9 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 			} else if battle_type == 5 {
 				// 好友BOSS
 				team_type = BATTLE_FRIEND_BOSS_TEAM
+			} else if battle_type == 6 {
+				// 探索任务
+				team_type = BATTLE_EXPLORE_TEAM
 			} else {
 				this.assist_friend = nil
 				log.Error("Player[%v] set team[%v] invalid", this.Id, team_type)
@@ -956,6 +959,8 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 		res = this.fight_active_stage(battle_param)
 	} else if battle_type == 5 {
 		res = this.friend_boss_challenge(battle_param)
+	} else if battle_type == 6 {
+		res = this.explore_fight(battle_param)
 	} else {
 		res = -1
 	}

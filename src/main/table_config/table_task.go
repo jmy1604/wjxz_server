@@ -8,34 +8,41 @@ import (
 
 // 任务类型
 const (
-	TASK_TYPE_DAILY       = 1 // 日常任务
-	TASK_TYPE_ACHIEVEMENT = 2 // 成就任务
+	TASK_TYPE_DAILY  = 1 // 日常
+	TASK_TYPE_ACHIVE = 2 // 成就
 )
 
 // 任务完成类型
 const (
-	// 每日任务和成就任务(参数 EventParam CompleteNum)
-	TASK_FINISH_ALL_DAILY          = 101 // (EventParam 0, CompleteNum 0) 完成所有每日任务
-	TASK_FINISH_PASS_NUM           = 102 // (EventParam 0, CompleteNum N) 挑战N次消除关卡
-	TASK_FINISH_WEEK_MATCH_NUM     = 103 // (EventParam 0, CompleteNum N) 挑战周赛N次
-	TASK_FINISH_EXPLORE_NUM        = 104 // (EventParam 0, CompleteNum N) 完成N个探索任务
-	TASK_FINISH_MAKING_FORMULA_NUM = 105 // (EventParam 0, CompleteNum N) 完成N个装饰物打造
-	TASK_FINISH_CAT_FEED           = 106 // (EventParam 0, CompleteNum N) 喂食N只猫
-	TASK_FINISH_GET_EXP_BY_FOSTER  = 107 // (EventParam 0, CompleteNum N) 收取N次寄养经验
-	TASK_FINISH_GIVE_FRIEND_POINT  = 108 // (EventParam 0, CompleteNum N) 赠送N次友情点
-	TASK_FINISH_VISIT_FRIEND_NUM   = 109 // (EventParam 0, CompleteNum N) 拜访N次好友家园
-
-	TASK_FINISH_PASS_CHAPTER                = 201 // (EventParam A, CompleteNum B) 通关A章节B次
-	TASK_FINISH_COLLECT_STAR_NUM            = 202 // (EventParam A, CompleteNum 0) 收集A颗消除星星B次
-	TASK_FINISH_EXPLORE_TASK_NUM            = 203 // (EventParam 0, CompleteNum B) 探索任务成功B次
-	TASK_FINISH_MAKING_FORMULA_BUILDING_NUM = 204 // (EventParam A, CompleteNum B) 完成A阶饰物打造B次
-	TASK_FINISH_COLLECT_SSR                 = 205 // (EventParam A, CompleteNum B) 收集SSR B只
-	TASK_FINISH_CAT_LEVEL_UP                = 206 // (EventParam A, CompleteNum B) B只猫升到A级
-	TASK_FINISH_CAT_UP_STAR                 = 207 // (EventParam A, CompleteNum B) B只猫升到A星
-	TASK_FINISH_CAT_UP_SKILL_LEVEL          = 208 // (EventParam A, CompleteNum B) B只猫技能升到A级
-	TASK_FINISH_CHARM_VALUE                 = 209 // (EventParam A, CompleteNum B) 魅力值A达到B次
-	TASK_FINISH_WON_PRAISE                  = 210 // (EventParam A, CompleteNum B) 获得A个赞B次
-	TASK_FINISH_OPEN_FRIEND_TREATURE_BOX    = 211 // (EventParam 0, CompleteNum B) 开启B次好友宝箱
+	TASK_COMPLETE_TYPE_ALL_DAILY              = 101 // 完成所有日常任务
+	TASK_COMPLETE_TYPE_GOLD_HAND_NUM          = 102 // 完成N次点金
+	TASK_COMPLETE_TYPE_GIVE_POINTS_NUM        = 103 // 赠送N颗爱心
+	TASK_COMPLETE_TYPE_EXPLORE_NUM            = 104 // 完成N次日常探索
+	TASK_COMPLETE_TYPE_FORGE_EQUIP_NUM        = 105 // 合成N件装备
+	TASK_COMPLETE_TYPE_NORMAL_DRAW_NUM        = 106 // 完成N次普通召唤
+	TASK_COMPLETE_TYPE_ADVANCED_DRAW_NUM      = 107 // 完成N次高级召唤
+	TASK_COMPLETE_TYPE_ARENA_FIGHT_NUM        = 108 // 完成N次竞技场战斗
+	TASK_COMPLETE_TYPE_HUANG_UP_NUM           = 109 // 完成N次挂机收获
+	TASK_COMPLETE_TYPE_ACTIVE_STAGE_WIN_NUM   = 110 // 获得N次活动副本胜利
+	TASK_COMPLETE_TYPE_BUY_ITEM_NUM_ON_SHOP   = 111 // 神秘商店购买N件商品
+	TASK_COMPLETE_TYPE_REACH_LEVEL            = 201 // 等级提升到N级
+	TASK_COMPLETE_TYPE_GET_FOUR_STAR_ROLES    = 202 // 获得N个四星英雄
+	TASK_COMPLETE_TYPE_GET_FIVE_STAR_ROLES    = 203 // 获得N个五星英雄
+	TASK_COMPLETE_TYPE_GET_SIX_STAR_ROLES     = 204 // 获得N个六星英雄
+	TASK_COMPLETE_TYPE_GET_NINE_STAR_ROLES    = 205 // 获得N个九星英雄
+	TASK_COMPLETE_TYPE_GET_TEN_STAR_ROLES     = 206 // 获得N个十星英雄
+	TASK_COMPLETE_TYPE_DECOMPOSE_ROLES        = 207 // 分解N个英雄
+	TASK_COMPLETE_TYPE_ARENA_WIN_NUM          = 208 // 冠军争夺战进攻获胜N场次
+	TASK_COMPLETE_TYPE_ARENA_REACH_SCORE      = 209 // 冠军争夺战积分达到N分
+	TASK_COMPLETE_TYPE_PASS_CHAPTERS          = 210 // 通过N个章节
+	TASK_COMPLETE_TYPE_PASS_FOUR_STAR_EXPLORE = 211 // 完成N个四星探索任务
+	TASK_COMPLETE_TYPE_PASS_FIVE_STAR_EXPLORE = 212 // 完成N个五星探索任务
+	TASK_COMPLETE_TYPE_PASS_SIX_STAR_EXPLORE  = 213 // 完成N个六星探索任务
+	TASK_COMPLETE_TYPE_REACH_VIP_N_LEVEL      = 214 // 成为VIPN
+	TASK_COMPLETE_TYPE_GET_GOLD_EQUIPS_NUM    = 215 // 获得N件金色装备
+	TASK_COMPLETE_TYPE_GET_RED_EQUIPS_NUM     = 216 // 获得N件红色装备
+	TASK_COMPLETE_TYPE_GET_ORANGE_EQUIPS_NUM  = 217 // 获得N件橙色装备
+	TASK_COMPLETE_TYPE_SHARE_GAME_NUM         = 218 // 完成N次分享游戏
 )
 
 type TaskReward struct {
@@ -80,8 +87,9 @@ type TaskTableMgr struct {
 	task_array       []*XmlTaskItem             // 任务数组
 	task_array_len   int32                      // 数组长度
 	finish_tasks     map[int32]*FinishTypeTasks // 按完成条件组织任务数据
-	daily_task_map   map[int32]*XmlTaskItem     // 日常任务
-	whole_daily_task *XmlTaskItem               // 所有日常任务
+	daily_task_map   map[int32]*XmlTaskItem     // 日常任务MAP
+	daily_task_array []*XmlTaskItem             // 日程任务数组
+	all_daily_task   *XmlTaskItem               // 所有日常任务
 	level_tasks      map[int32][]*XmlTaskItem   // 等级对应的任务
 }
 
@@ -139,8 +147,9 @@ func (this *TaskTableMgr) LoadTask() bool {
 		this.finish_tasks[tmp_item.EventId].count++
 		if tmp_item.Type == TASK_TYPE_DAILY {
 			this.daily_task_map[tmp_item.Id] = tmp_item
-			if tmp_item.EventId == TASK_FINISH_ALL_DAILY {
-				this.whole_daily_task = tmp_item
+			this.daily_task_array = append(this.daily_task_array, tmp_item)
+			if tmp_item.EventId == TASK_COMPLETE_TYPE_ALL_DAILY {
+				this.all_daily_task = tmp_item
 			}
 		}
 
@@ -163,10 +172,10 @@ func (this *TaskTableMgr) LoadTask() bool {
 	this.task_array_len = int32(len(this.task_array))
 
 	// 所有日常任务CompleteNum处理
-	if this.whole_daily_task != nil {
+	if this.all_daily_task != nil {
 		for _, d := range this.daily_task_map {
-			if d.EventId != TASK_FINISH_ALL_DAILY {
-				this.whole_daily_task.CompleteNum += 1
+			if d.EventId != TASK_COMPLETE_TYPE_ALL_DAILY {
+				this.all_daily_task.CompleteNum += 1
 			}
 		}
 	}
@@ -188,7 +197,7 @@ func (this *TaskTableMgr) GetTask(task_id int32) *XmlTaskItem {
 }
 
 func (this *TaskTableMgr) GetWholeDailyTask() *XmlTaskItem {
-	return this.whole_daily_task
+	return this.all_daily_task
 }
 
 func (this *TaskTableMgr) GetFinishTasks() map[int32]*FinishTypeTasks {
