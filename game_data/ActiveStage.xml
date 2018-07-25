@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
+     <item ID="1" Type="1" PlayerLevelCond="20" StageID="4001" PlayerLevelSuggestion="20" />
      <item ID="2" Type="1" PlayerLevelCond="20" StageID="4002" PlayerLevelSuggestion="35" />
      <item ID="3" Type="1" PlayerLevelCond="20" StageID="4003" PlayerLevelSuggestion="50" />
      <item ID="4" Type="1" PlayerLevelCond="35" StageID="4004" PlayerLevelSuggestion="65" />

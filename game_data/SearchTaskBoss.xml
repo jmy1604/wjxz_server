@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Config>
+     <item SearchTaskBossGroup="1" Weight="10000" stageid="6001" />
+     <item SearchTaskBossGroup="1" Weight="10000" stageid="6002" />
+     <item SearchTaskBossGroup="1" Weight="10000" stageid="6003" />
+     <item SearchTaskBossGroup="1" Weight="10000" stageid="6004" />
+     <item SearchTaskBossGroup="1" Weight="10000" stageid="6005" />
+     <item SearchTaskBossGroup="1" Weight="10000" stageid="6006" />
+     <item SearchTaskBossGroup="2" Weight="10000" stageid="6007" />
+     <item SearchTaskBossGroup="2" Weight="10000" stageid="6008" />
+     <item SearchTaskBossGroup="2" Weight="10000" stageid="6009" />
+     <item SearchTaskBossGroup="2" Weight="10000" stageid="6010" />
+     <item SearchTaskBossGroup="2" Weight="10000" stageid="6011" />
+     <item SearchTaskBossGroup="2" Weight="10000" stageid="6012" />
+     <item SearchTaskBossGroup="3" Weight="10000" stageid="6013" />
+     <item SearchTaskBossGroup="3" Weight="10000" stageid="6014" />
+     <item SearchTaskBossGroup="3" Weight="10000" stageid="6015" />
+     <item SearchTaskBossGroup="3" Weight="10000" stageid="6016" />
+     <item SearchTaskBossGroup="3" Weight="10000" stageid="6017" />
+     <item SearchTaskBossGroup="3" Weight="10000" stageid="6018" />
+     <item SearchTaskBossGroup="4" Weight="10000" stageid="6019" />
+     <item SearchTaskBossGroup="4" Weight="10000" stageid="6020" />
+     <item SearchTaskBossGroup="4" Weight="10000" stageid="6021" />
+     <item SearchTaskBossGroup="4" Weight="10000" stageid="6022" />
+     <item SearchTaskBossGroup="4" Weight="10000" stageid="6023" />
+     <item SearchTaskBossGroup="4" Weight="10000" stageid="6024" />
+     <item SearchTaskBossGroup="5" Weight="10000" stageid="6025" />
+     <item SearchTaskBossGroup="5" Weight="10000" stageid="6026" />
+     <item SearchTaskBossGroup="5" Weight="10000" stageid="6027" />
+     <item SearchTaskBossGroup="5" Weight="10000" stageid="6028" />
+     <item SearchTaskBossGroup="5" Weight="10000" stageid="6029" />
+     <item SearchTaskBossGroup="5" Weight="10000" stageid="6030" />
+     <item SearchTaskBossGroup="6" Weight="10000" stageid="6031" />
+     <item SearchTaskBossGroup="6" Weight="10000" stageid="6032" />
+     <item SearchTaskBossGroup="6" Weight="10000" stageid="6033" />
+     <item SearchTaskBossGroup="6" Weight="10000" stageid="6034" />
+     <item SearchTaskBossGroup="6" Weight="10000" stageid="6035" />
+     <item SearchTaskBossGroup="6" Weight="10000" stageid="6036" />
+     <item SearchTaskBossGroup="7" Weight="10000" stageid="6037" />
+     <item SearchTaskBossGroup="7" Weight="10000" stageid="6038" />
+     <item SearchTaskBossGroup="7" Weight="10000" stageid="6039" />
+     <item SearchTaskBossGroup="7" Weight="10000" stageid="6040" />
+     <item SearchTaskBossGroup="7" Weight="10000" stageid="6041" />
+     <item SearchTaskBossGroup="7" Weight="10000" stageid="6042" />
+     <item SearchTaskBossGroup="1001" Weight="10000" stageid="7001" />
+     <item SearchTaskBossGroup="1002" Weight="10000" stageid="7002" />
+</Config>
