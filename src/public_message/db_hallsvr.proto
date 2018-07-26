@@ -330,10 +330,8 @@ message PlayerExploreStory{
 	optional int32 State=2;
 	repeated int32 RoleCampsCanSel=3;
 	repeated int32 RoleTypesCanSel=4;
-	optional int32 RoleId4TaskTitle=5;
-	optional int32 NameId4TaskTitle=6;
-	optional int32 StartTime=7;
-	repeated int32 RoleIds=8;
+	optional int32 StartTime=5;
+	repeated int32 RoleIds=6;
 }
 
 message PlayerExploreStoryList{

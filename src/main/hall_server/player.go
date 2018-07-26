@@ -89,12 +89,13 @@ type Player struct {
 
 	used_drop_ids          map[int32]int32                       // 抽卡掉落ID统计
 	team_member_mgr        map[int32]*TeamMember                 // 成员map
-	tmp_teams              map[int32][]int32                     // 临时阵容，缓存爬塔活动等进攻阵容
+	tmp_teams              map[int32][]int32                     // 临时阵容，缓存爬塔活动等进攻阵容ID
 	attack_team            *BattleTeam                           // PVP进攻阵型
-	campaign_team          *BattleTeam                           // PVE战役阵型
-	tower_team             *BattleTeam                           // PVE爬塔阵型
-	active_stage_team      *BattleTeam                           // PVE活动关卡阵型
-	friend_boss_team       *BattleTeam                           // PVE好友BOSS关卡阵型
+	campaign_team          *BattleTeam                           // PVE战役进攻阵容
+	tower_team             *BattleTeam                           // PVE爬塔进攻阵容
+	active_stage_team      *BattleTeam                           // PVE活动进攻阵容
+	friend_boss_team       *BattleTeam                           // PVE好友BOSS进攻阵容
+	explore_team           *BattleTeam                           // PVE探索任务进攻阵容
 	fighing_friend_boss    int32                                 // 是否有好友正在挑战
 	defense_team           *BattleTeam                           // PVP防守阵型
 	use_defense            int32                                 // 是否正在使用防守阵型

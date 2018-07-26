@@ -1263,23 +1263,27 @@ message S2CExploreDataResponse {
 
 // 选择探索角色
 message C2SExploreSelRoleRequest {
-	int32 Id								= 1; // 服务器生成的任务ID 
-	repeated int32 RoleIds					= 2; // 角色列表
+	int32 Id								= 1; // 任务ID
+	bool IsStory							= 2; // 是否剧情任务
+	repeated int32 RoleIds					= 3; // 角色列表
 }
 
 message S2CExploresSelRoleResponse {
-	int32 Id								= 1; // 服务器生成的任务ID 
-	repeated int32 RoleIds					= 2; // 角色列表
+	int32 Id								= 1; // 任务ID
+	bool IsStory							= 2; // 是否剧情任务
+	repeated int32 RoleIds					= 3; // 角色列表
 }
 
 // 开始探索
 message C2SExploreStartRequest {
-	repeated int32 Ids						= 1; // ID列表
+	repeated int32 Ids						= 1; // 任务ID列表
+	bool IsStory							= 2; // 是否剧情任务
 }
 
 message S2CExploreStartResponse {
 	repeated int32 Ids						= 1; // ID列表
-	bool IsLock								= 2; // 是否锁定
+	bool IsStory							= 2; // 是否剧情
+	bool IsLock								= 3; // 是否锁定
 }
 
 // 刷新探索任务
@@ -1307,13 +1311,15 @@ message S2CExploreLockResponse {
 
 // 探索奖励
 message C2SExploreGetRewardRequest {
-	int32 Id 								= 1; // ID
+	int32 Id 								= 1; // 任务ID
+	bool IsStory							= 2; // 是否剧情任务
 }
 
 message S2CExploreGetRewardResponse {
 	int32 Id								= 1; // ID
-	repeated ItemInfo RandomItems			= 2; // 随机奖励
-	bool HasRewardStage						= 3; // 是否有奖励关卡
+	bool IsStory							= 2; // 是否剧情任务
+	repeated ItemInfo RandomItems			= 3; // 随机奖励
+	bool HasRewardStage						= 4; // 是否有奖励关卡
 }
 
 // 剧情探索任务通知

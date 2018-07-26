@@ -1447,8 +1447,6 @@ type dbPlayerExploreStoryData struct{
 	State int32
 	RoleCampsCanSel []int32
 	RoleTypesCanSel []int32
-	RoleId4TaskTitle int32
-	NameId4TaskTitle int32
 	StartTime int32
 	RoleIds []int32
 }
@@ -1469,8 +1467,6 @@ func (this* dbPlayerExploreStoryData)from_pb(pb *db.PlayerExploreStory){
 	for i, v := range pb.GetRoleTypesCanSel() {
 		this.RoleTypesCanSel[i] = v
 	}
-	this.RoleId4TaskTitle = pb.GetRoleId4TaskTitle()
-	this.NameId4TaskTitle = pb.GetNameId4TaskTitle()
 	this.StartTime = pb.GetStartTime()
 	this.RoleIds = make([]int32,len(pb.GetRoleIds()))
 	for i, v := range pb.GetRoleIds() {
@@ -1490,8 +1486,6 @@ func (this* dbPlayerExploreStoryData)to_pb()(pb *db.PlayerExploreStory){
 	for i, v := range this.RoleTypesCanSel {
 		pb.RoleTypesCanSel[i]=v
 	}
-	pb.RoleId4TaskTitle = proto.Int32(this.RoleId4TaskTitle)
-	pb.NameId4TaskTitle = proto.Int32(this.NameId4TaskTitle)
 	pb.StartTime = proto.Int32(this.StartTime)
 	pb.RoleIds = make([]int32, len(this.RoleIds))
 	for i, v := range this.RoleIds {
@@ -1510,8 +1504,6 @@ func (this* dbPlayerExploreStoryData)clone_to(d *dbPlayerExploreStoryData){
 	for _ii, _vv := range this.RoleTypesCanSel {
 		d.RoleTypesCanSel[_ii]=_vv
 	}
-	d.RoleId4TaskTitle = this.RoleId4TaskTitle
-	d.NameId4TaskTitle = this.NameId4TaskTitle
 	d.StartTime = this.StartTime
 	d.RoleIds = make([]int32, len(this.RoleIds))
 	for _ii, _vv := range this.RoleIds {
@@ -7648,50 +7640,6 @@ func (this *dbPlayerExploreStoryColumn)SetRoleTypesCanSel(id int32,v []int32)(ha
 	for _ii, _vv := range v {
 		d.RoleTypesCanSel[_ii]=_vv
 	}
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerExploreStoryColumn)GetRoleId4TaskTitle(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExploreStoryColumn.GetRoleId4TaskTitle")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.RoleId4TaskTitle
-	return v,true
-}
-func (this *dbPlayerExploreStoryColumn)SetRoleId4TaskTitle(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExploreStoryColumn.SetRoleId4TaskTitle")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.RoleId4TaskTitle = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerExploreStoryColumn)GetNameId4TaskTitle(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerExploreStoryColumn.GetNameId4TaskTitle")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.NameId4TaskTitle
-	return v,true
-}
-func (this *dbPlayerExploreStoryColumn)SetNameId4TaskTitle(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerExploreStoryColumn.SetNameId4TaskTitle")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.NameId4TaskTitle = v
 	this.m_changed = true
 	return true
 }
