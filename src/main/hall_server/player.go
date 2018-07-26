@@ -299,7 +299,7 @@ func (this *Player) OnCreate() {
 	this.db.SetName(this.Account) // 昵称用默认账号名
 
 	// 新任务
-	this.UpdateNewTasks(1, false)
+	//this.UpdateNewTasks(1, false)
 
 	return
 }
@@ -325,7 +325,7 @@ func (this *Player) OnLogin() {
 	}
 
 	gm_command_mgr.OnPlayerLogin(this)
-	this.ChkPlayerDialyTask()
+	this.ChkPlayerDailyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	friend_recommend_mgr.AddPlayer(this.Id)
 	atomic.StoreInt32(&this.is_lock, 0)

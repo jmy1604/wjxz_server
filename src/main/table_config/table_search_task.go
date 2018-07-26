@@ -26,6 +26,7 @@ type XmlSearchTaskItem struct {
 	CardTypeCond        []int32
 	CardNum             int32  `xml:"CardNum,attr"`
 	SearchTime          int32  `xml:"SearchTime,attr"`
+	AccelCost           int32  `xml:"AccelCost,attr"`
 	ConstRewardStr      string `xml:"ConstReward,attr"`
 	ConstReward         []int32
 	RandomReward        int32  `xml:"RandomReward,attr"`

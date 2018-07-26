@@ -51,18 +51,17 @@ type TaskReward struct {
 }
 
 type XmlTaskItem struct {
-	Id          int32  `xml:"Id,attr"`
-	Type        int32  `xml:"Type,attr"`
-	MinLevel    int32  `xml:"MinLevel,attr"`
-	MaxLevel    int32  `xml:"Maxlevel,attr"`
+	Id   int32 `xml:"Id,attr"`
+	Type int32 `xml:"Type,attr"`
+	//MinLevel    int32  `xml:"MinLevel,attr"`
+	//MaxLevel    int32  `xml:"Maxlevel,attr"`
 	EventId     int32  `xml:"EventId,attr"`
 	EventParam  int32  `xml:"EventParam,attr"`
 	CompleteNum int32  `xml:"CompleteNum,attr"`
 	Prev        int32  `xml:"Prev,attr"`
 	Next        int32  `xml:"Next,attr"`
-	Exp         int32  `xml:"Exp,attr"`
 	RewardStr   string `xml:"Reward,attr"`
-	Rewards     []*TaskReward
+	Rewards     []int32
 }
 
 type XmlTaskTable struct {
@@ -90,7 +89,7 @@ type TaskTableMgr struct {
 	daily_task_map   map[int32]*XmlTaskItem     // 日常任务MAP
 	daily_task_array []*XmlTaskItem             // 日程任务数组
 	all_daily_task   *XmlTaskItem               // 所有日常任务
-	level_tasks      map[int32][]*XmlTaskItem   // 等级对应的任务
+	//level_tasks      map[int32][]*XmlTaskItem   // 等级对应的任务
 }
 
 func (this *TaskTableMgr) Init() bool {
@@ -101,7 +100,7 @@ func (this *TaskTableMgr) Init() bool {
 }
 
 func (this *TaskTableMgr) LoadTask() bool {
-	content, err := ioutil.ReadFile("../game_data/mission.xml")
+	content, err := ioutil.ReadFile("../game_data/Mission.xml")
 	if nil != err {
 		log.Error("TaskTableMgr LoadTask read file error !")
 		return false
@@ -120,24 +119,19 @@ func (this *TaskTableMgr) LoadTask() bool {
 	this.task_map = make(map[int32]*XmlTaskItem)
 	this.finish_tasks = make(map[int32]*FinishTypeTasks)
 	this.daily_task_map = make(map[int32]*XmlTaskItem)
-	this.level_tasks = make(map[int32][]*XmlTaskItem)
+	//this.level_tasks = make(map[int32][]*XmlTaskItem)
 
 	var tmp_item *XmlTaskItem
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
 
-		rewards := parse_xml_str_arr(tmp_item.RewardStr, ",")
+		rewards := parse_xml_str_arr2(tmp_item.RewardStr, ",")
 		if rewards == nil || len(rewards)%2 != 0 {
 			log.Error("@@@@@@ Task[%v] Reward[%v] invalid", tmp_item.Id, tmp_item.RewardStr)
 			return false
 		}
 
-		tmp_item.Rewards = make([]*TaskReward, len(rewards)/2)
-		for i := 0; i < len(rewards)/2; i++ {
-			tmp_item.Rewards[i] = &TaskReward{}
-			tmp_item.Rewards[i].ItemId = rewards[2*i]
-			tmp_item.Rewards[i].Num = rewards[2*i+1]
-		}
+		tmp_item.Rewards = rewards
 
 		this.task_map[tmp_item.Id] = tmp_item
 		this.task_array = append(this.task_array, tmp_item)
@@ -153,12 +147,12 @@ func (this *TaskTableMgr) LoadTask() bool {
 			}
 		}
 
-		if tmp_item.Type != TASK_TYPE_DAILY {
+		/*if tmp_item.Type != TASK_TYPE_DAILY {
 			if this.level_tasks[tmp_item.MinLevel] == nil {
 				this.level_tasks[tmp_item.MinLevel] = make([]*XmlTaskItem, 0)
 			}
 			this.level_tasks[tmp_item.MinLevel] = append(this.level_tasks[tmp_item.MinLevel], tmp_item)
-		}
+		}*/
 	}
 	for idx := int32(0); idx < tmp_len; idx++ {
 		tmp_item = &tmp_cfg.Items[idx]
@@ -180,7 +174,7 @@ func (this *TaskTableMgr) LoadTask() bool {
 		}
 	}
 
-	log.Info("TaskTableMgr Loaded Task table")
+	log.Info("TaskTableMgr Loaded Task table, daily tasks %v", this.daily_task_map)
 
 	return true
 }
@@ -204,12 +198,12 @@ func (this *TaskTableMgr) GetFinishTasks() map[int32]*FinishTypeTasks {
 	return this.finish_tasks
 }
 
-func (this *TaskTableMgr) GetLevelTasks(level int32) []*XmlTaskItem {
+/*func (this *TaskTableMgr) GetLevelTasks(level int32) []*XmlTaskItem {
 	if this.level_tasks == nil {
 		return nil
 	}
 	return this.level_tasks[level]
-}
+}*/
 
 func (this *TaskTableMgr) GetDailyTasks() map[int32]*XmlTaskItem {
 	return this.daily_task_map

@@ -133,6 +133,12 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		}
 		attack_team = this.friend_boss_team
 		team_type = BATTLE_FRIEND_BOSS_TEAM
+	} else if stage_type == 6 || stage_type == 7 {
+		if this.explore_team == nil {
+			this.explore_team = &BattleTeam{}
+		}
+		attack_team = this.explore_team
+		team_type = BATTLE_EXPLORE_TEAM
 	} else {
 		err = int32(msg_client_message.E_ERR_PLAYER_TEAM_TYPE_INVALID)
 		log.Error("Stage type %v invalid", stage_type)

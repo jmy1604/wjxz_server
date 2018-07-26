@@ -271,6 +271,13 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("explore_task_boss_mgr init success")
 	}
 
+	if !task_table_mgr.Init() {
+		log.Error("task_table_mgr init failed")
+		return errors.New("task_table_mgr init failed")
+	} else {
+		log.Info("task_table_mgr init success")
+	}
+
 	if !arena_season_mgr.Init() {
 		log.Error("arena_season_mgr init failed")
 		return errors.New("arena_season_mgr init failed")

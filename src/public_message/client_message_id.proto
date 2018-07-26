@@ -195,12 +195,15 @@ enum MSGID {
 	S2C_EXPLORE_SEL_ROLE_RESPONSE			= 11603; // 选择探索角色返回 S2CExploreSelRoleResponse
 	C2S_EXPLORE_START_REQUEST				= 11604; // 开始探索 C2SExploreStartRequest
 	S2C_EXPLORE_START_RESPONSE				= 11605; // 开始探索返回 S2CExploreStartResponse
-	C2S_EXPLORE_REFRESH_REQUEST				= 11606; // 刷新探索任务 C2SExploreRefreshRequest
-	S2C_EXPLORE_REFRESH_RESPONSE			= 11607; // 刷新探索任务返回 S2CExploreRefreshResponse
-	S2C_EXPLORE_AUTO_REFRESH_NOTIFY			= 11608; // 自动刷新通知 S2CExploreAutoRefreshNotify
-	C2S_EXPLORE_LOCK_REQUEST				= 11609; // 锁定探索任务 C2SExploreLockRequest
-	S2C_EXPLORE_LOCK_RESPONSE				= 11610; // 锁定探索任务返回 S2CExploreLockResponse
-	C2S_EXPLORE_GET_REWARD_REQUEST			= 11611; // 探索任务奖励 C2SExploreGetRewardRequest
-	S2C_EXPLORE_GET_REWARD_RESPONSE			= 11612; // 探索任务奖励返回 S2CExploreGetRewardResponse
-	S2C_EXPLORE_STORY_NEW_NOTIFY			= 11613; // 剧情探索任务通知 S2CExploreStoryNewNotify
+	C2S_EXPLORE_SPEEDUP_REQUEST				= 11606; // 加速任务 C2SExploreSpeedupRequest
+	S2C_EXPLORE_SPEEDUP_RESPONSE			= 11607; // 加速任务返回 S2CExploreSpeedupResponse
+	C2S_EXPLORE_REFRESH_REQUEST				= 11608; // 刷新探索任务 C2SExploreRefreshRequest
+	S2C_EXPLORE_REFRESH_RESPONSE			= 11609; // 刷新探索任务返回 S2CExploreRefreshResponse
+	S2C_EXPLORE_AUTO_REFRESH_NOTIFY			= 11610; // 自动刷新通知 S2CExploreAutoRefreshNotify
+	C2S_EXPLORE_LOCK_REQUEST				= 11611; // 锁定探索任务 C2SExploreLockRequest
+	S2C_EXPLORE_LOCK_RESPONSE				= 11612; // 锁定探索任务返回 S2CExploreLockResponse
+	C2S_EXPLORE_GET_REWARD_REQUEST			= 11613; // 探索任务奖励 C2SExploreGetRewardRequest
+	S2C_EXPLORE_GET_REWARD_RESPONSE			= 11614; // 探索任务奖励返回 S2CExploreGetRewardResponse
+	S2C_EXPLORE_STORY_NEW_NOTIFY			= 11615; // 剧情探索任务通知 S2CExploreStoryNewNotify
+	S2C_EXPLORE_REMOVE_NOTIFY				= 11616; // 剧情任务删除通知 S2CExploreRemoveNotify
 }

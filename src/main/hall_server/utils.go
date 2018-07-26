@@ -15,22 +15,26 @@ func rand31n_from_range(min, max int32) (bool, int32) {
 }
 
 func randn_different(array []int32, n int32) (nums []int32) {
-	if n > int32(len(array)) {
+	l := int32(len(array))
+	if n > l {
 		return
 	}
 
 	for i := int32(0); i < n; i++ {
-		r := rand.Int31n(n)
+		r := rand.Int31n(l)
 		if nums != nil {
 			f := true
-			for !f {
+			for n := int32(0); n < l; n++ {
 				for j := 0; j < len(nums); j++ {
 					if array[r] == nums[j] {
 						f = false
 						break
 					}
 				}
-				r = (r + 1) % int32(len(array))
+				if !f {
+					break
+				}
+				r = (r + 1) % l
 			}
 		}
 		nums = append(nums, array[r])

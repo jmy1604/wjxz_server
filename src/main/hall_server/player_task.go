@@ -19,8 +19,8 @@ const (
 	TASK_STATE_REWARD   = 2 // 已领奖
 )
 
-func (this *dbPlayerTaskColumn) ResetDialyTask() {
-	this.m_row.m_lock.UnSafeLock("dbPlayerTaskColumn.ChkResetDialyTask")
+func (this *dbPlayerTaskColumn) ResetDailyTask() {
+	this.m_row.m_lock.UnSafeLock("dbPlayerTaskColumn.ChkResetDailyTask")
 	defer this.m_row.m_lock.UnSafeUnlock()
 
 	daily_tasks := task_table_mgr.GetDailyTasks()
@@ -77,19 +77,32 @@ func (this *dbPlayerTaskColumn) FillTaskMsg(p *Player, task_type int32) *msg_cli
 	return ret_msg
 }
 
-func (this *Player) ChkPlayerDialyTask() {
-	if utils.CheckDayTimeArrival(this.db.TaskCommon.GetLastRefreshTime(), global_config.DailyTaskRefreshTime) {
-		this.db.Tasks.ResetDialyTask()
-		this.db.TaskCommon.SetLastRefreshTime(int32(time.Now().Unix()))
+func (this *Player) ChkPlayerDailyTask() int32 {
+	remain_seconds := utils.GetRemainSeconds2NextDayTime(this.db.TaskCommon.GetLastRefreshTime(), global_config.DailyTaskRefreshTime)
+	if remain_seconds <= 0 {
+		this.db.Tasks.ResetDailyTask()
+		now_time := int32(time.Now().Unix())
+		this.db.TaskCommon.SetLastRefreshTime(now_time)
+		remain_seconds = utils.GetRemainSeconds2NextDayTime(now_time, global_config.DailyTaskRefreshTime)
 	}
+	return remain_seconds
 }
 
 func (this *Player) send_task(task_type int32) int32 {
-	if task_type == table_config.TASK_TYPE_DAILY {
-		this.ChkPlayerDialyTask()
+	if task_type == 0 || task_type == table_config.TASK_TYPE_DAILY {
+		remain_seconds := this.ChkPlayerDailyTask()
+		response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_DAILY)
+		response.DailyTaskRefreshRemainSeconds = remain_seconds
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), response)
+		log.Debug("Player[%v] daily tasks %v", this.Id, response)
 	}
-	response := this.db.Tasks.FillTaskMsg(this, task_type)
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), response)
+
+	if task_type == 0 || task_type == table_config.TASK_TYPE_ACHIVE {
+		response := this.db.Tasks.FillTaskMsg(this, table_config.TASK_TYPE_ACHIVE)
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_DATA_RESPONSE), response)
+		log.Debug("Player[%v] achive tasks %v", this.Id, response)
+	}
+
 	return 1
 }
 
@@ -104,7 +117,7 @@ func (this *Player) IsPrevAchieveReward(task *table_config.XmlTaskItem) bool {
 	return true
 }
 
-func (this *Player) UpdateNewTasks(level int32, send_msg bool) int32 {
+/*func (this *Player) UpdateNewTasks(level int32, send_msg bool) int32 {
 	tasks := task_table_mgr.GetLevelTasks(level)
 	if tasks == nil {
 		return 0
@@ -127,7 +140,7 @@ func (this *Player) UpdateNewTasks(level int32, send_msg bool) int32 {
 		}
 	}
 	return 1
-}
+}*/
 
 func (this *Player) check_add_next_task(task *table_config.XmlTaskItem, add_val int32) {
 	if task.Next <= 0 {
@@ -140,9 +153,9 @@ func (this *Player) check_add_next_task(task *table_config.XmlTaskItem, add_val 
 	if this.db.Tasks.HasIndex(task.Next) {
 		return
 	}
-	if next_task.MinLevel > this.db.Info.GetLvl() {
+	/*if next_task.MinLevel > this.db.Info.GetLvl() {
 		return
-	}
+	}*/
 
 	update, cur_val, cur_state := this.SingleTaskUpdate(next_task, add_val)
 	if update {
@@ -324,9 +337,9 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 		}
 
 		// 等级不满足
-		if tmp_taskcfg.MinLevel > this.db.Info.GetLvl() || tmp_taskcfg.MaxLevel < this.db.Info.GetLvl() {
+		/*if tmp_taskcfg.MinLevel > this.db.Info.GetLvl() || tmp_taskcfg.MaxLevel < this.db.Info.GetLvl() {
 			continue
-		}
+		}*/
 
 		// 事件参数
 		if if_not_less {
@@ -368,11 +381,11 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 		return int32(msg_client_message.E_ERR_TASK_NOT_FOUND)
 	}
 
-	plvl := p.db.Info.GetLvl()
+	/*plvl := p.db.Info.GetLvl()
 	if plvl < task_cfg.MinLevel || plvl > task_cfg.MaxLevel {
 		log.Error("player level %v is not range for %v-%v", plvl, task_cfg.MinLevel, task_cfg.MaxLevel)
 		return int32(msg_client_message.E_ERR_TASK_LEVEL_NOT_ENOUGH)
-	}
+	}*/
 
 	cur_val, _ := p.db.Tasks.GetValue(task_id)
 	if cur_val < task_cfg.CompleteNum {

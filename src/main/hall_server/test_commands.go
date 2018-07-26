@@ -1431,6 +1431,206 @@ func use_assist_cmd(p *Player, args []string) int32 {
 	return p.fight(nil, int32(battle_type), int32(battle_param), int32(friend_id), int32(role_id), int32(member_pos))
 }
 
+func task_data_cmd(p *Player, args []string) int32 {
+	var task_type int
+	var err error
+	if len(args) > 1 {
+		task_type, err = strconv.Atoi(args[0])
+		if err != nil {
+			return -1
+		}
+	}
+	return p.send_task(int32(task_type))
+}
+
+func task_reward_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+	var task_id int
+	var err error
+	task_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	return p.task_get_reward(int32(task_id))
+}
+
+func explore_data_cmd(p *Player, args []string) int32 {
+	return p.send_explore_data()
+}
+
+func explore_sel_role_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var task_id, is_story int
+	var err error
+	task_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	is_story, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+
+	var role_id int
+	var role_ids []int32
+	if len(args) > 2 {
+		for i := 2; i < len(args); i++ {
+			role_id, err = strconv.Atoi(args[i])
+			if err != nil {
+				return -1
+			}
+			role_ids = append(role_ids, int32(role_id))
+		}
+	}
+
+	story := false
+	if is_story > 0 {
+		story = true
+	}
+
+	if role_ids == nil {
+		role_ids = p.explore_one_key_sel_role(int32(task_id), story)
+	}
+
+	return p.explore_sel_role(int32(task_id), story, role_ids)
+}
+
+func explore_start_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id, is_story int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	is_story, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+
+	story := false
+	if is_story > 0 {
+		story = true
+	}
+
+	return p.explore_task_start([]int32{int32(id)}, story)
+}
+
+func explore_reward_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id, is_story int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	is_story, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+
+	story := false
+	if is_story > 0 {
+		story = true
+	}
+
+	return p.explore_get_reward(int32(id), story)
+}
+
+func explore_fight_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id, is_story int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	is_story, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+
+	story := false
+	if is_story > 0 {
+		story = true
+	}
+
+	return p.explore_fight(int32(id), story)
+}
+
+func explore_refresh_cmd(p *Player, args []string) int32 {
+	return p.explore_tasks_refresh()
+}
+
+func explore_lock_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id, lock int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	lock, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+
+	is_lock := false
+	if lock > 0 {
+		is_lock = true
+	}
+
+	return p.explore_task_lock([]int32{int32(id)}, is_lock)
+}
+
+func explore_speedup_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var id, is_story int
+	var err error
+	id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+	is_story, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+
+	story := false
+	if is_story > 0 {
+		story = true
+	}
+
+	return p.explore_speedup(int32(id), story)
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1516,6 +1716,16 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"assist_list":         assist_list_cmd,
 	"set_assist":          friend_set_assist_cmd,
 	"use_assist":          use_assist_cmd,
+	"task_data":           task_data_cmd,
+	"task_reward":         task_reward_cmd,
+	"explore_data":        explore_data_cmd,
+	"explore_sel_role":    explore_sel_role_cmd,
+	"explore_start":       explore_start_cmd,
+	"explore_reward":      explore_reward_cmd,
+	"explore_fight":       explore_fight_cmd,
+	"explore_refresh":     explore_refresh_cmd,
+	"explore_lock":        explore_lock_cmd,
+	"explore_speedup":     explore_speedup_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

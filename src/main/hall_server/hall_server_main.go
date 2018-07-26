@@ -139,6 +139,7 @@ func main() {
 	// 排行榜
 	rank_list_mgr.Init()
 
+	// 好友推荐
 	friend_recommend_mgr.Init()
 
 	if nil != dbc.Preload() {

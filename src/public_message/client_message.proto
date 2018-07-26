@@ -367,8 +367,8 @@ message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
 	int32 CampaignId						= 3; // 战役ID
-	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务
-	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID
+	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务
+	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID    探索剧情任务ID
 	int32 AssistFriendId					= 6; // 助战好友ID
 	int32 AssistRoleId					 	= 7; // 助战角色ID
 	int32 AssistPos							= 8; // 助战角色阵型位置
@@ -1010,21 +1010,25 @@ message S2CArenaGradeRewardNotify {
 // ---------------------------------- 活动副本 --------------------------------
 // 活动副本数据
 message C2SActiveStageDataRequest {
+	int32 StageType 						= 1; // 类型
 }
 
 message S2CActiveStageDataResponse{
-	int32 RemainChallengeNum				= 1; // 剩余挑战次数
-	int32 MaxChallengeNum					= 2; // 最大挑战次数
-	int32 RemainSeconds4Refresh				= 3; // 刷新剩余秒数
-	int32 ChallengeNumPrice					= 4; // 挑战次数购买价格
-	int32 RemainBuyChallengeNum				= 5; // 剩余购买次数
+	int32 StageType							= 1; // 类型
+	int32 RemainChallengeNum				= 2; // 剩余挑战次数
+	int32 MaxChallengeNum					= 3; // 最大挑战次数
+	int32 RemainSeconds4Refresh				= 4; // 刷新剩余秒数
+	int32 ChallengeNumPrice					= 5; // 挑战次数购买价格
+	int32 RemainBuyChallengeNum				= 6; // 剩余购买次数
 }
 
 // 活动副本挑战次数购买
 message C2SActiveStageBuyChallengeNumRequest {
+	int32 StageType							= 1; // 类型
 }
 
 message S2CActiveStageBuyChallengeNumResponse {
+	int32 StageType							= 1; // 类型
 }
 
 // 活动副本刷新通知
@@ -1214,13 +1218,14 @@ message TaskData {
 
 // 客户端向服务器请求日常任务数据
 message C2STaskDataRequest {
-	int32 TaskType							= 1; // 任务类型   1 日常  2 成就
+	int32 TaskType							= 1; // 任务类型   0 全部   1 日常  2 成就
 }
 
 // 服务器向客户端发送任务数据
 message S2CTaskDataResponse {
 	int32 TaskType							= 1; // 任务类型
 	repeated TaskData TaskList 				= 2; // 任务数据列表
+	int32 DailyTaskRefreshRemainSeconds		= 3; // 每日任务剩余刷新时间
 }
 
 // 服务器向客户端通知任务值变化
@@ -1286,6 +1291,18 @@ message S2CExploreStartResponse {
 	bool IsLock								= 3; // 是否锁定
 }
 
+// 加速
+message C2SExploreSpeedupRequest {
+	int32 Id								= 1; // 任务ID
+	bool IsStory							= 2; // 是否剧情任务
+}
+
+message S2CExploreSpeedupResponse {
+	int32 Id								= 1; // 任务ID
+	bool IsStory							= 2; // 是否剧情任务
+	int32 CostDiamond						= 3; // 花费钻石
+}
+
 // 刷新探索任务
 message C2SExploreRefreshRequest {
 }
@@ -1325,6 +1342,12 @@ message S2CExploreGetRewardResponse {
 // 剧情探索任务通知
 message S2CExploreStoryNewNotify {
 	int32 TaskId							= 1; // 探索任务配置ID
+}
+
+// 探索任务被删除
+message S2CExploreRemoveNotify {
+	int32 Id								= 1; // 任务ID
+	bool IsStory							= 2; // 是否剧情任务
 }
 
 // ----------------------------------------------------------------------------

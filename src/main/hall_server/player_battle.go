@@ -960,7 +960,9 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 	} else if battle_type == 5 {
 		res = this.friend_boss_challenge(battle_param)
 	} else if battle_type == 6 {
-		res = this.explore_fight(battle_param)
+		res = this.explore_fight(battle_param, false)
+	} else if battle_type == 7 {
+		res = this.explore_fight(battle_param, true)
 	} else {
 		res = -1
 	}
