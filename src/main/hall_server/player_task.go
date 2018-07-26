@@ -88,6 +88,17 @@ func (this *Player) ChkPlayerDailyTask() int32 {
 	return remain_seconds
 }
 
+func (this *Player) first_gen_achieve_tasks() {
+	achieves := task_table_mgr.GetStartAchieveTasks()
+	if achieves != nil {
+		for i := 0; i < len(achieves); i++ {
+			this.db.Tasks.Add(&dbPlayerTaskData{
+				Id: achieves[i].Id,
+			})
+		}
+	}
+}
+
 func (this *Player) send_task(task_type int32) int32 {
 	if task_type == 0 || task_type == table_config.TASK_TYPE_DAILY {
 		remain_seconds := this.ChkPlayerDailyTask()

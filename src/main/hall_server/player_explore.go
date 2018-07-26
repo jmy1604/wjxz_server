@@ -169,7 +169,7 @@ func (this *Player) explore_random_task(is_auto bool) (datas []*msg_client_messa
 				d := this.explore_rand_one_task(id, false)
 				datas = append(datas, d)
 
-				if !is_auto {
+				if is_auto {
 					need_random_num -= 1
 					if need_random_num <= 0 {
 						break
@@ -179,7 +179,7 @@ func (this *Player) explore_random_task(is_auto bool) (datas []*msg_client_messa
 		}
 	}
 
-	if !is_auto {
+	if is_auto {
 		for i := 0; i < need_random_num; i++ {
 			id := this.db.ExploreCommon.IncbyCurrentId(1)
 			data := this.explore_rand_one_task(id, true)
@@ -433,7 +433,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 	}
 
 	if len(role_ids) < int(task.CardNum) {
-		log.Error("Player[%v] set explore task[%v] num not enough", this.Id, id)
+		log.Error("Player[%v] set explore task[%v] role ids %v not enough, need %v ", this.Id, id, role_ids, task.CardNum)
 		return -1
 	}
 
@@ -634,38 +634,53 @@ func (this *Player) explore_task_start(ids []int32, is_story bool) int32 {
 	return 1
 }
 
-func (this *Player) explore_speedup(id int32, is_story bool) int32 {
+func (this *Player) explore_speedup(ids []int32, is_story bool) int32 {
 	var task *table_config.XmlSearchTaskItem
-	if is_story {
-		if !this.db.ExploreStorys.HasIndex(id) {
-			log.Error("Player[%v] no explore story task %v", this.Id, id)
+	var cost_diamond int32
+	for i := 0; i < len(ids); i++ {
+		id := ids[i]
+		if is_story {
+			if !this.db.ExploreStorys.HasIndex(id) {
+				log.Error("Player[%v] no explore story task %v", this.Id, id)
+				return -1
+			}
+			task = explore_task_mgr.Get(id)
+		} else {
+			if !this.db.Explores.HasIndex(id) {
+				log.Error("Player[%v] no explore task %v", this.Id, id)
+				return -1
+			}
+			task_id, _ := this.db.Explores.GetTaskId(id)
+			task = explore_task_mgr.Get(task_id)
+		}
+
+		if task.AccelCost > this.get_diamond() {
+			log.Error("Player[%v] speed up explore task %v (is_story: %v) not enough diamond, need %v, now %v", this.Id, id, is_story, task.AccelCost, this.get_diamond())
 			return -1
 		}
-		task = explore_task_mgr.Get(id)
-	} else {
-		if !this.db.Explores.HasIndex(id) {
-			log.Error("Player[%v] no explore task %v", this.Id, id)
-			return -1
+
+		cost_diamond += task.AccelCost
+	}
+
+	this.add_diamond(-cost_diamond)
+
+	for i := 0; i < len(ids); i++ {
+		id := ids[i]
+		if is_story {
+			this.db.ExploreStorys.SetState(id, EXPLORE_TASK_STATE_COMPLETE)
+		} else {
+			this.db.Explores.SetState(id, EXPLORE_TASK_STATE_COMPLETE)
 		}
-		task_id, _ := this.db.Explores.GetTaskId(id)
-		task = explore_task_mgr.Get(task_id)
 	}
-
-	if task.AccelCost > this.get_diamond() {
-		log.Error("Player[%v] speed up explore task %v (is_story: %v) not enough diamond, need %v, now %v", this.Id, id, is_story, task.AccelCost, this.get_diamond())
-		return -1
-	}
-
-	this.add_diamond(-task.AccelCost)
 
 	response := &msg_client_message.S2CExploreSpeedupResponse{
-		Id:          id,
+		Ids:         ids,
 		IsStory:     is_story,
-		CostDiamond: task.AccelCost,
+		CostDiamond: cost_diamond,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_SPEEDUP_RESPONSE), response)
 
-	log.Debug("Player[%v] explore task %v (is_story: %v) speed up, cost diamond %v", this.Id, id, is_story, task.AccelCost)
+	log.Debug("Player[%v] explore task %v (is_story: %v) speed up, cost diamond %v", this.Id, ids, is_story, cost_diamond)
 
 	return 1
 }
@@ -974,6 +989,17 @@ func C2SExploreStartHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	}
 
 	return p.explore_task_start(req.GetIds(), req.GetIsStory())
+}
+
+func C2SExploreSpeedupHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SExploreStartRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+
+	return p.explore_speedup(req.GetIds(), req.GetIsStory())
 }
 
 func C2SExploreTasksRefreshHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

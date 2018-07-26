@@ -77,7 +77,7 @@ func (this *FriendRecommendMgr) CheckAndAddPlayer(player_id int32) bool {
 	this.player_ids[player_id] = add_pos
 	this.players_array[add_pos] = player_id
 
-	log.Debug("Friend Recommend Manager add player[%v], total count[%v], player_ids: %v, players_array: %v", player_id, len(this.player_ids), this.player_ids, this.players_array[:len(this.player_ids)])
+	//log.Debug("Friend Recommend Manager add player[%v], total count[%v], player_ids: %v, players_array: %v", player_id, len(this.player_ids), this.player_ids, this.players_array[:len(this.player_ids)])
 
 	return true
 }

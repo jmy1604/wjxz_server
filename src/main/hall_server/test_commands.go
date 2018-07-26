@@ -1628,7 +1628,7 @@ func explore_speedup_cmd(p *Player, args []string) int32 {
 		story = true
 	}
 
-	return p.explore_speedup(int32(id), story)
+	return p.explore_speedup([]int32{int32(id)}, story)
 }
 
 type test_cmd_func func(*Player, []string) int32

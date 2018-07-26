@@ -100,7 +100,7 @@ func (this *RankList) UpdateItem(item utils.SkiplistNode) bool {
 
 	//this.anouncement_stage_total_score_first_rank(before_first_item)
 
-	log.Debug("Updated rank list item[%v]", item)
+	//log.Debug("Updated rank list item[%v]", item)
 
 	return true
 }

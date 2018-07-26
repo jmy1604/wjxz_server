@@ -298,8 +298,8 @@ func (this *Player) OnCreate() {
 	this.db.Info.IncbyGold(global_config.InitCoin)
 	this.db.SetName(this.Account) // 昵称用默认账号名
 
-	// 新任务
-	//this.UpdateNewTasks(1, false)
+	// 初始成就任务
+	this.first_gen_achieve_tasks()
 
 	return
 }

@@ -1293,12 +1293,12 @@ message S2CExploreStartResponse {
 
 // 加速
 message C2SExploreSpeedupRequest {
-	int32 Id								= 1; // 任务ID
+	repeated int32 Ids						= 1; // 任务ID
 	bool IsStory							= 2; // 是否剧情任务
 }
 
 message S2CExploreSpeedupResponse {
-	int32 Id								= 1; // 任务ID
+	repeated int32 Ids						= 1; // 任务ID
 	bool IsStory							= 2; // 是否剧情任务
 	int32 CostDiamond						= 3; // 花费钻石
 }
