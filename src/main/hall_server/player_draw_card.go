@@ -196,6 +196,9 @@ func (this *Player) draw_card(draw_type int32) int32 {
 		this.send_draw_data()
 	}
 
+	// 任务更新
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_DRAW_NUM, false, draw_type, 1)
+
 	log.Debug("Player[%v] drawed card[%v] with draw type[%v], is free[%v]", this.Id, role_ids, draw_type, is_free)
 
 	return 1

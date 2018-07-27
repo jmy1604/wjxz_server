@@ -133,6 +133,9 @@ func (this *Player) touch_gold(t int32) int32 {
 
 	this.send_gold_hand()
 
+	// 更新任务
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GOLD_HAND_NUM, false, 0, 1)
+
 	return 1
 }
 

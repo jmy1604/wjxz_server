@@ -116,6 +116,9 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 		}
 	}
 
+	// 更新任务
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_STAR_ROLES, false, card.Rarity, 1)
+
 	log.Debug("Player[%v] create new role[%v] table_id[%v]", this.Id, role.Id, role_id)
 
 	return role.Id
@@ -467,6 +470,14 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEVELUP_RESPONSE), response)
 
+	// 更新任务
+	table_id, _ := this.db.Roles.GetTableId(role_id)
+	rank, _ := this.db.Roles.GetRank(role_id)
+	card := card_table_mgr.GetRankCard(table_id, rank)
+	if card != nil {
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_LEVELUP_ROLE_WITH_CAMP, false, card.Camp, 1)
+	}
+
 	log.Debug("Player[%v] role[%v] up to level[%v]", this.Id, role_id, lvl+up_num)
 
 	return lvl
@@ -586,6 +597,7 @@ func (this *Player) team_has_role(team_id int32, role_id int32) bool {
 }
 
 func (this *Player) decompose_role(role_ids []int32) int32 {
+	var num int32
 	for i := 0; i < len(role_ids); i++ {
 		role_id := role_ids[i]
 		level, o := this.db.Roles.GetLevel(role_id)
@@ -663,6 +675,7 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 
 		this.delete_role(role_id)
 		role_ids[i] = 0
+		num += 1
 	}
 
 	response := &msg_client_message.S2CRoleDecomposeResponse{
@@ -678,6 +691,9 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 		this.tmp_cache_items = nil
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DECOMPOSE_RESPONSE), response)
+
+	// 更新任务
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_DECOMPOSE_ROLES, false, 0, num)
 
 	log.Debug("Player[%v] decompose roles %v", this.Id, role_ids)
 

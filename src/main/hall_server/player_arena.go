@@ -257,6 +257,9 @@ func (this *Player) UpdateArenaScore(is_win bool) (score, add_score int32) {
 			}
 			this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_GRADE_REWARD_NOTIFY), notify)
 		}
+
+		// 更新任务
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_REACH_SCORE, true, score, 1)
 	}
 
 	return

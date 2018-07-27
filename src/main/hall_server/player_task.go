@@ -89,6 +89,9 @@ func (this *Player) ChkPlayerDailyTask() int32 {
 }
 
 func (this *Player) first_gen_achieve_tasks() {
+	if this.db.Tasks.NumAll() > 0 {
+		this.db.Tasks.Clear()
+	}
 	achieves := task_table_mgr.GetStartAchieveTasks()
 	if achieves != nil {
 		for i := 0; i < len(achieves); i++ {
@@ -329,7 +332,7 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 
 	notify_task := &msg_client_message.S2CTaskValueNotify{}
 	ftasks := task_table_mgr.GetFinishTasks()[complete_type]
-	if nil != ftasks && ftasks.GetCount() > 0 {
+	if nil == ftasks || ftasks.GetCount() == 0 {
 		log.Error("Task complete type %v no corresponding tasks", complete_type)
 		return
 	}
@@ -353,14 +356,16 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 		}*/
 
 		// 事件参数
-		if if_not_less {
-			if event_param < tmp_taskcfg.EventParam {
-				continue
-			}
-		} else {
-			// 参数不一致
-			if event_param != tmp_taskcfg.EventParam {
-				continue
+		if event_param > 0 {
+			if if_not_less {
+				if event_param < tmp_taskcfg.EventParam {
+					continue
+				}
+			} else {
+				// 参数不一致
+				if event_param != tmp_taskcfg.EventParam {
+					continue
+				}
 			}
 		}
 

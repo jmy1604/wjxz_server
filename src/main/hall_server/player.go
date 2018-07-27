@@ -714,6 +714,12 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 		battle_record_mgr.SaveNew(this.Id, player_id, d, win, add_score)
 	}
 
+	// 更新任务
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_FIGHT_NUM, false, 0, 1)
+	if is_win {
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_WIN_NUM, false, 0, 1)
+	}
+
 	Output_S2CBattleResult(this, response)
 	return 1
 }

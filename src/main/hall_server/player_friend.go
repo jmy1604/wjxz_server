@@ -3,7 +3,7 @@ package main
 import (
 	"libs/log"
 	"libs/utils"
-	_ "main/table_config"
+	"main/table_config"
 	"math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
@@ -495,6 +495,8 @@ func (this *Player) give_friends_points(friend_ids []int32) int32 {
 		if utils.CheckDayTimeArrival(last_give_time, global_config.FriendRefreshTime) {
 			this.db.Friends.SetLastGivePointsTime(friend_ids[i], now_time)
 			is_gived[i] = true
+			// 更新任务
+			this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GIVE_POINTS_NUM, false, 0, 1)
 		}
 	}
 

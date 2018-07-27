@@ -197,6 +197,11 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
+	if is_win {
+		// 更新任务
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ACTIVE_STAGE_WIN_NUM, false, 0, 1)
+	}
+
 	Output_S2CBattleResult(this, response)
 
 	return 1

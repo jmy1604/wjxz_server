@@ -81,11 +81,11 @@ func _explore_gen_task_data(etask *table_config.XmlSearchTaskItem) (camps, types
 	if etask.CardTypeNumCond > 0 {
 		types = randn_different(etask.CardTypeCond, etask.CardTypeNumCond)
 	}
-	if etask.TaskHeroNameList != nil {
+	if etask.TaskHeroNameList != nil && len(etask.TaskHeroNameList) > 0 {
 		r := rand.Int31n(int32(len(etask.TaskHeroNameList)))
 		roleid4task = etask.TaskHeroNameList[r]
 	}
-	if etask.TaskNameList != nil {
+	if etask.TaskNameList != nil && len(etask.TaskNameList) > 0 {
 		r := rand.Int31n(int32(len(etask.TaskNameList)))
 		nameid4task = etask.TaskNameList[r]
 	}
@@ -861,6 +861,9 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 			this.db.Explores.SetState(id, EXPLORE_TASK_STATE_COMPLETE)
 			this.db.Explores.Remove(id)
 		}
+		// 更新任务
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_EXPLORE_NUM, false, 0, 1)
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_STAR_EXPLORE, false, task.TaskStar, 1)
 	}
 
 	response := &msg_client_message.S2CExploreGetRewardResponse{
@@ -952,6 +955,10 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_REMOVE_NOTIFY), notify)
 		this.send_stage_reward(stage, battle_type)
+
+		// 更新任务
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_EXPLORE_NUM, false, 0, 1)
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_STAR_EXPLORE, false, task.TaskStar, 1)
 	}
 
 	Output_S2CBattleResult(this, response)

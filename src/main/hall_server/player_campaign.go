@@ -42,7 +42,7 @@ func get_stage_by_campaign(campaign_id int32) *table_config.XmlPassItem {
 }
 
 // 是否解锁下一章节
-func (this *Player) is_unlock_next_chapter(curr_campaign_id int32) (bool, int32) {
+/*func (this *Player) is_unlock_next_chapter(curr_campaign_id int32) (bool, int32) {
 	campaign := campaign_table_mgr.Get(curr_campaign_id)
 	if campaign == nil {
 		return false, 0
@@ -67,7 +67,7 @@ func (this *Player) is_unlock_next_chapter(curr_campaign_id int32) (bool, int32)
 	}
 
 	return true, next_campaign.ChapterMap
-}
+}*/
 
 // 是否解锁下一难度
 func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int32) {
@@ -282,6 +282,12 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 
 	if is_win && !has_next_wave {
 		this.send_stage_reward(stage, 2)
+
+		// 更新任务 通过章节
+		campaign := campaign_table_mgr.Get(campaign_id)
+		if campaign != nil && campaign.IsLast {
+			this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_CHAPTERS, false, campaign.ChapterMap, 1)
+		}
 	}
 
 	Output_S2CBattleResult(this, response)
@@ -517,6 +523,8 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_CAMPAIGN_HANGUP_INCOME_RESPONSE), &msg)
 		if incomes != nil {
+			// 更新任务
+			this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_HUANG_UP_NUM, false, 0, 1)
 			log.Debug("Player[%v] hangup %v incomes: %v", this.Id, income_type, incomes)
 		}
 	}

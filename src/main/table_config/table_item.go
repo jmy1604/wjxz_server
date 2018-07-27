@@ -11,6 +11,7 @@ type XmlItemItem struct {
 	Type          int32  `xml:"ItemType,attr"`
 	MaxCount      string `xml:"MaxCount,attr"`
 	EquipType     int32  `xml:"EquipType,attr"`
+	Quality       int32  `xml:"Quality,attr"`
 	EquipAttrStr  string `xml:"EquipAttr,attr"`
 	EquipSkillStr string `xml:"EquipSkill,attr"`
 	EquipAttr     []int32

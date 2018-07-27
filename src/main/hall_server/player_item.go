@@ -2,7 +2,7 @@ package main
 
 import (
 	"libs/log"
-	_ "main/table_config"
+	"main/table_config"
 	"math"
 	"net/http"
 	"public_message/gen_go/client_message"
@@ -83,6 +83,11 @@ func (this *Player) add_item(id int32, count int32) bool {
 		this.items_changed_info[id] = count
 	} else {
 		this.items_changed_info[id] = d + count
+	}
+
+	// 更新任务
+	if item.EquipType > 0 {
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GET_QUALITY_EQUIPS_NUM, false, item.Quality, 1)
 	}
 
 	return true
@@ -209,7 +214,7 @@ func (this *Player) add_exp(add int32) (level, exp int32) {
 		this.db.Info.SetLvl(level)
 		this.b_base_prop_chg = true
 		// 更新任务
-		//this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_REACH_LEVEL, false, 0, level)
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_REACH_LEVEL, false, level, 1)
 	}
 
 	return
@@ -595,6 +600,9 @@ func (this *Player) item_upgrade(role_id, item_id, item_num, upgrade_type int32)
 		NewItemId: new_item_ids,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ITEM_UPGRADE_RESPONSE), response)
+
+	// 更新任务
+	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_FORGE_EQUIP_NUM, false, 0, item_num)
 
 	log.Debug("Player[%v] upgraded item[%v] to new item[%v]", this.Id, item_id, new_item_ids)
 

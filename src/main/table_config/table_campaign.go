@@ -19,6 +19,7 @@ type XmlCampaignItem struct {
 	RandomDropIDListStr string `xml:"RandomDropIDList,attr"`
 	RandomDropIDList    []int32
 	CampaignTask        int32 `xml:"CampainTask,attr"`
+	IsLast              bool
 }
 
 type XmlCampaignConfig struct {
@@ -28,7 +29,7 @@ type XmlCampaignConfig struct {
 type CampaignTableMgr struct {
 	Map                  map[int32]*XmlCampaignItem
 	Array                []*XmlCampaignItem
-	Chapter2Campaigns    map[int32][]int32
+	Chapter2Campaigns    map[int32][]*XmlCampaignItem
 	Difficulty2Campaigns map[int32][]int32
 }
 
@@ -61,7 +62,7 @@ func (this *CampaignTableMgr) Load() bool {
 		this.Array = make([]*XmlCampaignItem, 0)
 	}
 	if this.Chapter2Campaigns == nil {
-		this.Chapter2Campaigns = make(map[int32][]int32)
+		this.Chapter2Campaigns = make(map[int32][]*XmlCampaignItem)
 	}
 	if this.Difficulty2Campaigns == nil {
 		this.Difficulty2Campaigns = make(map[int32][]int32)
@@ -88,16 +89,22 @@ func (this *CampaignTableMgr) Load() bool {
 
 		c2c := this.Chapter2Campaigns[tmp_item.ChapterMap]
 		if c2c == nil {
-			c2c = []int32{tmp_item.Id}
+			c2c = []*XmlCampaignItem{tmp_item}
 			this.Chapter2Campaigns[tmp_item.ChapterMap] = c2c
 		} else {
-			this.Chapter2Campaigns[tmp_item.ChapterMap] = append(c2c, tmp_item.Id)
+			this.Chapter2Campaigns[tmp_item.ChapterMap] = append(c2c, tmp_item)
 		}
 
 		d2c := this.Difficulty2Campaigns[tmp_item.Difficulty]
 		if d2c == nil {
 			d2c = []int32{tmp_item.Id}
 			this.Difficulty2Campaigns[tmp_item.ChapterMap] = append(d2c, tmp_item.Id)
+		}
+	}
+
+	for _, v := range this.Chapter2Campaigns {
+		if v != nil {
+			v[len(v)-1].IsLast = true
 		}
 	}
 
@@ -108,7 +115,7 @@ func (this *CampaignTableMgr) Get(id int32) *XmlCampaignItem {
 	return this.Map[id]
 }
 
-func (this *CampaignTableMgr) GetChapterCampaign(chapter_id int32) []int32 {
+func (this *CampaignTableMgr) GetChapterCampaign(chapter_id int32) []*XmlCampaignItem {
 	return this.Chapter2Campaigns[chapter_id]
 }
 
