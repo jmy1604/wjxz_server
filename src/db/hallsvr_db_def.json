@@ -420,17 +420,28 @@
 					]
 				},
 				{
-					"DBColumnName":"ActiveStage",
+					"DBColumnName":"ActiveStageCommon",
 					"InUse":true,
-					"ColumnName":"ActiveStage",
+					"ColumnName":"ActiveStageCommon",
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"CanChallengeNum","Incby":true},
-						{"Type":"int32","Index":2,"Name":"LastRefreshTime"},
-						{"Type":"int32","Index":3,"Name":"GetPointsDay","Incby":true},
-						{"Type":"int32","Index":4,"Name":"PurchasedNum","Incby":true}
+						{"Type":"int32","Index":1,"Name":"LastRefreshTime"},
+						{"Type":"int32","Index":2,"Name":"GetPointsDay","Incby":true},
+					]
+				},
+				{
+					"DBColumnName":"ActiveStage",
+					"InUse":true,
+					"ColumnName":"ActiveStage",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Type"},
+						{"Type":"int32","Index":2,"Name":"CanChallengeNum","Incby":true},
+						{"Type":"int32","Index":3,"Name":"PurchasedNum","Incby":true}
 					]
 				},
 				{

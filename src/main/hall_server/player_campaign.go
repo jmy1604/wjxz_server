@@ -168,6 +168,7 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 	}
 
 	if !this.target_stage_team.InitWithStage(1, stage.Id, this.stage_wave, friend) {
+		err = -1
 		log.Error("Player[%v] init stage[%v] wave[%v] team failed", this.Id, stage.Id, this.stage_wave)
 		return
 	}

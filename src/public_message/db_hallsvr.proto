@@ -221,11 +221,19 @@ message PlayerEquip{
 	optional int32 TmpLeftSlotItemId=2;
 }
 
+message PlayerActiveStageCommon{
+	optional int32 LastRefreshTime=1;
+	optional int32 GetPointsDay=2;
+}
+
 message PlayerActiveStage{
-	optional int32 CanChallengeNum=1;
-	optional int32 LastRefreshTime=2;
-	optional int32 GetPointsDay=3;
-	optional int32 PurchasedNum=4;
+	optional int32 Type=1;
+	optional int32 CanChallengeNum=2;
+	optional int32 PurchasedNum=3;
+}
+
+message PlayerActiveStageList{
+	repeated PlayerActiveStage List=1;
 }
 
 message PlayerFriendCommon{

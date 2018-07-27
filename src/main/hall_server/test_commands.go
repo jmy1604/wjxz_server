@@ -1208,11 +1208,23 @@ func item_onekey_upgrade_cmd(p *Player, args []string) int32 {
 }
 
 func active_stage_data_cmd(p *Player, args []string) int32 {
-	return p.send_active_stage_data()
+	return p.send_active_stage_data(0)
 }
 
 func active_stage_buy_cmd(p *Player, args []string) int32 {
-	return p.active_stage_challenge_num_purchase()
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var active_stage_type int
+	var err error
+	active_stage_type, err = strconv.Atoi(args[0])
+	if err != nil {
+		log.Error("活动副本类型[%v]转换失败[%v]", args[0], err.Error())
+		return -1
+	}
+	return p.active_stage_challenge_num_purchase(int32(active_stage_type))
 }
 
 func fight_active_stage_cmd(p *Player, args []string) int32 {

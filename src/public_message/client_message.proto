@@ -123,6 +123,7 @@ enum E_ERR {
 	// 活动副本
 	PLAYER_ACTIVE_STAGE_PURCHASE_NUM_OUT	= -20100; // 活动副本购买挑战次数用完
 	PLAYER_ACTIVE_STAGE_CHALLENGE_NUM_MAX	= -20101; // 活动副本挑战次数最大
+	PLAYER_ACTIVE_STAGE_LEVEL_NOT_ENOUGH	= -20102; // 活动副本玩家等级不够
 	
 	// 好友
 	PLAYER_FRIEND_ALREADY_ADD				= -21000; // 已加为好友
@@ -135,6 +136,26 @@ enum E_ERR {
 	PLAYER_FRIEND_BOSS_IS_FINISHED			= -21007; // 好友BOSS已经结束
 	PLAYER_FRIEND_BOSS_NOT_FOUND			= -21008; // 好友BOSS不存在
 	
+	// 任务
+	PLAYER_TASK_NOT_FOUND					= -22000; // 任务不存在
+	PLAYER_TASK_NOT_COMPLETE				= -22001; // 任务未完成
+	PLAYER_TASK_NOT_REWARD					= -22002; // 任务未领奖
+	PLAYER_TASK_ALREADY_REWARDED			= -22003; // 任务已领奖
+	PLAYER_TASK_PREV_NOT_COMPLETE			= -22004; // 前置任务未完成
+	
+	// 探索
+	PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND		= -23000; // 探索任务配置数据找不到
+	PLAYER_EXPLORE_SEL_ROLES_CANT_SAME		= -23001; // 探索任务选择角色不能重复
+	PLAYER_EXPLORE_USER_DATA_NOT_FOUND		= -23002; // 探索任务玩家数据找不到
+	PLAYER_EXPLORE_ALREADY_STARTED			= -23003; // 探索任务已经开始
+	PLAYER_EXPLORE_SEL_ROLE_NOT_ENOUGH		= -23004; // 探索任务选择角色数量不足
+	PLAYER_EXPLORE_SEL_ROLE_STAR_NOT_ENOUGH = -23005; // 探索任务选择角色星级不足
+	PLAYER_EXPLORE_SEL_ROLE_CAMP_INVALID	= -23006; // 探索任务选择角色阵营非法
+	PLAYER_EXPLORE_SEL_ROLE_TYPE_INVALID	= -23007; // 探索任务选择角色类型非法
+	PLAYER_EXPLORE_CANT_UNLOCK_IF_STARTED	= -23008; // 探索任务已经开始不能解锁
+	PLAYER_EXPLORE_IS_INCOMPLETE			= -23009; // 探索任务未完成
+	PLAYER_EXPLORE_NO_FIGHT_BOSS_STATE		= -23010; // 探索任务的状态不能击打BOSS
+	
 	// 充值
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
 	CHARGE_ORDER_DATA_INVALID				= -200001;
@@ -143,13 +164,6 @@ enum E_ERR {
 	CHARGE_ORDER_SN_ALREDY_USED				= -200004;
 	CHARGE_ORDER_VERIFY_FAILED				= -200005;
 	
-	// 任务错误码
-	TASK_NOT_FOUND							= -101600; // 任务不存在
-	TASK_NOT_COMPLETE						= -101601; // 任务未完成
-	TASK_NOT_REWARD							= -101602; // 未领奖
-	TASK_ALREADY_REWARDED					= -101603; // 已领奖
-	TASK_LEVEL_NOT_ENOUGH					= -101604; // 等级不足
-	TASK_PREV_NOT_COMPLETE					= -101605; // 前置任务未完成
 	
 	// 世界聊天
 	WORLDCHAT_SEND_MSG_COOLING_DOWN   		= -102300; // 世界聊天发送消息还在冷却中
@@ -1013,13 +1027,17 @@ message C2SActiveStageDataRequest {
 	int32 StageType 						= 1; // 类型
 }
 
+message ActiveStageData {
+	int32 RemainChallengeNum				= 1; // 剩余挑战次数
+	int32 RemainBuyChallengeNum				= 2; // 剩余购买次数
+}
+
 message S2CActiveStageDataResponse{
-	int32 StageType							= 1; // 类型
-	int32 RemainChallengeNum				= 2; // 剩余挑战次数
-	int32 MaxChallengeNum					= 3; // 最大挑战次数
-	int32 RemainSeconds4Refresh				= 4; // 刷新剩余秒数
+	map<int32,ActiveStageData> StageData	= 1; // 返回活动副本数据   key 类型  value 数据
+	int32 RemainSeconds4Refresh				= 2; // 刷新剩余秒数
+	int32 GetPointsDay						= 3; // 获得好友点数
+	int32 MaxChallengeNum					= 4; // 最大挑战次数
 	int32 ChallengeNumPrice					= 5; // 挑战次数购买价格
-	int32 RemainBuyChallengeNum				= 6; // 剩余购买次数
 }
 
 // 活动副本挑战次数购买

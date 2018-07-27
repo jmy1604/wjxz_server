@@ -385,7 +385,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 	task := explore_task_mgr.Get(task_id)
 	if task == nil {
 		log.Error("Player[%v] explore task[%v] table data not found", this.Id, task_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND)
 	}
 
 	if role_ids == nil || len(role_ids) == 0 {
@@ -403,7 +403,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 		for j := i + 1; j < len(role_ids); j++ {
 			if role_ids[i] == role_ids[j] {
 				log.Error("Player[%v] set explore task[%v] roles have same role id", this.Id, id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLES_CANT_SAME)
 			}
 		}
 	}
@@ -411,12 +411,12 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 	if is_story {
 		if !this.db.ExploreStorys.HasIndex(id) {
 			log.Error("Player[%v] no explore story task %v", this.Id, id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 		}
 	} else {
 		if !this.db.Explores.HasIndex(id) {
 			log.Error("Player[%v] no such explore task %v", this.Id, id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 		}
 	}
 
@@ -429,12 +429,12 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 
 	if start_time > 0 {
 		log.Error("Player[%v] explore task %v already start, cant set roles", this.Id, id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_ALREADY_STARTED)
 	}
 
 	if len(role_ids) < int(task.CardNum) {
 		log.Error("Player[%v] set explore task[%v] role ids %v not enough, need %v ", this.Id, id, role_ids, task.CardNum)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_NOT_ENOUGH)
 	}
 
 	var camps, types []int32
@@ -469,7 +469,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 
 		if role_tdata.Rarity < task.CardStarCond {
 			log.Error("Player[%v] explore sel role[%v] rarity not enough", this.Id, role_id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_STAR_NOT_ENOUGH)
 		}
 
 		if camps != nil && len(camps) > 0 {
@@ -482,7 +482,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 			}
 			if !has_camp {
 				log.Error("Player[%v] set role[%v] to explore task[%v] failed, camp[%v] not suitable", this.Id, role_id, task_id, role_tdata.Camp)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_CAMP_INVALID)
 			}
 		}
 
@@ -496,7 +496,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 			}
 			if !has_type {
 				log.Error("Player[%v] set role[%v] to explore task[%v] failed, type[%v] not suitable", this.Id, role_id, task_id, role_tdata.Type)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_TYPE_INVALID)
 			}
 		}
 	}
@@ -564,23 +564,23 @@ func (this *Player) explore_task_start(ids []int32, is_story bool) int32 {
 			id := ids[i]
 			if !this.db.ExploreStorys.HasIndex(id) {
 				log.Error("Player[%v] no explore story task %v", this.Id, id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 			}
 			start_time, _ := this.db.ExploreStorys.GetStartTime(id)
 			if start_time > 0 {
 				log.Error("Player[%v] explore story task %v already start", this.Id, id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_ALREADY_STARTED)
 			}
 
 			task := explore_task_mgr.Get(id)
 			if task == nil {
 				log.Error("Explore story task %v table data not found", id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND)
 			}
 
 			role_ids, _ := this.db.ExploreStorys.GetRoleIds(id)
 			if !this._explore_roles_is_enough(task, role_ids) {
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_NOT_ENOUGH)
 			}
 		}
 		for i := 0; i < len(ids); i++ {
@@ -593,25 +593,25 @@ func (this *Player) explore_task_start(ids []int32, is_story bool) int32 {
 			id := ids[i]
 			if !this.db.Explores.HasIndex(id) {
 				log.Error("Player[%v] no explore task[%v]", this.Id, id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 			}
 
 			start_time, _ := this.db.Explores.GetStartTime(id)
 			if start_time > 0 {
 				log.Error("Player[%v] explore task[%v] already start", this.Id, id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_ALREADY_STARTED)
 			}
 
 			task_id, _ := this.db.Explores.GetTaskId(id)
 			task := explore_task_mgr.Get(task_id)
 			if task == nil {
 				log.Error("Explore story task %v table data not found", id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND)
 			}
 
 			role_ids, _ := this.db.Explores.GetRoleIds(id)
 			if !this._explore_roles_is_enough(task, role_ids) {
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_SEL_ROLE_NOT_ENOUGH)
 			}
 		}
 		for i := 0; i < len(ids); i++ {
@@ -642,24 +642,24 @@ func (this *Player) explore_speedup(ids []int32, is_story bool) int32 {
 		if is_story {
 			if !this.db.ExploreStorys.HasIndex(id) {
 				log.Error("Player[%v] no explore story task %v", this.Id, id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 			}
 			task = explore_task_mgr.Get(id)
 		} else {
 			if !this.db.Explores.HasIndex(id) {
 				log.Error("Player[%v] no explore task %v", this.Id, id)
-				return -1
+				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 			}
 			task_id, _ := this.db.Explores.GetTaskId(id)
 			task = explore_task_mgr.Get(task_id)
 		}
 
-		if task.AccelCost > this.get_diamond() {
-			log.Error("Player[%v] speed up explore task %v (is_story: %v) not enough diamond, need %v, now %v", this.Id, id, is_story, task.AccelCost, this.get_diamond())
-			return -1
-		}
-
 		cost_diamond += task.AccelCost
+	}
+
+	if cost_diamond > this.get_diamond() {
+		log.Error("Player[%v] speed up explore task not enough diamond, need %v, now %v", this.Id, cost_diamond, this.get_diamond())
+		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
 	}
 
 	this.add_diamond(-cost_diamond)
@@ -737,12 +737,12 @@ func (this *Player) explore_task_lock(ids []int32, is_lock bool) int32 {
 		id := ids[i]
 		if !this.db.Explores.HasIndex(id) {
 			log.Error("Player[%v] no explore task %v", this.Id, id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 		}
 		state, _ := this.db.Explores.GetState(id)
 		if !is_lock && state > 0 {
 			log.Error("Player[%v] explore task %v is start, cant unlock", this.Id, id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_CANT_UNLOCK_IF_STARTED)
 		}
 	}
 
@@ -788,12 +788,12 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 	if is_story {
 		if !this.db.ExploreStorys.HasIndex(id) {
 			log.Error("Player[%v] no explore story task %v", this.Id, id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 		}
 		task = explore_task_mgr.Get(id)
 		if task == nil {
 			log.Error("Explore story task %v table data not found", id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND)
 		}
 		old_state, _ := this.db.ExploreStorys.GetState(id)
 		start_time, _ := this.db.ExploreStorys.GetStartTime(id)
@@ -801,14 +801,14 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 	} else {
 		if !this.db.Explores.HasIndex(id) {
 			log.Error("Player[%v] no explore task %v", this.Id, id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 		}
 
 		task_id, _ := this.db.Explores.GetTaskId(id)
 		task = explore_task_mgr.Get(task_id)
 		if task == nil {
 			log.Error("Explore task %v table data not found", task_id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND)
 		}
 
 		old_state, _ := this.db.Explores.GetState(id)
@@ -818,7 +818,7 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 
 	if state != EXPLORE_TASK_STATE_COMPLETE {
 		log.Error("Player[%v] explore task %v start not complete, cant get reward", this.Id, id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_IS_INCOMPLETE)
 	}
 
 	// 固定收益
@@ -892,12 +892,12 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 	task := explore_task_mgr.Get(task_id)
 	if task == nil {
 		log.Error("Explore task %v not found", id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_TABLE_DATA_NOT_FOUND)
 	}
 
 	if state != EXPLORE_TASK_STATE_FIGHT_BOSS {
 		log.Error("Player[%v] explore task %v state is not to fight boss", this.Id, state)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_NO_FIGHT_BOSS_STATE)
 	}
 
 	stage := stage_table_mgr.Get(task.BonusStageListID)

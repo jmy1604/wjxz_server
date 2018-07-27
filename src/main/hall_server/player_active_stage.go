@@ -18,14 +18,46 @@ const (
 	ACTIVE_STAGE_PURCHASE_NUM = 10
 )
 
-func (this *Player) _send_active_stage_data() {
-	last_refresh := this.db.ActiveStage.GetLastRefreshTime()
+const (
+	ACTIVE_STAGE_TYPE_GOLD_CHALLENGE    = 1
+	ACTIVE_STAGE_TYPE_WARRIOR_CHALLENGE = 2
+	ACTIVE_STAGE_TYPE_HERO_CHALLENGE    = 3
+)
+
+var active_stage_types []int32 = []int32{
+	ACTIVE_STAGE_TYPE_GOLD_CHALLENGE,
+	ACTIVE_STAGE_TYPE_WARRIOR_CHALLENGE,
+	ACTIVE_STAGE_TYPE_HERO_CHALLENGE,
+}
+
+func (this *Player) _active_stage_get_data(t int32) *msg_client_message.ActiveStageData {
+	remain_num, _ := this.db.ActiveStages.GetCanChallengeNum(t)
+	purchase_num, _ := this.db.ActiveStages.GetPurchasedNum(t)
+	return &msg_client_message.ActiveStageData{
+		RemainChallengeNum:    remain_num,
+		RemainBuyChallengeNum: global_config.ActiveStagePurchaseNum - purchase_num,
+	}
+}
+
+func (this *Player) _send_active_stage_data(typ int32) {
+	datas := make(map[int32]*msg_client_message.ActiveStageData)
+	if typ == 0 {
+		for _, t := range active_stage_types {
+			if this.db.ActiveStages.HasIndex(t) {
+				datas[t] = this._active_stage_get_data(t)
+			}
+		}
+	} else {
+		datas[typ] = this._active_stage_get_data(typ)
+	}
+
+	last_refresh := this.db.ActiveStageCommon.GetLastRefreshTime()
 	response := &msg_client_message.S2CActiveStageDataResponse{
-		RemainChallengeNum:    this.db.ActiveStage.GetCanChallengeNum(),
+		StageData:             datas,
 		MaxChallengeNum:       global_config.ActiveStageChallengeNumOfDay,
 		RemainSeconds4Refresh: utils.GetRemainSeconds2NextDayTime(last_refresh, global_config.ActiveStageRefreshTime),
 		ChallengeNumPrice:     global_config.ActiveStageChallengeNumPrice,
-		RemainBuyChallengeNum: ACTIVE_STAGE_PURCHASE_NUM - this.db.ActiveStage.GetPurchasedNum(),
+		GetPointsDay:          this.db.ActiveStageCommon.GetGetPointsDay(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_DATA_RESPONSE), response)
 	log.Debug("Player[%v] active stage data: %v", this.Id, response)
@@ -38,17 +70,30 @@ func (this *Player) check_active_stage_refresh() bool {
 	}
 
 	now_time := int32(time.Now().Unix())
-	last_refresh := this.db.ActiveStage.GetLastRefreshTime()
+	last_refresh := this.db.ActiveStageCommon.GetLastRefreshTime()
 
-	if last_refresh > 0 && !utils.CheckDayTimeArrival(last_refresh, global_config.ActiveStageRefreshTime) {
+	if !utils.CheckDayTimeArrival(last_refresh, global_config.ActiveStageRefreshTime) {
 		return false
 	}
 
-	this.db.ActiveStage.SetCanChallengeNum(global_config.ActiveStageChallengeNumOfDay)
-	this.db.ActiveStage.SetPurchasedNum(0)
-	this.db.ActiveStage.SetLastRefreshTime(now_time)
+	if this.db.ActiveStages.NumAll() == 0 {
+		for _, t := range active_stage_types {
+			this.db.ActiveStages.Add(&dbPlayerActiveStageData{
+				Type:            t,
+				CanChallengeNum: global_config.ActiveStageChallengeNumOfDay,
+				PurchasedNum:    global_config.ActiveStagePurchaseNum,
+			})
+		}
+	} else {
+		for _, t := range active_stage_types {
+			this.db.ActiveStages.SetCanChallengeNum(t, global_config.ActiveStageChallengeNumOfDay)
+			this.db.ActiveStages.SetPurchasedNum(t, 0)
+		}
+	}
 
-	this._send_active_stage_data()
+	this.db.ActiveStageCommon.SetLastRefreshTime(now_time)
+
+	this._send_active_stage_data(0)
 
 	notify := &msg_client_message.S2CActiveStageRefreshNotify{}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ACTIVE_STAGE_REFRESH_NOTIFY), notify)
@@ -57,15 +102,15 @@ func (this *Player) check_active_stage_refresh() bool {
 	return true
 }
 
-func (this *Player) send_active_stage_data() int32 {
+func (this *Player) send_active_stage_data(typ int32) int32 {
 	if this.check_active_stage_refresh() {
 		return 1
 	}
-	this._send_active_stage_data()
+	this._send_active_stage_data(typ)
 	return 1
 }
 
-func (this *Player) active_stage_challenge_num_purchase() int32 {
+func (this *Player) active_stage_challenge_num_purchase(typ int32) int32 {
 	diamond := this.get_resource(ITEM_RESOURCE_ID_DIAMOND)
 	if diamond < global_config.ActiveStageChallengeNumPrice {
 		log.Error("Player[%v] buy active stage challenge num failed, diamond %v not enough, need %v", this.Id, diamond, global_config.ActiveStageChallengeNumPrice)
@@ -73,22 +118,24 @@ func (this *Player) active_stage_challenge_num_purchase() int32 {
 	}
 
 	// 挑战次数最大
-	if this.db.ActiveStage.GetCanChallengeNum() >= global_config.ActiveStageChallengeNumOfDay {
+	can_num, _ := this.db.ActiveStages.GetCanChallengeNum(typ)
+	if can_num >= global_config.ActiveStageChallengeNumOfDay {
 		log.Error("Player[%v] no need to purchase num for active stage", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_CHALLENGE_NUM_MAX)
 	}
 
 	// 剩余购买次数
-	if ACTIVE_STAGE_PURCHASE_NUM-this.db.ActiveStage.GetPurchasedNum() <= 0 {
+	purchased_num, _ := this.db.ActiveStages.GetPurchasedNum(typ)
+	if global_config.ActiveStagePurchaseNum-purchased_num <= 0 {
 		log.Error("Player[%v] purchased num for active stage used out", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_PURCHASE_NUM_OUT)
 	}
 
-	this.db.ActiveStage.IncbyCanChallengeNum(1)
-	this.db.ActiveStage.IncbyPurchasedNum(1)
+	this.db.ActiveStages.IncbyCanChallengeNum(typ, 1)
+	this.db.ActiveStages.IncbyPurchasedNum(typ, 1)
 	this.add_resource(ITEM_RESOURCE_ID_DIAMOND, -global_config.ActiveStageChallengeNumPrice)
 
-	this._send_active_stage_data()
+	this._send_active_stage_data(typ)
 
 	return 1
 }
@@ -137,14 +184,20 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		return -1
 	}
 
+	if active_stage.PlayerLevel > this.db.Info.GetLvl() {
+		log.Error("Player[%v] fight active stage %v level %v not enough, need %v", this.Id, active_stage_id, this.db.Info.GetLvl(), active_stage.PlayerLevel)
+		return int32(msg_client_message.E_ERR_PLAYER_ACTIVE_STAGE_LEVEL_NOT_ENOUGH)
+	}
+
 	stage_id := active_stage.StageId
 	stage := stage_table_mgr.Get(stage_id)
 	if stage == nil {
 		log.Error("Active stage[%v] stage[%v] not found", active_stage_id, stage_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 
-	if this.db.ActiveStage.GetCanChallengeNum() <= 0 {
+	can_num, _ := this.db.ActiveStages.GetCanChallengeNum(active_stage.Type)
+	if can_num <= 0 {
 		log.Error("Player[%v] active stage challenge num used out", this.Id)
 		return -1
 	}
@@ -156,7 +209,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	}
 
 	if is_win {
-		this.db.ActiveStage.IncbyCanChallengeNum(-1)
+		this.db.ActiveStages.IncbyCanChallengeNum(active_stage.Type, -1)
 		this.send_stage_reward(stage, 4)
 	}
 
@@ -165,17 +218,17 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 	var assist_friend_id int32
 	if this.assist_friend != nil {
 		// 给提供助战角色的玩家增加友情点
-		if utils.CheckDayTimeArrival(this.assist_friend.db.ActiveStage.GetLastRefreshTime(), global_config.ActiveStageRefreshTime) {
-			this.assist_friend.db.ActiveStage.SetLastRefreshTime(int32(time.Now().Unix()))
-			this.assist_friend.db.ActiveStage.SetGetPointsDay(0)
+		if utils.CheckDayTimeArrival(this.assist_friend.db.ActiveStageCommon.GetLastRefreshTime(), global_config.ActiveStageRefreshTime) {
+			this.assist_friend.db.ActiveStageCommon.SetLastRefreshTime(int32(time.Now().Unix()))
+			this.assist_friend.db.ActiveStageCommon.SetGetPointsDay(0)
 		}
 		var add_points int32
-		if this.assist_friend.db.ActiveStage.GetGetPointsDay()+global_config.FriendAssistPointsGet >= global_config.FriendPointsGetLimitDay {
-			add_points = global_config.FriendPointsGetLimitDay - this.assist_friend.db.ActiveStage.GetGetPointsDay()
+		if this.assist_friend.db.ActiveStageCommon.GetGetPointsDay()+global_config.FriendAssistPointsGet >= global_config.FriendPointsGetLimitDay {
+			add_points = global_config.FriendPointsGetLimitDay - this.assist_friend.db.ActiveStageCommon.GetGetPointsDay()
 		} else {
 			add_points = global_config.FriendAssistPointsGet
 		}
-		this.assist_friend.db.ActiveStage.IncbyGetPointsDay(add_points)
+		this.assist_friend.db.ActiveStageCommon.IncbyGetPointsDay(add_points)
 		this.assist_friend.add_item(global_config.FriendPointItemId, add_points)
 		assist_friend_id = this.assist_friend.Id
 	}
@@ -214,7 +267,7 @@ func C2SActiveStageDataHandler(w http.ResponseWriter, r *http.Request, p *Player
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.send_active_stage_data()
+	return p.send_active_stage_data(req.GetStageType())
 }
 
 func C2SActiveStageBuyChallengeNumHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
@@ -224,7 +277,7 @@ func C2SActiveStageBuyChallengeNumHandler(w http.ResponseWriter, r *http.Request
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.active_stage_challenge_num_purchase()
+	return p.active_stage_challenge_num_purchase(req.GetStageType())
 }
 
 func C2SActiveStageGetAssistRoleListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
