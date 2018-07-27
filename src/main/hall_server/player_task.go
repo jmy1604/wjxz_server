@@ -171,10 +171,15 @@ func (this *Player) check_add_next_task(task *table_config.XmlTaskItem, add_val 
 		return
 	}*/
 
+	if next_task.EventId != task.EventId {
+		add_val = 0
+	}
+
 	update, cur_val, cur_state := this.SingleTaskUpdate(next_task, add_val)
 	if update {
 		notify := &msg_client_message.S2CTaskValueNotify{}
 		this.NotifyTaskValue(notify, task.Next, cur_val, cur_state)
+		log.Debug("Player[%v] add new task %v, reuse add_val %v", this.Id, task.Next, add_val)
 	}
 }
 
@@ -222,12 +227,12 @@ func (this *Player) IsPrevTaskComplete(task *table_config.XmlTaskItem) bool {
 		prev_task_data := this.db.Tasks.Get(task.Prev)
 		// 前置任务未开始
 		if prev_task_data == nil {
-			log.Debug("任务(%v)前置任务(%v)未开始", task.Id, prev_task.Id)
+			//log.Debug("任务(%v)前置任务(%v)未开始", task.Id, prev_task.Id)
 			return false
 		}
 		// 前置任务未完成
 		if prev_task.CompleteNum != prev_task_data.Value {
-			log.Debug("任务(%v)前置任务(%v)未完成", task.Id, prev_task.Id)
+			//log.Debug("任务(%v)前置任务(%v)未完成", task.Id, prev_task.Id)
 			return false
 		}
 	} else {
@@ -278,26 +283,29 @@ func (this *Player) IsTaskCompleteById(task_id int32) bool {
 }
 
 // 单个日常任务更新
-func (this *Player) SingleTaskUpdate(tmp_taskcfg *table_config.XmlTaskItem, add_val int32) (updated bool, cur_val int32, cur_state int32) {
-	cur_dialy := this.db.Tasks.Get(tmp_taskcfg.Id)
-	if nil != cur_dialy {
+func (this *Player) SingleTaskUpdate(task *table_config.XmlTaskItem, add_val int32) (updated bool, cur_val int32, cur_state int32) {
+	if this.db.Tasks.HasIndex(task.Id) {
 		// 已领奖
-		if cur_dialy.State == TASK_STATE_REWARD {
+		state, _ := this.db.Tasks.GetState(task.Id)
+		if state == TASK_STATE_REWARD {
 			return
 		}
-		if tmp_taskcfg.CompleteNum > cur_dialy.Value {
-			cur_val = this.db.Tasks.IncbyValue(tmp_taskcfg.Id, add_val)
+
+		value, _ := this.db.Tasks.GetValue(task.Id)
+		if task.CompleteNum > value {
+			cur_val = this.db.Tasks.IncbyValue(task.Id, add_val)
 			updated = true
 		}
 	} else {
-		new_dialy := &dbPlayerTaskData{}
-		new_dialy.Id = tmp_taskcfg.Id
-		new_dialy.Value = add_val
-		this.db.Tasks.Add(new_dialy)
+		this.db.Tasks.Add(&dbPlayerTaskData{
+			Id:    task.Id,
+			Value: add_val,
+		})
 		cur_val = add_val
 		updated = true
 	}
-	if cur_val >= tmp_taskcfg.CompleteNum {
+
+	if cur_val >= task.CompleteNum {
 		cur_state = TASK_STATE_COMPLETE
 	} else {
 		cur_state = TASK_STATE_DOING
@@ -340,6 +348,11 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 	var tmp_taskcfg *table_config.XmlTaskItem
 	for idx = 0; idx < ftasks.GetCount(); idx++ {
 		tmp_taskcfg = ftasks.GetArray()[idx]
+
+		if !this.db.Tasks.HasIndex(tmp_taskcfg.Id) {
+			continue
+		}
+
 		// 已完成
 		if this.IsTaskComplete(tmp_taskcfg) {
 			continue
@@ -414,13 +427,15 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 	p.NotifyTaskValue(notify_task, task_id, cur_val, TASK_STATE_REWARD)
 
 	if task_cfg.Type == table_config.TASK_TYPE_ACHIVE {
-		p.db.Tasks.Remove(task_id)
-		var data dbPlayerFinishedTaskData
-		data.Id = task_id
-		p.db.FinishedTasks.Add(&data)
+		if task_cfg.Next > 0 {
+			p.db.Tasks.Remove(task_id)
+			var data dbPlayerFinishedTaskData
+			data.Id = task_id
+			p.db.FinishedTasks.Add(&data)
 
-		// 后置任务
-		p.check_add_next_task(task_cfg, 0)
+			// 后置任务
+			p.check_add_next_task(task_cfg, cur_val)
+		}
 	}
 
 	return 1

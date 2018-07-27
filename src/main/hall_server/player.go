@@ -291,15 +291,16 @@ func (this *Player) OnCreate() {
 	if len(tmp_acc) > 6 {
 		tmp_acc = string([]byte(tmp_acc)[0:6])
 	}
+
+	// 初始成就任务
+	this.first_gen_achieve_tasks()
+
 	this.db.Info.SetLvl(1)
 	this.db.Info.SetCreateUnix(int32(time.Now().Unix()))
 	this.add_init_roles()
 	this.db.Info.IncbyDiamond(global_config.InitDiamond)
 	this.db.Info.IncbyGold(global_config.InitCoin)
 	this.db.SetName(this.Account) // 昵称用默认账号名
-
-	// 初始成就任务
-	this.first_gen_achieve_tasks()
 
 	return
 }
