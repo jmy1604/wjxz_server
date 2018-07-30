@@ -196,6 +196,9 @@ func (this *Player) add_exp(add int32) (level, exp int32) {
 		if lvl_data == nil {
 			break
 		}
+		if lvl_data.PlayerLevelUpExp <= 0 {
+			break
+		}
 		if lvl_data.PlayerLevelUpExp > exp {
 			break
 		}

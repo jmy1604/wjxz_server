@@ -524,6 +524,13 @@ func C2SArenaMatchPlayerHandler(w http.ResponseWriter, r *http.Request, p *Playe
 	return p.arena_match()
 }
 
+const (
+	ARENA_STATE_IDLE          = iota
+	ARENA_STATE_DOING         = 1
+	ARENA_STATE_DAY_REWARD    = 2
+	ARENA_STATE_SEASON_REWARD = 3
+)
+
 // 竞技场赛季管理
 type ArenaSeasonMgr struct {
 	state          int32 // 0 结束  1 开始
@@ -555,7 +562,7 @@ func (this *ArenaSeasonMgr) ToEnd() {
 
 func (this *ArenaSeasonMgr) SeasonStart() {
 	for {
-		if !atomic.CompareAndSwapInt32(&this.state, 0, 1) {
+		if !atomic.CompareAndSwapInt32(&this.state, ARENA_STATE_IDLE, ARENA_STATE_DOING) {
 			time.Sleep(time.Second * 1)
 			continue
 		}
@@ -565,21 +572,15 @@ func (this *ArenaSeasonMgr) SeasonStart() {
 }
 
 func (this *ArenaSeasonMgr) SeasonEnd() {
-	for {
-		if !atomic.CompareAndSwapInt32(&this.state, 1, 0) {
-			time.Sleep(time.Second * 1)
-			continue
-		}
-		break
-	}
+	atomic.StoreInt32(&this.state, ARENA_STATE_IDLE)
 }
 
 func (this *ArenaSeasonMgr) IsSeasonStart() bool {
-	return atomic.LoadInt32(&this.state) == 1
+	return atomic.LoadInt32(&this.state) == ARENA_STATE_DOING
 }
 
 func (this *ArenaSeasonMgr) IsSeasonEnd() bool {
-	return atomic.LoadInt32(&this.state) == 0
+	return atomic.LoadInt32(&this.state) == ARENA_STATE_IDLE
 }
 
 func (this *ArenaSeasonMgr) GetRemainSeconds() (day_remain int32, season_remain int32) {
@@ -717,19 +718,23 @@ func (this *ArenaSeasonMgr) Run() {
 		now_time := int32(time.Now().Unix())
 		day_arrive, season_arrive := this.IsRewardArrive(now_time)
 		if day_arrive {
-			dbc.ArenaSeason.GetRow().Data.SetLastDayResetTime(now_time)
+			atomic.StoreInt32(&this.state, ARENA_STATE_DAY_REWARD)
 			this.Reward(1)
+			dbc.ArenaSeason.GetRow().Data.SetLastDayResetTime(now_time)
 			this.day_checker.ToNextTimePoint()
+			atomic.StoreInt32(&this.state, ARENA_STATE_DOING)
 			log.Info("Arena Day Reward")
 		}
 
 		if season_arrive {
-			this.SeasonEnd()
-			dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
 			// 发奖
+			atomic.StoreInt32(&this.state, ARENA_STATE_SEASON_REWARD)
 			this.Reward(2)
+			dbc.ArenaSeason.GetRow().Data.SetLastSeasonResetTime(now_time)
 			this.season_checker.ToNextTimePoint()
+			atomic.StoreInt32(&this.state, ARENA_STATE_IDLE)
 			log.Info("Arena Season Reward")
+
 			// 重置
 			this.Reset()
 			this.SeasonStart()
