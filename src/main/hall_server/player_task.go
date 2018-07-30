@@ -307,6 +307,7 @@ func (this *Player) SingleTaskUpdate(task *table_config.XmlTaskItem, add_val int
 
 	if cur_val >= task.CompleteNum {
 		cur_state = TASK_STATE_COMPLETE
+		this.db.Tasks.SetState(task.Id, TASK_STATE_COMPLETE)
 	} else {
 		cur_state = TASK_STATE_DOING
 	}
