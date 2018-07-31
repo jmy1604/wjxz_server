@@ -10,6 +10,7 @@
      <item Id="20008" Type="1" EventId="107" EventParam="" CompleteNum="1" Prev="" Next="" Reward="1,100,2,107" />
      <item Id="20009" Type="1" EventId="108" EventParam="" CompleteNum="5" Prev="" Next="" Reward="1,100,2,108" />
      <item Id="20010" Type="1" EventId="109" EventParam="" CompleteNum="2" Prev="" Next="" Reward="1,100,2,109" />
+     <item Id="20011" Type="1" EventId="110" EventParam="" CompleteNum="4" Prev="" Next="" Reward="1,100,2,109" />
      <item Id="21001" Type="2" EventId="201" EventParam="1" CompleteNum="1" Prev="" Next="21002" Reward="1,100,2,110" />
      <item Id="21002" Type="2" EventId="201" EventParam="5" CompleteNum="1" Prev="21001" Next="21003" Reward="1,100,2,111" />
      <item Id="21003" Type="2" EventId="201" EventParam="10" CompleteNum="1" Prev="21002" Next="21004" Reward="1,100,2,112" />
