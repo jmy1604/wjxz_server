@@ -200,7 +200,8 @@
 						{"Type":"int32","Index":1,"Name":"CurrentCampaignId"},
 						{"Type":"int32","Index":2,"Name":"HangupLastDropStaticIncomeTime"},
 						{"Type":"int32","Index":3,"Name":"HangupLastDropRandomIncomeTime"},
-						{"Type":"int32","Index":4,"Name":"HangupCampaignId"}
+						{"Type":"int32","Index":4,"Name":"HangupCampaignId"},
+						{"Type":"int32","Index":5,"Name":"RankSerialId","Incby":true}
 					]
 				},
 				{
@@ -211,12 +212,7 @@
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"CampaignId"},
-						{"Type":"int32","Index":2,"Name":"Stars"},
-						{"Type":"int32","Index":3,"Name":"LastFinishedTime"},
-						{"Type":"int32","Index":4,"Name":"TopScore"},
-						{"Type":"int32","Index":6,"Name":"PlayedCount","Incby":true},
-						{"Type":"int32","Index":7,"Name":"PassCount","Incby":true}
+						{"Type":"int32","Index":1,"Name":"CampaignId"}
 					]
 				},
 				{

@@ -2,16 +2,110 @@ package main
 
 import (
 	"libs/log"
+	"libs/utils"
 	"main/table_config"
-	_ "math"
 	"math/rand"
-	_ "math/rand"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
+	"sync/atomic"
 	"time"
 
 	_ "github.com/golang/protobuf/proto"
 )
+
+// -------------------------------- 关卡排行榜 --------------------------------
+var campaign_rank_serial_id int32
+
+type CampaginRankItem struct {
+	SerialId   int32
+	CampaignId int32
+	PlayerId   int32
+}
+
+func (this *CampaginRankItem) Less(value interface{}) bool {
+	item := value.(*CampaginRankItem)
+	if item == nil {
+		return false
+	}
+	if this.CampaignId < item.CampaignId {
+		return true
+	}
+	if this.CampaignId == item.CampaignId {
+		if this.SerialId > item.SerialId {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *CampaginRankItem) Greater(value interface{}) bool {
+	item := value.(*CampaginRankItem)
+	if item == nil {
+		return false
+	}
+	if this.CampaignId > item.CampaignId {
+		return true
+	}
+	if this.CampaignId == item.CampaignId {
+		if this.SerialId < item.SerialId {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *CampaginRankItem) KeyEqual(value interface{}) bool {
+	item := value.(*CampaginRankItem)
+	if item == nil {
+		return false
+	}
+	if item == nil {
+		return false
+	}
+	if this.PlayerId == item.PlayerId {
+		return true
+	}
+	return false
+}
+
+func (this *CampaginRankItem) GetKey() interface{} {
+	return this.PlayerId
+}
+
+func (this *CampaginRankItem) GetValue() interface{} {
+	return this.CampaignId
+}
+
+func (this *CampaginRankItem) SetValue(value interface{}) {
+	this.CampaignId = value.(int32)
+	this.SerialId = atomic.AddInt32(&campaign_rank_serial_id, 1)
+}
+
+func (this *CampaginRankItem) New() utils.SkiplistNode {
+	return &CampaginRankItem{}
+}
+
+func (this *CampaginRankItem) Assign(node utils.SkiplistNode) {
+	n := node.(*CampaginRankItem)
+	if n == nil {
+		return
+	}
+	this.PlayerId = n.PlayerId
+	this.CampaignId = n.CampaignId
+	this.SerialId = n.SerialId
+}
+
+func (this *CampaginRankItem) CopyDataTo(node interface{}) {
+	n := node.(*CampaginRankItem)
+	if n == nil {
+		return
+	}
+	n.PlayerId = this.PlayerId
+	n.CampaignId = this.CampaignId
+	n.SerialId = this.SerialId
+}
+
+// ----------------------------------------------------------------------------
 
 // 下一关
 func get_next_campaign_id(campaign_id int32) int32 {
@@ -41,34 +135,6 @@ func get_stage_by_campaign(campaign_id int32) *table_config.XmlPassItem {
 	return stage_table_mgr.Get(campaign.StageId)
 }
 
-// 是否解锁下一章节
-/*func (this *Player) is_unlock_next_chapter(curr_campaign_id int32) (bool, int32) {
-	campaign := campaign_table_mgr.Get(curr_campaign_id)
-	if campaign == nil {
-		return false, 0
-	}
-	campaigns := campaign_table_mgr.GetChapterCampaign(campaign.ChapterMap)
-	if campaigns == nil || len(campaigns) == 0 {
-		return false, 0
-	}
-
-	for i := 0; i < len(campaigns); i++ {
-		if !this.db.Campaigns.HasIndex(campaigns[i]) {
-			return false, 0
-		}
-	}
-
-	if curr_campaign_id != campaigns[len(campaigns)-1] {
-		return false, 0
-	}
-	next_campaign := campaign_table_mgr.Get(campaign.UnlockMap)
-	if next_campaign == nil {
-		return false, 0
-	}
-
-	return true, next_campaign.ChapterMap
-}*/
-
 // 是否解锁下一难度
 func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int32) {
 	campaign := campaign_table_mgr.Get(curr_campaign_id)
@@ -97,6 +163,10 @@ func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int
 	}
 
 	return true, next_campaign.Difficulty
+}
+
+func (this *Player) LoadCampaignRankData() {
+
 }
 
 func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player) (err int32, is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {

@@ -434,6 +434,11 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 	notify_task := &msg_client_message.S2CTaskValueNotify{}
 	p.NotifyTaskValue(notify_task, task_id, cur_val, TASK_STATE_REWARD)
 
+	response := &msg_client_message.S2CTaskRewardResponse{
+		TaskId: task_id,
+	}
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_TASK_REWARD_RESPONSE), response)
+
 	if task_cfg.Type == table_config.TASK_TYPE_ACHIVE {
 		if task_cfg.Next > 0 {
 			p.db.Tasks.Remove(task_id)

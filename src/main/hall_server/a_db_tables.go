@@ -557,6 +557,7 @@ type dbPlayerCampaignCommonData struct{
 	HangupLastDropStaticIncomeTime int32
 	HangupLastDropRandomIncomeTime int32
 	HangupCampaignId int32
+	RankSerialId int32
 }
 func (this* dbPlayerCampaignCommonData)from_pb(pb *db.PlayerCampaignCommon){
 	if pb == nil {
@@ -566,6 +567,7 @@ func (this* dbPlayerCampaignCommonData)from_pb(pb *db.PlayerCampaignCommon){
 	this.HangupLastDropStaticIncomeTime = pb.GetHangupLastDropStaticIncomeTime()
 	this.HangupLastDropRandomIncomeTime = pb.GetHangupLastDropRandomIncomeTime()
 	this.HangupCampaignId = pb.GetHangupCampaignId()
+	this.RankSerialId = pb.GetRankSerialId()
 	return
 }
 func (this* dbPlayerCampaignCommonData)to_pb()(pb *db.PlayerCampaignCommon){
@@ -574,6 +576,7 @@ func (this* dbPlayerCampaignCommonData)to_pb()(pb *db.PlayerCampaignCommon){
 	pb.HangupLastDropStaticIncomeTime = proto.Int32(this.HangupLastDropStaticIncomeTime)
 	pb.HangupLastDropRandomIncomeTime = proto.Int32(this.HangupLastDropRandomIncomeTime)
 	pb.HangupCampaignId = proto.Int32(this.HangupCampaignId)
+	pb.RankSerialId = proto.Int32(this.RankSerialId)
 	return
 }
 func (this* dbPlayerCampaignCommonData)clone_to(d *dbPlayerCampaignCommonData){
@@ -581,45 +584,26 @@ func (this* dbPlayerCampaignCommonData)clone_to(d *dbPlayerCampaignCommonData){
 	d.HangupLastDropStaticIncomeTime = this.HangupLastDropStaticIncomeTime
 	d.HangupLastDropRandomIncomeTime = this.HangupLastDropRandomIncomeTime
 	d.HangupCampaignId = this.HangupCampaignId
+	d.RankSerialId = this.RankSerialId
 	return
 }
 type dbPlayerCampaignData struct{
 	CampaignId int32
-	Stars int32
-	LastFinishedTime int32
-	TopScore int32
-	PlayedCount int32
-	PassCount int32
 }
 func (this* dbPlayerCampaignData)from_pb(pb *db.PlayerCampaign){
 	if pb == nil {
 		return
 	}
 	this.CampaignId = pb.GetCampaignId()
-	this.Stars = pb.GetStars()
-	this.LastFinishedTime = pb.GetLastFinishedTime()
-	this.TopScore = pb.GetTopScore()
-	this.PlayedCount = pb.GetPlayedCount()
-	this.PassCount = pb.GetPassCount()
 	return
 }
 func (this* dbPlayerCampaignData)to_pb()(pb *db.PlayerCampaign){
 	pb = &db.PlayerCampaign{}
 	pb.CampaignId = proto.Int32(this.CampaignId)
-	pb.Stars = proto.Int32(this.Stars)
-	pb.LastFinishedTime = proto.Int32(this.LastFinishedTime)
-	pb.TopScore = proto.Int32(this.TopScore)
-	pb.PlayedCount = proto.Int32(this.PlayedCount)
-	pb.PassCount = proto.Int32(this.PassCount)
 	return
 }
 func (this* dbPlayerCampaignData)clone_to(d *dbPlayerCampaignData){
 	d.CampaignId = this.CampaignId
-	d.Stars = this.Stars
-	d.LastFinishedTime = this.LastFinishedTime
-	d.TopScore = this.TopScore
-	d.PlayedCount = this.PlayedCount
-	d.PassCount = this.PassCount
 	return
 }
 type dbPlayerCampaignStaticIncomeData struct{
@@ -3121,6 +3105,26 @@ func (this *dbPlayerCampaignCommonColumn)SetHangupCampaignId(v int32){
 	this.m_changed = true
 	return
 }
+func (this *dbPlayerCampaignCommonColumn)GetRankSerialId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignCommonColumn.GetRankSerialId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.RankSerialId
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)SetRankSerialId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.SetRankSerialId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.RankSerialId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)IncbyRankSerialId(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.IncbyRankSerialId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.RankSerialId += v
+	this.m_changed = true
+	return this.m_data.RankSerialId
+}
 type dbPlayerCampaignColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerCampaignData
@@ -3247,140 +3251,6 @@ func (this *dbPlayerCampaignColumn)NumAll()(n int32){
 	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignColumn.NumAll")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
-}
-func (this *dbPlayerCampaignColumn)GetStars(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignColumn.GetStars")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.Stars
-	return v,true
-}
-func (this *dbPlayerCampaignColumn)SetStars(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignColumn.SetStars")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.Stars = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerCampaignColumn)GetLastFinishedTime(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignColumn.GetLastFinishedTime")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.LastFinishedTime
-	return v,true
-}
-func (this *dbPlayerCampaignColumn)SetLastFinishedTime(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignColumn.SetLastFinishedTime")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.LastFinishedTime = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerCampaignColumn)GetTopScore(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignColumn.GetTopScore")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.TopScore
-	return v,true
-}
-func (this *dbPlayerCampaignColumn)SetTopScore(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignColumn.SetTopScore")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.TopScore = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerCampaignColumn)GetPlayedCount(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignColumn.GetPlayedCount")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.PlayedCount
-	return v,true
-}
-func (this *dbPlayerCampaignColumn)SetPlayedCount(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignColumn.SetPlayedCount")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.PlayedCount = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerCampaignColumn)IncbyPlayedCount(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignColumn.IncbyPlayedCount")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		d = &dbPlayerCampaignData{}
-		this.m_data[id] = d
-	}
-	d.PlayedCount +=  v
-	this.m_changed = true
-	return d.PlayedCount
-}
-func (this *dbPlayerCampaignColumn)GetPassCount(id int32)(v int32 ,has bool){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignColumn.GetPassCount")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		return
-	}
-	v = d.PassCount
-	return v,true
-}
-func (this *dbPlayerCampaignColumn)SetPassCount(id int32,v int32)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignColumn.SetPassCount")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
-		return
-	}
-	d.PassCount = v
-	this.m_changed = true
-	return true
-}
-func (this *dbPlayerCampaignColumn)IncbyPassCount(id int32,v int32)(r int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignColumn.IncbyPassCount")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d==nil{
-		d = &dbPlayerCampaignData{}
-		this.m_data[id] = d
-	}
-	d.PassCount +=  v
-	this.m_changed = true
-	return d.PassCount
 }
 type dbPlayerCampaignStaticIncomeColumn struct{
 	m_row *dbPlayerRow

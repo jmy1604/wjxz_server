@@ -71,15 +71,11 @@ message PlayerCampaignCommon{
 	optional int32 HangupLastDropStaticIncomeTime=2;
 	optional int32 HangupLastDropRandomIncomeTime=3;
 	optional int32 HangupCampaignId=4;
+	optional int32 RankSerialId=5;
 }
 
 message PlayerCampaign{
 	optional int32 CampaignId=1;
-	optional int32 Stars=2;
-	optional int32 LastFinishedTime=3;
-	optional int32 TopScore=4;
-	optional int32 PlayedCount=6;
-	optional int32 PassCount=7;
 }
 
 message PlayerCampaignList{
