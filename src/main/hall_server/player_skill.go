@@ -473,19 +473,19 @@ func _skill_check_cond(mem *TeamMember, effect_cond []int32) bool {
 						return true
 					}
 				} else if effect_cond[0] == SKILL_COND_TYPE_HP_NOT_LESS {
-					if mem.attrs[ATTR_HP]*10000 >= mem.attrs[ATTR_HP_MAX]*effect_cond[1] {
+					if int64(mem.attrs[ATTR_HP])*10000 >= int64(mem.attrs[ATTR_HP_MAX])*int64(effect_cond[1]) {
 						return true
 					}
 				} else if effect_cond[0] == SKILL_COND_TYPE_HP_GREATER {
-					if mem.attrs[ATTR_HP]*10000 > mem.attrs[ATTR_HP_MAX]*effect_cond[1] {
+					if int64(mem.attrs[ATTR_HP])*10000 > int64(mem.attrs[ATTR_HP_MAX])*int64(effect_cond[1]) {
 						return true
 					}
 				} else if effect_cond[0] == SKILL_COND_TYPE_HP_NOT_GREATER {
-					if mem.attrs[ATTR_HP]*10000 <= mem.attrs[ATTR_HP_MAX]*effect_cond[1] {
+					if int64(mem.attrs[ATTR_HP])*10000 <= int64(mem.attrs[ATTR_HP_MAX])*int64(effect_cond[1]) {
 						return true
 					}
 				} else if effect_cond[0] == SKILL_COND_TYPE_HP_LESS {
-					if mem.attrs[ATTR_HP]*10000 < mem.attrs[ATTR_HP_MAX]*effect_cond[1] {
+					if int64(mem.attrs[ATTR_HP])*10000 < int64(mem.attrs[ATTR_HP_MAX])*int64(effect_cond[1]) {
 						return true
 					}
 				} else if effect_cond[0] == SKILL_COND_TYPE_MP_NOT_LESS {

@@ -405,7 +405,11 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 	state, _ := p.db.Tasks.GetState(task_id)
 	if state != TASK_STATE_COMPLETE {
 		log.Error("Player[%v] task %v state %v cant reward", p.Id, task_id, state)
-		return int32(msg_client_message.E_ERR_PLAYER_TASK_NOT_COMPLETE)
+		if state == TASK_STATE_DOING {
+			return int32(msg_client_message.E_ERR_PLAYER_TASK_NOT_COMPLETE)
+		} else if state == TASK_STATE_REWARD {
+			return int32(msg_client_message.E_ERR_PLAYER_TASK_ALREADY_REWARDED)
+		}
 	}
 
 	task_cfg := task_table_mgr.GetTaskMap()[task_id]
