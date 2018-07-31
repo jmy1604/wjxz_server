@@ -176,6 +176,7 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	ret_p.LoadArenaScore()
 
 	// 载入关卡排名
+	ret_p.LoadCampaignRankData()
 
 	return ret_p
 }

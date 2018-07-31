@@ -71,7 +71,8 @@ message PlayerCampaignCommon{
 	optional int32 HangupLastDropStaticIncomeTime=2;
 	optional int32 HangupLastDropRandomIncomeTime=3;
 	optional int32 HangupCampaignId=4;
-	optional int32 RankSerialId=5;
+	optional int32 LastestPassedCampaignId=5;
+	optional int32 RankSerialId=6;
 }
 
 message PlayerCampaign{

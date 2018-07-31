@@ -782,7 +782,7 @@ message S2CMailsNewNotify {
 	repeated MailBasicData Mails            = 1; // 新邮件基本数据
 }
 
-// -------------------------------- 玩家 -------------------------------------
+// --------------------------------- 玩家 -------------------------------------
 // 天赋升级
 message C2STalentUpRequest {
 	int32 TalentId 							= 1;	
@@ -950,6 +950,7 @@ message RankItemInfo {
 	int32 PlayerArenaScore					= 6; // 玩家竞技场积分
 	int32 PlayerArenaGrade					= 7; // 玩家竞技场段位
 	int32 PlayerPower						= 8; // 玩家战力
+	int32 PlayerPassedCampaignId			= 9; // 玩家最新通关ID
 }
 
 // 请求排行榜

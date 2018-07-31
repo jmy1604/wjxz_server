@@ -198,14 +198,15 @@ func (this *Player) LoadArenaScore() {
 		arena_serial_id += 1
 		sid = arena_serial_id
 	}
+	if arena_serial_id < sid {
+		arena_serial_id = sid
+	}
 	var data = ArenaRankItem{
 		SerialId:    sid,
 		PlayerScore: score,
 		PlayerId:    this.Id,
 	}
-	if arena_serial_id < sid {
-		arena_serial_id = sid
-	}
+
 	this._update_arena_score(&data)
 }
 

@@ -59,18 +59,18 @@ func GetRoundValue(value float32) int32 {
 	}
 }
 
-func GetPlayerBaseInfo(player_id int32) (name string, level int32, head string) {
+func GetPlayerBaseInfo(player_id int32) (name string, level int32, head int32) {
 	player := player_mgr.GetPlayerById(player_id)
 	if player != nil {
 		name = player.db.GetName()
 		level = player.db.Info.GetLvl()
-		head = player.db.Info.GetIcon()
+		head = player.db.Info.GetHead()
 	} else {
 		row := os_player_mgr.GetPlayer(player_id)
 		if row != nil {
 			name = row.GetName()
 			level = row.GetLevel()
-			head = row.GetHead()
+			head = 0
 		}
 	}
 	return
@@ -99,5 +99,17 @@ func GetFighterInfo(fighter_id int32) (name string, level, head, score, grade, p
 	if arena_division != nil {
 		grade = arena_division.Id
 	}
+	return
+}
+
+func GetPlayerCampaignInfo(player_id int32) (name string, level, head, campaign_id int32) {
+	p := player_mgr.GetPlayerById(player_id)
+	if p == nil {
+		return
+	}
+	name = p.db.GetName()
+	level = p.db.Info.GetLvl()
+	head = p.db.Info.GetHead()
+	campaign_id = p.db.CampaignCommon.GetLastestPassedCampaignId()
 	return
 }

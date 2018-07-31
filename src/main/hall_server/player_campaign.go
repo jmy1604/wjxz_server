@@ -16,14 +16,14 @@ import (
 // -------------------------------- 关卡排行榜 --------------------------------
 var campaign_rank_serial_id int32
 
-type CampaginRankItem struct {
+type CampaignRankItem struct {
 	SerialId   int32
 	CampaignId int32
 	PlayerId   int32
 }
 
-func (this *CampaginRankItem) Less(value interface{}) bool {
-	item := value.(*CampaginRankItem)
+func (this *CampaignRankItem) Less(value interface{}) bool {
+	item := value.(*CampaignRankItem)
 	if item == nil {
 		return false
 	}
@@ -38,8 +38,8 @@ func (this *CampaginRankItem) Less(value interface{}) bool {
 	return false
 }
 
-func (this *CampaginRankItem) Greater(value interface{}) bool {
-	item := value.(*CampaginRankItem)
+func (this *CampaignRankItem) Greater(value interface{}) bool {
+	item := value.(*CampaignRankItem)
 	if item == nil {
 		return false
 	}
@@ -54,8 +54,8 @@ func (this *CampaginRankItem) Greater(value interface{}) bool {
 	return false
 }
 
-func (this *CampaginRankItem) KeyEqual(value interface{}) bool {
-	item := value.(*CampaginRankItem)
+func (this *CampaignRankItem) KeyEqual(value interface{}) bool {
+	item := value.(*CampaignRankItem)
 	if item == nil {
 		return false
 	}
@@ -68,25 +68,25 @@ func (this *CampaginRankItem) KeyEqual(value interface{}) bool {
 	return false
 }
 
-func (this *CampaginRankItem) GetKey() interface{} {
+func (this *CampaignRankItem) GetKey() interface{} {
 	return this.PlayerId
 }
 
-func (this *CampaginRankItem) GetValue() interface{} {
+func (this *CampaignRankItem) GetValue() interface{} {
 	return this.CampaignId
 }
 
-func (this *CampaginRankItem) SetValue(value interface{}) {
+func (this *CampaignRankItem) SetValue(value interface{}) {
 	this.CampaignId = value.(int32)
 	this.SerialId = atomic.AddInt32(&campaign_rank_serial_id, 1)
 }
 
-func (this *CampaginRankItem) New() utils.SkiplistNode {
-	return &CampaginRankItem{}
+func (this *CampaignRankItem) New() utils.SkiplistNode {
+	return &CampaignRankItem{}
 }
 
-func (this *CampaginRankItem) Assign(node utils.SkiplistNode) {
-	n := node.(*CampaginRankItem)
+func (this *CampaignRankItem) Assign(node utils.SkiplistNode) {
+	n := node.(*CampaignRankItem)
 	if n == nil {
 		return
 	}
@@ -95,8 +95,8 @@ func (this *CampaginRankItem) Assign(node utils.SkiplistNode) {
 	this.SerialId = n.SerialId
 }
 
-func (this *CampaginRankItem) CopyDataTo(node interface{}) {
-	n := node.(*CampaginRankItem)
+func (this *CampaignRankItem) CopyDataTo(node interface{}) {
+	n := node.(*CampaignRankItem)
 	if n == nil {
 		return
 	}
@@ -165,8 +165,29 @@ func (this *Player) is_unlock_next_difficulty(curr_campaign_id int32) (bool, int
 	return true, next_campaign.Difficulty
 }
 
-func (this *Player) LoadCampaignRankData() {
+func (this *Player) _update_campaign_rank_data(campaign_id, sid int32) {
+	if sid == 0 {
+		campaign_rank_serial_id += 1
+		sid = campaign_rank_serial_id
+	}
+	var data = CampaignRankItem{
+		SerialId:   sid,
+		CampaignId: campaign_id,
+		PlayerId:   this.Id,
+	}
+	rank_list_mgr.UpdateItem(RANK_LIST_TYPE_CAMPAIGN, &data)
+}
 
+func (this *Player) LoadCampaignRankData() {
+	campaign_id := this.db.CampaignCommon.GetLastestPassedCampaignId()
+	if campaign_id <= 0 {
+		return
+	}
+	sid := this.db.CampaignCommon.GetRankSerialId()
+	if campaign_rank_serial_id < sid {
+		campaign_rank_serial_id = sid
+	}
+	this._update_campaign_rank_data(campaign_id, sid)
 }
 
 func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player) (err int32, is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
@@ -352,8 +373,10 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	if is_win && !has_next_wave {
+		this.db.CampaignCommon.SetLastestPassedCampaignId(campaign_id)
 		this.send_stage_reward(stage, 2)
-
+		// 更新排名
+		this._update_campaign_rank_data(campaign_id, atomic.AddInt32(&campaign_rank_serial_id, 1))
 		// 更新任务 通过章节
 		campaign := campaign_table_mgr.Get(campaign_id)
 		if campaign != nil && campaign.IsLast {

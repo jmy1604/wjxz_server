@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	RANK_LIST_TYPE_NONE  = iota
-	RANK_LIST_TYPE_ARENA = 1
-	RANK_LIST_TYPE_MAX   = 16
+	RANK_LIST_TYPE_NONE     = iota
+	RANK_LIST_TYPE_ARENA    = 1
+	RANK_LIST_TYPE_CAMPAIGN = 2
+	RANK_LIST_TYPE_MAX      = 16
 )
 
 type RankList struct {
@@ -113,6 +114,7 @@ func (this *RankList) DeleteItem(key interface{}) bool {
 var root_rank_item []utils.SkiplistNode = []utils.SkiplistNode{
 	nil,
 	&ArenaRankItem{},
+	&CampaignRankItem{},
 }
 
 type RankListManager struct {
@@ -279,6 +281,23 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 			}
 			arena_items = append(arena_items, rank_item)
 		}
+	} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
+		for i := int32(0); i < int32(len(items)); i++ {
+			item := (items[i]).(*CampaignRankItem)
+			if item == nil {
+				continue
+			}
+			name, level, head, campaign_id := GetPlayerCampaignInfo(item.PlayerId)
+			rank_item := &msg_client_message.RankItemInfo{
+				Rank:                   start_rank + i,
+				PlayerId:               item.PlayerId,
+				PlayerName:             name,
+				PlayerLevel:            level,
+				PlayerHead:             head,
+				PlayerPassedCampaignId: campaign_id,
+			}
+			arena_items = append(arena_items, rank_item)
+		}
 	} else {
 		log.Error("invalid rank type[%v] transfer nodes to rank items", rank_type)
 	}
@@ -297,6 +316,8 @@ func (this *Player) get_rank_list_items(rank_type, start_rank, num int32) int32 
 	}
 	if rank_type == RANK_LIST_TYPE_ARENA {
 		self_top_rank = this.db.Arena.GetHistoryTopRank()
+	} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
+
 	}
 	rank_items := transfer_nodes_to_rank_items(rank_type, start_rank, items)
 	response := &msg_client_message.S2CRankListResponse{

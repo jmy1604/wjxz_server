@@ -557,6 +557,7 @@ type dbPlayerCampaignCommonData struct{
 	HangupLastDropStaticIncomeTime int32
 	HangupLastDropRandomIncomeTime int32
 	HangupCampaignId int32
+	LastestPassedCampaignId int32
 	RankSerialId int32
 }
 func (this* dbPlayerCampaignCommonData)from_pb(pb *db.PlayerCampaignCommon){
@@ -567,6 +568,7 @@ func (this* dbPlayerCampaignCommonData)from_pb(pb *db.PlayerCampaignCommon){
 	this.HangupLastDropStaticIncomeTime = pb.GetHangupLastDropStaticIncomeTime()
 	this.HangupLastDropRandomIncomeTime = pb.GetHangupLastDropRandomIncomeTime()
 	this.HangupCampaignId = pb.GetHangupCampaignId()
+	this.LastestPassedCampaignId = pb.GetLastestPassedCampaignId()
 	this.RankSerialId = pb.GetRankSerialId()
 	return
 }
@@ -576,6 +578,7 @@ func (this* dbPlayerCampaignCommonData)to_pb()(pb *db.PlayerCampaignCommon){
 	pb.HangupLastDropStaticIncomeTime = proto.Int32(this.HangupLastDropStaticIncomeTime)
 	pb.HangupLastDropRandomIncomeTime = proto.Int32(this.HangupLastDropRandomIncomeTime)
 	pb.HangupCampaignId = proto.Int32(this.HangupCampaignId)
+	pb.LastestPassedCampaignId = proto.Int32(this.LastestPassedCampaignId)
 	pb.RankSerialId = proto.Int32(this.RankSerialId)
 	return
 }
@@ -584,6 +587,7 @@ func (this* dbPlayerCampaignCommonData)clone_to(d *dbPlayerCampaignCommonData){
 	d.HangupLastDropStaticIncomeTime = this.HangupLastDropStaticIncomeTime
 	d.HangupLastDropRandomIncomeTime = this.HangupLastDropRandomIncomeTime
 	d.HangupCampaignId = this.HangupCampaignId
+	d.LastestPassedCampaignId = this.LastestPassedCampaignId
 	d.RankSerialId = this.RankSerialId
 	return
 }
@@ -3102,6 +3106,19 @@ func (this *dbPlayerCampaignCommonColumn)SetHangupCampaignId(v int32){
 	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.SetHangupCampaignId")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	this.m_data.HangupCampaignId = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)GetLastestPassedCampaignId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerCampaignCommonColumn.GetLastestPassedCampaignId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.LastestPassedCampaignId
+	return
+}
+func (this *dbPlayerCampaignCommonColumn)SetLastestPassedCampaignId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerCampaignCommonColumn.SetLastestPassedCampaignId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.LastestPassedCampaignId = v
 	this.m_changed = true
 	return
 }

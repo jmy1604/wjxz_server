@@ -201,7 +201,8 @@
 						{"Type":"int32","Index":2,"Name":"HangupLastDropStaticIncomeTime"},
 						{"Type":"int32","Index":3,"Name":"HangupLastDropRandomIncomeTime"},
 						{"Type":"int32","Index":4,"Name":"HangupCampaignId"},
-						{"Type":"int32","Index":5,"Name":"RankSerialId","Incby":true}
+						{"Type":"int32","Index":5,"Name":"LastestPassedCampaignId"},
+						{"Type":"int32","Index":6,"Name":"RankSerialId","Incby":true}
 					]
 				},
 				{
