@@ -403,14 +403,14 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 
 func (p *Player) task_get_reward(task_id int32) int32 {
 	state, _ := p.db.Tasks.GetState(task_id)
-	if state > 0 {
-		log.Error("C2STaskGetRewardHandler already finished !")
-		return int32(msg_client_message.E_ERR_PLAYER_TASK_ALREADY_REWARDED)
+	if state != TASK_STATE_COMPLETE {
+		log.Error("Player[%v] task %v state %v cant reward", p.Id, task_id, state)
+		return int32(msg_client_message.E_ERR_PLAYER_TASK_NOT_COMPLETE)
 	}
 
 	task_cfg := task_table_mgr.GetTaskMap()[task_id]
 	if nil == task_cfg {
-		log.Error("C2SGetTaskRewardHandler not find in cfg[%d]", task_id)
+		log.Error("task %v table data not found", task_id)
 		return int32(msg_client_message.E_ERR_PLAYER_TASK_NOT_FOUND)
 	}
 
@@ -422,7 +422,7 @@ func (p *Player) task_get_reward(task_id int32) int32 {
 
 	cur_val, _ := p.db.Tasks.GetValue(task_id)
 	if cur_val < task_cfg.CompleteNum {
-		log.Error("C2SGetTaskRewardHandler not finished(%d < %d)", cur_val, task_cfg.CompleteNum)
+		log.Error("Player[%v] task %v not finished(%d < %d)", p.Id, task_id, cur_val, task_cfg.CompleteNum)
 		return int32(msg_client_message.E_ERR_PLAYER_TASK_NOT_COMPLETE)
 	}
 
