@@ -207,18 +207,24 @@ func (this *Player) explore_format_tasks() (tasks []*msg_client_message.ExploreD
 		d.Id = id
 		d.TaskId = task_id
 		start_time, _ := this.db.Explores.GetStartTime(id)
-		if start_time == 0 {
-			d.State = EXPLORE_TASK_STATE_NO_START
-			d.RemainSeconds = task.SearchTime
-			d.RoleCampsCanSel, _ = this.db.Explores.GetRoleCampsCanSel(id)
-			d.RoleTypesCanSel, _ = this.db.Explores.GetRoleTypesCanSel(id)
-		} else if now_time-start_time >= task.SearchTime {
-			d.State = EXPLORE_TASK_STATE_COMPLETE
-			d.RemainSeconds = 0
-			d.RoleIds, _ = this.db.Explores.GetRoleIds(id)
+		state, _ := this.db.Explores.GetState(id)
+		if state < EXPLORE_TASK_STATE_COMPLETE {
+			if start_time == 0 {
+				d.State = EXPLORE_TASK_STATE_NO_START
+				d.RemainSeconds = task.SearchTime
+				d.RoleCampsCanSel, _ = this.db.Explores.GetRoleCampsCanSel(id)
+				d.RoleTypesCanSel, _ = this.db.Explores.GetRoleTypesCanSel(id)
+			} else if now_time-start_time >= task.SearchTime {
+				d.State = EXPLORE_TASK_STATE_COMPLETE
+				d.RemainSeconds = 0
+				d.RoleIds, _ = this.db.Explores.GetRoleIds(id)
+			} else {
+				d.State = EXPLORE_TASK_STATE_STARTED
+				d.RemainSeconds = task.SearchTime - (now_time - start_time)
+				d.RoleIds, _ = this.db.Explores.GetRoleIds(id)
+			}
 		} else {
-			d.State = EXPLORE_TASK_STATE_STARTED
-			d.RemainSeconds = task.SearchTime - (now_time - start_time)
+			d.State = state
 			d.RoleIds, _ = this.db.Explores.GetRoleIds(id)
 		}
 		d.RoleId4Title, _ = this.db.Explores.GetRoleId4TaskTitle(id)
@@ -251,11 +257,14 @@ func (this *Player) explore_story_format_tasks() (story_tasks []*msg_client_mess
 			d.RoleTypesCanSel, _ = this.db.ExploreStorys.GetRoleTypesCanSel(task_id)
 		} else {
 			d.RoleIds, _ = this.db.ExploreStorys.GetRoleIds(task_id)
-			if now_time-start_time >= task.SearchTime {
-				d.State = EXPLORE_TASK_STATE_COMPLETE
-			} else {
-				d.State = EXPLORE_TASK_STATE_STARTED
-				d.RemainSeconds = task.SearchTime - (now_time - start_time)
+			d.State, _ = this.db.ExploreStorys.GetState(task_id)
+			if d.State < EXPLORE_TASK_STATE_COMPLETE {
+				if now_time-start_time >= task.SearchTime {
+					d.State = EXPLORE_TASK_STATE_COMPLETE
+				} else {
+					d.State = EXPLORE_TASK_STATE_STARTED
+					d.RemainSeconds = task.SearchTime - (now_time - start_time)
+				}
 			}
 		}
 		this.db.ExploreStorys.SetState(task_id, d.State)
@@ -925,17 +934,17 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 		rounds = make([]*msg_client_message.BattleRoundReports, 0)
 	}
 
-	member_damages := this.campaign_team.common_data.members_damage
-	member_cures := this.campaign_team.common_data.members_cure
+	member_damages := this.explore_team.common_data.members_damage
+	member_cures := this.explore_team.common_data.members_cure
 	response := &msg_client_message.S2CBattleResultResponse{
 		IsWin:               is_win,
 		EnterReports:        enter_reports,
 		Rounds:              rounds,
 		MyTeam:              my_team,
 		TargetTeam:          target_team,
-		MyMemberDamages:     member_damages[this.campaign_team.side],
+		MyMemberDamages:     member_damages[this.explore_team.side],
 		TargetMemberDamages: member_damages[this.target_stage_team.side],
-		MyMemberCures:       member_cures[this.campaign_team.side],
+		MyMemberCures:       member_cures[this.explore_team.side],
 		TargetMemberCures:   member_cures[this.target_stage_team.side],
 		HasNextWave:         has_next_wave,
 		BattleType:          battle_type,
