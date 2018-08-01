@@ -37,7 +37,7 @@ func (this *Player) check_explore_tasks_refresh(is_notify bool) (refresh bool) {
 	response := &msg_client_message.S2CExploreDataResponse{
 		Datas:                tasks,
 		StoryDatas:           this.explore_story_format_tasks(),
-		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(last_refresh, global_config.ExploreTaskRefreshTime),
+		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(now_time, global_config.ExploreTaskRefreshTime),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_DATA_RESPONSE), response)
 
