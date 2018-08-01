@@ -35,8 +35,9 @@ func (this *Player) check_explore_tasks_refresh(is_notify bool) (refresh bool) {
 	this.db.ExploreCommon.SetLastRefreshTime(now_time)
 
 	response := &msg_client_message.S2CExploreDataResponse{
-		Datas:      tasks,
-		StoryDatas: this.explore_story_format_tasks(),
+		Datas:                tasks,
+		StoryDatas:           this.explore_story_format_tasks(),
+		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(last_refresh, global_config.ExploreTaskRefreshTime),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_DATA_RESPONSE), response)
 
@@ -281,8 +282,9 @@ func (this *Player) send_explore_data() int32 {
 	tasks := this.explore_format_tasks()
 	story_tasks := this.explore_story_format_tasks()
 	response := &msg_client_message.S2CExploreDataResponse{
-		Datas:      tasks,
-		StoryDatas: story_tasks,
+		Datas:                tasks,
+		StoryDatas:           story_tasks,
+		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(this.db.ExploreCommon.GetLastRefreshTime(), global_config.ExploreTaskRefreshTime),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_DATA_RESPONSE), response)
 

@@ -1283,6 +1283,7 @@ message C2SExploreDataRequest {
 message S2CExploreDataResponse {
 	repeated ExploreData Datas				= 1; // 任务列表
 	repeated ExploreData StoryDatas			= 2; // 剧情任务列表
+	int32 RefreshRemainSeconds				= 3; // 任务剩余刷新时间
 }
 
 // 选择探索角色
