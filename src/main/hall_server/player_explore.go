@@ -284,7 +284,7 @@ func (this *Player) send_explore_data() int32 {
 		Datas:      tasks,
 		StoryDatas: story_tasks,
 	}
-	this.Send(uint16(msg_client_message_id.MSGID_C2S_EXPLORE_DATA_REQUEST), response)
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_EXPLORE_DATA_RESPONSE), response)
 
 	log.Debug("Player[%v] explore datas %v", this.Id, response)
 
