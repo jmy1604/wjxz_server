@@ -1269,7 +1269,7 @@ message ExploreData {
 	int32 TaskId							= 2; // 配置表中的ID
 	repeated int32 RoleCampsCanSel			= 3; // 可选择的角色阵营，未开始时
 	repeated int32 RoleTypesCanSel			= 4; // 可选择的角色类型，未开始时
-	int32 State								= 5; // 0 未开始  1 进行中  2 完成
+	int32 State								= 5; // 0 未开始  1 进行中  2 完成  3 可挑战BOSS 
 	int32 RoleId4Title						= 6; // 任务标题的角色ID
 	int32 NameId4Title						= 7; // 任务标题的语言表ID
 	repeated int32 RoleIds					= 8; // 已选择角色
@@ -1372,28 +1372,27 @@ message S2CExploreRemoveNotify {
 
 // ----------------------------------------------------------------------------
 // 发送世界聊天消息
-message C2SWorldChatSend {
-	bytes Content				= 1;
+message C2SWorldChatRequest {
+	bytes Content							= 1; // 内容
 }
-message S2CWorldChatSendResult {
-	bytes Content				= 1;
+message S2CWorldChatResponse {
+	bytes Content							= 1; // 内容
 }
 
 // 拉取世界聊天消息
-message C2SWorldChatMsgPull {
+message C2SWorldChatMsgPullRequest {
 }
 message WorldChatItem {
-	bytes Content 				= 1;
-	int32 PlayerId				= 2;
-	string PlayerName			= 3;
-	string PlayerHead			= 4;
-	int32 PlayerLevel			= 5;
-	int32 IsZaned				= 6;
-	int32 IsFriend				= 7;
-	int32 SendTime				= 8;
+	bytes Content 							= 1; // 内容
+	int32 PlayerId							= 2; // 玩家ID
+	string PlayerName						= 3; // 玩家名称
+	int32 PlayerHead						= 4; // 玩家头像
+	int32 PlayerLevel						= 5; // 玩家等级
+	int32 IsFriend							= 6; // 是否好友
+	int32 SendTime							= 7; // 发送时间
 }
-message S2CWorldChatMsgPullResult {
-	repeated WorldChatItem Items		= 1; 
+message S2CWorldChatMsgPullResponse {
+	repeated WorldChatItem Items			= 1; // 拉取的聊天队列
 }
 
 // 返回世界聊天封禁时间

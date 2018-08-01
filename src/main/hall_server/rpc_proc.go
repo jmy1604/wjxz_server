@@ -302,10 +302,10 @@ func (this *H2H_GlobalProc) WorldChat(args *rpc_common.H2H_WorldChat, result *rp
 		}
 	}()
 
-	if !world_chat_mgr.push_chat_msg(args.ChatContent, args.FromPlayerId, args.FromPlayerLevel, args.FromPlayerName, args.FromPlayerHead) {
+	/*(if !world_chat_mgr.push_chat_msg(args.ChatContent, args.FromPlayerId, args.FromPlayerLevel, args.FromPlayerName, args.FromPlayerHead) {
 		err_str := fmt.Sprintf("@@@ H2H_GlobalProc::WorldChat Player[%v] world chat content[%v] failed", args.FromPlayerId, args.ChatContent)
 		return errors.New(err_str)
-	}
+	}*/
 	log.Debug("@@@ H2H_GlobalProc::WorldChat Player[%v] world chat content[%v]", args.FromPlayerId, args.ChatContent)
 	return nil
 }

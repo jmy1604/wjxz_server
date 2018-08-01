@@ -206,4 +206,9 @@ enum MSGID {
 	S2C_EXPLORE_GET_REWARD_RESPONSE			= 11614; // 探索任务奖励返回 S2CExploreGetRewardResponse
 	S2C_EXPLORE_STORY_NEW_NOTIFY			= 11615; // 剧情探索任务通知 S2CExploreStoryNewNotify
 	S2C_EXPLORE_REMOVE_NOTIFY				= 11616; // 剧情任务删除通知 S2CExploreRemoveNotify
+	
+	C2S_WORLD_CHAT_REQUEST                  = 11700; // 世界聊天请求 C2SWorldChatRequest
+	S2C_WORLD_CHAT_RESPONSE					= 11701; // 世界聊天返回 S2CWorldChatResponse
+	C2S_WORLD_CHAT_PULL_MSG_REQUEST			= 11702; // 拉取世界聊天消息 C2SWorldChatMsgPullRequest
+	S2C_WORLD_CHAT_PULL_MSG_RESPONSE		= 11703; // 拉取世界聊天消息返回 S2CWorldChatPullMsgResponse
 }

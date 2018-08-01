@@ -3,12 +3,12 @@ package main
 import (
 	"libs/log"
 	"libs/utils"
+	"net/http"
 	"public_message/gen_go/client_message"
 	"sync"
 	"time"
 
-	_ "3p/code.google.com.protobuf/proto"
-	_ "github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 const MAX_WORLD_CHAT_ONCE_GET int32 = 50
@@ -18,7 +18,7 @@ type WorldChatItem struct {
 	send_player_id    int32
 	send_player_name  string
 	send_player_level int32
-	send_player_head  string
+	send_player_head  int32
 	content           []byte
 	send_time         int32
 	prev              *WorldChatItem
@@ -88,7 +88,7 @@ func (this *WorldChatMgr) recycle_old() {
 	}
 }
 
-func (this *WorldChatMgr) push_chat_msg(content []byte, player_id int32, player_level int32, player_name string, player_head string) bool {
+func (this *WorldChatMgr) push_chat_msg(content []byte, player_id int32, player_level int32, player_name string, player_head int32) bool {
 	this.locker.Lock()
 	defer this.locker.Unlock()
 
@@ -206,7 +206,7 @@ func (this *Player) world_chat(content []byte) int32 {
 		log.Error("Player[%v] world chat content length is too long !", this.Id)
 		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG)
 	}
-	if !world_chat_mgr.push_chat_msg(content, this.Id, this.db.Info.GetLvl(), this.db.GetName(), this.db.Info.GetIcon()) {
+	if !world_chat_mgr.push_chat_msg(content, this.Id, this.db.Info.GetLvl(), this.db.GetName(), this.db.Info.GetHead()) {
 		return int32(msg_client_message.E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE)
 	}
 
@@ -216,7 +216,7 @@ func (this *Player) world_chat(content []byte) int32 {
 
 	this.db.WorldChat.SetLastChatTime(now_time)
 
-	response := &msg_client_message.S2CWorldChatSendResult{
+	response := &msg_client_message.S2CWorldChatResponse{
 		Content: content,
 	}
 	this.Send(1, response)
@@ -230,16 +230,36 @@ func (this *Player) pull_world_chat() int32 {
 	if now_time-this.db.WorldChat.GetLastPullTime() < global_config.WorldChatPullMsgCooldown {
 		log.Error("Player[%v] pull world chat msg is cooling down", this.Id)
 		//return int32(msg_client_message.E_ERR_WORLDCHAT_PULL_COOLING_DOWN)
-		response := &msg_client_message.S2CWorldChatMsgPullResult{}
+		response := &msg_client_message.S2CWorldChatMsgPullResponse{}
 		this.Send(1, response)
 		return 1
 	}
 	msgs := world_chat_mgr.pull_world_chat(this)
 	this.db.WorldChat.SetLastPullTime(now_time)
-	response := &msg_client_message.S2CWorldChatMsgPullResult{
+	response := &msg_client_message.S2CWorldChatMsgPullResponse{
 		Items: msgs,
 	}
 	this.Send(1, response)
 	log.Debug("Player[%v] pulled world chat msgs", this.Id)
 	return 1
+}
+
+func C2SWorldChatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SWorldChatRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.world_chat(req.GetContent())
+}
+
+func C2SWorldChatPullMsgHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SWorldChatMsgPullRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)!", err.Error())
+		return -1
+	}
+	return p.pull_world_chat()
 }
