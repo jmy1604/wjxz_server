@@ -384,6 +384,10 @@ func (this *Player) explore_one_key_sel_role(id int32, is_story bool) (role_ids 
 }
 
 func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) int32 {
+	if this.check_explore_tasks_refresh(true) {
+		return 1
+	}
+
 	var task_id int32
 	if is_story {
 		task_id = id
@@ -644,6 +648,10 @@ func (this *Player) explore_task_start(ids []int32, is_story bool) int32 {
 }
 
 func (this *Player) explore_speedup(ids []int32, is_story bool) int32 {
+	if this.check_explore_tasks_refresh(true) {
+		return 1
+	}
+
 	var task *table_config.XmlSearchTaskItem
 	var cost_diamond int32
 	for i := 0; i < len(ids); i++ {
@@ -792,6 +800,10 @@ func (this *Player) _explore_get_task_state(id int32, task *table_config.XmlSear
 }
 
 func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
+	if this.check_explore_tasks_refresh(true) {
+		return 1
+	}
+
 	var task *table_config.XmlSearchTaskItem
 	var state int32
 	if is_story {
@@ -889,6 +901,10 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 }
 
 func (this *Player) explore_fight(id int32, is_story bool) int32 {
+	if this.check_explore_tasks_refresh(true) {
+		return 1
+	}
+
 	var task_id, state int32
 	if is_story {
 		task_id = id
