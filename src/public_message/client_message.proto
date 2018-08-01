@@ -1292,7 +1292,7 @@ message C2SExploreSelRoleRequest {
 	repeated int32 RoleIds					= 3; // 角色列表
 }
 
-message S2CExploresSelRoleResponse {
+message S2CExploreSelRoleResponse {
 	int32 Id								= 1; // 任务ID
 	bool IsStory							= 2; // 是否剧情任务
 	repeated int32 RoleIds					= 3; // 角色列表

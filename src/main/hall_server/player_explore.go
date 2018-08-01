@@ -533,7 +533,7 @@ func (this *Player) explore_sel_role(id int32, is_story bool, role_ids []int32) 
 		this.db.Explores.SetRoleIds(id, role_ids)
 	}
 
-	response := &msg_client_message.S2CExploresSelRoleResponse{
+	response := &msg_client_message.S2CExploreSelRoleResponse{
 		RoleIds: role_ids,
 		IsStory: is_story,
 	}
