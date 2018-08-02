@@ -339,7 +339,11 @@ func (this *TowerRankingList) GetMsgs() (ranking_list []*msg_client_message.Towe
 		return
 	}
 
-	for i := 0; i < len(this.player_list); i++ {
+	for i := 0; i < int(this.player_num); i++ {
+		if i >= len(this.player_list) || this.player_list[i] <= 0 {
+			break
+		}
+
 		p := player_mgr.GetPlayerById(this.player_list[i])
 		if p == nil {
 			log.Error("Player[%v] on tower rankling list not found", this.player_list[i])

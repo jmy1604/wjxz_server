@@ -1113,7 +1113,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				used = true
 				log.Debug("self_team[%v] member[%v] use cure skill[%v] to self target[%v] with resume hp[%v]", self_team.side, self.pos, skill_data.Id, target.pos, cure)
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_BUFF {
-				if target == nil {
+				if target == nil || target.is_dead() {
 					continue
 				}
 				// 施加BUFF
@@ -1145,7 +1145,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					log.Debug("self_team[%v] member[%v] use skill[%v] to summon npc[%v]", self_team.side, self.pos, skill_data.Id, mem.card.Id)
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_MODIFY_ATTR {
-				if target == nil {
+				if target == nil || target.is_dead() {
 					continue
 				}
 				// 改变下次计算时的角色参数
@@ -1208,7 +1208,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					}
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_NORMAL_ATTACK_NUM {
-				if target == nil {
+				if target == nil || target.is_dead() {
 					continue
 				}
 				// 增加行动次数
@@ -1221,7 +1221,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				used = true
 				log.Debug("Team[%v] member[%v] 增加了行动次数 %v", target.team.side, target.pos, effects[i][1])
 			} else if effect_type == SKILL_EFFECT_TYPE_ADD_SHIELD {
-				if target == nil {
+				if target == nil || target.is_dead() {
 					continue
 				}
 				// 增加护盾
