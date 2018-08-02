@@ -153,7 +153,7 @@ func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
 	if cnt > global_config.FriendRecommendNum {
 		cnt = global_config.FriendRecommendNum
 	}
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().Unix() + time.Now().UnixNano())
 	for i := int32(0); i < cnt; i++ {
 		r := rand.Int31n(int32(len(this.player_ids)))
 		sr := r
