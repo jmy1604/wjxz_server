@@ -1375,12 +1375,14 @@ type dbPlayerExploreData struct{
 	StartTime int32
 	RoleIds []int32
 	IsLock int32
+	RandomRewards []int32
 }
 func (this* dbPlayerExploreData)from_pb(pb *db.PlayerExplore){
 	if pb == nil {
 		this.RoleCampsCanSel = make([]int32,0)
 		this.RoleTypesCanSel = make([]int32,0)
 		this.RoleIds = make([]int32,0)
+		this.RandomRewards = make([]int32,0)
 		return
 	}
 	this.Id = pb.GetId()
@@ -1402,6 +1404,10 @@ func (this* dbPlayerExploreData)from_pb(pb *db.PlayerExplore){
 		this.RoleIds[i] = v
 	}
 	this.IsLock = pb.GetIsLock()
+	this.RandomRewards = make([]int32,len(pb.GetRandomRewards()))
+	for i, v := range pb.GetRandomRewards() {
+		this.RandomRewards[i] = v
+	}
 	return
 }
 func (this* dbPlayerExploreData)to_pb()(pb *db.PlayerExplore){
@@ -1425,6 +1431,10 @@ func (this* dbPlayerExploreData)to_pb()(pb *db.PlayerExplore){
 		pb.RoleIds[i]=v
 	}
 	pb.IsLock = proto.Int32(this.IsLock)
+	pb.RandomRewards = make([]int32, len(this.RandomRewards))
+	for i, v := range this.RandomRewards {
+		pb.RandomRewards[i]=v
+	}
 	return
 }
 func (this* dbPlayerExploreData)clone_to(d *dbPlayerExploreData){
@@ -1447,6 +1457,10 @@ func (this* dbPlayerExploreData)clone_to(d *dbPlayerExploreData){
 		d.RoleIds[_ii]=_vv
 	}
 	d.IsLock = this.IsLock
+	d.RandomRewards = make([]int32, len(this.RandomRewards))
+	for _ii, _vv := range this.RandomRewards {
+		d.RandomRewards[_ii]=_vv
+	}
 	return
 }
 type dbPlayerExploreStoryData struct{
@@ -1456,12 +1470,14 @@ type dbPlayerExploreStoryData struct{
 	RoleTypesCanSel []int32
 	StartTime int32
 	RoleIds []int32
+	RandomRewards []int32
 }
 func (this* dbPlayerExploreStoryData)from_pb(pb *db.PlayerExploreStory){
 	if pb == nil {
 		this.RoleCampsCanSel = make([]int32,0)
 		this.RoleTypesCanSel = make([]int32,0)
 		this.RoleIds = make([]int32,0)
+		this.RandomRewards = make([]int32,0)
 		return
 	}
 	this.TaskId = pb.GetTaskId()
@@ -1478,6 +1494,10 @@ func (this* dbPlayerExploreStoryData)from_pb(pb *db.PlayerExploreStory){
 	this.RoleIds = make([]int32,len(pb.GetRoleIds()))
 	for i, v := range pb.GetRoleIds() {
 		this.RoleIds[i] = v
+	}
+	this.RandomRewards = make([]int32,len(pb.GetRandomRewards()))
+	for i, v := range pb.GetRandomRewards() {
+		this.RandomRewards[i] = v
 	}
 	return
 }
@@ -1498,6 +1518,10 @@ func (this* dbPlayerExploreStoryData)to_pb()(pb *db.PlayerExploreStory){
 	for i, v := range this.RoleIds {
 		pb.RoleIds[i]=v
 	}
+	pb.RandomRewards = make([]int32, len(this.RandomRewards))
+	for i, v := range this.RandomRewards {
+		pb.RandomRewards[i]=v
+	}
 	return
 }
 func (this* dbPlayerExploreStoryData)clone_to(d *dbPlayerExploreStoryData){
@@ -1515,6 +1539,10 @@ func (this* dbPlayerExploreStoryData)clone_to(d *dbPlayerExploreStoryData){
 	d.RoleIds = make([]int32, len(this.RoleIds))
 	for _ii, _vv := range this.RoleIds {
 		d.RoleIds[_ii]=_vv
+	}
+	d.RandomRewards = make([]int32, len(this.RandomRewards))
+	for _ii, _vv := range this.RandomRewards {
+		d.RandomRewards[_ii]=_vv
 	}
 	return
 }
@@ -7499,6 +7527,34 @@ func (this *dbPlayerExploreColumn)SetIsLock(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
+func (this *dbPlayerExploreColumn)GetRandomRewards(id int32)(v []int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExploreColumn.GetRandomRewards")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = make([]int32, len(d.RandomRewards))
+	for _ii, _vv := range d.RandomRewards {
+		v[_ii]=_vv
+	}
+	return v,true
+}
+func (this *dbPlayerExploreColumn)SetRandomRewards(id int32,v []int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExploreColumn.SetRandomRewards")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.RandomRewards = make([]int32, len(v))
+	for _ii, _vv := range v {
+		d.RandomRewards[_ii]=_vv
+	}
+	this.m_changed = true
+	return true
+}
 type dbPlayerExploreStoryColumn struct{
 	m_row *dbPlayerRow
 	m_data map[int32]*dbPlayerExploreStoryData
@@ -7750,6 +7806,34 @@ func (this *dbPlayerExploreStoryColumn)SetRoleIds(id int32,v []int32)(has bool){
 	d.RoleIds = make([]int32, len(v))
 	for _ii, _vv := range v {
 		d.RoleIds[_ii]=_vv
+	}
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerExploreStoryColumn)GetRandomRewards(id int32)(v []int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerExploreStoryColumn.GetRandomRewards")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = make([]int32, len(d.RandomRewards))
+	for _ii, _vv := range d.RandomRewards {
+		v[_ii]=_vv
+	}
+	return v,true
+}
+func (this *dbPlayerExploreStoryColumn)SetRandomRewards(id int32,v []int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerExploreStoryColumn.SetRandomRewards")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.RandomRewards = make([]int32, len(v))
+	for _ii, _vv := range v {
+		d.RandomRewards[_ii]=_vv
 	}
 	this.m_changed = true
 	return true

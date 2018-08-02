@@ -75,7 +75,7 @@ func (this *Player) is_explore_task_can_refresh(id int32, is_auto bool) bool {
 	return true
 }
 
-func _explore_gen_task_data(etask *table_config.XmlSearchTaskItem) (camps, types []int32, roleid4task, nameid4task int32) {
+func (this *Player) _explore_gen_task_data(etask *table_config.XmlSearchTaskItem) (camps, types []int32, roleid4task, nameid4task int32, random_rewards []int32) {
 	if etask.CardCampNumCond > 0 {
 		camps = randn_different(etask.CardCampCond, etask.CardCampNumCond)
 	}
@@ -90,21 +90,29 @@ func _explore_gen_task_data(etask *table_config.XmlSearchTaskItem) (camps, types
 		r := rand.Int31n(int32(len(etask.TaskNameList)))
 		nameid4task = etask.TaskNameList[r]
 	}
+	if etask.RandomReward > 0 {
+		o, item := this.drop_item_by_id(etask.RandomReward, true, nil)
+		if !o {
+			log.Error("Player[%v] get explore task %v reward by drop id failed", this.Id, etask.Id)
+			return
+		}
+		random_rewards = []int32{item.ItemCfgId, item.ItemNum}
+	}
 	return
 }
 
-func _explore_rand_task_data() (etask *table_config.XmlSearchTaskItem, camps, types []int32, roleid4task, nameid4task int32) {
+func (this *Player) _explore_rand_task_data() (etask *table_config.XmlSearchTaskItem, camps, types []int32, roleid4task, nameid4task int32, random_rewards []int32) {
 	etask = explore_task_mgr.RandomTask()
 	if etask == nil {
 		log.Error("random task failed")
 		return
 	}
-	camps, types, roleid4task, nameid4task = _explore_gen_task_data(etask)
+	camps, types, roleid4task, nameid4task, random_rewards = this._explore_gen_task_data(etask)
 	return
 }
 
 func (this *Player) explore_rand_one_task(id int32, is_new bool) (data *msg_client_message.ExploreData) {
-	etask, camps, types, roleid4task, nameid4task := _explore_rand_task_data()
+	etask, camps, types, roleid4task, nameid4task, random_rewards := this._explore_rand_task_data()
 	if is_new {
 		this.db.Explores.Add(&dbPlayerExploreData{
 			Id:               id,
@@ -113,6 +121,7 @@ func (this *Player) explore_rand_one_task(id int32, is_new bool) (data *msg_clie
 			RoleTypesCanSel:  types,
 			RoleId4TaskTitle: roleid4task,
 			NameId4TaskTitle: nameid4task,
+			RandomRewards:    random_rewards,
 		})
 	} else {
 		this.db.Explores.SetStartTime(id, 0)
@@ -124,6 +133,7 @@ func (this *Player) explore_rand_one_task(id int32, is_new bool) (data *msg_clie
 		this.db.Explores.SetNameId4TaskTitle(id, nameid4task)
 		this.db.Explores.SetRoleIds(id, nil)
 		this.db.Explores.SetIsLock(id, 0)
+		this.db.Explores.SetRandomRewards(id, random_rewards)
 	}
 	data = &msg_client_message.ExploreData{
 		Id:              id,
@@ -133,6 +143,7 @@ func (this *Player) explore_rand_one_task(id int32, is_new bool) (data *msg_clie
 		RoleId4Title:    roleid4task,
 		NameId4Title:    nameid4task,
 		RemainSeconds:   etask.SearchTime,
+		RandomRewards:   random_rewards,
 	}
 	return
 }
@@ -142,11 +153,12 @@ func (this *Player) explore_gen_story_task(task_id int32) {
 	if etask == nil {
 		return
 	}
-	camps, types, _, _ := _explore_gen_task_data(etask)
+	camps, types, _, _, random_rewards := this._explore_gen_task_data(etask)
 	this.db.ExploreStorys.Add(&dbPlayerExploreStoryData{
 		TaskId:          task_id,
 		RoleCampsCanSel: camps,
 		RoleTypesCanSel: types,
+		RandomRewards:   random_rewards,
 	})
 	notify := &msg_client_message.S2CExploreStoryNewNotify{
 		TaskId: task_id,
@@ -230,6 +242,11 @@ func (this *Player) explore_format_tasks() (tasks []*msg_client_message.ExploreD
 		}
 		d.RoleId4Title, _ = this.db.Explores.GetRoleId4TaskTitle(id)
 		d.NameId4Title, _ = this.db.Explores.GetNameId4TaskTitle(id)
+		d.RandomRewards, _ = this.db.Explores.GetRandomRewards(id)
+		is_lock, _ := this.db.Explores.GetIsLock(id)
+		if is_lock > 0 {
+			d.IsLock = true
+		}
 		this.db.Explores.SetState(id, d.State)
 		tasks = append(tasks, d)
 	}
@@ -268,6 +285,7 @@ func (this *Player) explore_story_format_tasks() (story_tasks []*msg_client_mess
 				}
 			}
 		}
+		d.RandomRewards, _ = this.db.ExploreStorys.GetRandomRewards(task_id)
 		this.db.ExploreStorys.SetState(task_id, d.State)
 		story_tasks = append(story_tasks, d)
 	}

@@ -1274,6 +1274,8 @@ message ExploreData {
 	int32 NameId4Title						= 7; // 任务标题的语言表ID
 	repeated int32 RoleIds					= 8; // 已选择角色
 	int32 RemainSeconds						= 9; // 任务剩余秒数
+	repeated int32 RandomRewards			= 10; // 随机奖励  格式(id,num,id,num...)
+	bool IsLock								= 11; // 是否锁定
 }
 
 // 请求探索数据
