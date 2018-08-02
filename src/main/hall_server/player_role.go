@@ -834,10 +834,10 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 			return int32(msg_client_message.E_ERR_PLAYER_FUSION_MAIN_CARD_INVALID)
 		}
 	} else {
-		if this.db.Roles.NumAll() >= global_config.MaxRoleCount {
+		/*if this.db.Roles.NumAll() >= global_config.MaxRoleCount {
 			log.Error("Player[%v] role inventory is full", this.Id)
 			return int32(msg_client_message.E_ERR_PLAYER_ROLE_INVENTORY_NOT_ENOUGH_SPACE)
-		}
+		}*/
 	}
 
 	for i := 0; i < len(cost_role_ids); i++ {
