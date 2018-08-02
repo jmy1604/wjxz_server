@@ -378,10 +378,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		// 更新排名
 		this._update_campaign_rank_data(campaign_id, atomic.AddInt32(&campaign_rank_serial_id, 1))
 		// 更新任务 通过章节
-		campaign := campaign_table_mgr.Get(campaign_id)
-		if campaign != nil && campaign.IsLast {
-			this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_CHAPTERS, false, campaign.ChapterMap, 1)
-		}
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_CHAPTERS, false, campaign_id, 1)
 	}
 
 	Output_S2CBattleResult(this, response)
