@@ -613,7 +613,7 @@ func (this *Player) get_friends_boss_list() int32 {
 	friend_ids := this.db.Friends.GetAllIndex()
 	if friend_ids == nil || len(friend_ids) == 0 {
 		log.Error("Player[%v] no friends", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_NONE)
 	}
 
 	now_time := int32(time.Now().Unix())

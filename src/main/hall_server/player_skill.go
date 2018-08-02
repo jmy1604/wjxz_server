@@ -728,9 +728,9 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	// 反伤
 	var reflect_damage int32
 	if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
-		reflect_damage = target.attrs[ATTR_ATTACK] * target.attrs[ATTR_CLOSE_REFLECT] / 10000
+		reflect_damage = int32(int64(target.attrs[ATTR_ATTACK]) * int64(target.attrs[ATTR_CLOSE_REFLECT]) / 10000)
 	} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
-		reflect_damage = target.attrs[ATTR_ATTACK] * target.attrs[ATTR_REMOTE_REFLECT] / 10000
+		reflect_damage = int32(int64(target.attrs[ATTR_ATTACK]) * int64(target.attrs[ATTR_REMOTE_REFLECT]) / 10000)
 	}
 	if reflect_damage >= self.hp {
 		reflect_damage = self.hp - 1
@@ -740,12 +740,12 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	}
 
 	// 防御力
-	defense := target.attrs[ATTR_DEFENSE] * (10000 - self.attrs[ATTR_BREAK_ARMOR] + target.attrs[ATTR_ARMOR_ADD]) / 10000
+	defense := int32(int64(target.attrs[ATTR_DEFENSE]) * int64(10000-self.attrs[ATTR_BREAK_ARMOR]+target.attrs[ATTR_ARMOR_ADD]) / 10000)
 	if defense < 0 {
 		defense = 0
 	}
 	attack := self.attrs[ATTR_ATTACK] - defense
-	attack1 := self.attrs[ATTR_ATTACK] * self.attrs[ATTR_ATTACK] / (self.attrs[ATTR_ATTACK] + defense) / 2
+	attack1 := int32(int64(self.attrs[ATTR_ATTACK]) * int64(self.attrs[ATTR_ATTACK]) / int64(self.attrs[ATTR_ATTACK]+defense) / 2)
 	if attack < attack1 {
 		attack = attack1
 	}
@@ -754,7 +754,7 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	}
 
 	// 基础技能伤害
-	base_skill_damage := attack * effect[1] / 10000
+	base_skill_damage := int32(int64(attack) * int64(effect[1]) / 10000)
 	var delta_damage float64
 	if damage_add-damage_sub < 0 {
 		delta_damage = 10000 / float64(10000+(damage_sub-damage_add))
@@ -789,9 +789,9 @@ func skill_effect_direct_injury(self *TeamMember, target *TeamMember, skill_type
 	// 吸血
 	var add_hp int32
 	if skill_fight_type == SKILL_FIGHT_TYPE_MELEE {
-		add_hp = target_damage * self.attrs[ATTR_CLOSE_VAMPIRE] / 10000
+		add_hp = int32(int64(target_damage) * int64(self.attrs[ATTR_CLOSE_VAMPIRE]) / 10000)
 	} else if skill_fight_type == SKILL_FIGHT_TYPE_REMOTE {
-		add_hp = target_damage * self.attrs[ATTR_REMOTE_VAMPIRE] / 10000
+		add_hp = int32(int64(target_damage) * int64(self.attrs[ATTR_REMOTE_VAMPIRE]) / 10000)
 	}
 	if add_hp > 0 {
 		self_damage -= add_hp
@@ -827,8 +827,8 @@ func skill_effect_cure(self_mem *TeamMember, target_mem *TeamMember, effect []in
 		log.Error("cure skill effect length %v not enough", len(effect))
 		return
 	}
-	cure = self_mem.attrs[ATTR_ATTACK]*effect[1]/10000 + target_mem.attrs[ATTR_HP_MAX]*effect[2]/10000
-	cure = int32(math.Max(0, float64(cure*(10000+self_mem.attrs[ATTR_CURE_RATE_CORRECT]+target_mem.attrs[ATTR_CURED_RATE_CORRECT])/10000)))
+	cure = int32(int64(self_mem.attrs[ATTR_ATTACK])*int64(effect[1])/10000 + int64(target_mem.attrs[ATTR_HP_MAX])*int64(effect[2])/10000)
+	cure = int32(math.Max(0, float64(int64(cure)*int64(10000+self_mem.attrs[ATTR_CURE_RATE_CORRECT]+target_mem.attrs[ATTR_CURED_RATE_CORRECT])/10000)))
 	return
 }
 
@@ -839,7 +839,7 @@ func skill_effect_add_shield(self_mem *TeamMember, target_mem *TeamMember, effec
 		return
 	}
 
-	shield = self_mem.attrs[ATTR_ATTACK]*effect[1]/10000 + target_mem.attrs[ATTR_HP_MAX]*effect[2]/10000
+	shield = int32(int64(self_mem.attrs[ATTR_ATTACK])*int64(effect[1])/10000 + int64(target_mem.attrs[ATTR_HP_MAX])*int64(effect[2])/10000)
 	if shield < 0 {
 		shield = 0
 	}
@@ -867,7 +867,7 @@ func skill_effect_summon(self_mem *TeamMember, target_team *BattleTeam, empty_po
 	mem = team_member_pool.Get()
 	mem.init_for_summon(self_mem, target_team, self_mem.team.temp_curr_id, self_mem.level, new_card, empty_pos)
 	self_mem.team.temp_curr_id += 1
-	mem.hp = self_mem.hp * effect[2] / 10000
+	mem.hp = int32(int64(self_mem.hp) * int64(effect[2]) / 10000)
 	mem.attrs[ATTR_HP] = mem.hp
 	mem.attrs[ATTR_HP_MAX] = mem.hp
 	mem.attack = self_mem.attack
