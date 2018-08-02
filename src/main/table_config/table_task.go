@@ -24,7 +24,7 @@ const (
 	TASK_COMPLETE_TYPE_GIVE_POINTS_NUM        = 108 // 赠送N颗爱心
 	TASK_COMPLETE_TYPE_GOLD_HAND_NUM          = 109 // 完成N次点金
 	TASK_COMPLETE_TYPE_FORGE_EQUIP_NUM        = 110 // 合成N件装备
-	TASK_COMPLETE_TYPE_PASS_CHAPTERS          = 201 // 通过N个章节                        参数   指定章节
+	TASK_COMPLETE_TYPE_PASS_CAMPAIGN          = 201 // 通过战役                           参数   指定战役ID
 	TASK_COMPLETE_TYPE_REACH_LEVEL            = 202 // 等级提升到N级
 	TASK_COMPLETE_TYPE_GET_STAR_ROLES         = 203 // 获得N个M星英雄(历史总数)           参数   英雄等级
 	TASK_COMPLETE_TYPE_DECOMPOSE_ROLES        = 204 // 分解N个英雄(历史总数)

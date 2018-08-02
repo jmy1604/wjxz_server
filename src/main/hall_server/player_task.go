@@ -174,7 +174,7 @@ func (this *Player) check_add_next_task(task *table_config.XmlTaskItem, add_val 
 		return
 	}*/
 
-	if next_task.EventId != task.EventId {
+	if next_task.EventId != task.EventId || task.EventId == table_config.TASK_COMPLETE_TYPE_PASS_CAMPAIGN {
 		add_val = 0
 	}
 
