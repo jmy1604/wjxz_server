@@ -91,7 +91,7 @@ func (this *Player) _explore_gen_task_data(etask *table_config.XmlSearchTaskItem
 		nameid4task = etask.TaskNameList[r]
 	}
 	if etask.RandomReward > 0 {
-		o, item := this.drop_item_by_id(etask.RandomReward, true, nil)
+		o, item := this.drop_item_by_id(etask.RandomReward, false, nil)
 		if !o {
 			log.Error("Player[%v] get explore task %v reward by drop id failed", this.Id, etask.Id)
 			return
@@ -826,6 +826,7 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 
 	var task *table_config.XmlSearchTaskItem
 	var state int32
+	var random_rewards []int32
 	if is_story {
 		if !this.db.ExploreStorys.HasIndex(id) {
 			log.Error("Player[%v] no explore story task %v", this.Id, id)
@@ -838,6 +839,7 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 		}
 		old_state, _ := this.db.ExploreStorys.GetState(id)
 		start_time, _ := this.db.ExploreStorys.GetStartTime(id)
+		random_rewards, _ = this.db.ExploreStorys.GetRandomRewards(id)
 		state = this._explore_get_task_state(id, task, old_state, start_time)
 	} else {
 		if !this.db.Explores.HasIndex(id) {
@@ -854,6 +856,7 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 
 		old_state, _ := this.db.Explores.GetState(id)
 		start_time, _ := this.db.Explores.GetStartTime(id)
+		random_rewards, _ = this.db.Explores.GetRandomRewards(id)
 		state = this._explore_get_task_state(id, task, old_state, start_time)
 	}
 
@@ -873,13 +876,24 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 
 	// 掉落收益
 	var random_items []*msg_client_message.ItemInfo
-	if task.RandomReward > 0 {
+	/*if task.RandomReward > 0 {
 		o, item := this.drop_item_by_id(task.RandomReward, true, nil)
 		if !o {
 			log.Error("Player[%v] get explore task %v reward by drop id failed", this.Id, id)
 			return -1
 		}
 		random_items = []*msg_client_message.ItemInfo{item}
+	}*/
+	if random_rewards != nil && len(random_rewards) > 0 {
+		for i := 0; i < len(random_rewards)/2; i++ {
+			rid := random_rewards[2*i]
+			rnum := random_rewards[2*i+1]
+			this.add_resource(rid, rnum)
+			random_items = append(random_items, &msg_client_message.ItemInfo{
+				ItemCfgId: rid,
+				ItemNum:   rnum,
+			})
+		}
 	}
 
 	// 触发关卡
