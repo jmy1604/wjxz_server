@@ -202,9 +202,11 @@ func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info 
 		Id:                      p.Id,
 		Name:                    p.db.GetName(),
 		Level:                   p.db.Info.GetLvl(),
+		Head:                    p.db.Info.GetHead(),
 		IsOnline:                !p.is_logout,
 		OfflineSeconds:          offline_seconds,
 		RemainGivePointsSeconds: remain_give_points_seconds,
+		HasBoss:                 p.db.FriendCommon.GetFriendBossTableId() > 0,
 	}
 	return
 }
@@ -240,6 +242,7 @@ func _format_players_info(player_ids []int32) (players_info []*msg_client_messag
 				Id:    player_ids[i],
 				Name:  p.db.GetName(),
 				Level: p.db.Info.GetLvl(),
+				Head:  p.db.Info.GetHead(),
 			}
 			players_info = append(players_info, player)
 		}

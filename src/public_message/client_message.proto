@@ -1069,15 +1069,18 @@ message PlayerInfo {
 	int32 Id								= 1; // ID
 	string Name								= 2; // 昵称
 	int32 Level								= 3; // 等级
+	int32 Head								= 4; // 头像
 }
 
 message FriendInfo {
 	int32 Id								= 1; // ID
 	string Name								= 2; // 名称
 	int32 Level								= 3; // 等级
-	bool IsOnline							= 4; // 是否在线
-	int32 OfflineSeconds				 	= 5; // 离线时间(秒)
-	int32 RemainGivePointsSeconds			= 6; // 剩余赠送友情点秒数
+	int32 Head								= 4; // 头像
+	bool IsOnline							= 5; // 是否在线
+	int32 OfflineSeconds				 	= 6; // 离线时间(秒)
+	int32 RemainGivePointsSeconds			= 7; // 剩余赠送友情点秒数
+	bool HasBoss							= 8; // 是否有BOSS
 }
 
 // 请求推荐好友
