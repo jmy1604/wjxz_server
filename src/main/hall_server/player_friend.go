@@ -206,7 +206,8 @@ func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info 
 		IsOnline:                !p.is_logout,
 		OfflineSeconds:          offline_seconds,
 		RemainGivePointsSeconds: remain_give_points_seconds,
-		HasBoss:                 p.db.FriendCommon.GetFriendBossTableId() > 0,
+		BossId:                  p.db.FriendCommon.GetFriendBossTableId(),
+		BossHpPercent:           p.db.FriendCommon.GetFriendBossHpPercent(),
 	}
 	return
 }
@@ -933,6 +934,7 @@ func C2SFriendListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg
 		log.Error("Unmarshal msg failed err(%s)", err.Error())
 		return -1
 	}
+	p.friend_data(true)
 	return p.send_friend_list()
 }
 

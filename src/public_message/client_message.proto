@@ -1080,7 +1080,8 @@ message FriendInfo {
 	bool IsOnline							= 5; // 是否在线
 	int32 OfflineSeconds				 	= 6; // 离线时间(秒)
 	int32 RemainGivePointsSeconds			= 7; // 剩余赠送友情点秒数
-	bool HasBoss							= 8; // 是否有BOSS
+	int32 BossId							= 8; // BOSS
+	int32 BossHpPercent						= 9; // BOSS血量百分比
 }
 
 // 请求推荐好友
