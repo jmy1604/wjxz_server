@@ -977,7 +977,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 
 	if res > 0 {
 		if battle_type == 1 {
-			this.send_battle_team(BATTLE_ATTACK_TEAM, team_members)
+			//this.send_battle_team(BATTLE_ATTACK_TEAM, team_members)
 		} else if battle_type == 2 {
 			this.send_battle_team(BATTLE_CAMPAIN_TEAM, team_members)
 		} else if battle_type == 3 {
