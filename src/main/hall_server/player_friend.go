@@ -828,6 +828,7 @@ func (this *Player) friend_boss_get_attack_list(friend_id int32) int32 {
 				Id:    attack_list[i],
 				Name:  attacker.db.GetName(),
 				Level: attacker.db.Info.GetLvl(),
+				Head:  attacker.db.Info.GetHead(),
 			}
 			player_list = append(player_list, player_info)
 		}
