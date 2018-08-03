@@ -142,9 +142,7 @@ type BattleTeam struct {
 // 利用玩家初始化
 func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	var members []int32
-	if team_id == BATTLE_ATTACK_TEAM {
-		members = p.db.BattleTeam.GetCampaignMembers() //p.db.BattleTeam.GetAttackMembers()
-	} else if team_id == BATTLE_DEFENSE_TEAM {
+	if team_id == BATTLE_DEFENSE_TEAM {
 		members = p.db.BattleTeam.GetDefenseMembers()
 	} else if team_id == BATTLE_CAMPAIN_TEAM {
 		members = p.db.BattleTeam.GetCampaignMembers()
