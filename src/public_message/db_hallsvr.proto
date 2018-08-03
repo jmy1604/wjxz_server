@@ -61,7 +61,6 @@ message PlayerRoleHandbook{
 }
 
 message PlayerBattleTeam{
-	repeated int32 AttackMembers=1;
 	repeated int32 DefenseMembers=2;
 	repeated int32 CampaignMembers=3;
 }

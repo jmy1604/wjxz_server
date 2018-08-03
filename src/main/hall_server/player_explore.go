@@ -667,6 +667,25 @@ func (this *Player) explore_task_start(ids []int32, is_story bool) int32 {
 	return 1
 }
 
+func (this *Player) explore_remove_task(id int32, is_story bool) {
+	var has bool
+	var role_ids []int32
+	if is_story {
+		role_ids, has = this.db.ExploreStorys.GetRoleIds(id)
+		this.db.ExploreStorys.Remove(id)
+	} else {
+		role_ids, has = this.db.Explores.GetRoleIds(id)
+		this.db.Explores.Remove(id)
+	}
+	if has {
+		if role_ids != nil {
+			for _, role_id := range role_ids {
+				this.db.Roles.SetState(role_id, ROLE_STATE_NONE)
+			}
+		}
+	}
+}
+
 func (this *Player) explore_speedup(ids []int32, is_story bool) int32 {
 	if this.check_explore_tasks_refresh(true) {
 		return 1
@@ -674,6 +693,7 @@ func (this *Player) explore_speedup(ids []int32, is_story bool) int32 {
 
 	var task *table_config.XmlSearchTaskItem
 	var cost_diamond int32
+	var state int32
 	for i := 0; i < len(ids); i++ {
 		id := ids[i]
 		if is_story {
@@ -681,14 +701,21 @@ func (this *Player) explore_speedup(ids []int32, is_story bool) int32 {
 				log.Error("Player[%v] no explore story task %v", this.Id, id)
 				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 			}
+			state, _ = this.db.ExploreStorys.GetState(id)
 			task = explore_task_mgr.Get(id)
 		} else {
 			if !this.db.Explores.HasIndex(id) {
 				log.Error("Player[%v] no explore task %v", this.Id, id)
 				return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_USER_DATA_NOT_FOUND)
 			}
+			state, _ = this.db.Explores.GetState(id)
 			task_id, _ := this.db.Explores.GetTaskId(id)
 			task = explore_task_mgr.Get(task_id)
+		}
+
+		if state != EXPLORE_TASK_STATE_STARTED {
+			log.Error("Player[%v] explore task[%v] state[%v] not doing, cant speed up", this.Id, id, state)
+			return int32(msg_client_message.E_ERR_PLAYER_EXPLORE_STATE_NOT_STARTED)
 		}
 
 		cost_diamond += task.AccelCost
@@ -876,14 +903,6 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 
 	// 掉落收益
 	var random_items []*msg_client_message.ItemInfo
-	/*if task.RandomReward > 0 {
-		o, item := this.drop_item_by_id(task.RandomReward, true, nil)
-		if !o {
-			log.Error("Player[%v] get explore task %v reward by drop id failed", this.Id, id)
-			return -1
-		}
-		random_items = []*msg_client_message.ItemInfo{item}
-	}*/
 	if random_rewards != nil && len(random_rewards) > 0 {
 		for i := 0; i < len(random_rewards)/2; i++ {
 			rid := random_rewards[2*i]
@@ -909,13 +928,8 @@ func (this *Player) explore_get_reward(id int32, is_story bool) int32 {
 			has_stage = true
 		}
 	} else {
-		if is_story {
-			this.db.ExploreStorys.SetState(id, EXPLORE_TASK_STATE_COMPLETE)
-			this.db.ExploreStorys.Remove(id)
-		} else {
-			this.db.Explores.SetState(id, EXPLORE_TASK_STATE_COMPLETE)
-			this.db.Explores.Remove(id)
-		}
+		this.explore_remove_task(id, is_story)
+
 		// 更新任务
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_EXPLORE_NUM, false, 0, 1)
 		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_PASS_STAR_EXPLORE, false, task.TaskStar, 1)
@@ -1003,11 +1017,7 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	if is_win && !has_next_wave {
-		if is_story {
-			this.db.ExploreStorys.Remove(id)
-		} else {
-			this.db.Explores.Remove(id)
-		}
+		this.explore_remove_task(id, is_story)
 		notify := &msg_client_message.S2CExploreRemoveNotify{
 			Id:      id,
 			IsStory: is_story,

@@ -365,10 +365,10 @@ func (this *Player) send_enter_game(acc string, id int32) {
 
 func (this *Player) send_teams() {
 	msg := &msg_client_message.S2CTeamsResponse{}
-	attack_team := &msg_client_message.TeamData{
+	/*attack_team := &msg_client_message.TeamData{
 		TeamType:    BATTLE_ATTACK_TEAM,
 		TeamMembers: this.db.BattleTeam.GetAttackMembers(),
-	}
+	}*/
 	defense_team := &msg_client_message.TeamData{
 		TeamType:    BATTLE_DEFENSE_TEAM,
 		TeamMembers: this.db.BattleTeam.GetDefenseMembers(),
@@ -377,7 +377,7 @@ func (this *Player) send_teams() {
 		TeamType:    BATTLE_CAMPAIN_TEAM,
 		TeamMembers: this.db.BattleTeam.GetCampaignMembers(),
 	}
-	msg.Teams = []*msg_client_message.TeamData{attack_team, defense_team, campaign_team}
+	msg.Teams = []*msg_client_message.TeamData{ /*attack_team, */ defense_team, campaign_team}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TEAMS_RESPONSE), msg)
 }
 
@@ -481,9 +481,7 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 		//this.db.Roles.SetIsLock(team[i], 1)
 	}
 
-	if team_type == BATTLE_ATTACK_TEAM {
-		this.db.BattleTeam.SetAttackMembers(team)
-	} else if team_type == BATTLE_CAMPAIN_TEAM {
+	if team_type == BATTLE_CAMPAIN_TEAM {
 		this.db.BattleTeam.SetCampaignMembers(team)
 	} else if team_type == BATTLE_DEFENSE_TEAM {
 		this.db.BattleTeam.SetDefenseMembers(team)
@@ -496,7 +494,7 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 	return 1
 }
 
-func (this *Player) SetAttackTeam(team []int32) int32 {
+/*func (this *Player) SetAttackTeam(team []int32) int32 {
 	if team == nil {
 		return -1
 	}
@@ -527,7 +525,7 @@ func (this *Player) SetAttackTeam(team []int32) int32 {
 	}
 	this.db.BattleTeam.SetAttackMembers(team)
 	return 1
-}
+}*/
 
 func (this *Player) SetCampaignTeam(team []int32) int32 {
 	if team == nil {

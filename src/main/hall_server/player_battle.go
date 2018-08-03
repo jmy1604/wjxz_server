@@ -143,7 +143,7 @@ type BattleTeam struct {
 func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 	var members []int32
 	if team_id == BATTLE_ATTACK_TEAM {
-		members = p.db.BattleTeam.GetAttackMembers()
+		members = p.db.BattleTeam.GetCampaignMembers() //p.db.BattleTeam.GetAttackMembers()
 	} else if team_id == BATTLE_DEFENSE_TEAM {
 		members = p.db.BattleTeam.GetDefenseMembers()
 	} else if team_id == BATTLE_CAMPAIN_TEAM {
@@ -153,7 +153,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 			p.tmp_teams = make(map[int32][]int32)
 		}
 		if p.tmp_teams[team_id] == nil {
-			p.tmp_teams[team_id] = p.db.BattleTeam.GetAttackMembers()
+			p.tmp_teams[team_id] = p.db.BattleTeam.GetCampaignMembers() //p.db.BattleTeam.GetAttackMembers()
 		}
 		members = p.tmp_teams[team_id]
 	} else {
@@ -905,10 +905,16 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 
 	if team_members != nil && len(team_members) > 0 {
 		if battle_type == 1 {
-			res := this.SetAttackTeam(team_members)
+			/*res := this.SetAttackTeam(team_members)
 			if res < 0 {
 				this.assist_friend = nil
 				log.Error("Player[%v] set attack members[%v] failed", this.Id, team_members)
+				return res
+			}*/
+			res := this.SetTeam(BATTLE_ATTACK_TEAM, team_members)
+			if res < 0 {
+				this.assist_friend = nil
+				log.Error("Player[%v] set attack team failed", this.Id)
 				return res
 			}
 		} else if battle_type == 2 {
@@ -918,6 +924,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 				log.Error("Player[%v] set campaign members[%v] failed", this.Id, team_members)
 				return res
 			}
+			this.send_teams()
 		} else {
 			team_type := int32(-1)
 			if battle_type == 3 {
@@ -945,7 +952,6 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 				return res
 			}
 		}
-		this.send_teams()
 	}
 
 	var res int32
@@ -1010,7 +1016,7 @@ func C2SSetTeamHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_da
 	var res int32
 	tt := req.GetTeamType()
 	if tt == BATTLE_ATTACK_TEAM {
-		res = p.SetAttackTeam(req.TeamMembers)
+		//res = p.SetAttackTeam(req.TeamMembers)
 	} else if tt == BATTLE_DEFENSE_TEAM {
 		res = p.SetDefenseTeam(req.TeamMembers)
 	} else if tt == BATTLE_CAMPAIN_TEAM {

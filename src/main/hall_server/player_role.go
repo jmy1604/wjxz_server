@@ -179,7 +179,8 @@ func (this *Player) role_is_using(role_id int32) bool {
 		return false
 	}
 
-	members_array := [][]int32{this.db.BattleTeam.GetAttackMembers(), this.db.BattleTeam.GetCampaignMembers(), this.db.BattleTeam.GetDefenseMembers()}
+	// 是否在防守阵容或战役阵容中
+	members_array := [][]int32{this.db.BattleTeam.GetCampaignMembers(), this.db.BattleTeam.GetDefenseMembers()}
 	for n := 0; n < len(members_array); n++ {
 		if members_array[n] == nil {
 			continue
@@ -191,7 +192,14 @@ func (this *Player) role_is_using(role_id int32) bool {
 		}
 	}
 
+	// 是否被设置成助战角色
 	if this.db.FriendCommon.GetAssistRoleId() == role_id {
+		return true
+	}
+
+	// 是否在探索任务中
+	state, _ := this.db.Roles.GetState(role_id)
+	if state == ROLE_STATE_NONE {
 		return true
 	}
 
@@ -271,7 +279,7 @@ func (this *Player) add_init_roles() {
 			team = append(team, iid)
 		}
 	}
-	this.db.BattleTeam.SetAttackMembers(team)
+	//this.db.BattleTeam.SetAttackMembers(team)
 	this.db.BattleTeam.SetDefenseMembers(team)
 	this.db.BattleTeam.SetCampaignMembers(team)
 }
@@ -581,8 +589,8 @@ func get_decompose_rank_res(table_id, rank int32) []int32 {
 
 func (this *Player) team_has_role(team_id int32, role_id int32) bool {
 	var members []int32
-	if team_id == BATTLE_ATTACK_TEAM {
-		members = this.db.BattleTeam.GetAttackMembers()
+	if team_id == BATTLE_CAMPAIN_TEAM {
+		members = this.db.BattleTeam.GetCampaignMembers()
 	} else if team_id == BATTLE_DEFENSE_TEAM {
 		members = this.db.BattleTeam.GetDefenseMembers()
 	}

@@ -496,20 +496,14 @@ func (this* dbPlayerRoleHandbookData)clone_to(d *dbPlayerRoleHandbookData){
 	return
 }
 type dbPlayerBattleTeamData struct{
-	AttackMembers []int32
 	DefenseMembers []int32
 	CampaignMembers []int32
 }
 func (this* dbPlayerBattleTeamData)from_pb(pb *db.PlayerBattleTeam){
 	if pb == nil {
-		this.AttackMembers = make([]int32,0)
 		this.DefenseMembers = make([]int32,0)
 		this.CampaignMembers = make([]int32,0)
 		return
-	}
-	this.AttackMembers = make([]int32,len(pb.GetAttackMembers()))
-	for i, v := range pb.GetAttackMembers() {
-		this.AttackMembers[i] = v
 	}
 	this.DefenseMembers = make([]int32,len(pb.GetDefenseMembers()))
 	for i, v := range pb.GetDefenseMembers() {
@@ -523,10 +517,6 @@ func (this* dbPlayerBattleTeamData)from_pb(pb *db.PlayerBattleTeam){
 }
 func (this* dbPlayerBattleTeamData)to_pb()(pb *db.PlayerBattleTeam){
 	pb = &db.PlayerBattleTeam{}
-	pb.AttackMembers = make([]int32, len(this.AttackMembers))
-	for i, v := range this.AttackMembers {
-		pb.AttackMembers[i]=v
-	}
 	pb.DefenseMembers = make([]int32, len(this.DefenseMembers))
 	for i, v := range this.DefenseMembers {
 		pb.DefenseMembers[i]=v
@@ -538,10 +528,6 @@ func (this* dbPlayerBattleTeamData)to_pb()(pb *db.PlayerBattleTeam){
 	return
 }
 func (this* dbPlayerBattleTeamData)clone_to(d *dbPlayerBattleTeamData){
-	d.AttackMembers = make([]int32, len(this.AttackMembers))
-	for _ii, _vv := range this.AttackMembers {
-		d.AttackMembers[_ii]=_vv
-	}
 	d.DefenseMembers = make([]int32, len(this.DefenseMembers))
 	for _ii, _vv := range this.DefenseMembers {
 		d.DefenseMembers[_ii]=_vv
@@ -2979,25 +2965,6 @@ func (this *dbPlayerBattleTeamColumn)Set(v dbPlayerBattleTeamData ){
 	this.m_data=&dbPlayerBattleTeamData{}
 	v.clone_to(this.m_data)
 	this.m_changed=true
-	return
-}
-func (this *dbPlayerBattleTeamColumn)GetAttackMembers( )(v []int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbPlayerBattleTeamColumn.GetAttackMembers")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = make([]int32, len(this.m_data.AttackMembers))
-	for _ii, _vv := range this.m_data.AttackMembers {
-		v[_ii]=_vv
-	}
-	return
-}
-func (this *dbPlayerBattleTeamColumn)SetAttackMembers(v []int32){
-	this.m_row.m_lock.UnSafeLock("dbPlayerBattleTeamColumn.SetAttackMembers")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.AttackMembers = make([]int32, len(v))
-	for _ii, _vv := range v {
-		this.m_data.AttackMembers[_ii]=_vv
-	}
-	this.m_changed = true
 	return
 }
 func (this *dbPlayerBattleTeamColumn)GetDefenseMembers( )(v []int32 ){
