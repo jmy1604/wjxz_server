@@ -119,7 +119,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 		if (draw.ResCondition1 == nil || len(draw.ResCondition1) == 0) && (draw.ResCondition2 == nil || len(draw.ResCondition2) == 0) {
 			is_enough = 3
 		}
-		if draw.ResCondition1 != nil || len(draw.ResCondition1) > 0 {
+		if draw.ResCondition1 != nil && len(draw.ResCondition1) > 0 {
 			i := 0
 			for ; i < len(draw.ResCondition1)/2; i++ {
 				res_id := draw.ResCondition1[2*i]
@@ -134,7 +134,7 @@ func (this *Player) draw_card(draw_type int32) int32 {
 			}
 		}
 		if is_enough == 0 {
-			if draw.ResCondition2 != nil || len(draw.ResCondition2) > 0 {
+			if draw.ResCondition2 != nil && len(draw.ResCondition2) > 0 {
 				i := 0
 				for ; i < len(draw.ResCondition2)/2; i++ {
 					res_id := draw.ResCondition2[2*i]
