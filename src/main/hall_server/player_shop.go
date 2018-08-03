@@ -22,7 +22,7 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 
 	if shop.ShopMaxSlot > 0 {
 		for i := int32(0); i < shop.ShopMaxSlot; i++ {
-			shop_item := shopitem_table_mgr.RandomShopItem(shop.Id)
+			shop_item := shopitem_table_mgr.RandomShopItemByPlayerLevel(shop.Id, this.db.Info.GetLvl())
 			if shop_item == nil {
 				log.Error("Player[%v] random shop[%v] item failed", this.Id, shop.Id)
 				return int32(msg_client_message.E_ERR_PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID)

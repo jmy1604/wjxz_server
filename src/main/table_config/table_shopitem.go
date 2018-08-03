@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"libs/log"
 	"math/rand"
+	"sync"
 )
 
 const (
@@ -25,15 +26,24 @@ type XmlShopItemItem struct {
 	BuyCost      []int32
 	StockNum     int32 `xml:"StockNum,attr"`
 	RandomWeight int32 `xml:"RandomWeight,attr"`
+	LevelMin     int32 `xml:"LevelMin,attr"`
+	LevelMax     int32 `xml:"LevelMax,attr"`
 }
 
 type XmlShopItemConfig struct {
 	Items []*XmlShopItemItem `xml:"item"`
 }
 
+type LevelShopItems struct {
+	Items        []*XmlShopItemItem
+	total_weight int32
+}
+
 type ItemsShop struct {
 	items        []*XmlShopItemItem
 	total_weight int32
+	level2items  map[int32]*LevelShopItems
+	locker       *sync.RWMutex
 }
 
 type ShopItemTableManager struct {
@@ -76,6 +86,8 @@ func (this *ShopItemTableManager) Init() bool {
 		shop := this.shops_map[c.ShopId]
 		if shop == nil {
 			shop = &ItemsShop{}
+			shop.level2items = make(map[int32]*LevelShopItems)
+			shop.locker = &sync.RWMutex{}
 			this.shops_map[c.ShopId] = shop
 		}
 		shop.items = append(shop.items, c)
@@ -123,4 +135,50 @@ func (this *ShopItemTableManager) GetItemsShop(shop_id int32) []*XmlShopItemItem
 		return nil
 	}
 	return shop.items
+}
+
+func (this *ShopItemTableManager) RandomShopItemByPlayerLevel(shop_id, level int32) (item *XmlShopItemItem) {
+	shop := this.shops_map[shop_id]
+	if shop == nil {
+		return nil
+	}
+	if shop.total_weight <= 0 {
+		return nil
+	}
+
+	shop.locker.RLock()
+	level_items := shop.level2items[level]
+	if level_items != nil {
+		item = level_items.RandomItem()
+		shop.locker.RUnlock()
+	} else {
+		shop.locker.RUnlock()
+		shop.locker.Lock()
+		// double check
+		level_items = shop.level2items[level]
+		if level_items == nil {
+			level_items = &LevelShopItems{}
+			for _, it := range shop.items {
+				if level >= it.LevelMin && level <= it.LevelMax {
+					level_items.Items = append(level_items.Items, it)
+					level_items.total_weight += it.RandomWeight
+				}
+			}
+			shop.level2items[level] = level_items
+		}
+		item = level_items.RandomItem()
+		shop.locker.Unlock()
+	}
+	return item
+}
+
+func (this *LevelShopItems) RandomItem() *XmlShopItemItem {
+	r := rand.Int31n(this.total_weight)
+	for _, item := range this.Items {
+		if r < item.RandomWeight {
+			return item
+		}
+		r -= item.RandomWeight
+	}
+	return nil
 }
