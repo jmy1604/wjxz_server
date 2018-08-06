@@ -208,6 +208,7 @@ func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info 
 		RemainGivePointsSeconds: remain_give_points_seconds,
 		BossId:                  p.db.FriendCommon.GetFriendBossTableId(),
 		BossHpPercent:           p.db.FriendCommon.GetFriendBossHpPercent(),
+		Power:                   p.get_defense_team_power(),
 	}
 	return
 }

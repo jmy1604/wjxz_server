@@ -1006,8 +1006,11 @@ message PlayerTeamRole {
 
 message S2CArenaPlayerDefenseTeamResponse {
 	int32 PlayerId							= 1;
-	map<int32,PlayerTeamRole> DefenseTeam	= 2;
-	int32 Power								= 3;
+	int32 PlayerLevel						= 2;
+	int32 PlayerHead						= 3;
+	map<int32,PlayerTeamRole> DefenseTeam	= 4;
+	int32 Power								= 5;
+	int32 GuildId							= 6;
 }
 
 // 请求竞技场匹配
@@ -1087,6 +1090,7 @@ message FriendInfo {
 	int32 RemainGivePointsSeconds			= 7; // 剩余赠送友情点秒数
 	int32 BossId							= 8; // BOSS
 	int32 BossHpPercent						= 9; // BOSS血量百分比
+	int32 Power								= 10; // 战力
 }
 
 // 请求推荐好友

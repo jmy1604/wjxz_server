@@ -397,6 +397,7 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 
 	}
 
+	var level, head, guild_id int32
 	var defense_team []int32
 	var robot *ArenaRobot
 	p := player_mgr.GetPlayerById(player_id)
@@ -406,8 +407,14 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 			log.Error("Player[%v] not found", player_id)
 			return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 		}
+		level = 0
+		head = robot.robot_data.RobotHead
+		guild_id = 0
 	} else {
 		defense_team = p.db.BattleTeam.GetDefenseMembers()
+		level = p.db.Info.GetLvl()
+		head = p.db.Info.GetHead()
+		guild_id = 0
 	}
 
 	var power int32
@@ -447,8 +454,11 @@ func (this *Player) arena_player_defense_team(player_id int32) int32 {
 
 	response := &msg_client_message.S2CArenaPlayerDefenseTeamResponse{
 		PlayerId:    player_id,
+		PlayerLevel: level,
+		PlayerHead:  head,
 		DefenseTeam: team,
 		Power:       power,
+		GuildId:     guild_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ARENA_PLAYER_DEFENSE_TEAM_RESPONSE), response)
 	log.Debug("Player[%v] get arena player[%v] defense team[%v]", this.Id, player_id, team)
