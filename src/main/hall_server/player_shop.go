@@ -70,7 +70,7 @@ func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (
 	if shop.AutoRefreshTime == "" {
 		if last_refresh == 0 {
 			this._refresh_shop(shop)
-			this.db.Shops.SetLastFreeRefreshTime(shop.Id, now_time)
+			//this.db.Shops.SetLastFreeRefreshTime(shop.Id, now_time)
 		}
 	}
 
