@@ -390,6 +390,7 @@ func (this *Player) send_info() {
 		Icon:     this.db.Info.GetIcon(),
 		VipLevel: this.db.Info.GetVipLvl(),
 		Name:     this.db.GetName(),
+		SysTime:  int32(time.Now().Unix()),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_PLAYER_INFO_RESPONSE), response)
 	log.Debug("Player[%v] info: %v", this.Id, response)
