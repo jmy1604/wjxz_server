@@ -6,8 +6,9 @@ enum MSGID {
 	NONE									= 0;
 	C2S_TEST_COMMAND 						= 1; // 测试 C2S_TEST_COMMAND
 	C2S_HEARTBEAT 							= 2; // 心跳
-	S2C_STATE_NOTIFY						= 3; // 红点状态通知
-	C2S_DATA_SYNC_REQUEST					= 4; // 请求数据同步
+	S2C_HEARTBEAT							= 3; // 心跳返回
+	S2C_STATE_NOTIFY						= 4; // 红点状态通知
+	C2S_DATA_SYNC_REQUEST					= 5; // 请求数据同步
 	
 	C2S_LOGIN_REQUEST 						= 10000; // 登陆请求
 	S2C_LOGIN_RESPONSE 						= 10001; // 登陆请求返回  S2CLoginResponse

@@ -5,11 +5,10 @@ import (
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
-	_ "public_message/gen_go/server_message"
 	"strings"
 	"sync"
+	"time"
 
-	_ "3p/code.google.com.protobuf/proto"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -459,6 +458,11 @@ func C2SHeartbeatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_
 	p.check_and_send_tower_data()
 	p.check_and_send_friend_ask_add()
 	p.check_and_send_friend_add()
+
+	response := &msg_client_message.S2CHeartbeat{
+		SysTime: int32(time.Now().Unix()),
+	}
+	p.Send(uint16(msg_client_message_id.MSGID_S2C_HEARTBEAT), response)
 
 	return 1
 }

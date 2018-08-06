@@ -192,6 +192,10 @@ message S2CStateNotify {
 message C2SHeartbeat {
 }
 
+message S2CHeartbeat {
+	int32 SysTime							= 1; // 系统标准时间
+}
+
 // 请求数据同步
 message C2SDataSyncRequest {
 	bool Base								= 1;
