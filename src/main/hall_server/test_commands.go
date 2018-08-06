@@ -1299,7 +1299,7 @@ func friend_refuse_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.refuse_friend_ask(int32(player_id))
+	return p.refuse_friend_ask([]int32{int32(player_id)})
 }
 
 func friend_remove_cmd(p *Player, args []string) int32 {

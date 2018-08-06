@@ -1147,11 +1147,11 @@ message S2CFriendListAddNotify {
 
 // 拒绝添加好友
 message C2SFriendRefuseRequest {
-	int32 PlayerId							= 1; // 玩家ID
+	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
 message S2CFriendRefuseResponse {
-	int32 PlayerId							= 1; // 玩家ID
+	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
 // 删除好友

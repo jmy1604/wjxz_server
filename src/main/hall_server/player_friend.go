@@ -440,19 +440,28 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 }
 
 // 拒绝好友申请
-func (this *Player) refuse_friend_ask(player_id int32) int32 {
-	if !this.db.FriendAsks.HasIndex(player_id) {
-		log.Error("Player[%v] ask list no player[%v]", this.Id, player_id)
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_PLAYER_NO_IN_ASK_LIST)
+func (this *Player) refuse_friend_ask(player_ids []int32) int32 {
+	if player_ids == nil {
+		return 0
 	}
 
-	this.db.FriendAsks.Remove(player_id)
+	for _, player_id := range player_ids {
+		if !this.db.FriendAsks.HasIndex(player_id) {
+			log.Error("Player[%v] ask list no player[%v]", this.Id, player_id)
+			return int32(msg_client_message.E_ERR_PLAYER_FRIEND_PLAYER_NO_IN_ASK_LIST)
+		}
+	}
+
+	for _, player_id := range player_ids {
+		this.db.FriendAsks.Remove(player_id)
+	}
+
 	response := &msg_client_message.S2CFriendRefuseResponse{
-		PlayerId: player_id,
+		PlayerIds: player_ids,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_REFUSE_RESPONSE), response)
 
-	log.Debug("Player[%v] refuse player[%v] friend ask", this.Id, player_id)
+	log.Debug("Player[%v] refuse players %v friend ask", this.Id, player_ids)
 
 	return 1
 }
@@ -977,7 +986,7 @@ func C2SFriendRefuseHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 		log.Error("Unmarshal msg failed err(%s)", err.Error())
 		return -1
 	}
-	return p.refuse_friend_ask(req.GetPlayerId())
+	return p.refuse_friend_ask(req.GetPlayerIds())
 }
 
 func C2SFriendRemoveHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
