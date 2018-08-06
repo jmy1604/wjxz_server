@@ -1158,6 +1158,7 @@ func (this* dbPlayerFriendCommonData)clone_to(d *dbPlayerFriendCommonData){
 type dbPlayerFriendData struct{
 	PlayerId int32
 	LastGivePointsTime int32
+	GetPoints int32
 }
 func (this* dbPlayerFriendData)from_pb(pb *db.PlayerFriend){
 	if pb == nil {
@@ -1165,17 +1166,20 @@ func (this* dbPlayerFriendData)from_pb(pb *db.PlayerFriend){
 	}
 	this.PlayerId = pb.GetPlayerId()
 	this.LastGivePointsTime = pb.GetLastGivePointsTime()
+	this.GetPoints = pb.GetGetPoints()
 	return
 }
 func (this* dbPlayerFriendData)to_pb()(pb *db.PlayerFriend){
 	pb = &db.PlayerFriend{}
 	pb.PlayerId = proto.Int32(this.PlayerId)
 	pb.LastGivePointsTime = proto.Int32(this.LastGivePointsTime)
+	pb.GetPoints = proto.Int32(this.GetPoints)
 	return
 }
 func (this* dbPlayerFriendData)clone_to(d *dbPlayerFriendData){
 	d.PlayerId = this.PlayerId
 	d.LastGivePointsTime = this.LastGivePointsTime
+	d.GetPoints = this.GetPoints
 	return
 }
 type dbPlayerFriendRecommendData struct{
@@ -6146,6 +6150,28 @@ func (this *dbPlayerFriendColumn)SetLastGivePointsTime(id int32,v int32)(has boo
 		return
 	}
 	d.LastGivePointsTime = v
+	this.m_changed = true
+	return true
+}
+func (this *dbPlayerFriendColumn)GetGetPoints(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerFriendColumn.GetGetPoints")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.GetPoints
+	return v,true
+}
+func (this *dbPlayerFriendColumn)SetGetPoints(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbPlayerFriendColumn.SetGetPoints")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetPlayerId(), id)
+		return
+	}
+	d.GetPoints = v
 	this.m_changed = true
 	return true
 }

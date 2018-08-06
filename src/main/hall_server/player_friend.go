@@ -197,7 +197,8 @@ func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info 
 		offline_seconds = now_time - p.db.Info.GetLastLogout()
 	}
 	last_give_time, _ := this.db.Friends.GetLastGivePointsTime(p.Id)
-	remain_give_points_seconds := utils.GetRemainSeconds2NextDayTime(last_give_time, global_config.FriendRefreshTime)
+	remain_seconds := utils.GetRemainSeconds2NextDayTime(last_give_time, global_config.FriendRefreshTime)
+	get_points, _ := p.db.Friends.GetGetPoints(this.Id)
 	friend_info = &msg_client_message.FriendInfo{
 		Id:                      p.Id,
 		Name:                    p.db.GetName(),
@@ -205,10 +206,11 @@ func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info 
 		Head:                    p.db.Info.GetHead(),
 		IsOnline:                !p.is_logout,
 		OfflineSeconds:          offline_seconds,
-		RemainGivePointsSeconds: remain_give_points_seconds,
+		RemainGivePointsSeconds: remain_seconds,
 		BossId:                  p.db.FriendCommon.GetFriendBossTableId(),
 		BossHpPercent:           p.db.FriendCommon.GetFriendBossHpPercent(),
 		Power:                   p.get_defense_team_power(),
+		GetPoints:               get_points,
 	}
 	return
 }
@@ -505,9 +507,14 @@ func (this *Player) give_friends_points(friend_ids []int32) int32 {
 	is_gived := make([]bool, len(friend_ids))
 	now_time := int32(time.Now().Unix())
 	for i := 0; i < len(friend_ids); i++ {
+		friend := player_mgr.GetPlayerById(friend_ids[i])
+		if friend == nil {
+			continue
+		}
 		last_give_time, _ := this.db.Friends.GetLastGivePointsTime(friend_ids[i])
 		if utils.CheckDayTimeArrival(last_give_time, global_config.FriendRefreshTime) {
 			this.db.Friends.SetLastGivePointsTime(friend_ids[i], now_time)
+			friend.db.Friends.SetGetPoints(this.Id, global_config.FriendPointsOnceGive)
 			is_gived[i] = true
 			// 更新任务
 			this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_GIVE_POINTS_NUM, false, 0, 1)
@@ -536,9 +543,14 @@ func (this *Player) get_friend_points(friend_ids []int32) int32 {
 
 	get_points := make([]int32, len(friend_ids))
 	for i := 0; i < len(friend_ids); i++ {
-		last_give_time, _ := this.db.Friends.GetLastGivePointsTime(friend_ids[i])
+		friend := player_mgr.GetPlayerById(friend_ids[i])
+		if friend == nil {
+			continue
+		}
+		last_give_time, _ := friend.db.Friends.GetLastGivePointsTime(this.Id)
 		if utils.GetRemainSeconds2NextDayTime(last_give_time, global_config.FriendRefreshTime) > 0 {
 			this.add_resource(global_config.FriendPointItemId, global_config.FriendPointsOnceGive)
+			this.db.Friends.SetGetPoints(friend_ids[i], -1)
 			get_points[i] = global_config.FriendPointsOnceGive
 		}
 	}

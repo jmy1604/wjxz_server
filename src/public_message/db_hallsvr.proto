@@ -245,6 +245,7 @@ message PlayerFriendCommon{
 message PlayerFriend{
 	optional int32 PlayerId=1;
 	optional int32 LastGivePointsTime=2;
+	optional int32 GetPoints=3;
 }
 
 message PlayerFriendList{

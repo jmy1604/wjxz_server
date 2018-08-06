@@ -962,7 +962,7 @@ message RankItemInfo {
 
 // 请求排行榜
 message C2SRankListRequest {
-	int32 RankListType						= 1; // 排行榜类型  1 竞技场
+	int32 RankListType						= 1; // 排行榜类型    1 竞技场  2 关卡  3 战力
 	repeated int32 Params					= 2; // 参数, 跟具体类型有关
 }
 
@@ -1091,6 +1091,7 @@ message FriendInfo {
 	int32 BossId							= 8; // BOSS
 	int32 BossHpPercent						= 9; // BOSS血量百分比
 	int32 Power								= 10; // 战力
+	int32 GetPoints                         = 11; // 收取的友情点  -1 已收取  0 还未赠送  >0 可收取的友情点
 }
 
 // 请求推荐好友
