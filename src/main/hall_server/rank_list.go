@@ -316,6 +316,7 @@ func (this *Player) get_rank_list_items(rank_type, start_rank, num int32) int32 
 	}
 	if rank_type == RANK_LIST_TYPE_ARENA {
 		self_top_rank = this.db.Arena.GetHistoryTopRank()
+		self_value = this.db.Arena.GetScore()
 	} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
 		self_value = this.db.CampaignCommon.GetLastestPassedCampaignId()
 	}
