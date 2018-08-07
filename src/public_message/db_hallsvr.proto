@@ -436,5 +436,10 @@ message GuildMembersList{
 }
 
 message GuildAskList{
+	optional int32 PlayerId=1;
+}
+
+message GuildAskListList{
+	repeated GuildAskList List=1;
 }
 

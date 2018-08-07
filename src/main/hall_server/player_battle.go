@@ -953,8 +953,8 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 	}
 
 	var res int32
-	if battle_type == 1 {
-		res = this.Fight2Player(battle_param)
+	if battle_type == 1 || battle_type == 8 {
+		res = this.Fight2Player(battle_type, battle_param)
 	} else if battle_type == 2 {
 		res = this.FightInCampaign(battle_param)
 	} else if battle_type == 3 {

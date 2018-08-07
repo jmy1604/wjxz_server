@@ -601,7 +601,7 @@ func (this *Player) CancelDefensing() bool {
 	return atomic.CompareAndSwapInt32(&this.use_defense, 1, 0)
 }
 
-func (this *Player) Fight2Player(player_id int32) int32 {
+func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	matched_player_id := this.db.Arena.GetMatchedPlayerId()
 	if matched_player_id > 0 && player_id != matched_player_id {
 		log.Error("Player[%v] only fight to matched player[%v], not player[%v]", this.Id, matched_player_id, player_id)
@@ -709,7 +709,7 @@ func (this *Player) Fight2Player(player_id int32) int32 {
 	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	// 保存录像
-	if d != nil {
+	if battle_type == 1 && d != nil {
 		var win int32
 		if is_win {
 			win = 1

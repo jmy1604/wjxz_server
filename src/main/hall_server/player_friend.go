@@ -153,6 +153,7 @@ func (this *FriendRecommendMgr) Random(player_id int32) (ids []int32) {
 	if cnt > global_config.FriendRecommendNum {
 		cnt = global_config.FriendRecommendNum
 	}
+
 	rand.Seed(time.Now().Unix() + time.Now().UnixNano())
 	for i := int32(0); i < cnt; i++ {
 		r := rand.Int31n(int32(len(this.player_ids)))
@@ -459,6 +460,7 @@ func (this *Player) agree_friend_ask(player_ids []int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_AGREE_RESPONSE), response)
 
 	this.friend_add_ids(player_ids)
+	this.check_and_send_friend_add()
 
 	log.Debug("Player[%v] agreed players[%v] friend ask", this.Id, player_ids)
 	return 1

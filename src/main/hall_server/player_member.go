@@ -922,7 +922,7 @@ func (this *TeamMember) on_dead(attacker *TeamMember, skill_data *table_config.X
 		passive_skill_effect_with_self_pos(EVENT_KILL_ENEMY, attacker.team, attacker.pos, this.team, []int32{this.pos}, true)
 	}
 
-	// 队友死亡触发
+	// 作为队友死亡触发
 	for pos := int32(0); pos < BATTLE_TEAM_MEMBER_MAX_NUM; pos++ {
 		team_mem := this.team.members[pos]
 		if team_mem == nil || team_mem.is_dead() {

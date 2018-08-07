@@ -1869,18 +1869,22 @@ func (this* dbGuildMembersData)clone_to(d *dbGuildMembersData){
 	return
 }
 type dbGuildAskListData struct{
+	PlayerId int32
 }
 func (this* dbGuildAskListData)from_pb(pb *db.GuildAskList){
 	if pb == nil {
 		return
 	}
+	this.PlayerId = pb.GetPlayerId()
 	return
 }
 func (this* dbGuildAskListData)to_pb()(pb *db.GuildAskList){
 	pb = &db.GuildAskList{}
+	pb.PlayerId = proto.Int32(this.PlayerId)
 	return
 }
 func (this* dbGuildAskListData)clone_to(d *dbGuildAskListData){
+	d.PlayerId = this.PlayerId
 	return
 }
 
@@ -12664,6 +12668,18 @@ func (this *dbGuildRow)SetExp(v int32){
 	this.m_Exp_changed=true
 	return
 }
+func (this *dbGuildRow)GetDeleted( )(r bool ){
+	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildDeletedColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return bool(this.m_Deleted)
+}
+func (this *dbGuildRow)SetDeleted(v bool){
+	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildDeletedColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_Deleted=bool(v)
+	this.m_Deleted_changed=true
+	return
+}
 func (this *dbGuildRow)GetAnouncement( )(r string ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildAnouncementColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -12817,28 +12833,36 @@ func (this *dbGuildMembersColumn)NumAll()(n int32){
 }
 type dbGuildAskListColumn struct{
 	m_row *dbGuildRow
-	m_data *dbGuildAskListData
+	m_data map[int32]*dbGuildAskListData
 	m_changed bool
 }
 func (this *dbGuildAskListColumn)load(data []byte)(err error){
 	if data == nil || len(data) == 0 {
-		this.m_data = &dbGuildAskListData{}
 		this.m_changed = false
 		return nil
 	}
-	pb := &db.GuildAskList{}
+	pb := &db.GuildAskListList{}
 	err = proto.Unmarshal(data, pb)
 	if err != nil {
 		log.Error("Unmarshal %v", this.m_row.GetId())
 		return
 	}
-	this.m_data = &dbGuildAskListData{}
-	this.m_data.from_pb(pb)
+	for _, v := range pb.List {
+		d := &dbGuildAskListData{}
+		d.from_pb(v)
+		this.m_data[int32(d.PlayerId)] = d
+	}
 	this.m_changed = false
 	return
 }
 func (this *dbGuildAskListColumn)save( )(data []byte,err error){
-	pb:=this.m_data.to_pb()
+	pb := &db.GuildAskListList{}
+	pb.List=make([]*db.GuildAskList,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
 	data, err = proto.Marshal(pb)
 	if err != nil {
 		log.Error("Marshal %v", this.m_row.GetId())
@@ -12847,20 +12871,92 @@ func (this *dbGuildAskListColumn)save( )(data []byte,err error){
 	this.m_changed = false
 	return
 }
-func (this *dbGuildAskListColumn)Get( )(v *dbGuildAskListData ){
-	this.m_row.m_lock.UnSafeRLock("dbGuildAskListColumn.Get")
+func (this *dbGuildAskListColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbGuildAskListColumn.HasIndex")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	v=&dbGuildAskListData{}
-	this.m_data.clone_to(v)
+	_, has = this.m_data[id]
 	return
 }
-func (this *dbGuildAskListColumn)Set(v dbGuildAskListData ){
+func (this *dbGuildAskListColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbGuildAskListColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbGuildAskListColumn)GetAll()(list []dbGuildAskListData){
+	this.m_row.m_lock.UnSafeRLock("dbGuildAskListColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbGuildAskListData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbGuildAskListColumn)Get(id int32)(v *dbGuildAskListData){
+	this.m_row.m_lock.UnSafeRLock("dbGuildAskListColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbGuildAskListData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbGuildAskListColumn)Set(v dbGuildAskListData)(has bool){
 	this.m_row.m_lock.UnSafeLock("dbGuildAskListColumn.Set")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=&dbGuildAskListData{}
-	v.clone_to(this.m_data)
-	this.m_changed=true
+	d := this.m_data[int32(v.PlayerId)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetId(), v.PlayerId)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbGuildAskListColumn)Add(v *dbGuildAskListData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildAskListColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.PlayerId)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetId(), v.PlayerId)
+		return false
+	}
+	d:=&dbGuildAskListData{}
+	v.clone_to(d)
+	this.m_data[int32(v.PlayerId)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbGuildAskListColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbGuildAskListColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
 	return
+}
+func (this *dbGuildAskListColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbGuildAskListColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbGuildAskListData)
+	this.m_changed = true
+	return
+}
+func (this *dbGuildAskListColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbGuildAskListColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
 }
 type dbGuildRow struct {
 	m_table *dbGuildTable
@@ -12884,12 +12980,14 @@ type dbGuildRow struct {
 	m_Level int32
 	m_Exp_changed bool
 	m_Exp int32
+	m_Deleted_changed bool
+	m_Deleted bool
 	m_Anouncement_changed bool
 	m_Anouncement string
 	m_President_changed bool
 	m_President int32
 	Memberss dbGuildMembersColumn
-	AskList dbGuildAskListColumn
+	AskLists dbGuildAskListColumn
 }
 func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this := &dbGuildRow{}
@@ -12902,12 +13000,13 @@ func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this.m_Logo_changed=true
 	this.m_Level_changed=true
 	this.m_Exp_changed=true
+	this.m_Deleted_changed=true
 	this.m_Anouncement_changed=true
 	this.m_President_changed=true
 	this.Memberss.m_row=this
 	this.Memberss.m_data=make(map[int32]*dbGuildMembersData)
-	this.AskList.m_row=this
-	this.AskList.m_data=&dbGuildAskListData{}
+	this.AskLists.m_row=this
+	this.AskLists.m_data=make(map[int32]*dbGuildAskListData)
 	return this
 }
 func (this *dbGuildRow) GetId() (r int32) {
@@ -12917,7 +13016,7 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 	this.m_lock.UnSafeLock("dbGuildRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(11)
+		db_args:=new_db_args(12)
 		db_args.Push(this.m_Id)
 		db_args.Push(this.m_Name)
 		db_args.Push(this.m_Creater)
@@ -12925,6 +13024,7 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 		db_args.Push(this.m_Logo)
 		db_args.Push(this.m_Level)
 		db_args.Push(this.m_Exp)
+		db_args.Push(this.m_Deleted)
 		db_args.Push(this.m_Anouncement)
 		db_args.Push(this.m_President)
 		dMemberss,db_err:=this.Memberss.save()
@@ -12933,18 +13033,18 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dMemberss)
-		dAskList,db_err:=this.AskList.save()
+		dAskLists,db_err:=this.AskLists.save()
 		if db_err!=nil{
 			log.Error("insert save AskList failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dAskList)
+		db_args.Push(dAskLists)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Name_changed||this.m_Creater_changed||this.m_CreateTime_changed||this.m_Logo_changed||this.m_Level_changed||this.m_Exp_changed||this.m_Anouncement_changed||this.m_President_changed||this.Memberss.m_changed||this.AskList.m_changed{
+		if this.m_Name_changed||this.m_Creater_changed||this.m_CreateTime_changed||this.m_Logo_changed||this.m_Level_changed||this.m_Exp_changed||this.m_Deleted_changed||this.m_Anouncement_changed||this.m_President_changed||this.Memberss.m_changed||this.AskLists.m_changed{
 			update_string = "UPDATE Guilds SET "
-			db_args:=new_db_args(11)
+			db_args:=new_db_args(12)
 			if this.m_Name_changed{
 				update_string+="Name=?,"
 				db_args.Push(this.m_Name)
@@ -12969,6 +13069,10 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 				update_string+="Exp=?,"
 				db_args.Push(this.m_Exp)
 			}
+			if this.m_Deleted_changed{
+				update_string+="Deleted=?,"
+				db_args.Push(this.m_Deleted)
+			}
 			if this.m_Anouncement_changed{
 				update_string+="Anouncement=?,"
 				db_args.Push(this.m_Anouncement)
@@ -12986,14 +13090,14 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 				}
 				db_args.Push(dMemberss)
 			}
-			if this.AskList.m_changed{
-				update_string+="AskList=?,"
-				dAskList,err:=this.AskList.save()
+			if this.AskLists.m_changed{
+				update_string+="AskLists=?,"
+				dAskLists,err:=this.AskLists.save()
 				if err!=nil{
-					log.Error("update save AskList failed")
+					log.Error("insert save AskList failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dAskList)
+				db_args.Push(dAskLists)
 			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE Id=?"
@@ -13009,10 +13113,11 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 	this.m_Logo_changed = false
 	this.m_Level_changed = false
 	this.m_Exp_changed = false
+	this.m_Deleted_changed = false
 	this.m_Anouncement_changed = false
 	this.m_President_changed = false
 	this.Memberss.m_changed = false
-	this.AskList.m_changed = false
+	this.AskLists.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -13183,6 +13288,14 @@ func (this *dbGuildTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasDeleted := columns["Deleted"]
+	if !hasDeleted {
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Deleted LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN Deleted failed")
+			return
+		}
+	}
 	_, hasAnouncement := columns["Anouncement"]
 	if !hasAnouncement {
 		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Anouncement varchar(45) DEFAULT ''")
@@ -13207,18 +13320,18 @@ func (this *dbGuildTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasAskList := columns["AskList"]
+	_, hasAskList := columns["AskLists"]
 	if !hasAskList {
-		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN AskList LONGBLOB")
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN AskLists LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN AskList failed")
+			log.Error("ADD COLUMN AskLists failed")
 			return
 		}
 	}
 	return
 }
 func (this *dbGuildTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Name,Creater,CreateTime,Logo,Level,Exp,Anouncement,President,Memberss,AskList FROM Guilds")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Name,Creater,CreateTime,Logo,Level,Exp,Deleted,Anouncement,President,Memberss,AskLists FROM Guilds")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13226,7 +13339,7 @@ func (this *dbGuildTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbGuildTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Guilds (Id,Name,Creater,CreateTime,Logo,Level,Exp,Anouncement,President,Memberss,AskList) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Guilds (Id,Name,Creater,CreateTime,Logo,Level,Exp,Deleted,Anouncement,President,Memberss,AskLists) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13285,12 +13398,13 @@ func (this *dbGuildTable) Preload() (err error) {
 	var dLogo int32
 	var dLevel int32
 	var dExp int32
+	var dDeleted bool
 	var dAnouncement string
 	var dPresident int32
 	var dMemberss []byte
-	var dAskList []byte
+	var dAskLists []byte
 	for r.Next() {
-		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dLogo,&dLevel,&dExp,&dAnouncement,&dPresident,&dMemberss,&dAskList)
+		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dLogo,&dLevel,&dExp,&dDeleted,&dAnouncement,&dPresident,&dMemberss,&dAskLists)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -13307,6 +13421,7 @@ func (this *dbGuildTable) Preload() (err error) {
 		row.m_Logo=dLogo
 		row.m_Level=dLevel
 		row.m_Exp=dExp
+		row.m_Deleted=dDeleted
 		row.m_Anouncement=dAnouncement
 		row.m_President=dPresident
 		err = row.Memberss.load(dMemberss)
@@ -13314,9 +13429,9 @@ func (this *dbGuildTable) Preload() (err error) {
 			log.Error("Memberss %v", Id)
 			return
 		}
-		err = row.AskList.load(dAskList)
+		err = row.AskLists.load(dAskLists)
 		if err != nil {
-			log.Error("AskList %v", Id)
+			log.Error("AskLists %v", Id)
 			return
 		}
 		row.m_Name_changed=false
@@ -13325,6 +13440,7 @@ func (this *dbGuildTable) Preload() (err error) {
 		row.m_Logo_changed=false
 		row.m_Level_changed=false
 		row.m_Exp_changed=false
+		row.m_Deleted_changed=false
 		row.m_Anouncement_changed=false
 		row.m_President_changed=false
 		row.m_valid = true

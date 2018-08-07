@@ -999,6 +999,18 @@
 					"Fields":[]
 				},
 				{
+					"ColumnName":"Deleted",
+					"DBColumnName":"Deleted",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"bool",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
 					"ColumnName":"Anouncement",
 					"DBColumnName":"Anouncement",
 					"InUse":true,
@@ -1042,10 +1054,11 @@
 					"Simple":false,
 					"SimpleType":"",
 					"Preload":true,
-					"Map":false,
+					"Map":true,
 					"AutoIndex":false,
 					"DefaultValue":0,
 					"Fields":[
+						{"Type":"int32","Index":1,"Name":"PlayerId"}
 					]
 				},
 			]

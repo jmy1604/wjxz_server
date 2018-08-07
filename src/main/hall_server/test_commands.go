@@ -269,7 +269,7 @@ func pvp_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	p.Fight2Player(int32(player_id))
+	p.Fight2Player(1, int32(player_id))
 
 	log.Debug("玩家[%v]pvp玩家[%v]", p.Id, player_id)
 	return 1
