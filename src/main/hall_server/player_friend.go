@@ -1107,3 +1107,18 @@ func C2SFriendSetAssistRoleHandler(w http.ResponseWriter, r *http.Request, p *Pl
 	}
 	return p.friend_set_assist_role(req.GetRoleId())
 }
+
+func C2SFriendGiveAndGetPointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendGiveAndGetPointsRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+
+	res := p.give_friends_points(req.GetFriendIds())
+	if res < 0 {
+		return res
+	}
+	return p.get_friend_points(req.GetFriendIds())
+}

@@ -1242,6 +1242,12 @@ message S2CFriendSetAssistRoleResponse {
 	int32 RoleId							= 1; // 角色ID
 }
 
+// 一键收发友情点 (返回S2CFriendGivePointsResponse和S2CFriendGetPointsResponse两条消息)
+message C2SFriendGiveAndGetPointsRequest {
+	repeated int32 FriendIds				= 1;
+	
+}
+
 // ------------------------------------ 任务 ----------------------------------
 
 // 任务数据
