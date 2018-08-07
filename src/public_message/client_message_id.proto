@@ -183,7 +183,7 @@ enum MSGID {
 	S2C_FRIEND_BOSS_ATTACK_REWARD_NOTIFY	= 11428; // 好友BOSS击打奖励通知 S2CFriendBossAttackRewardNotify
 	C2S_FRIEND_SET_ASSIST_ROLE_REQUEST		= 11429; // 设置助战角色给好友 C2SFriendSetAssistRoleRequest
 	S2C_FRIEND_SET_ASSIST_ROLE_RESPONSE		= 11430; // 设置助战角色返回 S2CFriendSetAssistRoleResponse
-	C2S_FRIEND_GIVE_AND_GET_POINST_REQUEST  = 11431; // 一键收发友情点 C2SFriendGiveAndGetPointsRequest
+	C2S_FRIEND_GIVE_AND_GET_POINTS_REQUEST  = 11431; // 一键收发友情点 C2SFriendGiveAndGetPointsRequest
 	
 	C2S_TASK_DATA_REQUEST					= 11500; // 请求任务数据 C2STaskDataRequest
 	S2C_TASK_DATA_RESPONSE					= 11501; // 任务数据返回 S2CTaskDataResponse

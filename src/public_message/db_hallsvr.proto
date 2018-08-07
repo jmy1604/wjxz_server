@@ -345,23 +345,12 @@ message PlayerExploreStoryList{
 	repeated PlayerExploreStory List=1;
 }
 
-message PlayerSevenActivity{
-	optional int32 ActivityId=1;
-	optional int32 Value=2;
-	optional int32 RewardUnix=3;
-}
-
-message PlayerSevenActivityList{
-	repeated PlayerSevenActivity List=1;
-}
-
-message PlayerGuides{
-	optional int32 GuideId=1;
-	optional int32 SetUnix=2;
-}
-
-message PlayerGuidesList{
-	repeated PlayerGuides List=1;
+message PlayerGuild{
+	optional int32 Id=1;
+	optional int32 JoinTime=2;
+	optional int32 QuitTime=3;
+	optional int32 SignTime=4;
+	optional int32 Position=5;
 }
 
 message PlayerFriendChatUnreadId{
@@ -436,5 +425,16 @@ message TowerRankingListPlayers{
 message ArenaSeasonData{
 	optional int32 LastDayResetTime=1;
 	optional int32 LastSeasonResetTime=2;
+}
+
+message GuildMembers{
+	optional int32 PlayerId=1;
+}
+
+message GuildMembersList{
+	repeated GuildMembers List=1;
+}
+
+message GuildAskList{
 }
 

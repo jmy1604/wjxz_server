@@ -602,28 +602,18 @@
 					]
 				},
 				{
-					"DBColumnName":"SevenActivity",
+					"DBColumnName":"Guild",
 					"InUse":true,
-					"ColumnName":"SevenActivity",
+					"ColumnName":"Guild",
 					"Preload":true,
-					"Map":true,
+					"Map":false,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"ActivityId"},
-						{"Type":"int32","Index":2,"Name":"Value","Incby":true},
-						{"Type":"int32","Index":3,"Name":"RewardUnix"}
-					]
-				},
-				{
-					"DBColumnName":"Guides",
-					"InUse":true,
-					"ColumnName":"Guides",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"GuideId"},
-						{"Type":"int32","Index":2,"Name":"SetUnix"}
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"JoinTime"},
+						{"Type":"int32","Index":3,"Name":"QuitTime"},
+						{"Type":"int32","Index":4,"Name":"SignTime"},
+						{"Type":"int32","Index":5,"Name":"Position"}
 					]
 				},
 				{
@@ -921,6 +911,143 @@
 						{"Type":"int32","Index":2,"Name":"LastSeasonResetTime"}
 					]
 				}
+			]
+		},
+		{
+			"TableName":"Guild",
+			"DBTableName":"Guild",
+			"SingleRow":false,
+			"AutoPrimaryKey":true,
+			"PrimaryKeyName":"Id",
+			"PrimaryKeyType":"int32",
+			"PrimaryKeySize":11,
+			"Columns":[
+				{
+					"ColumnName":"Name",
+					"DBColumnName":"Name",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"Creater",
+					"DBColumnName":"Creater",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"CreateTime",
+					"DBColumnName":"CreateTime",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"Logo",
+					"DBColumnName":"Logo",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",				
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[
+					]
+				},
+				{
+					"ColumnName":"Level",
+					"DBColumnName":"Level",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
+					"ColumnName":"Exp",
+					"DBColumnName":"Exp",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
+					"ColumnName":"Anouncement",
+					"DBColumnName":"Anouncement",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"string",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"",
+					"Fields":[]
+				},
+				{
+					"ColumnName":"President",
+					"DBColumnName":"President",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
+					"ColumnName":"Members",
+					"DBColumnName":"Members",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"PlayerId"}
+					]
+				},
+				{
+					"ColumnName":"AskList",
+					"DBColumnName":"AskList",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[
+					]
+				},
 			]
 		},
 		{

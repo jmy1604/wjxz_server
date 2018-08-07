@@ -372,6 +372,7 @@ func (this *Player) friend_ask(player_ids []int32) int32 {
 			PlayerId: this.Id,
 		})
 		p.friend_ask_add_ids([]int32{this.Id})
+		this.db.FriendRecommends.Remove(p.Id)
 	}
 
 	response := &msg_client_message.S2CFriendAskResponse{

@@ -317,7 +317,7 @@ func (this *Player) get_rank_list_items(rank_type, start_rank, num int32) int32 
 	if rank_type == RANK_LIST_TYPE_ARENA {
 		self_top_rank = this.db.Arena.GetHistoryTopRank()
 	} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
-
+		self_value = this.db.CampaignCommon.GetLastestPassedCampaignId()
 	}
 	rank_items := transfer_nodes_to_rank_items(rank_type, start_rank, items)
 	response := &msg_client_message.S2CRankListResponse{
