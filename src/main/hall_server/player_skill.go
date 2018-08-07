@@ -1094,7 +1094,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 					has_target_dead = true
 				}
 			} else if effect_type == SKILL_EFFECT_TYPE_CURE {
-				if target == nil {
+				if target == nil || target.is_dead() {
 					continue
 				}
 				// 治疗
