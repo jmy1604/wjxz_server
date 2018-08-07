@@ -1226,6 +1226,10 @@ message S2CFriendDataResponse {
 	int32 RemainSecondsNextStamina			= 3; // 下一点体力剩余秒数
 	int32 StaminaLimit						= 4; // 体力上限
 	int32 StaminaResumeOneCostTime			= 5; // 恢复一点体力需要时间(小时)
+	int32 BossId							= 6; // BOSS
+	int32 BossHpPercent						= 7; // 血量百分比
+	int32 AssistGetPoints					= 8; // 助战获取友情点
+	int32 SearchBossRemainSeconds			= 9; // 搜索BOSS剩余秒数
 }
 
 // 击打好友BOSS获取的奖励
@@ -1245,7 +1249,14 @@ message S2CFriendSetAssistRoleResponse {
 // 一键收发友情点 (返回S2CFriendGivePointsResponse和S2CFriendGetPointsResponse两条消息)
 message C2SFriendGiveAndGetPointsRequest {
 	repeated int32 FriendIds				= 1;
-	
+}
+
+// 获取助战友情点
+message C2SFriendGetAssistPointsRequest {
+}
+
+message S2CFriendGetAssistPointsResponse {
+	int32 GetPoints							= 1;
 }
 
 // ------------------------------------ 任务 ----------------------------------
