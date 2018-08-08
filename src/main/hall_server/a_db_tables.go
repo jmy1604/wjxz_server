@@ -1055,6 +1055,7 @@ func (this* dbPlayerEquipData)clone_to(d *dbPlayerEquipData){
 type dbPlayerActiveStageCommonData struct{
 	LastRefreshTime int32
 	GetPointsDay int32
+	WithdrawPoints int32
 }
 func (this* dbPlayerActiveStageCommonData)from_pb(pb *db.PlayerActiveStageCommon){
 	if pb == nil {
@@ -1062,17 +1063,20 @@ func (this* dbPlayerActiveStageCommonData)from_pb(pb *db.PlayerActiveStageCommon
 	}
 	this.LastRefreshTime = pb.GetLastRefreshTime()
 	this.GetPointsDay = pb.GetGetPointsDay()
+	this.WithdrawPoints = pb.GetWithdrawPoints()
 	return
 }
 func (this* dbPlayerActiveStageCommonData)to_pb()(pb *db.PlayerActiveStageCommon){
 	pb = &db.PlayerActiveStageCommon{}
 	pb.LastRefreshTime = proto.Int32(this.LastRefreshTime)
 	pb.GetPointsDay = proto.Int32(this.GetPointsDay)
+	pb.WithdrawPoints = proto.Int32(this.WithdrawPoints)
 	return
 }
 func (this* dbPlayerActiveStageCommonData)clone_to(d *dbPlayerActiveStageCommonData){
 	d.LastRefreshTime = this.LastRefreshTime
 	d.GetPointsDay = this.GetPointsDay
+	d.WithdrawPoints = this.WithdrawPoints
 	return
 }
 type dbPlayerActiveStageData struct{
@@ -5687,6 +5691,26 @@ func (this *dbPlayerActiveStageCommonColumn)IncbyGetPointsDay(v int32)(r int32){
 	this.m_data.GetPointsDay += v
 	this.m_changed = true
 	return this.m_data.GetPointsDay
+}
+func (this *dbPlayerActiveStageCommonColumn)GetWithdrawPoints( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerActiveStageCommonColumn.GetWithdrawPoints")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.WithdrawPoints
+	return
+}
+func (this *dbPlayerActiveStageCommonColumn)SetWithdrawPoints(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageCommonColumn.SetWithdrawPoints")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.WithdrawPoints = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerActiveStageCommonColumn)IncbyWithdrawPoints(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerActiveStageCommonColumn.IncbyWithdrawPoints")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.WithdrawPoints += v
+	this.m_changed = true
+	return this.m_data.WithdrawPoints
 }
 type dbPlayerActiveStageColumn struct{
 	m_row *dbPlayerRow

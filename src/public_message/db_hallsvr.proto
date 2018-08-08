@@ -220,6 +220,7 @@ message PlayerEquip{
 message PlayerActiveStageCommon{
 	optional int32 LastRefreshTime=1;
 	optional int32 GetPointsDay=2;
+	optional int32 WithdrawPoints=3;
 }
 
 message PlayerActiveStage{

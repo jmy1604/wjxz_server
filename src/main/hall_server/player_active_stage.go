@@ -221,6 +221,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		if utils.CheckDayTimeArrival(this.assist_friend.db.ActiveStageCommon.GetLastRefreshTime(), global_config.ActiveStageRefreshTime) {
 			this.assist_friend.db.ActiveStageCommon.SetLastRefreshTime(int32(time.Now().Unix()))
 			this.assist_friend.db.ActiveStageCommon.SetGetPointsDay(0)
+			this.assist_friend.db.ActiveStageCommon.SetWithdrawPoints(0)
 		}
 		var add_points int32
 		if this.assist_friend.db.ActiveStageCommon.GetGetPointsDay()+global_config.FriendAssistPointsGet >= global_config.FriendPointsGetLimitDay {

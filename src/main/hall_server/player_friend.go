@@ -919,16 +919,39 @@ func (this *Player) check_and_add_friend_stamina() (add_stamina int32, remain_se
 	return
 }
 
+// 助战友情点
+func (this *Player) get_assist_points() int32 {
+	total_points := this.db.ActiveStageCommon.GetGetPointsDay()
+	withdraw_points := this.db.ActiveStageCommon.GetWithdrawPoints()
+	get_points := total_points - withdraw_points
+	if get_points < 0 {
+		get_points = 0
+	}
+	log.Debug("Player[%v] assist points %v", this.Id, get_points)
+	return get_points
+}
+
 // 获取好友相关数据
 func (this *Player) friend_data(send bool) int32 {
 	add_stamina, remain_seconds := this.check_and_add_friend_stamina()
 	if send {
+		last_refresh_boss_time := this.db.FriendCommon.GetLastBossRefreshTime()
+		now_time := int32(time.Now().Unix())
+		remain_seconds := global_config.FriendSearchBossRefreshHours*3600 - (now_time - last_refresh_boss_time)
+		if remain_seconds < 0 {
+			remain_seconds = 0
+		}
 		response := &msg_client_message.S2CFriendDataResponse{
 			StaminaItemId:            global_config.FriendStaminaItemId,
 			AddStamina:               add_stamina,
 			RemainSecondsNextStamina: remain_seconds,
 			StaminaLimit:             global_config.FriendStaminaLimit,
 			StaminaResumeOneCostTime: global_config.FriendStaminaResumeOnePointNeedHours,
+			BossId:                  this.db.FriendCommon.GetFriendBossTableId(),
+			BossHpPercent:           this.db.FriendCommon.GetFriendBossHpPercent(),
+			AssistGetPoints:         this.get_assist_points(),
+			SearchBossRemainSeconds: remain_seconds,
+			AssistRoleId:            this.db.FriendCommon.GetAssistRoleId(),
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_DATA_RESPONSE), response)
 	}
@@ -965,6 +988,19 @@ func (this *Player) friend_set_assist_role(role_id int32) int32 {
 
 	log.Debug("Player[%v] set assist role %v for friends", this.Id, role_id)
 
+	return 1
+}
+
+// 提现助战友情点
+func (this *Player) active_stage_withdraw_assist_points() int32 {
+	get_points := this.get_assist_points()
+	if get_points > 0 {
+		this.db.ActiveStageCommon.IncbyWithdrawPoints(get_points)
+	}
+	response := &msg_client_message.S2CFriendGetAssistPointsResponse{
+		GetPoints: get_points,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_GET_ASSIST_POINTS_RESPONSE), response)
 	return 1
 }
 
@@ -1124,4 +1160,14 @@ func C2SFriendGiveAndGetPointsHandler(w http.ResponseWriter, r *http.Request, p 
 		return res
 	}
 	return p.get_friend_points(req.GetFriendIds())
+}
+
+func C2SFriendGetAssistPointsHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SFriendGetAssistPointsRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed err(%s)", err.Error())
+		return -1
+	}
+	return p.active_stage_withdraw_assist_points()
 }

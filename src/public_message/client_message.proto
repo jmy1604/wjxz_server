@@ -1230,6 +1230,7 @@ message S2CFriendDataResponse {
 	int32 BossHpPercent						= 7; // 血量百分比
 	int32 AssistGetPoints					= 8; // 助战获取友情点
 	int32 SearchBossRemainSeconds			= 9; // 搜索BOSS剩余秒数
+	int32 AssistRoleId						= 10; // 助战角色
 }
 
 // 击打好友BOSS获取的奖励
