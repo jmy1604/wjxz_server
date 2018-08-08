@@ -640,7 +640,7 @@ func (this *Player) friend_search_boss() int32 {
 		this.db.FriendBosss.Clear()
 		for i := 0; i < len(stage.Monsters); i++ {
 			this.db.FriendBosss.Add(&dbPlayerFriendBossData{
-				MonsterPos: stage.Monsters[i].Slot,
+				MonsterPos: stage.Monsters[i].Slot - 1,
 				MonsterId:  stage.Monsters[i].MonsterID,
 			})
 		}
@@ -650,8 +650,8 @@ func (this *Player) friend_search_boss() int32 {
 	this.db.FriendCommon.SetAttackBossPlayerList(nil)
 
 	response := &msg_client_message.S2CFriendSearchBossResponse{
-		StageId: stage_id,
-		Items:   items,
+		FriendBossTableId: friend_boss_tdata.Id,
+		Items:             items,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_SEARCH_BOSS_RESPONSE), response)
 
@@ -827,7 +827,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		HasNextWave:         has_next_wave,
 		BattleType:          5,
 		BattleParam:         friend_id,
-		ExtraValue:          p.db.FriendCommon.GetFriendBossHpPercent(),
+		ExtraValue:          p.get_friend_boss_hp_percent(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
@@ -932,6 +932,14 @@ func (this *Player) get_assist_points() int32 {
 	return get_points
 }
 
+func (this *Player) get_friend_boss_hp_percent() int32 {
+	hp_percent := this.db.FriendCommon.GetFriendBossHpPercent()
+	if hp_percent == 0 {
+		hp_percent = 100
+	}
+	return hp_percent
+}
+
 // 获取好友相关数据
 func (this *Player) friend_data(send bool) int32 {
 	add_stamina, remain_seconds := this.check_and_add_friend_stamina()
@@ -949,7 +957,7 @@ func (this *Player) friend_data(send bool) int32 {
 			StaminaLimit:             global_config.FriendStaminaLimit,
 			StaminaResumeOneCostTime: global_config.FriendStaminaResumeOnePointNeedHours,
 			BossId:                  this.db.FriendCommon.GetFriendBossTableId(),
-			BossHpPercent:           this.db.FriendCommon.GetFriendBossHpPercent(),
+			BossHpPercent:           this.get_friend_boss_hp_percent(),
 			AssistGetPoints:         this.get_assist_points(),
 			SearchBossRemainSeconds: remain_seconds,
 			AssistRoleId:            this.db.FriendCommon.GetAssistRoleId(),

@@ -1190,7 +1190,7 @@ message C2SFriendSearchBossRequest {
 }
 
 message S2CFriendSearchBossResponse {
-	int32 StageId							= 1; // 搜索到的关卡ID
+	int32 FriendBossTableId					= 1; // 好友BOSS配置表ID
 	repeated ItemInfo Items				 	= 2; // 搜索不到关卡的掉落物品
 }
 
