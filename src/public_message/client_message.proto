@@ -388,11 +388,12 @@ message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
 	int32 CampaignId						= 3; // 战役ID
-	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务    8 好友切磋    9 扫荡
-	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID    探索剧情任务ID    好友ID
+	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务    8 好友切磋
+	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID    探索剧情任务ID    好友ID   
 	int32 AssistFriendId					= 6; // 助战好友ID
 	int32 AssistRoleId					 	= 7; // 助战角色ID
 	int32 AssistPos							= 8; // 助战角色阵型位置
+	int32 SweepNum							= 9; // 扫荡次数   0 非扫荡  >0 扫荡次数  (pvp没有扫荡)
 }
 message S2CBattleResultResponse {
 	bool IsWin								= 1; // true 赢  false 输

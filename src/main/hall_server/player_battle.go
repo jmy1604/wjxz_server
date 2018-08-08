@@ -967,6 +967,8 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 		res = this.explore_fight(battle_param, false)
 	} else if battle_type == 7 {
 		res = this.explore_fight(battle_param, true)
+	} else if battle_type == 9 {
+
 	} else {
 		res = -1
 	}
