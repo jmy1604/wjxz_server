@@ -128,9 +128,9 @@ var rank_list_mgr RankListManager
 func (this *RankListManager) Init() {
 	this.rank_lists = make([]*RankList, RANK_LIST_TYPE_MAX)
 	for i := int32(1); i < RANK_LIST_TYPE_MAX; i++ {
-		if int(i) >= len(root_rank_item) {
+		/*if int(i) >= len(root_rank_item) {
 			break
-		}
+		}*/
 		this.rank_lists[i] = &RankList{}
 		this.rank_lists[i].Init(root_rank_item[i])
 	}

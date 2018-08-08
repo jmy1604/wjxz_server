@@ -1853,22 +1853,22 @@ func (this* dbArenaSeasonDataData)clone_to(d *dbArenaSeasonDataData){
 	d.LastSeasonResetTime = this.LastSeasonResetTime
 	return
 }
-type dbGuildMembersData struct{
+type dbGuildMemberData struct{
 	PlayerId int32
 }
-func (this* dbGuildMembersData)from_pb(pb *db.GuildMembers){
+func (this* dbGuildMemberData)from_pb(pb *db.GuildMember){
 	if pb == nil {
 		return
 	}
 	this.PlayerId = pb.GetPlayerId()
 	return
 }
-func (this* dbGuildMembersData)to_pb()(pb *db.GuildMembers){
-	pb = &db.GuildMembers{}
+func (this* dbGuildMemberData)to_pb()(pb *db.GuildMember){
+	pb = &db.GuildMember{}
 	pb.PlayerId = proto.Int32(this.PlayerId)
 	return
 }
-func (this* dbGuildMembersData)clone_to(d *dbGuildMembersData){
+func (this* dbGuildMemberData)clone_to(d *dbGuildMemberData){
 	d.PlayerId = this.PlayerId
 	return
 }
@@ -12728,33 +12728,33 @@ func (this *dbGuildRow)SetPresident(v int32){
 	this.m_President_changed=true
 	return
 }
-type dbGuildMembersColumn struct{
+type dbGuildMemberColumn struct{
 	m_row *dbGuildRow
-	m_data map[int32]*dbGuildMembersData
+	m_data map[int32]*dbGuildMemberData
 	m_changed bool
 }
-func (this *dbGuildMembersColumn)load(data []byte)(err error){
+func (this *dbGuildMemberColumn)load(data []byte)(err error){
 	if data == nil || len(data) == 0 {
 		this.m_changed = false
 		return nil
 	}
-	pb := &db.GuildMembersList{}
+	pb := &db.GuildMemberList{}
 	err = proto.Unmarshal(data, pb)
 	if err != nil {
 		log.Error("Unmarshal %v", this.m_row.GetId())
 		return
 	}
 	for _, v := range pb.List {
-		d := &dbGuildMembersData{}
+		d := &dbGuildMemberData{}
 		d.from_pb(v)
 		this.m_data[int32(d.PlayerId)] = d
 	}
 	this.m_changed = false
 	return
 }
-func (this *dbGuildMembersColumn)save( )(data []byte,err error){
-	pb := &db.GuildMembersList{}
-	pb.List=make([]*db.GuildMembers,len(this.m_data))
+func (this *dbGuildMemberColumn)save( )(data []byte,err error){
+	pb := &db.GuildMemberList{}
+	pb.List=make([]*db.GuildMember,len(this.m_data))
 	i:=0
 	for _, v := range this.m_data {
 		pb.List[i] = v.to_pb()
@@ -12768,14 +12768,14 @@ func (this *dbGuildMembersColumn)save( )(data []byte,err error){
 	this.m_changed = false
 	return
 }
-func (this *dbGuildMembersColumn)HasIndex(id int32)(has bool){
-	this.m_row.m_lock.UnSafeRLock("dbGuildMembersColumn.HasIndex")
+func (this *dbGuildMemberColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbGuildMemberColumn.HasIndex")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	_, has = this.m_data[id]
 	return
 }
-func (this *dbGuildMembersColumn)GetAllIndex()(list []int32){
-	this.m_row.m_lock.UnSafeRLock("dbGuildMembersColumn.GetAllIndex")
+func (this *dbGuildMemberColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbGuildMemberColumn.GetAllIndex")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	list = make([]int32, len(this.m_data))
 	i := 0
@@ -12785,10 +12785,10 @@ func (this *dbGuildMembersColumn)GetAllIndex()(list []int32){
 	}
 	return
 }
-func (this *dbGuildMembersColumn)GetAll()(list []dbGuildMembersData){
-	this.m_row.m_lock.UnSafeRLock("dbGuildMembersColumn.GetAll")
+func (this *dbGuildMemberColumn)GetAll()(list []dbGuildMemberData){
+	this.m_row.m_lock.UnSafeRLock("dbGuildMemberColumn.GetAll")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	list = make([]dbGuildMembersData, len(this.m_data))
+	list = make([]dbGuildMemberData, len(this.m_data))
 	i := 0
 	for _, v := range this.m_data {
 		v.clone_to(&list[i])
@@ -12796,19 +12796,19 @@ func (this *dbGuildMembersColumn)GetAll()(list []dbGuildMembersData){
 	}
 	return
 }
-func (this *dbGuildMembersColumn)Get(id int32)(v *dbGuildMembersData){
-	this.m_row.m_lock.UnSafeRLock("dbGuildMembersColumn.Get")
+func (this *dbGuildMemberColumn)Get(id int32)(v *dbGuildMemberData){
+	this.m_row.m_lock.UnSafeRLock("dbGuildMemberColumn.Get")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	d := this.m_data[id]
 	if d==nil{
 		return nil
 	}
-	v=&dbGuildMembersData{}
+	v=&dbGuildMemberData{}
 	d.clone_to(v)
 	return
 }
-func (this *dbGuildMembersColumn)Set(v dbGuildMembersData)(has bool){
-	this.m_row.m_lock.UnSafeLock("dbGuildMembersColumn.Set")
+func (this *dbGuildMemberColumn)Set(v dbGuildMemberData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildMemberColumn.Set")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	d := this.m_data[int32(v.PlayerId)]
 	if d==nil{
@@ -12819,22 +12819,22 @@ func (this *dbGuildMembersColumn)Set(v dbGuildMembersData)(has bool){
 	this.m_changed = true
 	return true
 }
-func (this *dbGuildMembersColumn)Add(v *dbGuildMembersData)(ok bool){
-	this.m_row.m_lock.UnSafeLock("dbGuildMembersColumn.Add")
+func (this *dbGuildMemberColumn)Add(v *dbGuildMemberData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildMemberColumn.Add")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	_, has := this.m_data[int32(v.PlayerId)]
 	if has {
 		log.Error("already added %v %v",this.m_row.GetId(), v.PlayerId)
 		return false
 	}
-	d:=&dbGuildMembersData{}
+	d:=&dbGuildMemberData{}
 	v.clone_to(d)
 	this.m_data[int32(v.PlayerId)]=d
 	this.m_changed = true
 	return true
 }
-func (this *dbGuildMembersColumn)Remove(id int32){
-	this.m_row.m_lock.UnSafeLock("dbGuildMembersColumn.Remove")
+func (this *dbGuildMemberColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbGuildMemberColumn.Remove")
 	defer this.m_row.m_lock.UnSafeUnlock()
 	_, has := this.m_data[id]
 	if has {
@@ -12843,15 +12843,15 @@ func (this *dbGuildMembersColumn)Remove(id int32){
 	this.m_changed = true
 	return
 }
-func (this *dbGuildMembersColumn)Clear(){
-	this.m_row.m_lock.UnSafeLock("dbGuildMembersColumn.Clear")
+func (this *dbGuildMemberColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbGuildMemberColumn.Clear")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data=make(map[int32]*dbGuildMembersData)
+	this.m_data=make(map[int32]*dbGuildMemberData)
 	this.m_changed = true
 	return
 }
-func (this *dbGuildMembersColumn)NumAll()(n int32){
-	this.m_row.m_lock.UnSafeRLock("dbGuildMembersColumn.NumAll")
+func (this *dbGuildMemberColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbGuildMemberColumn.NumAll")
 	defer this.m_row.m_lock.UnSafeRUnlock()
 	return int32(len(this.m_data))
 }
@@ -13010,7 +13010,7 @@ type dbGuildRow struct {
 	m_Anouncement string
 	m_President_changed bool
 	m_President int32
-	Memberss dbGuildMembersColumn
+	Members dbGuildMemberColumn
 	AskLists dbGuildAskListColumn
 }
 func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
@@ -13027,8 +13027,8 @@ func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this.m_Deleted_changed=true
 	this.m_Anouncement_changed=true
 	this.m_President_changed=true
-	this.Memberss.m_row=this
-	this.Memberss.m_data=make(map[int32]*dbGuildMembersData)
+	this.Members.m_row=this
+	this.Members.m_data=make(map[int32]*dbGuildMemberData)
 	this.AskLists.m_row=this
 	this.AskLists.m_data=make(map[int32]*dbGuildAskListData)
 	return this
@@ -13051,12 +13051,12 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 		db_args.Push(this.m_Deleted)
 		db_args.Push(this.m_Anouncement)
 		db_args.Push(this.m_President)
-		dMemberss,db_err:=this.Memberss.save()
+		dMembers,db_err:=this.Members.save()
 		if db_err!=nil{
-			log.Error("insert save Members failed")
+			log.Error("insert save Member failed")
 			return db_err,false,0,"",nil
 		}
-		db_args.Push(dMemberss)
+		db_args.Push(dMembers)
 		dAskLists,db_err:=this.AskLists.save()
 		if db_err!=nil{
 			log.Error("insert save AskList failed")
@@ -13066,7 +13066,7 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Name_changed||this.m_Creater_changed||this.m_CreateTime_changed||this.m_Logo_changed||this.m_Level_changed||this.m_Exp_changed||this.m_Deleted_changed||this.m_Anouncement_changed||this.m_President_changed||this.Memberss.m_changed||this.AskLists.m_changed{
+		if this.m_Name_changed||this.m_Creater_changed||this.m_CreateTime_changed||this.m_Logo_changed||this.m_Level_changed||this.m_Exp_changed||this.m_Deleted_changed||this.m_Anouncement_changed||this.m_President_changed||this.Members.m_changed||this.AskLists.m_changed{
 			update_string = "UPDATE Guilds SET "
 			db_args:=new_db_args(12)
 			if this.m_Name_changed{
@@ -13105,14 +13105,14 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 				update_string+="President=?,"
 				db_args.Push(this.m_President)
 			}
-			if this.Memberss.m_changed{
-				update_string+="Memberss=?,"
-				dMemberss,err:=this.Memberss.save()
+			if this.Members.m_changed{
+				update_string+="Members=?,"
+				dMembers,err:=this.Members.save()
 				if err!=nil{
-					log.Error("insert save Members failed")
+					log.Error("insert save Member failed")
 					return err,false,0,"",nil
 				}
-				db_args.Push(dMemberss)
+				db_args.Push(dMembers)
 			}
 			if this.AskLists.m_changed{
 				update_string+="AskLists=?,"
@@ -13140,7 +13140,7 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 	this.m_Deleted_changed = false
 	this.m_Anouncement_changed = false
 	this.m_President_changed = false
-	this.Memberss.m_changed = false
+	this.Members.m_changed = false
 	this.AskLists.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
@@ -13336,11 +13336,11 @@ func (this *dbGuildTable) check_create_table() (err error) {
 			return
 		}
 	}
-	_, hasMembers := columns["Memberss"]
-	if !hasMembers {
-		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Memberss LONGBLOB")
+	_, hasMember := columns["Members"]
+	if !hasMember {
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Members LONGBLOB")
 		if err != nil {
-			log.Error("ADD COLUMN Memberss failed")
+			log.Error("ADD COLUMN Members failed")
 			return
 		}
 	}
@@ -13355,7 +13355,7 @@ func (this *dbGuildTable) check_create_table() (err error) {
 	return
 }
 func (this *dbGuildTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Name,Creater,CreateTime,Logo,Level,Exp,Deleted,Anouncement,President,Memberss,AskLists FROM Guilds")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Name,Creater,CreateTime,Logo,Level,Exp,Deleted,Anouncement,President,Members,AskLists FROM Guilds")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13363,7 +13363,7 @@ func (this *dbGuildTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbGuildTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Guilds (Id,Name,Creater,CreateTime,Logo,Level,Exp,Deleted,Anouncement,President,Memberss,AskLists) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Guilds (Id,Name,Creater,CreateTime,Logo,Level,Exp,Deleted,Anouncement,President,Members,AskLists) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13425,10 +13425,10 @@ func (this *dbGuildTable) Preload() (err error) {
 	var dDeleted bool
 	var dAnouncement string
 	var dPresident int32
-	var dMemberss []byte
+	var dMembers []byte
 	var dAskLists []byte
 	for r.Next() {
-		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dLogo,&dLevel,&dExp,&dDeleted,&dAnouncement,&dPresident,&dMemberss,&dAskLists)
+		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dLogo,&dLevel,&dExp,&dDeleted,&dAnouncement,&dPresident,&dMembers,&dAskLists)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -13448,9 +13448,9 @@ func (this *dbGuildTable) Preload() (err error) {
 		row.m_Deleted=dDeleted
 		row.m_Anouncement=dAnouncement
 		row.m_President=dPresident
-		err = row.Memberss.load(dMemberss)
+		err = row.Members.load(dMembers)
 		if err != nil {
-			log.Error("Memberss %v", Id)
+			log.Error("Members %v", Id)
 			return
 		}
 		err = row.AskLists.load(dAskLists)

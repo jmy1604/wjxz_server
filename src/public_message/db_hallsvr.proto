@@ -428,12 +428,12 @@ message ArenaSeasonData{
 	optional int32 LastSeasonResetTime=2;
 }
 
-message GuildMembers{
+message GuildMember{
 	optional int32 PlayerId=1;
 }
 
-message GuildMembersList{
-	repeated GuildMembers List=1;
+message GuildMemberList{
+	repeated GuildMember List=1;
 }
 
 message GuildAskList{

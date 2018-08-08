@@ -1036,8 +1036,8 @@
 					"Fields":[]
 				},
 				{
-					"ColumnName":"Members",
-					"DBColumnName":"Members",
+					"ColumnName":"Member",
+					"DBColumnName":"Member",
 					"InUse":true,
 					"Simple":false,
 					"SimpleType":"",

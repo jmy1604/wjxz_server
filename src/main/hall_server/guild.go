@@ -190,14 +190,14 @@ func (this *GuildManager) AgreeAsk(president_id int32, player_id int32) int32 {
 		return -1
 	}
 
-	if guild.Memberss.HasIndex(player_id) {
+	if guild.Members.HasIndex(player_id) {
 		log.Error("Player[%v] already joined guild[%v], president[%v] no need to add", player_id, guild.GetId(), president_id)
 		return -1
 	}
 
 	guild.AskLists.Remove(player_id)
 
-	guild.Memberss.Add(&dbGuildMembersData{
+	guild.Members.Add(&dbGuildMemberData{
 		player_id,
 	})
 
@@ -224,11 +224,11 @@ func (this *GuildManager) RemovePlayer(president_id, player_id int32) int32 {
 	if guild == nil {
 		return -1
 	}
-	if !guild.Memberss.HasIndex(player_id) {
+	if !guild.Members.HasIndex(player_id) {
 		log.Error("Guild[%v] no player[%v], president[%v] remove failed", guild.GetId(), player_id, president_id)
 		return -1
 	}
-	guild.Memberss.Remove(player_id)
+	guild.Members.Remove(player_id)
 	return 1
 }
 
