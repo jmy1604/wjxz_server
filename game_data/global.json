@@ -44,6 +44,7 @@
 	"ActiveStageRefreshTime": "00:00:00",
 	"ActiveStageChallengeNumOfDay": 100,
 	"ActiveStageChallengeNumPrice": 100,
+	"ActiveStagePurchaseNum": 10,
 	
 	"FriendMaxNum": 30,
 	"FriendRecommendNum": 10,
@@ -59,6 +60,11 @@
 	"FriendSearchBossRefreshHours": 8,
 	"FriendAssistPointsGet": 10,
 	"FriendPointsGetLimitDay": 100,
+	
+	"DailyTaskRefreshTime": "00:00:00",
+	
+	"ExploreTaskRefreshCostDiamond": 10,
+	"ExploreTaskRefreshTime": "00:00:00",
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
 	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
