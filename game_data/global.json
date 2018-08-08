@@ -44,7 +44,6 @@
 	"ActiveStageRefreshTime": "00:00:00",
 	"ActiveStageChallengeNumOfDay": 100,
 	"ActiveStageChallengeNumPrice": 100,
-	"ActiveStagePurchaseNum": 10,
 	
 	"FriendMaxNum": 30,
 	"FriendRecommendNum": 10,
@@ -60,11 +59,6 @@
 	"FriendSearchBossRefreshHours": 8,
 	"FriendAssistPointsGet": 10,
 	"FriendPointsGetLimitDay": 100,
-	
-	"DailyTaskRefreshTime": "00:00:00",
-	
-	"ExploreTaskRefreshCostDiamond": 10,
-	"ExploreTaskRefreshTime": "00:00:00",
 	
 	"GoogleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
 	"AppleLoginVerifyUrl":"https://www.googleapis.com/oauth2/v3/tokeninfo",
@@ -86,26 +80,4 @@
 	"AnouncementSendCooldown": 15,
 	"AnouncementSendMaxNum": 10,
 	"AnouncementExistTime": 10
-	
-	"ClanOpenLevel":3,
-	"ClanCreateCostGem":1000,
-	"ClanChangeNameGem":2000,
-	"ClanCheckIn":[20,1,21,2],
-	"MailIntervalTime":5000,
-	"RecruitIntervalTime":5000,
-	"DonationRequestCD":25200,
-	"LeaveTongDonateCdSec":9000,
-	"DonationUpper":180,
-	"ThreeStarDonationUpper":80,
-	"FourStarDonationUpper":60,
-	"FiveStarDonationUpper":40,
-	"ThreeStarDonationReward":20,1,
-	"FourStarDonationReward":20,1,
-	"FiveStarDonationReward":20,1,
-	"ThreeStarDonationIntegral":10,
-	"FourStarDonationIntegral":20,
-	"FiveStarDonationIntegral":40,
-	"ResurrectionOneGem":0,
-	"ResurrectionTwoGem":100,
-	"ResurrectionThreeGem":200,
 }
