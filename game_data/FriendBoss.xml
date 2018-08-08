@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Config>
-     <item ID="1" LevelMin="1" LevelMax="50" SearchBossChance="3000" SearchItemDropID="115001" BossStageID="5001" ChallengeDropID="105001" RewardLastHit="3,200" RewardOwner="3,100" />
-     <item ID="2" LevelMin="51" LevelMax="100" SearchBossChance="3000" SearchItemDropID="115002" BossStageID="5002" ChallengeDropID="105002" RewardLastHit="3,300" RewardOwner="3,150" />
-     <item ID="3" LevelMin="101" LevelMax="150" SearchBossChance="3000" SearchItemDropID="115003" BossStageID="5003" ChallengeDropID="105003" RewardLastHit="3,400" RewardOwner="3,200" />
-     <item ID="4" LevelMin="151" LevelMax="200" SearchBossChance="3000" SearchItemDropID="115004" BossStageID="5004" ChallengeDropID="105004" RewardLastHit="3,500" RewardOwner="3,250" />
+     <item ID="1" LevelMin="1" LevelMax="50" SearchBossChance="10000" SearchItemDropID="115001" BossStageID="5001" ChallengeDropID="105001" RewardLastHit="3,200" RewardOwner="3,100" />
+     <item ID="2" LevelMin="51" LevelMax="100" SearchBossChance="10000" SearchItemDropID="115002" BossStageID="5002" ChallengeDropID="105002" RewardLastHit="3,300" RewardOwner="3,150" />
+     <item ID="3" LevelMin="101" LevelMax="150" SearchBossChance="10000" SearchItemDropID="115003" BossStageID="5003" ChallengeDropID="105003" RewardLastHit="3,400" RewardOwner="3,200" />
+     <item ID="4" LevelMin="151" LevelMax="200" SearchBossChance="10000" SearchItemDropID="115004" BossStageID="5004" ChallengeDropID="105004" RewardLastHit="3,500" RewardOwner="3,250" />
 </Config>

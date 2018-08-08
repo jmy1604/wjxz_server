@@ -85,5 +85,16 @@
 	"AnouncementMaxNum": 1000,
 	"AnouncementSendCooldown": 15,
 	"AnouncementSendMaxNum": 10,
-	"AnouncementExistTime": 10
+	"AnouncementExistTime": 10,
+	
+	"GuildOpenLevel": 3,
+	"GuildCreateCostGem": 1000,
+	"GuildChangeNameCostGem": 2000,
+	"GuildSignReward": [20,10,21,1],
+	"GuildMailSendIntervalSecs": 30,
+	"GuildRecruitIntervalSecs": 5,
+	"GuildAskDonateCDSecs": 25200,
+	"GuildQuitAskJoinCDSecs": 25200,
+	"GuildDonateLimitDay": 180,
+	"GuildStageResetCDSecs": 17800
 }
