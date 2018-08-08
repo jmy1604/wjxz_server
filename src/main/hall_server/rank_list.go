@@ -142,11 +142,17 @@ func (this *RankListManager) GetRankList(rank_type int32) (rank_list *RankList) 
 	if int(rank_type) >= len(this.rank_lists) {
 		return nil
 	}
+	if this.rank_lists[rank_type] == nil {
+		return nil
+	}
 	return this.rank_lists[rank_type]
 }
 
 func (this *RankListManager) GetItemByKey(rank_type int32, key interface{}) (item utils.SkiplistNode) {
 	if int(rank_type) >= len(this.rank_lists) {
+		return nil
+	}
+	if this.rank_lists[rank_type] == nil {
 		return nil
 	}
 	return this.rank_lists[rank_type].GetItemByKey(key)
@@ -156,11 +162,17 @@ func (this *RankListManager) GetRankByKey(rank_type int32, key interface{}) int3
 	if int(rank_type) >= len(this.rank_lists) {
 		return -1
 	}
+	if this.rank_lists[rank_type] == nil {
+		return -1
+	}
 	return this.rank_lists[rank_type].GetRankByKey(key)
 }
 
 func (this *RankListManager) GetItemByRank(rank_type, rank int32) (item utils.SkiplistNode) {
 	if int(rank_type) >= len(this.rank_lists) {
+		return nil
+	}
+	if this.rank_lists[rank_type] == nil {
 		return nil
 	}
 	return this.rank_lists[rank_type].GetItemByRank(rank)
@@ -170,11 +182,17 @@ func (this *RankListManager) GetItemsByRange(rank_type int32, key interface{}, s
 	if int(rank_type) >= len(this.rank_lists) {
 		return nil, 0, nil
 	}
+	if this.rank_lists[rank_type] == nil {
+		return nil, 0, nil
+	}
 	return this.rank_lists[rank_type].GetItemsByRange(key, start_rank, rank_num)
 }
 
 func (this *RankListManager) GetLastRankRange(rank_type, rank_num int32) (int32, int32) {
 	if int(rank_type) >= len(this.rank_lists) {
+		return -1, -1
+	}
+	if this.rank_lists[rank_type] == nil {
 		return -1, -1
 	}
 	return this.rank_lists[rank_type].GetLastRankRange(rank_num)
@@ -184,11 +202,17 @@ func (this *RankListManager) UpdateItem(rank_type int32, item utils.SkiplistNode
 	if int(rank_type) >= len(this.rank_lists) {
 		return false
 	}
+	if this.rank_lists[rank_type] == nil {
+		return false
+	}
 	return this.rank_lists[rank_type].UpdateItem(item)
 }
 
 func (this *RankListManager) DeleteItem(rank_type int32, key interface{}) bool {
 	if int(rank_type) >= len(this.rank_lists) {
+		return false
+	}
+	if this.rank_lists[rank_type] == nil {
 		return false
 	}
 	return this.rank_lists[rank_type].DeleteItem(key)
