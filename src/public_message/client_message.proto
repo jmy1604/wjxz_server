@@ -412,7 +412,8 @@ message S2CBattleResultResponse {
 	int32 AssistFriendId					= 14; // 助战好友ID
 	int32 AssistRoleId					 	= 15; // 助战角色ID
 	int32 AssistPos							= 16; // 助战角色阵型位置
-	int32 ExtraValue						= 17; // 额外的数据      如果是打好友BOSS, 该值就是BOSS血量百分比
+	int32 SweepNum							= 17; // 扫荡次数
+	int32 ExtraValue						= 18; // 额外的数据      如果是打好友BOSS, 该值就是BOSS血量百分比
 }
 
 // 请求录像列表
