@@ -209,12 +209,10 @@ func (this *GuildManager) RemoveAsk(president_id int32, player_id int32) int32 {
 	if guild == nil {
 		return -1
 	}
-
 	if !guild.AskLists.HasIndex(player_id) {
 		log.Error("Guild[%v] no player[%v] ask, president[%v] remove failed", guild.GetId(), player_id, president_id)
 		return -1
 	}
-
 	guild.AskLists.Remove(player_id)
 	return 1
 }

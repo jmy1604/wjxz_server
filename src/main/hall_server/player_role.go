@@ -700,6 +700,8 @@ func (this *Player) decompose_role(role_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_DECOMPOSE_RESPONSE), response)
 
+	this.check_and_send_roles_change()
+
 	// 更新任务
 	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_DECOMPOSE_ROLES, false, 0, num)
 
