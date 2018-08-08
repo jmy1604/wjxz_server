@@ -86,6 +86,17 @@ type GlobalConfig struct {
 	DailyTaskRefreshTime                 string     // 日常任务刷新时间
 	ExploreTaskRefreshCostDiamond        int32      // 探索任务刷新花费钻石
 	ExploreTaskRefreshTime               string     // 探索任务刷新时间
+	GuildOpenLevel                       int32      // 公会开启等级
+	GuildCreateCostGem                   int32      // 公会创建消耗钻石
+	GuildChangeNameCostGem               int32      // 公会改名消耗钻石
+	GuildSignReward                      []int32    // 公会签到奖励
+	GuildMailSendIntervalSecs            int32      // 公会邮件发送间隔
+	GuildRecruitIntervalSecs             int32      // 公会招募间隔
+	GuildAskDonateCDSecs                 int32      // 公会请求捐献CD
+	GuildQuitAskJoinCDSecs               int32      // 公会退出再加入的CD
+	GuildDonateLimitDay                  int32      // 公会每天捐献上限
+	GuildStageResetCDSecs                int32      // 公会副本重置CD
+	GuildStageResurrectionGem            []int32    // 公会副本复活消耗钻石
 
 	GooglePayUrl       string
 	FaceBookPayUrl     string

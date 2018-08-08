@@ -5,48 +5,60 @@ import (
 	"libs/utils"
 	"net/http"
 	"public_message/gen_go/client_message"
+	"public_message/gen_go/client_message_id"
 	"sync"
 	"time"
 
 	"github.com/golang/protobuf/proto"
 )
 
+const (
+	CHAT_CHANNEL_NONE    = iota
+	CHAT_CHANNEL_WORLD   = 1 // 世界
+	CHAT_CHANNEL_GUILD   = 2 // 公会
+	CHAT_CHANNEL_RECRUIT = 3 // 招募
+)
+
 const MAX_WORLD_CHAT_ONCE_GET int32 = 50
 const MAX_WORLD_CHAT_MSG_NUM int32 = 150
 
-type WorldChatItem struct {
+type ChatItem struct {
 	send_player_id    int32
 	send_player_name  string
 	send_player_level int32
 	send_player_head  int32
 	content           []byte
 	send_time         int32
-	prev              *WorldChatItem
-	next              *WorldChatItem
+	prev              *ChatItem
+	next              *ChatItem
 }
 
-type WorldChatItemFactory struct {
+type ChatItemFactory struct {
 }
 
-func (this *WorldChatItemFactory) New() interface{} {
-	return &WorldChatItem{}
+func (this *ChatItemFactory) New() interface{} {
+	return &ChatItem{}
 }
 
 type PlayerWorldChatData struct {
-	curr_msg       *WorldChatItem
+	curr_msg       *ChatItem
 	curr_send_time int32
 }
 
-type WorldChatMgr struct {
+type PlayerGuildChatData struct {
+}
+
+type ChatMgr struct {
+	channel       int32                 // 频道
 	msg_num       int32                 // 消息数
-	chat_msg_head *WorldChatItem        // 最早的结点
-	chat_msg_tail *WorldChatItem        // 最新的节点
+	chat_msg_head *ChatItem             // 最早的结点
+	chat_msg_tail *ChatItem             // 最新的节点
 	items_pool    *utils.SimpleItemPool // 消息池
-	items_factory *WorldChatItemFactory // 对象工厂
+	items_factory *ChatItemFactory      // 对象工厂
 	locker        *sync.RWMutex         // 锁
 }
 
-var world_chat_mgr WorldChatMgr
+var world_chat_mgr ChatMgr
 
 func get_world_chat_max_msg_num() int32 {
 	max_num := global_config.WorldChatMaxMsgNum
@@ -56,16 +68,17 @@ func get_world_chat_max_msg_num() int32 {
 	return max_num
 }
 
-func (this *WorldChatMgr) Init() {
+func (this *ChatMgr) Init(channel int32) {
+	this.channel = channel
 	this.items_pool = &utils.SimpleItemPool{}
-	this.items_factory = &WorldChatItemFactory{}
+	this.items_factory = &ChatItemFactory{}
 	this.items_pool.Init(get_world_chat_max_msg_num(), this.items_factory)
 	this.locker = &sync.RWMutex{}
 	this.chat_msg_head = nil
 	this.chat_msg_tail = nil
 }
 
-func (this *WorldChatMgr) recycle_old() {
+func (this *ChatMgr) recycle_old() {
 	now_time := int32(time.Now().Unix())
 	msg := this.chat_msg_head
 	for msg != nil {
@@ -88,7 +101,7 @@ func (this *WorldChatMgr) recycle_old() {
 	}
 }
 
-func (this *WorldChatMgr) push_chat_msg(content []byte, player_id int32, player_level int32, player_name string, player_head int32) bool {
+func (this *ChatMgr) push_chat_msg(content []byte, player_id int32, player_level int32, player_name string, player_head int32) bool {
 	this.locker.Lock()
 	defer this.locker.Unlock()
 
@@ -97,7 +110,7 @@ func (this *WorldChatMgr) push_chat_msg(content []byte, player_id int32, player_
 	if !this.items_pool.HasFree() {
 		// 回收最早的节点
 		if !this.items_pool.Recycle(this.chat_msg_head) {
-			log.Error("###[WorldChatMgr]### Recycle failed")
+			log.Error("###[ChatMgr]### Recycle failed")
 			return false
 		}
 		n := this.chat_msg_head.next
@@ -109,11 +122,11 @@ func (this *WorldChatMgr) push_chat_msg(content []byte, player_id int32, player_
 
 	it := this.items_pool.GetFree()
 	if it == nil {
-		log.Error("###[WorldChatMgr]### No free item")
+		log.Error("###[ChatMgr]### No free item")
 		return false
 	}
 
-	item := it.(*WorldChatItem)
+	item := it.(*ChatItem)
 	item.content = content
 	item.send_player_id = player_id
 	item.send_player_name = player_name
@@ -135,12 +148,12 @@ func (this *WorldChatMgr) push_chat_msg(content []byte, player_id int32, player_
 	return true
 }
 
-func (this *WorldChatMgr) pull_world_chat(player *Player) (chat_items []*msg_client_message.WorldChatItem) {
+func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message.ChatItem) {
 	this.locker.RLock()
 	defer this.locker.RUnlock()
 
 	if this.msg_num <= 0 {
-		chat_items = make([]*msg_client_message.WorldChatItem, 0)
+		chat_items = make([]*msg_client_message.ChatItem, 0)
 		return
 	}
 	msg_num := MAX_WORLD_CHAT_ONCE_GET
@@ -168,7 +181,7 @@ func (this *WorldChatMgr) pull_world_chat(player *Player) (chat_items []*msg_cli
 			msg = msg.next
 			continue
 		}
-		item := &msg_client_message.WorldChatItem{
+		item := &msg_client_message.ChatItem{
 			Content:     msg.content,
 			PlayerId:    msg.send_player_id,
 			PlayerName:  msg.send_player_name,
@@ -186,18 +199,8 @@ func (this *WorldChatMgr) pull_world_chat(player *Player) (chat_items []*msg_cli
 	return
 }
 
-func (this *Player) world_chat(content []byte) int32 {
+func (this *Player) chat(channel int32, content []byte) int32 {
 	now_time := int32(time.Now().Unix())
-	/*if now_time < this.db.TalkForbid.GetEndUnix() {
-		log.Error("Player[%v] world chat is forbidden !", this.Id)
-		res := &msg_client_message.S2CWorldChatForbid{}
-		end_t := time.Unix(int64(this.db.TalkForbid.GetEndUnix()), 0)
-		res.EndTime = end_t.Format("2006-01-02 15:04:05.999999999")
-
-		this.Send(uint16(1), res)
-
-		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_BE_FORBIDEN)
-	}*/
 	if now_time-this.db.WorldChat.GetLastChatTime() < 10 /*global_id.WorldChannelChatCooldown_40*/ {
 		log.Error("Player[%v] world chat is cooling down !", this.Id)
 		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN)
@@ -216,50 +219,51 @@ func (this *Player) world_chat(content []byte) int32 {
 
 	this.db.WorldChat.SetLastChatTime(now_time)
 
-	response := &msg_client_message.S2CWorldChatResponse{
+	response := &msg_client_message.S2CChatResponse{
+		Channel: channel,
 		Content: content,
 	}
-	this.Send(1, response)
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_RESPONSE), response)
 	log.Debug("Player[%v] world chat content[%v]", this.Id, content)
 
 	return 1
 }
 
-func (this *Player) pull_world_chat() int32 {
+func (this *Player) pull_chat(channel int32) int32 {
 	now_time := int32(time.Now().Unix())
 	if now_time-this.db.WorldChat.GetLastPullTime() < global_config.WorldChatPullMsgCooldown {
 		log.Error("Player[%v] pull world chat msg is cooling down", this.Id)
 		//return int32(msg_client_message.E_ERR_WORLDCHAT_PULL_COOLING_DOWN)
-		response := &msg_client_message.S2CWorldChatMsgPullResponse{}
+		response := &msg_client_message.S2CChatMsgPullResponse{}
 		this.Send(1, response)
 		return 1
 	}
-	msgs := world_chat_mgr.pull_world_chat(this)
+	msgs := world_chat_mgr.pull_chat(this)
 	this.db.WorldChat.SetLastPullTime(now_time)
-	response := &msg_client_message.S2CWorldChatMsgPullResponse{
+	response := &msg_client_message.S2CChatMsgPullResponse{
 		Items: msgs,
 	}
-	this.Send(1, response)
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_PULL_MSG_RESPONSE), response)
 	log.Debug("Player[%v] pulled world chat msgs", this.Id)
 	return 1
 }
 
-func C2SWorldChatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
-	var req msg_client_message.C2SWorldChatRequest
+func C2SChatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SChatRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.world_chat(req.GetContent())
+	return p.chat(req.GetChannel(), req.GetContent())
 }
 
-func C2SWorldChatPullMsgHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
-	var req msg_client_message.C2SWorldChatMsgPullRequest
+func C2SChatPullMsgHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SChatMsgPullRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
-	return p.pull_world_chat()
+	return p.pull_chat(req.GetChannel())
 }

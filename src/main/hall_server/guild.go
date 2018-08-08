@@ -7,17 +7,23 @@ import (
 	"math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
-	_ "public_message/gen_go/client_message_id"
+	"public_message/gen_go/client_message_id"
 	"strconv"
 	"sync"
 	"time"
 
-	_ "github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 const (
 	GUILD_MAX_NUM       = 10000
 	GUILD_RECOMMEND_NUM = 5
+)
+
+const (
+	GUILD_EXIST_TYPE_NONE        = iota
+	GUILD_EXIST_TYPE_WILL_DELETE = 1
+	GUILD_EXIST_TYPE_DELETED     = 2
 )
 
 func _player_get_guild_id(player_id int32) int32 {
@@ -82,6 +88,14 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 	return guild_id
 }
 
+func (this *GuildManager) GetGuild(guild_id int32) *dbGuildRow {
+	guild := this.guilds.GetRow(guild_id)
+	if guild.GetExistType() > GUILD_EXIST_TYPE_WILL_DELETE {
+		return nil
+	}
+	return guild
+}
+
 func (this *GuildManager) Recommend(player_id int32) (guild_ids []int32) {
 	guild_id := _player_get_guild_id(player_id)
 	if guild_id > 0 {
@@ -143,14 +157,8 @@ func (this *GuildManager) Search(key string) (guild_ids []int32) {
 
 func (this *GuildManager) _get_guild(player_id int32, is_president bool) (guild *dbGuildRow) {
 	guild_id := _player_get_guild_id(player_id)
-	guild = this.guilds.GetRow(guild_id)
-	if guild == nil {
-		return
-	}
-	if guild.GetDeleted() {
-		return nil
-	}
-	if is_president && guild.GetPresident() != player_id {
+	guild = this.GetGuild(guild_id)
+	if guild == nil || (is_president && guild.GetPresident() != player_id) {
 		return nil
 	}
 	return guild
@@ -230,8 +238,75 @@ func (this *GuildManager) RemovePlayer(president_id, player_id int32) int32 {
 	return 1
 }
 
-func C2SGuildRecommendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+func _format_guild_base_info_to_msg(guild *dbGuildRow) (msg *msg_client_message.GuildBaseInfo) {
+	msg = &msg_client_message.GuildBaseInfo{
+		Id: guild.GetId(),
+	}
+	return
+}
+
+func (this *Player) send_guild_data() int32 {
+	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
+		log.Error("Player[%v] level not enough to open guild", this.Id)
+		return -1
+	}
+	guild_id := this.db.Guild.GetId()
+	if guild_id <= 0 {
+		log.Error("Player[%v] no guild data", this.Id)
+		return -1
+	}
+	guild := guild_manager.GetGuild(guild_id)
+	if guild == nil {
+		return -1
+	}
+
+	response := &msg_client_message.S2CGuildDataResponse{
+		Info: &msg_client_message.GuildInfo{
+			Id:   guild.GetId(),
+			Name: guild.GetName(),
+		},
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DATA_RESPONSE), response)
 	return 1
+}
+
+func (this *Player) guild_recommend() int32 {
+	if this.db.Guild.GetId() > 0 {
+		log.Error("Player[%v] no need to recommend guild", this.Id)
+		return -1
+	}
+
+	gids := guild_manager.Recommend(this.Id)
+	if gids == nil {
+		return -1
+	}
+
+	var guilds_msg []*msg_client_message.GuildBaseInfo
+	for _, gid := range gids {
+		guild := guild_manager.GetGuild(gid)
+		if guild == nil {
+			continue
+		}
+		guild_msg := _format_guild_base_info_to_msg(guild)
+		guilds_msg = append(guilds_msg, guild_msg)
+	}
+
+	response := &msg_client_message.S2CGuildRecommendResponse{
+		InfoList: guilds_msg,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_RECOMMEND_RESPONSE), response)
+
+	return 1
+}
+
+func C2SGuildRecommendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildRecommendRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%v)", err.Error())
+		return -1
+	}
+	return p.guild_recommend()
 }
 
 func C2SGuildSearchHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

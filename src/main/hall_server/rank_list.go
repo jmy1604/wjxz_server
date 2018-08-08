@@ -93,16 +93,10 @@ func (this *RankList) GetLastRankRange(rank_num int32) (int32, int32) {
 
 // 更新排行榜
 func (this *RankList) UpdateItem(item utils.SkiplistNode) bool {
-	//before_first_item := this.rank_list.GetByRank(1)
 	if !this.rank_list.Update(item) {
 		log.Error("Update rank item[%v] failed", item)
 		return false
 	}
-
-	//this.anouncement_stage_total_score_first_rank(before_first_item)
-
-	//log.Debug("Updated rank list item[%v]", item)
-
 	return true
 }
 
@@ -285,7 +279,7 @@ func (this *RankListManager) DeleteItem2(rank_type int32, key interface{}) bool 
 	return rank_list.DeleteItem(key)
 }
 
-func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []utils.SkiplistNode) (arena_items []*msg_client_message.RankItemInfo) {
+func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []utils.SkiplistNode) (rank_items []*msg_client_message.RankItemInfo) {
 	if rank_type == RANK_LIST_TYPE_ARENA {
 		for i := int32(0); i < int32(len(items)); i++ {
 			item := (items[i]).(*ArenaRankItem)
@@ -303,7 +297,7 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 				PlayerArenaGrade: grade,
 				PlayerPower:      power,
 			}
-			arena_items = append(arena_items, rank_item)
+			rank_items = append(rank_items, rank_item)
 		}
 	} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
 		for i := int32(0); i < int32(len(items)); i++ {
@@ -320,7 +314,7 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 				PlayerHead:             head,
 				PlayerPassedCampaignId: campaign_id,
 			}
-			arena_items = append(arena_items, rank_item)
+			rank_items = append(rank_items, rank_item)
 		}
 	} else {
 		log.Error("invalid rank type[%v] transfer nodes to rank items", rank_type)

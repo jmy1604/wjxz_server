@@ -52,10 +52,16 @@ func (this *HallServer) Init() (ok bool) {
 		return
 	}
 
-	world_chat_mgr.Init()
+	// 世界聊天
+	world_chat_mgr.Init(CHAT_CHANNEL_WORLD)
+	// 公告
 	anouncement_mgr.Init()
+	// 录像
 	battle_record_mgr.Init()
+	// 爬塔排行榜
 	tower_ranking_list.LoadDB()
+	// 公会
+	guild_manager.Init()
 
 	err := this.OnInit()
 	if err != nil {
@@ -87,13 +93,6 @@ func (this *HallServer) OnInit() (err error) {
 		return errors.New("positioin_table init failed")
 	} else {
 		log.Info("position_table init succeed")
-	}
-
-	if !gm_command_mgr.Init() {
-		log.Error("gm_command_mgr init failed")
-		return errors.New("gm_command_mgr init failed !")
-	} else {
-		log.Info("gm_command_mgr init succeed !")
 	}
 
 	if !card_table_mgr.Init() {

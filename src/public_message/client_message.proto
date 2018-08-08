@@ -388,7 +388,7 @@ message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
 	int32 CampaignId						= 3; // 战役ID
-	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务    8 好友切磋
+	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务    8 好友切磋    9 扫荡
 	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID    探索剧情任务ID    好友ID
 	int32 AssistFriendId					= 6; // 助战好友ID
 	int32 AssistRoleId					 	= 7; // 助战角色ID
@@ -411,6 +411,7 @@ message S2CBattleResultResponse {
 	int32 AssistFriendId					= 14; // 助战好友ID
 	int32 AssistRoleId					 	= 15; // 助战角色ID
 	int32 AssistPos							= 16; // 助战角色阵型位置
+	int32 ExtraValue						= 17; // 额外的数据      如果是打好友BOSS, 该值就是BOSS血量百分比
 }
 
 // 请求录像列表
@@ -1249,7 +1250,7 @@ message S2CFriendSetAssistRoleResponse {
 
 // 一键收发友情点 (返回S2CFriendGivePointsResponse和S2CFriendGetPointsResponse两条消息)
 message C2SFriendGiveAndGetPointsRequest {
-	repeated int32 FriendIds				= 1;
+	repeated int32 FriendIds				= 1; // 好友ID
 }
 
 // 获取助战友情点
@@ -1257,7 +1258,7 @@ message C2SFriendGetAssistPointsRequest {
 }
 
 message S2CFriendGetAssistPointsResponse {
-	int32 GetPoints							= 1;
+	int32 GetPoints							= 1; // 获得友情点
 }
 
 // ------------------------------------ 任务 ----------------------------------
@@ -1406,19 +1407,22 @@ message S2CExploreRemoveNotify {
 	bool IsStory							= 2; // 是否剧情任务
 }
 
-// ----------------------------------------------------------------------------
+// ----------------------------------- 聊天 -----------------------------------
 // 发送世界聊天消息
-message C2SWorldChatRequest {
-	bytes Content							= 1; // 内容
+message C2SChatRequest {
+	int32 Channel							= 1; // 频道  1 世界  2 公会  3 招募
+	bytes Content							= 2; // 内容
 }
-message S2CWorldChatResponse {
-	bytes Content							= 1; // 内容
+message S2CChatResponse {
+	int32 Channel							= 1; // 频道  1 世界  2 公会  3 招募
+	bytes Content							= 2; // 内容
 }
 
-// 拉取世界聊天消息
-message C2SWorldChatMsgPullRequest {
+// 拉取聊天消息
+message C2SChatMsgPullRequest {
+	int32 Channel							= 1; // 频道
 }
-message WorldChatItem {
+message ChatItem {
 	bytes Content 							= 1; // 内容
 	int32 PlayerId							= 2; // 玩家ID
 	string PlayerName						= 3; // 玩家名称
@@ -1427,27 +1431,257 @@ message WorldChatItem {
 	int32 IsFriend							= 6; // 是否好友
 	int32 SendTime							= 7; // 发送时间
 }
-message S2CWorldChatMsgPullResponse {
-	repeated WorldChatItem Items			= 1; // 拉取的聊天队列
+message S2CChatMsgPullResponse {
+	int32 Channel							= 1; // 频道
+	repeated ChatItem Items					= 2; // 拉取的聊天队列
 }
 
-// 返回世界聊天封禁时间
-message S2CWorldChatForbid {
-	string EndTime = 1; // 封禁结束时间
+// ----------------------------------- 公会 -----------------------------------
+// 公会数据
+message C2SGuildDataRequest {
 }
 
-// 服务器向客户端同步引导数据
-message S2CSyncGuideData {
-	repeated int32 GuideIds = 1; // 引导数据
+message GuildInfo {
+	int32 Id								= 1; // ID
+	string Name								= 2; // 名称
+	int32 Level								= 3; // 等级
+	int32 Exp								= 4; // 经验
+	int32 Logo								= 5; // 标志
+	string Anouncement						= 6; // 公告
+	int32 DismissRemainSeconds				= 7; // 解散剩余秒数
+	int32 SignRemainSeconds					= 8; // 签到剩余秒数
+	int32 AskDonateRemainSeconds			= 9; // 请求捐赠剩余秒数
+	int32 DonateResetRemainSeconds			= 10; // 捐赠重置剩余秒数
+	int32 DonateNum							= 11; // 已捐赠数
+	int32 MaxDonateNum						= 12; // 最大捐赠数
 }
 
-// 客户端向服务器存储引导数据
-message C2SSaveGuideData {
-	int32 GuideId = 1; // 引导Id
+message S2CGuildDataResponse {
+	GuildInfo Info							= 1; // 信息
 }
 
-// 服务器向客户端返回引导存储
-message S2CRetSaveGuideData {
-	int32 GuideId = 1; // 引导Id
+// 搜索公会
+message C2SGuildSearchRequest {
+	string Key								= 1; // 关键字
 }
 
+message GuildBaseInfo {
+	int32 Id								= 1; // ID
+	string Name					 			= 2; // 名称
+	int32 Level								= 3; // 等级
+	int32 Logo								= 4; // 经验
+	int32 MemberNum							= 5; // 成员数
+	int32 MemberNumLimit					= 6; // 成员上限
+}
+
+message S2CGuildSearchResponse {
+	repeated GuildBaseInfo InfoList			= 1; // 搜索到的公会
+}
+
+// 推荐公会
+message C2SGuildRecommendRequest {
+}
+
+message S2CGuildRecommendResponse {
+	repeated GuildBaseInfo InfoList			= 1; // 推荐的公会
+}
+
+// 创建公会
+message C2SGuildCreateRequest {
+	string GuildName						= 1; // 名称
+	int32 GuildLogo							= 2; // 标志
+}
+
+message S2CGuildCreateResponse {
+	GuildInfo Info	 						= 1; // 信息
+}
+
+// 解散公会
+message C2SGuildDismissRequest {
+}
+
+message S2CGuildDismissResponse {
+	int32 RealDismissRemainSeconds			= 1; // 真正解散剩余时间
+}
+
+// 取消解散公会
+message C2SGuildCancelDismissRequest {
+}
+
+message S2CGuildCancelDismissResponse {
+}
+
+// 公会删除通知
+message S2CGuildDeleteNotify {
+	int32 GuildId							= 1; // ID
+}
+
+// 公会信息修改
+message C2SGuildInfoModifyRequest {
+	string NewGuildName						= 1; // 新名称
+	int32 NewGuildLogo						= 2; // 新Logo
+}
+
+message S2CGuildInfoModifyResponse {
+	string NewGuildName						= 1; // 新名称
+	int32 NewGuildLogo						= 2; // 新Logo
+}
+
+// 公会修改公告
+message C2SGuildAnouncementRequest {
+	string Content							= 1; // 新内容
+}
+
+message S2CGuildAnouncementResponse {
+	string Content							= 1; // 新内容
+}
+
+// 公会成员列表
+message C2SGuildMembersRequest {
+}
+
+message GuildMember {
+	int32 PlayerId							= 1; // 玩家ID
+	string PlayerName						= 2; // 名称
+	int32 Level								= 3; // 等级
+	int32 Head								= 4; // 头像
+	int32 Position							= 5; // 职位类型  1 会长   2 官员   0 会员
+	int32 LastOnlineTime					= 6; // 最近在线时间距离当前时间
+	int32 NextSignRemainSeconds				= 7; // 下次签到剩余时间
+}
+
+message S2CGuildMemebersResponse {
+	repeated GuildMember Members			= 1; // 成员列表
+}
+
+// 公会申请列表
+message C2SGuildAskListRequest {
+}
+
+message S2CGuildAskListResponse {
+	repeated PlayerInfo AskList				= 1; // 申请列表
+}
+
+// 申请加入公会
+message C2SGuildAskJoinRequest {
+	int32 GuildId							= 1; // ID
+}
+
+message S2CGuildAskJoinResponse {
+	GuildInfo Info							= 1; // 公会信息
+}
+
+// 主动退出公会
+message C2SGuildQuitRequest {
+}
+
+message S2CGuildQuitResponse {
+}
+
+// 公会日志
+message C2SGuildLogsRequest {
+}
+
+message GuildLog {
+	int32 Time								= 1; // 记录时间
+	int32 Type 								= 2; // 类型   1 创建联盟  2 成员加入  3 成员脱离   4 成员被踢   5 成员被任命   6 成员被罢免   7 会长转让
+	int32 PlayerId							= 3; // 玩家ID
+	string PlayerName						= 4; // 玩家名称
+}
+
+message S2CGuildLogsResponse {
+	repeated GuildLog Logs					= 1; // 日志列表
+}
+
+// 公会签到
+message C2SGuildSignRequest {
+}
+
+message S2CGuildSignResponse {
+	int32 NextSignRemainSeconds				= 1; // 下次签到剩余秒数
+}
+
+// 公会任命或罢免官员
+message C2SGuildSetOfficerRequest {
+	repeated int32 PlayerIds				= 1; // 玩家ID
+	int32 SetType							= 2; // 1 任命  2 罢免
+}
+
+message S2CGuildSetOfficerRequest {
+	repeated int32 PlayerIds				= 1; // 玩家ID
+	int32 SetType							= 2; // 1 任命  2 罢免
+}
+
+// 公会驱逐会员
+message C2SGuildKickMemberRequest {
+	repeated int32 PlayerIds				= 1; // 玩家ID
+}
+
+message S2CGuildKickMemberResponse {
+	repeated int32 PlayerIds				= 1; // 玩家ID
+}
+
+// 公会转让会长
+message C2SGuildChangePresidentRequest {
+	int32 NewPresidentId					= 1; // 新会长ID
+}
+
+message S2CGuildChangePresidentResponse {
+	int32 NewPresidentId					= 1; // 新会长ID
+}
+
+// 公会招募
+message C2SGuildRecruitRequest {
+	string Content							= 1; // 内容
+}
+
+message S2CGuildRecruitResponse {
+	string Content							= 1; // 内容
+}
+
+// 公会请求捐赠
+message C2SGuildAskDonateRequest {
+	int32 ItemId							= 1; // 碎片ID
+	int32 ItemNum 							= 2; // 碎片数
+}
+
+message S2CGuildAskDonateResponse {
+	int32 ItemId							= 1;
+	int32 ItemNum 							= 2;
+}
+
+// 公会捐赠
+message C2SGuildDonateRequest {
+	int32 PlayerId							= 1; // 被捐赠玩家
+	int32 ItemId							= 2; // 碎片ID
+	int32 ItemNum 							= 3; // 碎片数
+}
+
+message S2CGuildDonateResponse {
+	int32 PlayerId							= 1; // 被捐赠玩家
+	int32 ItemId							= 2; // 碎片
+	int32 ItemNum 							= 3; // 碎片数
+	int32 DonateNum							= 4; // 已捐赠数
+}
+
+// 公会捐赠列表
+message C2SGuildDonateListRequest {
+}
+
+// 请求捐赠玩家信息
+message GuildAskDonateInfo {
+	int32 PlayerId							= 1; // ID
+	string PlayerName						= 2; // 名称
+	int32 PlayerHead						= 3; // 头像
+	int32 PlayerLevel						= 4; // 等级
+	int32 ReceiveItemNum					= 5; // 已接收捐赠数
+	int32 AskTime							= 6; // 请求时间 可以用于排序
+}
+
+message S2CGuildDonateListResponse {
+	repeated GuildAskDonateInfo InfoList	= 1; // 请求捐赠列表
+}
+
+// 公会聊天协议与世界聊天通用
+
+// 

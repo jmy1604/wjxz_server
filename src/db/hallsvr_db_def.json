@@ -603,21 +603,6 @@
 					]
 				},
 				{
-					"DBColumnName":"Guild",
-					"InUse":true,
-					"ColumnName":"Guild",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"Id"},
-						{"Type":"int32","Index":2,"Name":"JoinTime"},
-						{"Type":"int32","Index":3,"Name":"QuitTime"},
-						{"Type":"int32","Index":4,"Name":"SignTime"},
-						{"Type":"int32","Index":5,"Name":"Position"}
-					]
-				},
-				{
 					"DBColumnName":"FriendChatUnreadId",
 					"InUse":true,
 					"ColumnName":"FriendChatUnreadId",
@@ -702,6 +687,23 @@
 						{"Type":"int32","Index":1,"Name":"Id"},
 						{"Type":"int32","Index":2,"Name":"Drawed"}
 					]
+				},
+				{
+					"DBColumnName":"Guild",
+					"InUse":true,
+					"ColumnName":"Guild",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"JoinTime"},
+						{"Type":"int32","Index":3,"Name":"QuitTime"},
+						{"Type":"int32","Index":4,"Name":"SignTime"},
+						{"Type":"int32","Index":5,"Name":"Position"},
+						{"Type":"int32","Index":6,"Name":"DonateNum"},
+						{"Type":"int32","Index":7,"Name":"LastAskDonateTime"}
+					]
 				}
 			]
 		},
@@ -736,8 +738,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Attacker",
@@ -748,8 +749,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Defenser",
@@ -760,8 +760,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"DeleteState",
@@ -772,8 +771,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"IsWin",
@@ -785,8 +783,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"AddScore",
@@ -798,8 +795,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 			]
 		},
@@ -834,8 +830,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Attacker",
@@ -847,8 +842,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"TowerId",
@@ -860,8 +854,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[
-					]
+					"Fields":[]
 				}
 			]
 		},
@@ -933,8 +926,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":"",
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Creater",
@@ -946,8 +938,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"CreateTime",
@@ -959,8 +950,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Logo",
@@ -972,8 +962,7 @@
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Level",
@@ -1000,11 +989,11 @@
 					"Fields":[]
 				},
 				{
-					"ColumnName":"Deleted",
-					"DBColumnName":"Deleted",
+					"ColumnName":"ExistType",
+					"DBColumnName":"ExistType",
 					"InUse":true,
 					"Simple":true,
-					"SimpleType":"bool",
+					"SimpleType":"int32",
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
@@ -1062,6 +1051,18 @@
 						{"Type":"int32","Index":1,"Name":"PlayerId"}
 					]
 				},
+				{
+					"ColumnName":"LastDonateRefreshTime",
+					"DBColumnName":"LastDonateRefreshTime",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				}
 			]
 		},
 		{
@@ -1082,8 +1083,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"Bid",
@@ -1094,8 +1094,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"PlayerId",
@@ -1106,8 +1105,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"PayTime",
@@ -1118,8 +1116,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]		
+					"Fields":[]		
 				}
 			]
 		},
@@ -1141,8 +1138,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Bid",
@@ -1153,8 +1149,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"PlayerId",
@@ -1165,8 +1160,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"PayTime",
@@ -1177,8 +1171,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]		
+					"Fields":[]		
 				}
 			]
 		},
@@ -1200,8 +1193,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Bid",
@@ -1212,8 +1204,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"PlayerId",
@@ -1224,8 +1215,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"PayTime",
@@ -1236,8 +1226,7 @@
 					"Preload":false,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]		
+					"Fields":[]		
 				}
 			]
 		},
@@ -1259,8 +1248,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"CurStartUnix",
@@ -1271,8 +1259,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[						
-					]
+					"Fields":[]
 				}
 			]
 		},
@@ -1294,8 +1281,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"PlayerId",
@@ -1306,8 +1292,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"PlayerName",
@@ -1318,8 +1303,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"LoginTime",
@@ -1330,8 +1314,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				}
 			]
 		},
@@ -1353,8 +1336,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[										
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"Name",
@@ -1365,8 +1347,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[										
-					]		
+					"Fields":[]		
 				},
 				{
 					"ColumnName":"Level",
@@ -1377,8 +1358,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				},
 				{
 					"ColumnName":"Head",
@@ -1389,8 +1369,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
-					"Fields":[
-					]
+					"Fields":[]
 				}
 			]
 		}

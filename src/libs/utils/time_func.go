@@ -25,7 +25,7 @@ func CheckWeekTimeArrival(last_time_point int32, week_time_string string) bool {
 
 	tm, err := time.ParseInLocation("Monday 15:04:05", week_time_string, loc)
 	if err != nil {
-		log.Error("parse shop refresh time format[%v] failed, err[%v]", week_time_string, err.Error())
+		log.Error("parse time format[%v] failed, err[%v]", week_time_string, err.Error())
 		return false
 	}
 
@@ -66,7 +66,7 @@ func CheckDayTimeArrival(last_time_point int32, day_time_string string) bool {
 
 	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
 	if err != nil {
-		log.Error("parse shop refresh time format[%v] failed, err[%v]", day_time_string, err.Error())
+		log.Error("parse time format[%v] failed, err[%v]", day_time_string, err.Error())
 		return false
 	}
 	hour := tm.Hour()
@@ -99,7 +99,7 @@ func GetRemainSeconds2NextDayTime(last_time_point int32, day_time_string string)
 
 	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
 	if err != nil {
-		log.Error("parse shop refresh time format[%v] failed, err[%v]", day_time_string, err.Error())
+		log.Error("parse time format[%v] failed, err[%v]", day_time_string, err.Error())
 		return -1
 	}
 
@@ -137,7 +137,7 @@ func GetRemainSeconds2NextSeveralDaysTime(last_save int32, day_time_string strin
 
 	tm, err := time.ParseInLocation("15:04:05", day_time_string, loc)
 	if err != nil {
-		log.Error("parse shop refresh time format[%v] failed, err[%v]", day_time_string, err.Error())
+		log.Error("parse time format[%v] failed, err[%v]", day_time_string, err.Error())
 		return -1
 	}
 

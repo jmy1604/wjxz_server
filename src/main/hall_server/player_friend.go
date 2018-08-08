@@ -827,6 +827,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		HasNextWave:         has_next_wave,
 		BattleType:          5,
 		BattleParam:         friend_id,
+		ExtraValue:          p.db.FriendCommon.GetFriendBossHpPercent(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

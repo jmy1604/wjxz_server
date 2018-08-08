@@ -47,9 +47,6 @@ var shutingdown bool
 var dbc DBC
 
 func after_center_match_conn() {
-
-	gm_command_mgr.AfterCenterMatchConn()
-
 	if signal_mgr.IfClosing() {
 		return
 	}

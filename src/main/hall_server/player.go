@@ -123,12 +123,10 @@ type Player struct {
 	assist_role_pos        int32                                 // 助战角色位置
 	assist_friend          *Player                               // 助战好友
 	assist_member          *TeamMember                           // 助战成员
-
-	world_chat_data  PlayerWorldChatData   // 世界聊天缓存数据
-	anouncement_data PlayerAnouncementData // 公告缓存数据
-
-	inited    bool // 是否已初始化
-	is_logout bool // 是否已下线
+	world_chat_data        PlayerWorldChatData                   // 世界聊天缓存数据
+	anouncement_data       PlayerAnouncementData                 // 公告缓存数据
+	inited                 bool                                  // 是否已初始化
+	is_logout              bool                                  // 是否已下线
 }
 
 func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
@@ -328,7 +326,6 @@ func (this *Player) OnLogin() {
 		conn_timer_wheel.Insert(this.Id)
 	}
 
-	gm_command_mgr.OnPlayerLogin(this)
 	this.ChkPlayerDailyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))
 	friend_recommend_mgr.AddPlayer(this.Id)
@@ -494,39 +491,6 @@ func (this *Player) SetTeam(team_type int32, team []int32) int32 {
 	}
 	return 1
 }
-
-/*func (this *Player) SetAttackTeam(team []int32) int32 {
-	if team == nil {
-		return -1
-	}
-
-	used_id := make(map[int32]bool)
-	for i := 0; i < len(team); i++ {
-		if team[i] <= 0 {
-			continue
-		}
-		if _, o := used_id[team[i]]; o {
-			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
-		}
-		used_id[team[i]] = true
-	}
-
-	for i := 0; i < len(team); i++ {
-		if i >= BATTLE_TEAM_MEMBER_MAX_NUM {
-			break
-		}
-		if team[i] <= 0 {
-			continue
-		}
-		if !this.db.Roles.HasIndex(team[i]) {
-			log.Warn("Player[%v] not has role[%v] for set attack team", this.Id, team[i])
-			return int32(msg_client_message.E_ERR_PLAYER_SET_ATTACK_MEMBERS_FAILED)
-		}
-		//this.db.Roles.SetIsLock(team[i], 1)
-	}
-	this.db.BattleTeam.SetAttackMembers(team)
-	return 1
-}*/
 
 func (this *Player) SetCampaignTeam(team []int32) int32 {
 	if team == nil {

@@ -346,14 +346,6 @@ message PlayerExploreStoryList{
 	repeated PlayerExploreStory List=1;
 }
 
-message PlayerGuild{
-	optional int32 Id=1;
-	optional int32 JoinTime=2;
-	optional int32 QuitTime=3;
-	optional int32 SignTime=4;
-	optional int32 Position=5;
-}
-
 message PlayerFriendChatUnreadId{
 	optional int32 FriendId=1;
 	repeated int32 MessageIds=2;
@@ -411,6 +403,16 @@ message PlayerFirstDrawCardList{
 	repeated PlayerFirstDrawCard List=1;
 }
 
+message PlayerGuild{
+	optional int32 Id=1;
+	optional int32 JoinTime=2;
+	optional int32 QuitTime=3;
+	optional int32 SignTime=4;
+	optional int32 Position=5;
+	optional int32 DonateNum=6;
+	optional int32 LastAskDonateTime=7;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }
@@ -442,5 +444,8 @@ message GuildAskList{
 
 message GuildAskListList{
 	repeated GuildAskList List=1;
+}
+
+message GuildLastDonateRefreshTime{
 }
 
