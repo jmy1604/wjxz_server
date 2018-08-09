@@ -313,10 +313,17 @@ func (this *Player) guild_search(key string) int32 {
 		return -1
 	}
 
+	var guilds_msg []*msg_client_message.GuildBaseInfo
 	guild_ids := guild_manager.Search(key)
 	if guild_ids != nil {
-
+		guilds_msg = _format_guilds_base_info_to_msg(guild_ids)
+	} else {
+		guilds_msg = make([]*msg_client_message.GuildBaseInfo, 0)
 	}
+	response := &msg_client_message.S2CGuildSearchResponse{
+		InfoList: guilds_msg,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_SEARCH_RESPONSE), response)
 	return 1
 }
 

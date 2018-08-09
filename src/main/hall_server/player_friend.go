@@ -231,7 +231,7 @@ func (this *Player) _format_friend_info(p *Player, now_time int32) (friend_info 
 		OfflineSeconds:          offline_seconds,
 		RemainGivePointsSeconds: remain_seconds,
 		BossId:                  p.db.FriendCommon.GetFriendBossTableId(),
-		BossHpPercent:           p.db.FriendCommon.GetFriendBossHpPercent(),
+		BossHpPercent:           p.get_friend_boss_hp_percent(),
 		Power:                   p.get_defense_team_power(),
 		GetPoints:               get_points,
 	}
@@ -700,10 +700,7 @@ func (this *Player) get_friends_boss_list() int32 {
 			continue
 		}
 
-		hp_percent := p.db.FriendCommon.GetFriendBossHpPercent()
-		if hp_percent == 0 {
-			hp_percent = 100
-		}
+		hp_percent := p.get_friend_boss_hp_percent()
 		friend_boss_info := &msg_client_message.FriendBossInfo{
 			FriendId:            friend_ids[i],
 			FriendBossTableId:   friend_boss_table_id,
