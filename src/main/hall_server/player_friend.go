@@ -748,20 +748,14 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FIGHTING)
 	}
 
-	last_refresh_time := p.db.FriendCommon.GetLastBossRefreshTime()
-	if last_refresh_time == 0 {
-		log.Error("Player[%v] fight friend[%v] boss not found")
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NOT_FOUND)
-	}
-
-	now_time := int32(time.Now().Unix())
-	if now_time-last_refresh_time >= global_config.FriendSearchBossRefreshHours*3600 {
-		p.cancel_friend_boss_fight()
-		log.Error("Player[%v] friend boss is finished, wait to next refresh", p.Id)
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FINISHED)
-	}
-
+	// 获取好友BOSS
 	friend_boss_table_id := p.db.FriendCommon.GetFriendBossTableId()
+	if friend_boss_table_id == 0 {
+		p.cancel_friend_boss_fight()
+		log.Error("Player[%v] fight friend[%v] boss is finished or not refreshed", this.Id, friend_id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FIGHTING)
+	}
+
 	friend_boss_tdata := friend_boss_table_mgr.Get(friend_boss_table_id)
 	if friend_boss_tdata == nil {
 		p.cancel_friend_boss_fight()
@@ -776,41 +770,94 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 
-	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(5, stage, p)
-	if err < 0 {
-		p.cancel_friend_boss_fight()
-		log.Error("Player[%v] fight friend %v boss %v failed, team is empty", this.Id, friend_id, friend_boss_table_id)
-		return err
+	// 未刷新
+	last_refresh_time := p.db.FriendCommon.GetLastBossRefreshTime()
+	if last_refresh_time == 0 {
+		log.Error("Player[%v] fight friend[%v] boss not found")
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NOT_FOUND)
 	}
 
-	// 助战玩家列表
-	attack_list := p.db.FriendCommon.GetAttackBossPlayerList()
-	if attack_list == nil {
-		attack_list = []int32{this.Id}
-		p.db.FriendCommon.SetAttackBossPlayerList(attack_list)
+	now_time := int32(time.Now().Unix())
+	if now_time-last_refresh_time >= global_config.FriendSearchBossRefreshHours*3600 {
+		p.cancel_friend_boss_fight()
+		log.Error("Player[%v] friend boss is finished, wait to next refresh", p.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FINISHED)
+	}
+
+	// 体力
+	var need_stamina int32
+	if p.sweep_num == 0 {
+		need_stamina = global_config.FriendBossAttackCostStamina
 	} else {
-		has := false
-		for i := 0; i < len(attack_list); i++ {
-			if attack_list[i] == this.Id {
-				has = true
-				break
+		need_stamina = global_config.FriendBossAttackCostStamina * p.sweep_num
+	}
+	if this.get_resource(global_config.FriendStaminaItemId) < need_stamina {
+		p.cancel_friend_boss_fight()
+		log.Error("Player[%v] friend stamina item not enough", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_STAMINA_NOT_ENOUGH)
+	}
+
+	var fight_num int32
+	if p.sweep_num == 0 {
+		fight_num = 1
+	} else {
+		fight_num = p.sweep_num
+	}
+
+	var err, n int32
+	var is_win, has_next_wave bool
+	var my_team, target_team []*msg_client_message.BattleMemberItem
+	var enter_reports []*msg_client_message.BattleReportItem
+	var rounds []*msg_client_message.BattleRoundReports
+	var reward_items map[int32]int32
+	for ; n < fight_num; n++ {
+		err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave = this.FightInStage(5, stage, p)
+		if err < 0 {
+			p.cancel_friend_boss_fight()
+			log.Error("Player[%v] fight friend %v boss %v failed, team is empty", this.Id, friend_id, friend_boss_table_id)
+			return err
+		}
+
+		// 助战玩家列表
+		attack_list := p.db.FriendCommon.GetAttackBossPlayerList()
+		if attack_list == nil {
+			attack_list = []int32{this.Id}
+			p.db.FriendCommon.SetAttackBossPlayerList(attack_list)
+		} else {
+			has := false
+			for i := 0; i < len(attack_list); i++ {
+				if attack_list[i] == this.Id {
+					has = true
+					break
+				}
+			}
+			if !has {
+				attack_list = append(attack_list, this.Id)
+				p.db.FriendCommon.SetAttackBossPlayerList(attack_list)
 			}
 		}
-		if !has {
-			attack_list = append(attack_list, this.Id)
-			p.db.FriendCommon.SetAttackBossPlayerList(attack_list)
+
+		if is_win {
+			if p.sweep_num > 0 {
+				break
+			}
+		} else {
+			o, item := this.drop_item_by_id(friend_boss_tdata.ChallengeDropID, true, nil)
+			if !o {
+				log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, friend_boss_tdata.ChallengeDropID)
+			}
+			if reward_items == nil {
+				reward_items = make(map[int32]int32)
+			}
+			reward_items[item.ItemCfgId] += item.ItemNum
 		}
 	}
 
 	// 退出挑战
 	p.cancel_friend_boss_fight()
 
-	if enter_reports == nil {
-		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
-	}
-	if rounds == nil {
-		rounds = make([]*msg_client_message.BattleRoundReports, 0)
-	}
+	// 实际消耗体力
+	this.add_resource(global_config.FriendStaminaItemId, n*global_config.FriendBossAttackCostStamina)
 
 	member_damages := this.friend_boss_team.common_data.members_damage
 	member_cures := this.friend_boss_team.common_data.members_cure
@@ -827,25 +874,33 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		HasNextWave:         has_next_wave,
 		BattleType:          5,
 		BattleParam:         friend_id,
+		SweepNum:            p.sweep_num,
 		ExtraValue:          p.get_friend_boss_hp_percent(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
 	// 最后一击
 	if is_win {
+		p.db.FriendCommon.SetFriendBossTableId(0)
 		this.send_stage_reward(stage, 5)
 		SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Friend Boss Last Hit Reward", "Friend Boss Last Hit Reward", friend_boss_tdata.RewardLastHit)
 		SendMail2(nil, friend_id, MAIL_TYPE_SYSTEM, "Friend Boss Reward Owner", "Friend Boss Reward Owner", friend_boss_tdata.RewardOwner)
 	} else {
-		o, item := this.drop_item_by_id(friend_boss_tdata.ChallengeDropID, true, nil)
-		if !o {
-			log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, friend_boss_tdata.ChallengeDropID)
-			return -1
+		if reward_items != nil {
+			var items []*msg_client_message.ItemInfo
+			for k, v := range reward_items {
+				items = append(items, &msg_client_message.ItemInfo{
+					ItemCfgId: k,
+					ItemNum:   v,
+				})
+			}
+			if items != nil {
+				notify := &msg_client_message.S2CFriendBossAttackRewardNotify{
+					Items: items,
+				}
+				this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_BOSS_ATTACK_REWARD_NOTIFY), notify)
+			}
 		}
-		notify := &msg_client_message.S2CFriendBossAttackRewardNotify{
-			Items: []*msg_client_message.ItemInfo{item},
-		}
-		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_BOSS_ATTACK_REWARD_NOTIFY), notify)
 	}
 
 	Output_S2CBattleResult(this, response)
@@ -946,7 +1001,7 @@ func (this *Player) friend_data(send bool) int32 {
 	if send {
 		last_refresh_boss_time := this.db.FriendCommon.GetLastBossRefreshTime()
 		now_time := int32(time.Now().Unix())
-		remain_seconds := global_config.FriendSearchBossRefreshHours*3600 - (now_time - last_refresh_boss_time)
+		remain_seconds = global_config.FriendSearchBossRefreshHours*3600 - (now_time - last_refresh_boss_time)
 		if remain_seconds < 0 {
 			remain_seconds = 0
 		}
@@ -963,9 +1018,9 @@ func (this *Player) friend_data(send bool) int32 {
 			AssistRoleId:            this.db.FriendCommon.GetAssistRoleId(),
 		}
 		this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_DATA_RESPONSE), response)
-	}
 
-	log.Debug("Player[%v] friend data, add stamina %v, remain seconds to next stamina %v", this.Id, add_stamina, remain_seconds)
+		log.Debug("Player[%v] friend data %v", this.Id, response)
+	}
 
 	return 1
 }

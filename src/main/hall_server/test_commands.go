@@ -1389,6 +1389,16 @@ func friend_fight_cmd(p *Player, args []string) int32 {
 	if err != nil {
 		return -1
 	}
+
+	var sweep_num int
+	if len(args) > 1 {
+		sweep_num, err = strconv.Atoi(args[1])
+		if err != nil {
+			return -1
+		}
+	}
+
+	p.sweep_num = int32(sweep_num)
 	return p.friend_boss_challenge(int32(friend_id))
 }
 

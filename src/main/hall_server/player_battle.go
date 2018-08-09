@@ -683,11 +683,10 @@ func (this *BattleTeam) UpdateFriendBossHP() {
 		boss = this.members[i]
 	}
 	if boss != nil {
-		r := float64(boss.hp) / float64(boss.attrs[ATTR_HP_MAX])
-		if r < 0.01 {
-			r = 0.01
+		percent := int32(100 * boss.hp / boss.attrs[ATTR_HP_MAX])
+		if percent <= 0 {
+			percent = 1
 		}
-		percent := int32(100 * r)
 		this.friend.db.FriendCommon.SetFriendBossHpPercent(percent)
 		log.Debug("!!!!!!!!!!!!!!!!!!!!!!!! Update player[%v] friend boss hp percent %v", this.friend.Id, percent)
 	}
@@ -988,6 +987,8 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 	return res
 }
 
+const PLAYER_SWEEP_MAX_NUM int32 = 10
+
 func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SBattleResultRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -1002,6 +1003,13 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 		req.BattleType = 2
 		req.BattleParam = req.GetCampaignId()
 	}
+
+	if req.GetSweepNum() < 0 || req.GetSweepNum() > PLAYER_SWEEP_MAX_NUM {
+		log.Error("Player[%v] sweep num %v invalid", p.Id, req.GetSweepNum())
+		return -1
+	}
+
+	p.sweep_num = req.GetSweepNum()
 	return p.fight(req.GetAttackMembers(), req.GetBattleType(), req.GetBattleParam(), req.GetAssistFriendId(), req.GetAssistRoleId(), req.GetAssistPos())
 }
 
