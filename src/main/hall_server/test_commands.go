@@ -15,6 +15,24 @@ import (
 	_ "github.com/yuin/gopher-lua"
 )
 
+func set_level_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+	var level int
+	var err error
+	level, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	p.db.Info.SetLvl(int32(level))
+	p.b_base_prop_chg = true
+	p.send_info()
+	return 1
+}
+
 func test_lua_cmd(p *Player, args []string) int32 {
 	/*L := lua.NewState(lua.Options{SkipOpenLibs: true})
 	defer L.Close()
@@ -1656,6 +1674,7 @@ func explore_speedup_cmd(p *Player, args []string) int32 {
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
+	"set_level":           set_level_cmd,
 	"test_lua":            test_lua_cmd,
 	"rand_role":           rand_role_cmd,
 	"new_role":            new_role_cmd,

@@ -189,7 +189,6 @@ func (this *Player) add_exp(add int32) (level, exp int32) {
 		exp = math.MaxInt32
 	}
 
-	max_level := 200
 	level = this.db.Info.GetLvl()
 	for {
 		lvl_data := levelup_table_mgr.Get(level)
@@ -204,9 +203,6 @@ func (this *Player) add_exp(add int32) (level, exp int32) {
 		}
 		exp -= lvl_data.PlayerLevelUpExp
 		level += 1
-		if int(level) > max_level {
-			break
-		}
 	}
 
 	if exp != this.db.Info.GetExp() {
