@@ -12705,6 +12705,18 @@ func (this *dbGuildRow)SetCreateTime(v int32){
 	this.m_CreateTime_changed=true
 	return
 }
+func (this *dbGuildRow)GetDismissTime( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildDismissTimeColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_DismissTime)
+}
+func (this *dbGuildRow)SetDismissTime(v int32){
+	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildDismissTimeColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_DismissTime=int32(v)
+	this.m_DismissTime_changed=true
+	return
+}
 func (this *dbGuildRow)GetLogo( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildLogoColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -13094,6 +13106,8 @@ type dbGuildRow struct {
 	m_Creater int32
 	m_CreateTime_changed bool
 	m_CreateTime int32
+	m_DismissTime_changed bool
+	m_DismissTime int32
 	m_Logo_changed bool
 	m_Logo int32
 	m_Level_changed bool
@@ -13118,6 +13132,7 @@ func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this.m_Name_changed=true
 	this.m_Creater_changed=true
 	this.m_CreateTime_changed=true
+	this.m_DismissTime_changed=true
 	this.m_Logo_changed=true
 	this.m_Level_changed=true
 	this.m_Exp_changed=true
@@ -13139,11 +13154,12 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 	this.m_lock.UnSafeLock("dbGuildRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(13)
+		db_args:=new_db_args(14)
 		db_args.Push(this.m_Id)
 		db_args.Push(this.m_Name)
 		db_args.Push(this.m_Creater)
 		db_args.Push(this.m_CreateTime)
+		db_args.Push(this.m_DismissTime)
 		db_args.Push(this.m_Logo)
 		db_args.Push(this.m_Level)
 		db_args.Push(this.m_Exp)
@@ -13171,9 +13187,9 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Name_changed||this.m_Creater_changed||this.m_CreateTime_changed||this.m_Logo_changed||this.m_Level_changed||this.m_Exp_changed||this.m_ExistType_changed||this.m_Anouncement_changed||this.m_President_changed||this.Members.m_changed||this.AskLists.m_changed||this.LastDonateRefreshTime.m_changed{
+		if this.m_Name_changed||this.m_Creater_changed||this.m_CreateTime_changed||this.m_DismissTime_changed||this.m_Logo_changed||this.m_Level_changed||this.m_Exp_changed||this.m_ExistType_changed||this.m_Anouncement_changed||this.m_President_changed||this.Members.m_changed||this.AskLists.m_changed||this.LastDonateRefreshTime.m_changed{
 			update_string = "UPDATE Guilds SET "
-			db_args:=new_db_args(13)
+			db_args:=new_db_args(14)
 			if this.m_Name_changed{
 				update_string+="Name=?,"
 				db_args.Push(this.m_Name)
@@ -13185,6 +13201,10 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 			if this.m_CreateTime_changed{
 				update_string+="CreateTime=?,"
 				db_args.Push(this.m_CreateTime)
+			}
+			if this.m_DismissTime_changed{
+				update_string+="DismissTime=?,"
+				db_args.Push(this.m_DismissTime)
 			}
 			if this.m_Logo_changed{
 				update_string+="Logo=?,"
@@ -13248,6 +13268,7 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 	this.m_Name_changed = false
 	this.m_Creater_changed = false
 	this.m_CreateTime_changed = false
+	this.m_DismissTime_changed = false
 	this.m_Logo_changed = false
 	this.m_Level_changed = false
 	this.m_Exp_changed = false
@@ -13403,6 +13424,14 @@ func (this *dbGuildTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasDismissTime := columns["DismissTime"]
+	if !hasDismissTime {
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN DismissTime int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN DismissTime failed")
+			return
+		}
+	}
 	_, hasLogo := columns["Logo"]
 	if !hasLogo {
 		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Logo int(11) DEFAULT 0")
@@ -13478,7 +13507,7 @@ func (this *dbGuildTable) check_create_table() (err error) {
 	return
 }
 func (this *dbGuildTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Name,Creater,CreateTime,Logo,Level,Exp,ExistType,Anouncement,President,Members,AskLists,LastDonateRefreshTime FROM Guilds")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Name,Creater,CreateTime,DismissTime,Logo,Level,Exp,ExistType,Anouncement,President,Members,AskLists,LastDonateRefreshTime FROM Guilds")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13486,7 +13515,7 @@ func (this *dbGuildTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbGuildTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Guilds (Id,Name,Creater,CreateTime,Logo,Level,Exp,ExistType,Anouncement,President,Members,AskLists,LastDonateRefreshTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Guilds (Id,Name,Creater,CreateTime,DismissTime,Logo,Level,Exp,ExistType,Anouncement,President,Members,AskLists,LastDonateRefreshTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -13542,6 +13571,7 @@ func (this *dbGuildTable) Preload() (err error) {
 	var dName string
 	var dCreater int32
 	var dCreateTime int32
+	var dDismissTime int32
 	var dLogo int32
 	var dLevel int32
 	var dExp int32
@@ -13552,7 +13582,7 @@ func (this *dbGuildTable) Preload() (err error) {
 	var dAskLists []byte
 	var dLastDonateRefreshTime []byte
 	for r.Next() {
-		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dLogo,&dLevel,&dExp,&dExistType,&dAnouncement,&dPresident,&dMembers,&dAskLists,&dLastDonateRefreshTime)
+		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dDismissTime,&dLogo,&dLevel,&dExp,&dExistType,&dAnouncement,&dPresident,&dMembers,&dAskLists,&dLastDonateRefreshTime)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -13566,6 +13596,7 @@ func (this *dbGuildTable) Preload() (err error) {
 		row.m_Name=dName
 		row.m_Creater=dCreater
 		row.m_CreateTime=dCreateTime
+		row.m_DismissTime=dDismissTime
 		row.m_Logo=dLogo
 		row.m_Level=dLevel
 		row.m_Exp=dExp
@@ -13590,6 +13621,7 @@ func (this *dbGuildTable) Preload() (err error) {
 		row.m_Name_changed=false
 		row.m_Creater_changed=false
 		row.m_CreateTime_changed=false
+		row.m_DismissTime_changed=false
 		row.m_Logo_changed=false
 		row.m_Level_changed=false
 		row.m_Exp_changed=false

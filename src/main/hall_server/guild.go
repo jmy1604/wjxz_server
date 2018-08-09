@@ -2,7 +2,7 @@ package main
 
 import (
 	"libs/log"
-	_ "libs/utils"
+	"libs/utils"
 	_ "main/table_config"
 	"math/rand"
 	"net/http"
@@ -90,7 +90,8 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 
 func (this *GuildManager) GetGuild(guild_id int32) *dbGuildRow {
 	guild := this.guilds.GetRow(guild_id)
-	if guild.GetExistType() > GUILD_EXIST_TYPE_WILL_DELETE {
+	exist_type := _guild_get_exist_type(guild)
+	if exist_type == GUILD_EXIST_TYPE_DELETED {
 		return nil
 	}
 	return guild
@@ -105,6 +106,11 @@ func (this *GuildManager) Recommend(player_id int32) (guild_ids []int32) {
 
 	this.guild_ids_locker.RLock()
 	defer this.guild_ids_locker.RUnlock()
+
+	if this.guild_num == 0 {
+		log.Error("No guild to recommend")
+		return
+	}
 
 	rand.Seed(time.Now().Unix() + time.Now().UnixNano())
 
@@ -261,6 +267,42 @@ func _format_guilds_base_info_to_msg(guild_ids []int32) (guilds_msg []*msg_clien
 	return
 }
 
+func _guild_get_dismiss_remain_seconds(guild *dbGuildRow) (dismiss_remain_seconds int32) {
+	if guild.GetExistType() == GUILD_EXIST_TYPE_WILL_DELETE {
+		dismiss_time := guild.GetDismissTime()
+		dismiss_remain_seconds = GetRemainSeconds(dismiss_time, global_config.GuildDismissWaitingSeconds)
+		if dismiss_remain_seconds == 0 {
+			guild.SetExistType(GUILD_EXIST_TYPE_DELETED)
+		}
+	}
+	return
+}
+
+func _guild_get_exist_type(guild *dbGuildRow) int32 {
+	_guild_get_dismiss_remain_seconds(guild)
+	return guild.GetExistType()
+}
+
+func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_client_message.GuildInfo) {
+	var dismiss_remain_seconds, sign_remain_seconds, ask_donate_remain_seconds, donate_reset_remain_seconds int32
+	dismiss_remain_seconds = _guild_get_dismiss_remain_seconds(guild)
+	sign_remain_seconds = utils.GetRemainSeconds2NextDayTime(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime)
+	ask_donate_remain_seconds = GetRemainSeconds(this.db.Guild.GetLastAskDonateTime(), global_config.GuildAskDonateCDSecs)
+	msg = &msg_client_message.GuildInfo{
+		Id:                       guild.GetId(),
+		Name:                     guild.GetName(),
+		Level:                    guild.GetLevel(),
+		Exp:                      guild.GetExp(),
+		Logo:                     guild.GetLogo(),
+		Anouncement:              guild.GetAnouncement(),
+		DismissRemainSeconds:     dismiss_remain_seconds,
+		SignRemainSeconds:        sign_remain_seconds,
+		AskDonateRemainSeconds:   ask_donate_remain_seconds,
+		DonateResetRemainSeconds: donate_reset_remain_seconds,
+	}
+	return
+}
+
 func (this *Player) send_guild_data() int32 {
 	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
 		log.Error("Player[%v] level not enough to open guild", this.Id)
@@ -327,6 +369,64 @@ func (this *Player) guild_search(key string) int32 {
 	return 1
 }
 
+func (this *Player) guild_create(name string, logo int32) int32 {
+	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
+		log.Error("Player[%v] cant create guild because level not enough", this.Id)
+		return -1
+	}
+	guild_id := guild_manager.CreateGuild(this.Id, name, logo)
+	guild := guild_manager.GetGuild(guild_id)
+	guild_msg := this._format_guild_info_to_msg(guild)
+	response := &msg_client_message.S2CGuildCreateResponse{
+		Info: guild_msg,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_CREATE_RESPONSE), response)
+	return 1
+}
+
+func (this *Player) get_guild() (guild *dbGuildRow) {
+	guild_id := this.db.Guild.GetId()
+	if guild_id <= 0 {
+		return
+	}
+	return guild_manager.GetGuild(guild_id)
+}
+
+func (this *Player) guild_dismiss() int32 {
+	guild := guild_manager._get_guild(this.Id, true)
+	if guild == nil {
+		log.Error("Player[%v] cant dismiss guild", this.Id)
+		return -1
+	}
+	if guild.GetExistType() != GUILD_EXIST_TYPE_NONE {
+		log.Error("Player[%v] cant dismiss guild because guild exist type is %v", this.Id, guild.GetExistType())
+		return -1
+	}
+	guild.SetDismissTime(int32(time.Now().Unix()))
+	response := &msg_client_message.S2CGuildDismissResponse{
+		RealDismissRemainSeconds: global_config.GuildDismissWaitingSeconds,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DISMISS_RESPONSE), response)
+	return 1
+}
+
+func (this *Player) guild_cancel_dismiss() int32 {
+	guild := guild_manager._get_guild(this.Id, true)
+	if guild == nil {
+		log.Error("Player[%v] cant cancel dismissing guild", this.Id)
+		return -1
+	}
+	if guild.GetExistType() != GUILD_EXIST_TYPE_WILL_DELETE {
+		log.Error("Player[%v] cant cancel dismissing guild because guild exit type is %v", this.Id, guild.GetExistType())
+		return -1
+	}
+	guild.SetDismissTime(0)
+	guild.SetExistType(GUILD_EXIST_TYPE_NONE)
+	response := &msg_client_message.S2CGuildCancelDismissResponse{}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_CANCEL_DISMISS_RESPONSE), response)
+	return 1
+}
+
 func C2SGuildDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
 	var req msg_client_message.C2SGuildDataRequest
 	err := proto.Unmarshal(msg_data, &req)
@@ -348,5 +448,43 @@ func C2SGuildRecommendHandler(w http.ResponseWriter, r *http.Request, p *Player,
 }
 
 func C2SGuildSearchHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
-	return 1
+	var req msg_client_message.C2SGuildSearchRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%v)", err.Error())
+		return -1
+	}
+	return p.guild_search(req.GetKey())
+}
+
+func C2SGuildCreateHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildCreateRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%v)", err.Error())
+		return -1
+	}
+
+	return p.guild_create(req.GetGuildName(), req.GetGuildLogo())
+}
+
+func C2SGuildDismissHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildDismissRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%v)", err.Error())
+		return -1
+	}
+
+	return p.guild_dismiss()
+}
+
+func C2SGuildCancelDismissHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildCancelDismissRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%v)")
+		return -1
+	}
+	return p.guild_cancel_dismiss()
 }

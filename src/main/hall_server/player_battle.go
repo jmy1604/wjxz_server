@@ -718,6 +718,7 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	if end_type == BATTLE_END_BY_ALL_DEAD {
 		round_max = BATTLE_ROUND_MAX_NUM
 	} else if end_type == BATTLE_END_BY_ROUND_OVER {
+		round_max = end_param
 	}
 
 	// 存放战报

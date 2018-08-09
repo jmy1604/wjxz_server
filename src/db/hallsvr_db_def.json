@@ -953,6 +953,18 @@
 					"Fields":[]
 				},
 				{
+					"ColumnName":"DismissTime",
+					"DBColumnName":"DismissTime",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
 					"ColumnName":"Logo",
 					"DBColumnName":"Logo",
 					"InUse":true,

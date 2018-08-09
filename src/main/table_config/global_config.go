@@ -97,6 +97,8 @@ type GlobalConfig struct {
 	GuildDonateLimitDay                  int32      // 公会每天捐献上限
 	GuildStageResetCDSecs                int32      // 公会副本重置CD
 	GuildStageResurrectionGem            []int32    // 公会副本复活消耗钻石
+	GuildDismissWaitingSeconds           int32      // 公会解散等待秒数
+	GuildSignRefreshTime                 string     // 公会签到刷新时间点
 
 	GooglePayUrl       string
 	FaceBookPayUrl     string

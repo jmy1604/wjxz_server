@@ -199,7 +199,7 @@ func (this *Player) role_is_using(role_id int32) bool {
 
 	// 是否在探索任务中
 	state, _ := this.db.Roles.GetState(role_id)
-	if state == ROLE_STATE_NONE {
+	if state != ROLE_STATE_NONE {
 		return true
 	}
 
@@ -212,10 +212,12 @@ func (this *Player) delete_role(role_id int32) bool {
 	}
 	is_lock, _ := this.db.Roles.GetIsLock(role_id)
 	if is_lock > 0 {
+		log.Warn("Player[%v] role[%v] is locked, cant delete", this.Id, role_id)
 		return false
 	}
 
 	if this.role_is_using(role_id) {
+		log.Warn("Player[%v] role[%v] is using, cant delete", this.Id, role_id)
 		return false
 	}
 

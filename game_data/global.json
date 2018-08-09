@@ -51,10 +51,10 @@
 	"FriendPointItemId": 9,
 	"FriendPointsOnceGive": 20,
 	"FriendStaminaItemId": 12,
-	"FriendStaminaLimit": 100,
+	"FriendStaminaLimit": 10,
 	"FriendStartStamina": 10,
 	"FriendStaminaResumeOnePointNeedHours": 2,
-	"FriendBossAttackCostStamina": 10,
+	"FriendBossAttackCostStamina": 1,
 	"FriendBossAttackCooldown": 3600,
 	"FriendRefreshTime": "00:00:00",
 	"FriendSearchBossRefreshHours": 8,
@@ -97,5 +97,7 @@
 	"GuildQuitAskJoinCDSecs": 25200,
 	"GuildDonateLimitDay": 180,
 	"GuildStageResetCDSecs": 17800,
-	"GuildStageResurrectionGem": [0,100,200]
+	"GuildStageResurrectionGem": [0,100,200],
+	"GuildDismissWaitingSeconds": 7200,
+	"GuildSignRefreshTime":"00:00:00"
 }
