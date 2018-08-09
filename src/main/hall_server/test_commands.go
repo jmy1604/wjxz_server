@@ -1399,6 +1399,7 @@ func friend_fight_cmd(p *Player, args []string) int32 {
 	}
 
 	p.sweep_num = int32(sweep_num)
+	p.curr_sweep = 0
 	return p.friend_boss_challenge(int32(friend_id))
 }
 

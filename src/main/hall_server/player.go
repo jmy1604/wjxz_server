@@ -128,6 +128,7 @@ type Player struct {
 	inited                 bool                                  // 是否已初始化
 	is_logout              bool                                  // 是否已下线
 	sweep_num              int32                                 // 扫荡次数
+	curr_sweep             int32                                 // 已扫荡次数
 }
 
 func new_player(id int32, account, token string, db *dbPlayerRow) *Player {

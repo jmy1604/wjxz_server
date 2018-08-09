@@ -732,6 +732,10 @@ func (this *Player) cancel_friend_boss_fight() bool {
 
 // 挑战好友BOSS
 func (this *Player) friend_boss_challenge(friend_id int32) int32 {
+	if friend_id == 0 {
+		friend_id = this.Id
+	}
+
 	p := player_mgr.GetPlayerById(friend_id)
 	if p == nil {
 		log.Error("Player[%v] not found", friend_id)
@@ -740,6 +744,12 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 
 	if friend_id == this.Id {
 		p = this
+	}
+
+	last_refresh_time := p.db.FriendCommon.GetLastBossRefreshTime()
+	if last_refresh_time == 0 {
+		log.Error("Player[%v] fight friend[%v] boss not found")
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NOT_FOUND)
 	}
 
 	// 是否正在挑战好友BOSS
@@ -771,18 +781,12 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	}
 
 	// 未刷新
-	last_refresh_time := p.db.FriendCommon.GetLastBossRefreshTime()
-	if last_refresh_time == 0 {
-		log.Error("Player[%v] fight friend[%v] boss not found")
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NOT_FOUND)
-	}
-
-	now_time := int32(time.Now().Unix())
+	/*now_time := int32(time.Now().Unix())
 	if now_time-last_refresh_time >= global_config.FriendSearchBossRefreshHours*3600 {
 		p.cancel_friend_boss_fight()
 		log.Error("Player[%v] friend boss is finished, wait to next refresh", p.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FINISHED)
-	}
+	}*/
 
 	// 体力
 	var need_stamina int32
@@ -838,6 +842,8 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		}
 
 		if is_win {
+			p.db.FriendCommon.SetFriendBossTableId(0)
+			p.db.FriendCommon.SetFriendBossHpPercent(0)
 			if p.sweep_num > 0 {
 				break
 			}
@@ -857,7 +863,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	p.cancel_friend_boss_fight()
 
 	// 实际消耗体力
-	this.add_resource(global_config.FriendStaminaItemId, n*global_config.FriendBossAttackCostStamina)
+	this.add_resource(global_config.FriendStaminaItemId, -n*global_config.FriendBossAttackCostStamina)
 
 	member_damages := this.friend_boss_team.common_data.members_damage
 	member_cures := this.friend_boss_team.common_data.members_cure
@@ -881,7 +887,6 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 
 	// 最后一击
 	if is_win {
-		p.db.FriendCommon.SetFriendBossTableId(0)
 		this.send_stage_reward(stage, 5)
 		SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Friend Boss Last Hit Reward", "Friend Boss Last Hit Reward", friend_boss_tdata.RewardLastHit)
 		SendMail2(nil, friend_id, MAIL_TYPE_SYSTEM, "Friend Boss Reward Owner", "Friend Boss Reward Owner", friend_boss_tdata.RewardOwner)
@@ -988,6 +993,9 @@ func (this *Player) get_assist_points() int32 {
 }
 
 func (this *Player) get_friend_boss_hp_percent() int32 {
+	if this.db.FriendCommon.GetFriendBossTableId() <= 0 {
+		return 0
+	}
 	hp_percent := this.db.FriendCommon.GetFriendBossHpPercent()
 	if hp_percent == 0 {
 		hp_percent = 100

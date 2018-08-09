@@ -948,7 +948,9 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 	}
 
 	var report, last_report *msg_client_message.BattleReportItem
-	last_report = self.team.GetLastReport()
+	if !self_team.IsSweep() {
+		last_report = self.team.GetLastReport()
+	}
 
 	// 对方是否有成员死亡
 	has_target_dead := false
@@ -1012,7 +1014,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				}
 
 				//----------- 战报 -------------
-				if skill_data.IsCancelReport == 0 {
+				if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 					report, report_target = _get_battle_report(report, skill_data.Id, self_team, self_pos, self_dmg, target_team, target_pos[j], target_dmg, is_critical, is_block, is_absorb, anti_type)
 				}
 				//------------------------------
@@ -1102,7 +1104,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if cure != 0 {
 					target.add_hp(cure)
 					// ------------------ 战报 -------------------
-					if skill_data.IsCancelReport == 0 {
+					if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 						report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], -cure, false, false, false, 0)
 					}
 					// -------------------------------------------
@@ -1120,7 +1122,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				buff_id := skill_effect_add_buff(self, target, effects[i])
 				if buff_id > 0 {
 					// -------------------- 战报 --------------------
-					if skill_data.IsCancelReport == 0 {
+					if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 						report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], 0, false, false, false, 0)
 						build_battle_report_add_buff(report, target_team, target_pos[j], buff_id)
 					}
@@ -1135,7 +1137,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				mem := skill_effect_summon(self, target_team, target_pos[j], effects[i])
 				if mem != nil {
 					// --------------------- 战报 ----------------------
-					if skill_data.IsCancelReport == 0 {
+					if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 						report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, nil, 0, 0, false, false, false, 0)
 						report.IsSummon = true
 						build_battle_report_item_add_summon_npc(report, target_team, target_pos[j])
@@ -1151,7 +1153,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 改变下次计算时的角色参数
 				skill_effect_temp_attrs(self, effects[i])
 				// -------------------- 战报 --------------------
-				if skill_data.IsCancelReport == 0 {
+				if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 					report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], 0, false, false, false, 0)
 				}
 				// ----------------------------------------------
@@ -1161,7 +1163,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if effects[i][1] > 0 {
 					self.temp_normal_skill = effects[i][1]
 					// -------------------- 战报 --------------------
-					if skill_data.IsCancelReport == 0 {
+					if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 						report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, self_team, self_pos, 0, false, false, false, 0)
 					}
 					// ----------------------------------------------
@@ -1173,7 +1175,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if effects[i][1] > 0 {
 					self.temp_super_skill = effects[i][1]
 					// -------------------- 战报 --------------------
-					if skill_data.IsCancelReport == 0 {
+					if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 						report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, self_team, self_pos, 0, false, false, false, 0)
 					}
 					// ----------------------------------------------
@@ -1199,7 +1201,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 							log.Debug("team[%v] member[%v] 增加了怒气 [%v]", self_team.side, self.pos, effects[i][2])
 						}
 						// -------------------- 战报 ----------------------
-						if (effects[i][1] > 0 || effects[i][2] > 0) && skill_data.IsCancelReport == 0 {
+						if !self_team.IsSweep() && (effects[i][1] > 0 || effects[i][2] > 0) && skill_data.IsCancelReport == 0 {
 							report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], 0, false, false, false, 0)
 							report.User.Energy += self.energy
 						}
@@ -1214,7 +1216,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				// 增加行动次数
 				target.act_num += effects[i][1]
 				// -------------------- 战报 --------------------
-				if skill_data.IsCancelReport == 0 {
+				if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 					report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], 0, false, false, false, 0)
 				}
 				// ----------------------------------------------
@@ -1229,7 +1231,7 @@ func skill_effect(self_team *BattleTeam, self_pos int32, target_team *BattleTeam
 				if shield != 0 {
 					target.add_attr(ATTR_SHIELD, shield)
 					// ----------------------- 战报 -------------------------
-					if skill_data.IsCancelReport == 0 {
+					if !self_team.IsSweep() && skill_data.IsCancelReport == 0 {
 						report, _ = _get_battle_report(report, skill_data.Id, self_team, self_pos, 0, target_team, target_pos[j], 0, false, false, false, 0)
 					}
 					// ------------------------------------------------------
@@ -1601,19 +1603,21 @@ func (this *BuffList) on_round_end() {
 						}
 					}
 					// --------------------------- 战报 ---------------------------
-					// 血量变化的成员
-					if item == nil {
-						item = this.owner.build_battle_fighter(0)
-						item.Side = this.owner.team.side
-						this.owner.team.common_data.changed_fighters = append(this.owner.team.common_data.changed_fighters, item)
-					}
-					item.Damage += dmg
-					if dmg != 0 {
-						if bf.attacker != nil {
-							if dmg > 0 {
-								members_damage[bf.attacker.team.side][bf.attacker.pos] += dmg
-							} else {
-								members_cure[bf.attacker.team.side][bf.attacker.pos] += -dmg
+					if !this.owner.team.IsSweep() {
+						// 血量变化的成员
+						if item == nil {
+							item = this.owner.build_battle_fighter(0)
+							item.Side = this.owner.team.side
+							this.owner.team.common_data.changed_fighters = append(this.owner.team.common_data.changed_fighters, item)
+						}
+						item.Damage += dmg
+						if dmg != 0 {
+							if bf.attacker != nil {
+								if dmg > 0 {
+									members_damage[bf.attacker.team.side][bf.attacker.pos] += dmg
+								} else {
+									members_cure[bf.attacker.team.side][bf.attacker.pos] += -dmg
+								}
 							}
 						}
 					}
@@ -1627,11 +1631,13 @@ func (this *BuffList) on_round_end() {
 				buff_id := bf.buff.Id
 				this.remove_buff(bf)
 				// --------------------------- 战报 ---------------------------
-				b := msg_battle_buff_item_pool.Get()
-				b.BuffId = buff_id
-				b.Pos = this.owner.pos
-				b.Side = this.owner.team.side
-				this.owner.team.common_data.remove_buffs = append(this.owner.team.common_data.remove_buffs, b)
+				if !this.owner.team.IsSweep() {
+					b := msg_battle_buff_item_pool.Get()
+					b.BuffId = buff_id
+					b.Pos = this.owner.pos
+					b.Side = this.owner.team.side
+					this.owner.team.common_data.remove_buffs = append(this.owner.team.common_data.remove_buffs, b)
+				}
 				// ------------------------------------------------------------
 				log.Debug("Team[%v] member[%v] buff[%v] round over", this.owner.team.side, this.owner.pos, buff_id)
 			}

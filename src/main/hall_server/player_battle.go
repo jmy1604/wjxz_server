@@ -27,19 +27,31 @@ type BattleCommonData struct {
 	members_cure     []map[int32]int32
 }
 
-func (this *BattleCommonData) Init() {
+func (this *BattleCommonData) init_damage_data() {
 	if this.members_damage == nil {
 		this.members_damage = make([]map[int32]int32, 2)
-	}
-	for i := 0; i < len(this.members_damage); i++ {
-		this.members_damage[i] = make(map[int32]int32)
+
 	}
 	if this.members_cure == nil {
 		this.members_cure = make([]map[int32]int32, 2)
 	}
-	for i := 0; i < len(this.members_cure); i++ {
-		this.members_cure[i] = make(map[int32]int32)
+}
+
+func (this *BattleCommonData) reset_damage_data() {
+	if this.members_damage != nil {
+		for i := 0; i < len(this.members_damage); i++ {
+			this.members_damage[i] = make(map[int32]int32)
+		}
 	}
+	if this.members_cure != nil {
+		for i := 0; i < len(this.members_cure); i++ {
+			this.members_cure[i] = make(map[int32]int32)
+		}
+	}
+}
+
+func (this *BattleCommonData) Init() {
+	this.init_damage_data()
 }
 
 func (this *BattleCommonData) Reset() {
@@ -692,6 +704,14 @@ func (this *BattleTeam) UpdateFriendBossHP() {
 	}
 }
 
+// 是否扫荡
+func (this *BattleTeam) IsSweep() bool {
+	if this.player != nil && this.player.sweep_num > 0 {
+		return true
+	}
+	return false
+}
+
 // 开打
 func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param int32) (is_win bool, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports) {
 	round_max := end_param
@@ -705,6 +725,10 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.common_data = &BattleCommonData{}
 		this.common_data.Init()
 	}
+	// 非扫荡或扫荡第一次
+	if !(this.player != nil && this.player.curr_sweep > 0) {
+		this.common_data.reset_damage_data()
+	}
 	target_team.common_data = this.common_data
 	this.common_data.Reset()
 	this.common_data.round_num = 0
@@ -715,7 +739,8 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		passive_skill_effect_with_self_pos(EVENT_ENTER_BATTLE, target_team, i, this, nil, false)
 	}
 
-	if this.common_data.reports != nil {
+	// 非扫荡
+	if !this.IsSweep() && this.common_data.reports != nil {
 		enter_reports = this.common_data.reports
 		this.common_data.reports = make([]*msg_client_message.BattleReportItem, 0)
 	}
@@ -727,14 +752,17 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 		this.common_data.round_num += 1
 		this.DoRound(target_team)
 
-		round := msg_battle_round_reports_pool.Get()
-		round.MyMembersEnergy = this.GetMembersEnergy()
-		round.TargetMembersEnergy = target_team.GetMembersEnergy()
-		round.Reports = this.common_data.reports
-		round.RemoveBuffs = this.common_data.remove_buffs
-		round.ChangedFighters = this.common_data.changed_fighters
-		round.RoundNum = c + 1
-		rounds = append(rounds, round)
+		// 非扫荡
+		if !this.IsSweep() {
+			round := msg_battle_round_reports_pool.Get()
+			round.MyMembersEnergy = this.GetMembersEnergy()
+			round.TargetMembersEnergy = target_team.GetMembersEnergy()
+			round.Reports = this.common_data.reports
+			round.RemoveBuffs = this.common_data.remove_buffs
+			round.ChangedFighters = this.common_data.changed_fighters
+			round.RoundNum = c + 1
+			rounds = append(rounds, round)
+		}
 
 		if this.IsAllDead() {
 			log.Debug("self all dead")
@@ -754,6 +782,11 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 
 	if !is_win && target_team.friend != nil {
 		target_team.UpdateFriendBossHP()
+	}
+
+	// 扫荡
+	if this.IsSweep() {
+		this.player.curr_sweep += 1
 	}
 
 	return
@@ -1010,6 +1043,7 @@ func C2SFightHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data
 	}
 
 	p.sweep_num = req.GetSweepNum()
+	p.curr_sweep = 0
 	return p.fight(req.GetAttackMembers(), req.GetBattleType(), req.GetBattleParam(), req.GetAssistFriendId(), req.GetAssistRoleId(), req.GetAssistPos())
 }
 
