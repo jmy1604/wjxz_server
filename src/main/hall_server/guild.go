@@ -46,6 +46,45 @@ type GuildManager struct {
 
 var guild_manager GuildManager
 
+func (this *GuildManager) _add_guild(guild_id int32, guild_name string) bool {
+	this.guild_ids_locker.Lock()
+	defer this.guild_ids_locker.Unlock()
+
+	if _, o := this.guild_id_map[guild_id]; o {
+		return false
+	}
+	if _, o := this.guild_name_map[guild_name]; o {
+		return false
+	}
+	this.guild_ids[this.guild_num] = guild_id
+	this.guild_num += 1
+	this.guild_id_map[guild_id] = guild_id
+	this.guild_name_map[guild_name] = guild_id
+	return true
+}
+
+func (this *GuildManager) _remove_guild(guild_id int32, guild_name string) bool {
+	this.guild_ids_locker.Lock()
+	defer this.guild_ids_locker.Unlock()
+
+	if _, o := this.guild_id_map[guild_id]; !o {
+		return false
+	}
+	if _, o := this.guild_name_map[guild_name]; !o {
+		return false
+	}
+	for i := int32(0); i < this.guild_num; i++ {
+		if this.guild_ids[i] == guild_id {
+			this.guild_ids[i] = this.guild_ids[this.guild_num-1]
+			this.guild_num -= 1
+			break
+		}
+	}
+	delete(this.guild_id_map, guild_id)
+	delete(this.guild_name_map, guild_name)
+	return true
+}
+
 func (this *GuildManager) Init() {
 	this.guilds = dbc.Guilds
 	this.guild_ids = make([]int32, GUILD_MAX_NUM)
@@ -53,10 +92,10 @@ func (this *GuildManager) Init() {
 	this.guild_name_map = make(map[string]int32)
 	this.guild_ids_locker = &sync.RWMutex{}
 	for gid, guild := range this.guilds.m_rows {
-		this.guild_ids[this.guild_num] = gid
-		this.guild_num += 1
-		this.guild_id_map[gid] = gid
-		this.guild_name_map[guild.GetName()] = gid
+		if _guild_get_exist_type(guild) == GUILD_EXIST_TYPE_DELETED {
+			continue
+		}
+		this._add_guild(gid, guild.GetName())
 	}
 }
 
@@ -85,6 +124,8 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 	guild_id = row.GetId()
 
 	player.db.Guild.SetId(guild_id)
+
+	this._add_guild(guild_id, guild_name)
 
 	return guild_id
 }
@@ -276,6 +317,7 @@ func _guild_get_dismiss_remain_seconds(guild *dbGuildRow) (dismiss_remain_second
 	dismiss_remain_seconds = GetRemainSeconds(dismiss_time, global_config.GuildDismissWaitingSeconds)
 	if dismiss_remain_seconds == 0 {
 		guild.SetExistType(GUILD_EXIST_TYPE_DELETED)
+		guild_manager._remove_guild(guild.GetId(), guild.GetName())
 		// 广播
 		member_ids := guild.Members.GetAllIndex()
 		if member_ids != nil {
@@ -436,6 +478,7 @@ func (this *Player) guild_dismiss() int32 {
 		return -1
 	}
 	guild.SetDismissTime(int32(time.Now().Unix()))
+	guild.SetExistType(GUILD_EXIST_TYPE_WILL_DELETE)
 	response := &msg_client_message.S2CGuildDismissResponse{
 		RealDismissRemainSeconds: global_config.GuildDismissWaitingSeconds,
 	}

@@ -50,7 +50,7 @@ func (this *FriendRecommendMgr) CheckAndAddPlayer(player_id int32) bool {
 	}
 
 	if _, o := this.player_ids[player_id]; o {
-		log.Warn("Player[%v] already added Friend Recommend mgr", player_id)
+		//log.Warn("Player[%v] already added Friend Recommend mgr", player_id)
 		return false
 	}
 
@@ -865,6 +865,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 			p.db.FriendCommon.SetFriendBossTableId(0)
 			p.db.FriendCommon.SetFriendBossHpPercent(0)
 			if p.sweep_num > 0 {
+				n += 1
 				break
 			}
 		} else {
