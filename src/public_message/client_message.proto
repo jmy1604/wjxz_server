@@ -460,6 +460,12 @@ message S2CBattleRecordDeleteResponse {
 	int32 RecordId							= 1; // 录像Id
 }
 
+// 战斗随机奖励
+message S2CBattleRandomRewardNotify {
+	repeated ItemInfo Items					= 1; // 实际奖励物品  扫荡才有多个物品，非扫荡只有一个
+	repeated int32 FakeItems				= 2; // 假随机物品    扫荡不用
+}
+
 // ---------------------------------- 关卡 ------------------------------------
 // 请求战役关卡数据
 message C2SCampaignDataRequest {
@@ -479,7 +485,7 @@ message C2SCampaignHangupIncomeRequest {
 
 // 关卡战斗结果奖励
 message S2CCampaignHangupIncomeResponse {
-	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战斗奖励  3 爬塔奖励  4 活动副本奖励  5 挑战好友BOSS
+	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战役奖励  3 爬塔奖励  4 活动副本奖励  5 挑战好友BOSS  6 探索任务
 	repeated ItemInfo Rewards				= 2; // 奖励
 }
 
@@ -1235,11 +1241,6 @@ message S2CFriendDataResponse {
 	int32 AssistGetPoints					= 8; // 助战获取友情点
 	int32 SearchBossRemainSeconds			= 9; // 搜索BOSS剩余秒数
 	int32 AssistRoleId						= 10; // 助战角色
-}
-
-// 击打好友BOSS获取的奖励
-message S2CFriendBossAttackRewardNotify {
-	repeated ItemInfo Items					= 1; // 奖励物品
 }
 
 // 设置助战角色给好友

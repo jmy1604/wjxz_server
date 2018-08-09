@@ -730,6 +730,37 @@ func (this *Player) cancel_friend_boss_fight() bool {
 	return atomic.CompareAndSwapInt32(&this.fighing_friend_boss, 1, 0)
 }
 
+// 战斗随机奖励
+func (this *Player) battle_random_reward_notify(reward_items map[int32]int32, drop_id int32) {
+	if reward_items != nil {
+		var items []*msg_client_message.ItemInfo
+		for k, v := range reward_items {
+			items = append(items, &msg_client_message.ItemInfo{
+				ItemCfgId: k,
+				ItemNum:   v,
+			})
+		}
+		var fake_items []int32
+		if this.sweep_num == 0 {
+			for i := 0; i < 2; i++ {
+				o, item := this.drop_item_by_id(drop_id, false, nil)
+				if !o {
+					log.Error("Player[%v] drop id %v invalid on friend boss attack", this.Id, drop_id)
+				}
+				fake_items = append(fake_items, item.ItemCfgId)
+			}
+		}
+		if items != nil {
+			notify := &msg_client_message.S2CBattleRandomRewardNotify{
+				Items:     items,
+				FakeItems: fake_items,
+			}
+			this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RANDOM_REWARD_NOTIFY), notify)
+			log.Debug("Player[%v] battle random reward %v", this.Id, notify)
+		}
+	}
+}
+
 // 挑战好友BOSS
 func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	if friend_id == 0 {
@@ -779,14 +810,6 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		log.Error("Friend Boss Stage %v not found")
 		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
-
-	// 未刷新
-	/*now_time := int32(time.Now().Unix())
-	if now_time-last_refresh_time >= global_config.FriendSearchBossRefreshHours*3600 {
-		p.cancel_friend_boss_fight()
-		log.Error("Player[%v] friend boss is finished, wait to next refresh", p.Id)
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FINISHED)
-	}*/
 
 	// 体力
 	var need_stamina int32
@@ -891,21 +914,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 		SendMail2(nil, this.Id, MAIL_TYPE_SYSTEM, "Friend Boss Last Hit Reward", "Friend Boss Last Hit Reward", friend_boss_tdata.RewardLastHit)
 		SendMail2(nil, friend_id, MAIL_TYPE_SYSTEM, "Friend Boss Reward Owner", "Friend Boss Reward Owner", friend_boss_tdata.RewardOwner)
 	} else {
-		if reward_items != nil {
-			var items []*msg_client_message.ItemInfo
-			for k, v := range reward_items {
-				items = append(items, &msg_client_message.ItemInfo{
-					ItemCfgId: k,
-					ItemNum:   v,
-				})
-			}
-			if items != nil {
-				notify := &msg_client_message.S2CFriendBossAttackRewardNotify{
-					Items: items,
-				}
-				this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_BOSS_ATTACK_REWARD_NOTIFY), notify)
-			}
-		}
+		this.battle_random_reward_notify(reward_items, friend_boss_tdata.ChallengeDropID)
 	}
 
 	Output_S2CBattleResult(this, response)
@@ -921,8 +930,7 @@ func (this *Player) friend_boss_get_attack_list(friend_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
 
-	now_time := int32(time.Now().Unix())
-	if now_time-friend.db.FriendCommon.GetLastBossRefreshTime() >= global_config.FriendSearchBossRefreshHours*3600 {
+	if friend.db.FriendCommon.GetFriendBossTableId() <= 0 {
 		log.Error("Player[%v] friend boss is finished")
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FINISHED)
 	}

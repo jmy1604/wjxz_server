@@ -240,7 +240,23 @@ func (this *GuildManager) RemovePlayer(president_id, player_id int32) int32 {
 
 func _format_guild_base_info_to_msg(guild *dbGuildRow) (msg *msg_client_message.GuildBaseInfo) {
 	msg = &msg_client_message.GuildBaseInfo{
-		Id: guild.GetId(),
+		Id:        guild.GetId(),
+		Name:      guild.GetName(),
+		Level:     guild.GetLevel(),
+		Logo:      guild.GetLogo(),
+		MemberNum: guild.Members.NumAll(),
+	}
+	return
+}
+
+func _format_guilds_base_info_to_msg(guild_ids []int32) (guilds_msg []*msg_client_message.GuildBaseInfo) {
+	for _, gid := range guild_ids {
+		guild := guild_manager.GetGuild(gid)
+		if guild == nil {
+			continue
+		}
+		guild_msg := _format_guild_base_info_to_msg(guild)
+		guilds_msg = append(guilds_msg, guild_msg)
 	}
 	return
 }
@@ -281,15 +297,7 @@ func (this *Player) guild_recommend() int32 {
 		return -1
 	}
 
-	var guilds_msg []*msg_client_message.GuildBaseInfo
-	for _, gid := range gids {
-		guild := guild_manager.GetGuild(gid)
-		if guild == nil {
-			continue
-		}
-		guild_msg := _format_guild_base_info_to_msg(guild)
-		guilds_msg = append(guilds_msg, guild_msg)
-	}
+	guilds_msg := _format_guilds_base_info_to_msg(gids)
 
 	response := &msg_client_message.S2CGuildRecommendResponse{
 		InfoList: guilds_msg,
@@ -297,6 +305,29 @@ func (this *Player) guild_recommend() int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_RECOMMEND_RESPONSE), response)
 
 	return 1
+}
+
+func (this *Player) guild_search(key string) int32 {
+	if this.db.Guild.GetId() > 0 {
+		log.Error("Player[%v] already joined one guild, cant search", this.Id)
+		return -1
+	}
+
+	guild_ids := guild_manager.Search(key)
+	if guild_ids != nil {
+
+	}
+	return 1
+}
+
+func C2SGuildDataHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildDataRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%s)", err.Error())
+		return -1
+	}
+	return p.send_guild_data()
 }
 
 func C2SGuildRecommendHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

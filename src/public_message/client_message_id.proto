@@ -59,6 +59,7 @@ enum MSGID {
 	S2C_BATTLE_RECORD_LIST_RESPONSE			= 10105; // 录像数据列表返回 S2CBattleRecordListResponse
 	C2S_BATTLE_RECORD_DELETE_REQUEST		= 10106; // 录像删除请求 C2SBattleRecordDeleteRequest
 	S2C_BATTLE_RECORD_DELETE_RESPONSE		= 10107; // 录像删除返回 S2CBattleRecordDeleteResponse
+	S2C_BATTLE_RANDOM_REWARD_NOTIFY			= 10108; // 战斗随机奖励 S2CBattleRandomRewardNotify
 	
 	C2S_SET_TEAM_REQUEST					= 10200; // 设置阵营 C2SSetTeamRequest
 	S2C_SET_TEAM_RESPONSE					= 10201; // 设置阵营返回 S2CSetTeamResponse
@@ -180,7 +181,7 @@ enum MSGID {
 	S2C_FRIEND_BOSS_ATTACK_LIST_RESPONSE	= 11425; // 获取好友BOSS助战列表返回 S2CFriendBossAttackListResponse
 	C2S_FRIEND_DATA_REQUEST					= 11426; // 好友相关数据 C2SFriendDataRequest
 	S2C_FRIEND_DATA_RESPONSE				= 11427; // 好友相关数据返回 S2CFriendDataResponse
-	S2C_FRIEND_BOSS_ATTACK_REWARD_NOTIFY	= 11428; // 好友BOSS击打奖励通知 S2CFriendBossAttackRewardNotify
+	//S2C_FRIEND_BOSS_ATTACK_REWARD_NOTIFY	= 11428; // 好友BOSS击打奖励通知 S2CFriendBossAttackRewardNotify
 	C2S_FRIEND_SET_ASSIST_ROLE_REQUEST		= 11429; // 设置助战角色给好友 C2SFriendSetAssistRoleRequest
 	S2C_FRIEND_SET_ASSIST_ROLE_RESPONSE		= 11430; // 设置助战角色返回 S2CFriendSetAssistRoleResponse
 	C2S_FRIEND_GIVE_AND_GET_POINTS_REQUEST  = 11431; // 一键收发友情点 C2SFriendGiveAndGetPointsRequest
