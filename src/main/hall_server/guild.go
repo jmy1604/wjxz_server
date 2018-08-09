@@ -77,6 +77,7 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 		return -1
 	}
 
+	row.SetName(guild_name)
 	row.SetCreater(player_id)
 	row.SetCreateTime(int32(time.Now().Unix()))
 	row.SetLogo(logo)
@@ -268,11 +269,27 @@ func _format_guilds_base_info_to_msg(guild_ids []int32) (guilds_msg []*msg_clien
 }
 
 func _guild_get_dismiss_remain_seconds(guild *dbGuildRow) (dismiss_remain_seconds int32) {
-	if guild.GetExistType() == GUILD_EXIST_TYPE_WILL_DELETE {
-		dismiss_time := guild.GetDismissTime()
-		dismiss_remain_seconds = GetRemainSeconds(dismiss_time, global_config.GuildDismissWaitingSeconds)
-		if dismiss_remain_seconds == 0 {
-			guild.SetExistType(GUILD_EXIST_TYPE_DELETED)
+	if guild.GetExistType() != GUILD_EXIST_TYPE_WILL_DELETE {
+		return
+	}
+	dismiss_time := guild.GetDismissTime()
+	dismiss_remain_seconds = GetRemainSeconds(dismiss_time, global_config.GuildDismissWaitingSeconds)
+	if dismiss_remain_seconds == 0 {
+		guild.SetExistType(GUILD_EXIST_TYPE_DELETED)
+		// 广播
+		member_ids := guild.Members.GetAllIndex()
+		if member_ids != nil {
+			notify := &msg_client_message.S2CGuildDeleteNotify{
+				GuildId: guild.GetId(),
+			}
+			for _, mid := range member_ids {
+				p := player_mgr.GetPlayerById(mid)
+				if p == nil {
+					continue
+				}
+				p.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DELETE_NOTIFY), notify)
+				SendMail(nil, mid, MAIL_TYPE_GUILD, "Guild Dismissed", "Guild Dismissed", nil)
+			}
 		}
 	}
 	return
@@ -319,12 +336,12 @@ func (this *Player) send_guild_data() int32 {
 	}
 
 	response := &msg_client_message.S2CGuildDataResponse{
-		Info: &msg_client_message.GuildInfo{
-			Id:   guild.GetId(),
-			Name: guild.GetName(),
-		},
+		Info: this._format_guild_info_to_msg(guild),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DATA_RESPONSE), response)
+
+	log.Debug("Player[%v] guild data %v", this.Id, response)
+
 	return 1
 }
 
@@ -346,6 +363,8 @@ func (this *Player) guild_recommend() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_RECOMMEND_RESPONSE), response)
 
+	log.Debug("Player[%v] recommend guilds %v", this.Id, response)
+
 	return 1
 }
 
@@ -366,6 +385,9 @@ func (this *Player) guild_search(key string) int32 {
 		InfoList: guilds_msg,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_SEARCH_RESPONSE), response)
+
+	log.Debug("Player[%v] searched guild %v with key %v", this.Id, response, key)
+
 	return 1
 }
 
@@ -374,13 +396,24 @@ func (this *Player) guild_create(name string, logo int32) int32 {
 		log.Error("Player[%v] cant create guild because level not enough", this.Id)
 		return -1
 	}
+
+	if this.get_diamond() < global_config.GuildCreateCostGem {
+		log.Error("Player[%v] create guild need diamond %v, but only %v", this.Id, global_config.GuildCreateCostGem, this.get_diamond())
+		return -1
+	}
+
 	guild_id := guild_manager.CreateGuild(this.Id, name, logo)
+	this.add_diamond(-global_config.GuildCreateCostGem)
+
 	guild := guild_manager.GetGuild(guild_id)
 	guild_msg := this._format_guild_info_to_msg(guild)
 	response := &msg_client_message.S2CGuildCreateResponse{
 		Info: guild_msg,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_CREATE_RESPONSE), response)
+
+	log.Debug("Player[%v] created guild %v", this.Id, response)
+
 	return 1
 }
 
@@ -407,6 +440,9 @@ func (this *Player) guild_dismiss() int32 {
 		RealDismissRemainSeconds: global_config.GuildDismissWaitingSeconds,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DISMISS_RESPONSE), response)
+
+	log.Debug("Player[%v] dismiss guild %v", this.Id, response)
+
 	return 1
 }
 
@@ -424,6 +460,43 @@ func (this *Player) guild_cancel_dismiss() int32 {
 	guild.SetExistType(GUILD_EXIST_TYPE_NONE)
 	response := &msg_client_message.S2CGuildCancelDismissResponse{}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_CANCEL_DISMISS_RESPONSE), response)
+
+	log.Debug("Player[%v] cancelled dismiss guild", this.Id)
+
+	return 1
+}
+
+func (this *Player) guild_info_modify(name string, logo int32) int32 {
+	guild := guild_manager._get_guild(this.Id, true)
+	if guild == nil {
+		log.Error("Player[%v] cant get guild", this.Id)
+		return -1
+	}
+
+	var cost_diamond int32
+	if name != "" {
+		if this.get_diamond() < global_config.GuildChangeNameCostGem {
+			log.Error("Player[%v] diamond not enough, change name failed", this.Id)
+			return -1
+		}
+		guild.SetName(name)
+		cost_diamond = global_config.GuildChangeNameCostGem
+		this.add_diamond(-cost_diamond)
+	}
+
+	if logo != 0 {
+		guild.SetLogo(logo)
+	}
+
+	response := &msg_client_message.S2CGuildInfoModifyResponse{
+		NewGuildName: name,
+		NewGuildLogo: logo,
+		CostDiamond:  cost_diamond,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_INFO_MODIFY_RESPONSE), response)
+
+	log.Debug("Player[%v] modified guild info %v", this.Id, response)
+
 	return 1
 }
 
@@ -483,8 +556,19 @@ func C2SGuildCancelDismissHandler(w http.ResponseWriter, r *http.Request, p *Pla
 	var req msg_client_message.C2SGuildCancelDismissRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
-		log.Error("Unmarshal msg failed, err(%v)")
+		log.Error("Unmarshal msg failed, err(%v)", err.Error())
 		return -1
 	}
 	return p.guild_cancel_dismiss()
+}
+
+func C2SGuildInfoModifyHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildInfoModifyRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%v)", err.Error())
+		return -1
+	}
+
+	return p.guild_info_modify(req.GetNewGuildName(), req.GetNewGuildLogo())
 }

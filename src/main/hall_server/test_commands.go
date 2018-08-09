@@ -1714,6 +1714,24 @@ func guild_cancel_dismiss_cmd(p *Player, args []string) int32 {
 	return p.guild_cancel_dismiss()
 }
 
+func guild_modify_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var name string
+	var logo int
+	var err error
+	name = args[0]
+	logo, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+
+	return p.guild_info_modify(name, int32(logo))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1816,6 +1834,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"guild_create":         guild_create_cmd,
 	"guild_dismiss":        guild_dismiss_cmd,
 	"guild_cancel_dismiss": guild_cancel_dismiss_cmd,
+	"guild_modify":         guild_modify_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	MAIL_TYPE_SYSTEM = 1
-	MAIL_TYPE_PLAYER = 2
+	MAIL_TYPE_SYSTEM = 1 // 系统邮件
+	MAIL_TYPE_PLAYER = 2 // 玩家邮件
+	MAIL_TYPE_GUILD  = 3 // 公会邮件
 )
 
 func (this *dbPlayerMailColumn) GetMailList() (mails []*msg_client_message.MailBasicData) {

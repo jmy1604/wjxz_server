@@ -1498,6 +1498,7 @@ message C2SGuildCreateRequest {
 
 message S2CGuildCreateResponse {
 	GuildInfo Info	 						= 1; // 信息
+	int32 CostDiamond						= 2; // 消耗钻石
 }
 
 // 解散公会
@@ -1529,6 +1530,7 @@ message C2SGuildInfoModifyRequest {
 message S2CGuildInfoModifyResponse {
 	string NewGuildName						= 1; // 新名称
 	int32 NewGuildLogo						= 2; // 新Logo
+	int32 CostDiamond						= 3; // 消耗钻石
 }
 
 // 公会修改公告
