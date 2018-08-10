@@ -12,6 +12,14 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+const (
+	SHOP_TYPE_NORMAL = 1
+	SHOP_TYPE_HERO   = 2
+	SHOP_TYPE_TOWER  = 3
+	SHOP_TYPE_ARENA  = 4
+	SHOP_TYPE_GUILD  = 5
+)
+
 func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 	if !this.db.Shops.HasIndex(shop.Id) {
 		this.db.Shops.Add(&dbPlayerShopData{
@@ -176,6 +184,9 @@ func (this *Player) check_shop_auto_refresh(shop *table_config.XmlShopItem, send
 
 // 商店数据
 func (this *Player) send_shop(shop_id int32) int32 {
+	if shop_id == SHOP_TYPE_GUILD && this.db.Guild.GetId() <= 0 {
+		return int32(msg_client_message.E_ERR_PLAYER_SHOP_GUILD_NOT_JOIN)
+	}
 	shop_tdata := shop_table_mgr.Get(shop_id)
 	if shop_tdata == nil {
 		log.Error("Shop[%v] table data not found", shop_id)
@@ -199,6 +210,10 @@ func (this *Player) send_shop(shop_id int32) int32 {
 
 // 商店购买
 func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
+	if shop_id == SHOP_TYPE_GUILD && this.db.Guild.GetId() <= 0 {
+		return int32(msg_client_message.E_ERR_PLAYER_SHOP_GUILD_NOT_JOIN)
+	}
+
 	if buy_num < 0 {
 		log.Error("Player[%v] buy shop item num[%v] must greater than 0", this.Id, buy_num)
 		return -1
@@ -278,6 +293,10 @@ func (this *Player) shop_buy_item(shop_id, id, buy_num int32) int32 {
 
 // 商店刷新
 func (this *Player) shop_refresh(shop_id int32) int32 {
+	if shop_id == SHOP_TYPE_GUILD && this.db.Guild.GetId() <= 0 {
+		return int32(msg_client_message.E_ERR_PLAYER_SHOP_GUILD_NOT_JOIN)
+	}
+
 	shop_tdata := shop_table_mgr.Get(shop_id)
 	if shop_tdata == nil {
 		log.Error("Shop[%v] table data not found", shop_id)

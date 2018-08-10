@@ -214,8 +214,8 @@ enum MSGID {
 	
 	C2S_CHAT_REQUEST                  		= 11700; // 聊天请求 C2SChatRequest
 	S2C_CHAT_RESPONSE						= 11701; // 聊天返回 S2CChatResponse
-	C2S_CHAT_PULL_MSG_REQUEST				= 11702; // 拉取聊天消息 C2SChatMsgPullRequest
-	S2C_CHAT_PULL_MSG_RESPONSE				= 11703; // 拉取聊天消息返回 S2CChatPullMsgResponse
+	C2S_CHAT_MSG_PULL_REQUEST				= 11702; // 拉取聊天消息 C2SChatMsgPullRequest
+	S2C_CHAT_MSG_PULL_RESPONSE				= 11703; // 拉取聊天消息返回 S2CChatPullMsgResponse
 	
 	C2S_GUILD_DATA_REQUEST					= 11800; // 公会数据 C2SGuildDataRequest
 	S2C_GUILD_DATA_RESPONSE					= 11801; // 公会数据返回 S2CGuildDataResponse
@@ -240,24 +240,26 @@ enum MSGID {
 	S2C_GUILD_ASK_LIST_RESPONSE				= 11820; // 公会申请列表返回 S2CGuildAskListResponse
 	C2S_GUILD_ASK_JOIN_REQUEST				= 11821; // 申请加入公会 C2SGuildAskJoinRequest
 	S2C_GUILD_ASK_JOIN_RESPONSE				= 11822; // 申请加入公会返回 S2CGuildAskJoinResponse
-	C2S_GUILD_QUIT_REQUEST					= 11823; // 主动退出公会 C2SGuildQuitRequest
-	S2C_GUILD_QUIT_RESPONSE					= 11824; // 退出公会返回 S2C_GUILD_QUIT_RESPONSE
-	C2S_GUILD_LOGS_REQUEST					= 11825; // 公会日志 C2SGuildLogsRequest
-	S2C_GUILD_LOGS_RESPONSE					= 11826; // 公会日志返回 S2CGuildLogsResponse
-	C2S_GUILD_SIGN_REQUEST					= 11827; // 公会签到 C2SGuildSignRequest
-	S2C_GUILD_SIGN_RESPONSE					= 11828; // 公会签到返回 S2CGuildSignResponse
-	C2S_GUILD_SET_OFFICER_REQUEST			= 11829; // 公会任免官员 C2SGuildSetOfficerRequest
-	S2C_GUILD_SET_OFFICER_RESPONSE			= 11830; // 公会任免官员返回 S2CGuildSetOfficerResponse
-	C2S_GUILD_KICK_MEMBER_REQUEST			= 11831; // 公会驱逐会员 C2SGuildKickMemberRequest
-	S2C_GUILD_KICK_MEMBER_RESPONSE			= 11832; // 公会驱逐会员返回 S2CGuildKickMemberResponse
-	C2S_GUILD_CHANGE_PRESIDENT_REQUEST		= 11833; // 公会转让会长 C2SGuildChangePresidentRequest
-	S2C_GUILD_CHANGE_PRESIDENT_RESPONSE		= 11834; // 公会转让会长返回 S2CGuildChangePresidentResponse
-	C2S_GUILD_RECRUIT_REQUEST				= 11835; // 公会招募 C2SGuildRecruitRequest
-	S2C_GUILD_RECRUIT_RESPONSE				= 11836; // 公会招募返回 S2CGuildRecruitResponse
-	C2S_GUILD_ASK_DONATE_REQUEST			= 11837; // 公会请求捐赠 C2SGuildAskDonateRequest
-	S2C_GUILD_ASK_DONATE_RESPONSE			= 11838; // 公会请求招募返回 S2CGuildAskDonateResponse
-	C2S_GUILD_DONATE_REQUEST				= 11839; // 公会捐赠 C2SGuildDonateRequest
-	S2C_GUILD_DONATE_RESPONSE				= 11840; // 公会捐赠返回 S2CGuildDonateResponse
-	C2S_GUILD_DONATE_LIST_REQUEST			= 11841; // 公会捐赠列表 C2SGuildDonateListRequest
-	S2C_GUILD_DONATE_LIST_RESPONSE			= 11842; // 公会捐赠列表 S2CGuildDonateListResponse
+	C2S_GUILD_AGREE_ASK_REQUEST				= 11823; // 同意加入公会 C2SGuildAgreeAskRequest
+	S2C_GUILD_AGREE_ASK_RESPONSE			= 11824; // 同意加入公会返回 S2CGuildAgreeAskResponse
+	C2S_GUILD_QUIT_REQUEST					= 11825; // 主动退出公会 C2SGuildQuitRequest
+	S2C_GUILD_QUIT_RESPONSE					= 11826; // 退出公会返回 S2C_GUILD_QUIT_RESPONSE
+	C2S_GUILD_LOGS_REQUEST					= 11827; // 公会日志 C2SGuildLogsRequest
+	S2C_GUILD_LOGS_RESPONSE					= 11828; // 公会日志返回 S2CGuildLogsResponse
+	C2S_GUILD_SIGN_IN_REQUEST				= 11829; // 公会签到 C2SGuildSignRequest
+	S2C_GUILD_SIGN_IN_RESPONSE				= 11830; // 公会签到返回 S2CGuildSignResponse
+	C2S_GUILD_SET_OFFICER_REQUEST			= 11831; // 公会任免官员 C2SGuildSetOfficerRequest
+	S2C_GUILD_SET_OFFICER_RESPONSE			= 11832; // 公会任免官员返回 S2CGuildSetOfficerResponse
+	C2S_GUILD_KICK_MEMBER_REQUEST			= 11833; // 公会驱逐会员 C2SGuildKickMemberRequest
+	S2C_GUILD_KICK_MEMBER_RESPONSE			= 11834; // 公会驱逐会员返回 S2CGuildKickMemberResponse
+	C2S_GUILD_CHANGE_PRESIDENT_REQUEST		= 11835; // 公会转让会长 C2SGuildChangePresidentRequest
+	S2C_GUILD_CHANGE_PRESIDENT_RESPONSE		= 11836; // 公会转让会长返回 S2CGuildChangePresidentResponse
+	C2S_GUILD_RECRUIT_REQUEST				= 11837; // 公会招募 C2SGuildRecruitRequest
+	S2C_GUILD_RECRUIT_RESPONSE				= 11838; // 公会招募返回 S2CGuildRecruitResponse
+	C2S_GUILD_ASK_DONATE_REQUEST			= 11839; // 公会请求捐赠 C2SGuildAskDonateRequest
+	S2C_GUILD_ASK_DONATE_RESPONSE			= 11840; // 公会请求招募返回 S2CGuildAskDonateResponse
+	C2S_GUILD_DONATE_REQUEST				= 11841; // 公会捐赠 C2SGuildDonateRequest
+	S2C_GUILD_DONATE_RESPONSE				= 11842; // 公会捐赠返回 S2CGuildDonateResponse
+	C2S_GUILD_DONATE_LIST_REQUEST			= 11843; // 公会捐赠列表 C2SGuildDonateListRequest
+	S2C_GUILD_DONATE_LIST_RESPONSE			= 11844; // 公会捐赠列表 S2CGuildDonateListResponse
 }

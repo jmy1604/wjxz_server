@@ -653,16 +653,17 @@
 					]
 				},
 				{
-					"DBColumnName":"WorldChat",
+					"DBColumnName":"Chat",
 					"InUse":true,
-					"ColumnName":"WorldChat",
+					"ColumnName":"Chat",
 					"Preload":true,
-					"Map":false,
+					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"LastChatTime"},
-						{"Type":"int32","Index":2,"Name":"LastPullTime"},
-						{"Type":"int32","Index":3,"Name":"LastMsgIndex"}
+						{"Type":"int32","Index":1,"Name":"Channel"},
+						{"Type":"int32","Index":2,"Name":"LastChatTime"},
+						{"Type":"int32","Index":3,"Name":"LastPullTime"},
+						{"Type":"int32","Index":4,"Name":"LastMsgIndex"}
 					]
 				},
 				{
@@ -1058,7 +1059,6 @@
 					"Preload":true,
 					"Map":true,
 					"AutoIndex":false,
-					"DefaultValue":0,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"PlayerId"}
 					]
@@ -1067,13 +1067,68 @@
 					"ColumnName":"LastDonateRefreshTime",
 					"DBColumnName":"LastDonateRefreshTime",
 					"InUse":true,
-					"Simple":false,
+					"Simple":true,
 					"SimpleType":"int32",
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
 					"DefaultValue":0,
 					"Fields":[]
+				},
+				{
+					"ColumnName":"CurrLogId",
+					"DBColumnName":"CurrLogId",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":0,
+					"Fields":[]
+				},
+				{
+					"ColumnName":"Log",
+					"DBColumnName":"Log",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":true,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"Id"},
+						{"Type":"int32","Index":2,"Name":"LogType"},
+						{"Type":"int32","Index":3,"Name":"PlayerId"},
+						{"Type":"int32","Index":4,"Name":"Time"}
+					]
+				},
+				{
+					"ColumnName":"LastRecruitTime",
+					"DBColumnName":"LastRecruitTime",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[]
+				},
+				{
+					"ColumnName":"AskDonate",
+					"DBColumnName":"AskDonate",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"PlayerId"},
+						{"Type":"int32","Index":2,"Name":"ItemId"},
+						{"Type":"int32","Index":3,"Name":"ItemNum"},
+						{"Type":"int32","Index":4,"Name":"AskTime"}
+					]
 				}
 			]
 		},

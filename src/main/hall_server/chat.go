@@ -28,6 +28,7 @@ type ChatItem struct {
 	send_player_level int32
 	send_player_head  int32
 	content           []byte
+	extra_value       int32
 	send_time         int32
 	prev              *ChatItem
 	next              *ChatItem
@@ -59,6 +60,7 @@ type ChatMgr struct {
 }
 
 var world_chat_mgr ChatMgr
+var recruit_chat_mgr ChatMgr
 
 func get_world_chat_max_msg_num() int32 {
 	max_num := global_config.WorldChatMaxMsgNum
@@ -101,7 +103,7 @@ func (this *ChatMgr) recycle_old() {
 	}
 }
 
-func (this *ChatMgr) push_chat_msg(content []byte, player_id int32, player_level int32, player_name string, player_head int32) bool {
+func (this *ChatMgr) push_chat_msg(content []byte, extra_value int32, player_id int32, player_level int32, player_name string, player_head int32) bool {
 	this.locker.Lock()
 	defer this.locker.Unlock()
 
@@ -133,6 +135,7 @@ func (this *ChatMgr) push_chat_msg(content []byte, player_id int32, player_level
 	item.send_player_head = player_head
 	item.send_player_level = player_level
 	item.send_time = int32(time.Now().Unix())
+	item.extra_value = extra_value
 
 	item.prev = this.chat_msg_tail
 	item.next = nil
@@ -188,6 +191,7 @@ func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message
 			PlayerLevel: msg.send_player_level,
 			PlayerHead:  msg.send_player_head,
 			SendTime:    msg.send_time,
+			ExtraValue:  msg.extra_value,
 		}
 		chat_items = append(chat_items, item)
 
@@ -201,50 +205,84 @@ func (this *ChatMgr) pull_chat(player *Player) (chat_items []*msg_client_message
 
 func (this *Player) chat(channel int32, content []byte) int32 {
 	now_time := int32(time.Now().Unix())
-	if now_time-this.db.WorldChat.GetLastChatTime() < 10 /*global_id.WorldChannelChatCooldown_40*/ {
-		log.Error("Player[%v] world chat is cooling down !", this.Id)
+	var last_chat_time, cooldown_seconds, max_bytes int32
+	var chat_mgr *ChatMgr
+	if channel == CHAT_CHANNEL_WORLD {
+		max_bytes = global_config.WorldChatMsgMaxBytes
+		chat_mgr = &world_chat_mgr
+	} else if channel == CHAT_CHANNEL_GUILD {
+		guild_id := this.db.Guild.GetId()
+		chat_mgr = guild_manager.GetChatMgr(guild_id)
+	} else if channel == CHAT_CHANNEL_RECRUIT {
+		chat_mgr = &recruit_chat_mgr
+	} else {
+		return -1
+	}
+
+	last_chat_time, _ = this.db.Chats.GetLastChatTime(channel)
+	if now_time-last_chat_time < cooldown_seconds {
+		log.Error("Player[%v] channel[%v] chat is cooling down !", channel, this.Id)
 		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN)
 	}
-	if int32(len(content)) > global_config.WorldChatMsgMaxBytes {
-		log.Error("Player[%v] world chat content length is too long !", this.Id)
+	if int32(len(content)) > max_bytes {
+		log.Error("Player[%v] channel[%v] chat content length is too long !", channel, this.Id)
 		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG)
 	}
-	if !world_chat_mgr.push_chat_msg(content, this.Id, this.db.Info.GetLvl(), this.db.GetName(), this.db.Info.GetHead()) {
+
+	var extra_value int32
+	if channel == CHAT_CHANNEL_GUILD {
+		extra_value = this.db.Guild.GetId()
+	}
+	if !chat_mgr.push_chat_msg(content, extra_value, this.Id, this.db.Info.GetLvl(), this.db.GetName(), this.db.Info.GetHead()) {
 		return int32(msg_client_message.E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE)
 	}
 
-	if this.rpc_world_chat(content) == nil {
-		log.Error("Player[%v] world chat to remote rpc service failed", this.Id)
-	}
-
-	this.db.WorldChat.SetLastChatTime(now_time)
+	this.db.Chats.SetLastChatTime(channel, now_time)
 
 	response := &msg_client_message.S2CChatResponse{
 		Channel: channel,
 		Content: content,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_RESPONSE), response)
-	log.Debug("Player[%v] world chat content[%v]", this.Id, content)
+	log.Debug("Player[%v] chat content[%v] in channel[%v]", this.Id, content, channel)
 
 	return 1
 }
 
 func (this *Player) pull_chat(channel int32) int32 {
+	var chat_mgr *ChatMgr
+	var pull_msg_cooldown int32
+	if channel == CHAT_CHANNEL_WORLD {
+		chat_mgr = &world_chat_mgr
+		pull_msg_cooldown = global_config.WorldChatPullMsgCooldown
+	} else if channel == CHAT_CHANNEL_GUILD {
+		guild_id := this.db.Guild.GetId()
+		chat_mgr = guild_manager.GetChatMgr(guild_id)
+	} else if channel == CHAT_CHANNEL_RECRUIT {
+		chat_mgr = &recruit_chat_mgr
+	} else {
+		return -1
+	}
+
 	now_time := int32(time.Now().Unix())
-	if now_time-this.db.WorldChat.GetLastPullTime() < global_config.WorldChatPullMsgCooldown {
-		log.Error("Player[%v] pull world chat msg is cooling down", this.Id)
-		//return int32(msg_client_message.E_ERR_WORLDCHAT_PULL_COOLING_DOWN)
+	pull_time, _ := this.db.Chats.GetLastPullTime(channel)
+	if now_time-pull_time < pull_msg_cooldown {
+		log.Error("Player[%v] pull channel[%v] chat msg is cooling down", this.Id, channel)
 		response := &msg_client_message.S2CChatMsgPullResponse{}
-		this.Send(1, response)
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_MSG_PULL_RESPONSE), response)
 		return 1
 	}
-	msgs := world_chat_mgr.pull_chat(this)
-	this.db.WorldChat.SetLastPullTime(now_time)
+
+	msgs := chat_mgr.pull_chat(this)
+	this.db.Chats.SetLastPullTime(channel, now_time)
+
 	response := &msg_client_message.S2CChatMsgPullResponse{
 		Items: msgs,
 	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_PULL_MSG_RESPONSE), response)
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_MSG_PULL_RESPONSE), response)
+
 	log.Debug("Player[%v] pulled world chat msgs", this.Id)
+
 	return 1
 }
 
@@ -255,6 +293,7 @@ func C2SChatHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data 
 		log.Error("Unmarshal msg failed err(%s)!", err.Error())
 		return -1
 	}
+
 	return p.chat(req.GetChannel(), req.GetContent())
 }
 

@@ -109,6 +109,7 @@ enum E_ERR {
 	PLAYER_SHOP_ITEM_NUM_NOT_ENOUGH			= -18004; // 商店商品数量不足
 	PLAYER_SHOP_ITEM_BUY_RESOURCE_NOT_ENOUGH= -18005; // 商店购买商品资源不足
 	PLAYER_SHOP_ITEM_RANDOM_DATA_INVALID	= -18006; // 商品随机数据配置错误
+	PLAYER_SHOP_GUILD_NOT_JOIN				= -18007; // 公会商店需要先加入公会
 	
 	// 竞技场
 	PLAYER_ARENA_ONLY_FIGHT_MATCHED_PLAYER  = -19000; // 只能打匹配的玩家
@@ -1434,6 +1435,7 @@ message ChatItem {
 	int32 PlayerLevel						= 5; // 玩家等级
 	int32 IsFriend							= 6; // 是否好友
 	int32 SendTime							= 7; // 发送时间
+	int32 ExtraValue						= 8; // 额外数据   招聘频道时为公会ID
 }
 message S2CChatMsgPullResponse {
 	int32 Channel							= 1; // 频道
@@ -1547,12 +1549,12 @@ message C2SGuildMembersRequest {
 }
 
 message GuildMember {
-	int32 PlayerId							= 1; // 玩家ID
-	string PlayerName						= 2; // 名称
+	int32 Id								= 1; // 玩家ID
+	string Name								= 2; // 名称
 	int32 Level								= 3; // 等级
 	int32 Head								= 4; // 头像
 	int32 Position							= 5; // 职位类型  1 会长   2 官员   0 会员
-	int32 LastOnlineTime					= 6; // 最近在线时间距离当前时间
+	int32 LastOnlineTime					= 6; // 最近在线时间距离当前时间  0 表示在线
 	int32 NextSignRemainSeconds				= 7; // 下次签到剩余时间
 }
 
@@ -1570,11 +1572,20 @@ message S2CGuildAskListResponse {
 
 // 申请加入公会
 message C2SGuildAskJoinRequest {
-	int32 GuildId							= 1; // ID
+	int32 GuildId							= 1; // 公会ID
 }
 
 message S2CGuildAskJoinResponse {
-	GuildInfo Info							= 1; // 公会信息
+	int32 GuildId							= 1; // 公会Id
+}
+
+// 同意加入公会
+message C2SGuildAgreeAskRequest {
+	int32 PlayerId							= 1; // 玩家ID
+}
+
+message S2CGuildAgreeAskResponse {
+	int32 PlayerId							= 1; // 玩家ID
 }
 
 // 主动退出公会
@@ -1582,6 +1593,7 @@ message C2SGuildQuitRequest {
 }
 
 message S2CGuildQuitResponse {
+	int32 RejoinRemainSeconds				= 1; // 再次加入公会的剩余时间
 }
 
 // 公会日志
@@ -1589,10 +1601,11 @@ message C2SGuildLogsRequest {
 }
 
 message GuildLog {
-	int32 Time								= 1; // 记录时间
-	int32 Type 								= 2; // 类型   1 创建联盟  2 成员加入  3 成员脱离   4 成员被踢   5 成员被任命   6 成员被罢免   7 会长转让
-	int32 PlayerId							= 3; // 玩家ID
-	string PlayerName						= 4; // 玩家名称
+	int32 Id								= 1; // ID
+	int32 Time								= 2; // 记录时间
+	int32 Type 								= 3; // 类型   1 创建联盟  2 成员加入  3 成员脱离   4 成员被踢   5 成员被任命   6 成员被罢免   7 会长转让
+	int32 PlayerId							= 4; // 玩家ID
+	string PlayerName						= 5; // 玩家名称
 }
 
 message S2CGuildLogsResponse {
@@ -1600,11 +1613,15 @@ message S2CGuildLogsResponse {
 }
 
 // 公会签到
-message C2SGuildSignRequest {
+message C2SGuildSignInRequest {
 }
 
-message S2CGuildSignResponse {
-	int32 NextSignRemainSeconds				= 1; // 下次签到剩余秒数
+message S2CGuildSignInResponse {
+	int32 NextSignInRemainSeconds			= 1; // 下次签到剩余秒数
+	repeated int32 RewardItems				= 2; // 奖励  (id,num,id,num...)
+	int32 GuildLevel						= 3; // 公会等级
+	int32 GuildExp							= 4; // 公会经验
+	bool IsLevelup							= 5; // 是否升级
 }
 
 // 公会任命或罢免官员
@@ -1613,9 +1630,10 @@ message C2SGuildSetOfficerRequest {
 	int32 SetType							= 2; // 1 任命  2 罢免
 }
 
-message S2CGuildSetOfficerRequest {
+message S2CGuildSetOfficerResponse {
 	repeated int32 PlayerIds				= 1; // 玩家ID
 	int32 SetType							= 2; // 1 任命  2 罢免
+	int32 Position							= 3; // 职位
 }
 
 // 公会驱逐会员
@@ -1638,11 +1656,11 @@ message S2CGuildChangePresidentResponse {
 
 // 公会招募
 message C2SGuildRecruitRequest {
-	string Content							= 1; // 内容
+	bytes Content							= 1; // 内容
 }
 
 message S2CGuildRecruitResponse {
-	string Content							= 1; // 内容
+	bytes Content							= 1; // 内容
 }
 
 // 公会请求捐赠
@@ -1680,8 +1698,9 @@ message GuildAskDonateInfo {
 	string PlayerName						= 2; // 名称
 	int32 PlayerHead						= 3; // 头像
 	int32 PlayerLevel						= 4; // 等级
-	int32 ReceiveItemNum					= 5; // 已接收捐赠数
-	int32 AskTime							= 6; // 请求时间 可以用于排序
+	int32 ItemId							= 5; // 捐赠物品ID
+	int32 ItemNum							= 6; // 已接受捐赠数
+	int32 AskTime							= 7; // 请求时间 可以用于排序
 }
 
 message S2CGuildDonateListResponse {

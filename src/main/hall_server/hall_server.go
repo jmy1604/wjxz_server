@@ -52,8 +52,10 @@ func (this *HallServer) Init() (ok bool) {
 		return
 	}
 
-	// 世界聊天
+	// 世界频道
 	world_chat_mgr.Init(CHAT_CHANNEL_WORLD)
+	// 招募频道
+	recruit_chat_mgr.Init(CHAT_CHANNEL_RECRUIT)
 	// 公告
 	anouncement_mgr.Init()
 	// 录像
@@ -277,6 +279,22 @@ func (this *HallServer) OnInit() (err error) {
 		log.Info("task_table_mgr init success")
 	}
 
+	if !guild_mark_table_mgr.Init() {
+		return errors.New("guild_mark_table_mgr init failed")
+	}
+
+	if !guild_levelup_table_mgr.Init() {
+		return errors.New("guild_levelup_table_mgr init failed")
+	}
+
+	if !guild_donate_table_mgr.Init() {
+		return errors.New("guild_donate_table_mgr init failed")
+	}
+
+	if !guild_boss_table_mgr.Init() {
+		return errors.New("guild_boss_table_mgr init failed")
+	}
+
 	if !arena_season_mgr.Init() {
 		log.Error("arena_season_mgr init failed")
 		return errors.New("arena_season_mgr init failed")
@@ -468,6 +486,10 @@ var active_stage_table_mgr table_config.ActiveStageTableMgr
 var friend_boss_table_mgr table_config.FriendBossTableMgr
 var explore_task_mgr table_config.SearchTaskTableMgr
 var explore_task_boss_mgr table_config.SearchTaskBossTableMgr
+var guild_mark_table_mgr table_config.GuildMarkTableMgr
+var guild_levelup_table_mgr table_config.GuildLevelUpTableMgr
+var guild_donate_table_mgr table_config.GuildDonateTableMgr
+var guild_boss_table_mgr table_config.GuildBossTableMgr
 
 var team_member_pool TeamMemberPool
 var battle_report_pool BattleReportPool

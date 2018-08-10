@@ -384,10 +384,15 @@ message PlayerSuitAwardList{
 	repeated PlayerSuitAward List=1;
 }
 
-message PlayerWorldChat{
-	optional int32 LastChatTime=1;
-	optional int32 LastPullTime=2;
-	optional int32 LastMsgIndex=3;
+message PlayerChat{
+	optional int32 Channel=1;
+	optional int32 LastChatTime=2;
+	optional int32 LastPullTime=3;
+	optional int32 LastMsgIndex=4;
+}
+
+message PlayerChatList{
+	repeated PlayerChat List=1;
 }
 
 message PlayerAnouncement{
@@ -446,6 +451,25 @@ message GuildAskListList{
 	repeated GuildAskList List=1;
 }
 
-message GuildLastDonateRefreshTime{
+message GuildLog{
+	optional int32 Id=1;
+	optional int32 LogType=2;
+	optional int32 PlayerId=3;
+	optional int32 Time=4;
+}
+
+message GuildLogList{
+	repeated GuildLog List=1;
+}
+
+message GuildAskDonate{
+	optional int32 PlayerId=1;
+	optional int32 ItemId=2;
+	optional int32 ItemNum=3;
+	optional int32 AskTime=4;
+}
+
+message GuildAskDonateList{
+	repeated GuildAskDonate List=1;
 }
 
