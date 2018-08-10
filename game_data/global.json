@@ -90,7 +90,8 @@
 	"GuildOpenLevel": 3,
 	"GuildCreateCostGem": 1000,
 	"GuildChangeNameCostGem": 2000,
-	"GuildSignReward": [20,10,21,1],
+	"GuildSignReward": [20,10],
+	"GuildSignAddExp": 1,
 	"GuildMailSendIntervalSecs": 30,
 	"GuildRecruitIntervalSecs": 5,
 	"GuildAskDonateCDSecs": 25200,
@@ -99,5 +100,6 @@
 	"GuildStageResetCDSecs": 17800,
 	"GuildStageResurrectionGem": [0,100,200],
 	"GuildDismissWaitingSeconds": 7200,
-	"GuildSignRefreshTime":"00:00:00"
+	"GuildSignRefreshTime":"00:00:00",
+	"GuildAskDonateExistSeconds": 36000
 }
