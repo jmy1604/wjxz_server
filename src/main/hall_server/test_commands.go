@@ -1768,6 +1768,10 @@ func guild_agree_cmd(p *Player, args []string) int32 {
 	return p.guild_agree_ask(int32(player_id))
 }
 
+func guild_ask_list_cmd(p *Player, args []string) int32 {
+	return p.guild_ask_list()
+}
+
 func guild_quit_cmd(p *Player, args []string) int32 {
 	return p.guild_quit()
 }
@@ -1877,6 +1881,40 @@ func guild_donate_cmd(p *Player, args []string) int32 {
 	return p.guild_donate(int32(player_id))
 }
 
+func chat_cmd(p *Player, args []string) int32 {
+	if len(args) < 2 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var content []byte
+	var channel int
+	var err error
+	content = []byte(args[0])
+	channel, err = strconv.Atoi(args[1])
+	if err != nil {
+		return -1
+	}
+
+	return p.chat(int32(channel), content)
+}
+
+func pull_chat_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var channel int
+	var err error
+	channel, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.pull_chat(int32(channel))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -1983,6 +2021,7 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"guild_members":          guild_members_cmd,
 	"guild_ask":              guild_ask_cmd,
 	"guild_agree":            guild_agree_cmd,
+	"guild_ask_list":         guild_ask_list_cmd,
 	"guild_quit":             guild_quit_cmd,
 	"guild_logs":             guild_logs_cmd,
 	"guild_sign":             guild_sign_cmd,
@@ -1993,6 +2032,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"guild_donate_list":      guild_donate_list_cmd,
 	"guild_ask_donate":       guild_ask_donate_cmd,
 	"guild_donate":           guild_donate_cmd,
+	"chat":                   chat_cmd,
+	"pull_chat":              pull_chat_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

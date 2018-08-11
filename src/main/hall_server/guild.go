@@ -127,7 +127,7 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
 	guild_id := player.db.Guild.GetId()
-	if guild_id > 0 {
+	if guild_id > 0 && this.GetGuild(guild_id) != nil {
 		log.Error("Player[%v] already create guild[%v|%v]", player_id, guild_name, guild_id)
 		return -1
 	}
@@ -144,9 +144,13 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 	row.SetLevel(1)
 	row.SetLogo(logo)
 	row.SetPresident(player_id)
+	row.Members.Add(&dbGuildMemberData{
+		PlayerId: player_id,
+	})
 	guild_id = row.GetId()
 
 	player.db.Guild.SetId(guild_id)
+	player.db.Guild.SetPosition(GUILD_POSITION_PRESIDENT)
 
 	this._add_guild(guild_id, guild_name)
 
@@ -155,6 +159,9 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 
 func (this *GuildManager) GetGuild(guild_id int32) *dbGuildRow {
 	guild := this.guilds.GetRow(guild_id)
+	if guild == nil {
+		return nil
+	}
 	exist_type := _guild_get_exist_type(guild)
 	if exist_type == GUILD_EXIST_TYPE_DELETED {
 		return nil
@@ -171,7 +178,7 @@ func (this *GuildManager) GetChatMgr(guild_id int32) *ChatMgr {
 
 func (this *GuildManager) Recommend(player_id int32) (guild_ids []int32) {
 	guild_id := _player_get_guild_id(player_id)
-	if guild_id > 0 {
+	if guild_id > 0 && this.GetGuild(guild_id) != nil {
 		log.Error("Player[%v] already joined one guild", player_id)
 		return
 	}
@@ -234,95 +241,51 @@ func (this *GuildManager) Search(key string) (guild_ids []int32) {
 }
 
 func (this *GuildManager) _get_guild(player_id int32, is_president bool) (guild *dbGuildRow) {
-	guild_id := _player_get_guild_id(player_id)
+	player := player_mgr.GetPlayerById(player_id)
+	if player == nil {
+		return nil
+	}
+	guild_id := player.db.Guild.GetId()
+	if guild_id <= 0 {
+		return nil
+	}
 	guild = this.GetGuild(guild_id)
 	if guild == nil || (is_president && guild.GetPresident() != player_id) {
 		return nil
 	}
+
+	position := player.db.Guild.GetPosition()
+	if position <= GUILD_POSITION_MEMBER && guild.GetPresident() == player_id {
+		player.db.Guild.SetPosition(GUILD_POSITION_PRESIDENT)
+	} else if position == GUILD_POSITION_PRESIDENT && guild.GetPresident() != player_id {
+		guild.SetPresident(player_id)
+	}
+
+	if guild.GetPresident() == player_id && !guild.Members.HasIndex(player_id) {
+		guild.Members.Add(&dbGuildMemberData{
+			PlayerId: player_id,
+		})
+	}
+
 	return guild
 }
 
-func (this *GuildManager) SetAnouncement(president_id int32, anouncement string) int32 {
-	guild := this._get_guild(president_id, true)
-	if guild == nil {
-		return -1
+func _guild_member_num_limit(guild *dbGuildRow) int32 {
+	levelup_data := guild_levelup_table_mgr.Get(guild.GetLevel())
+	if levelup_data == nil {
+		return 0
 	}
-
-	guild.SetAnouncement(anouncement)
-	return 1
-}
-
-func (this *GuildManager) AskJoin(player_id int32, guild_id int32) int32 {
-	guild := this._get_guild(player_id, false)
-	if guild == nil {
-		return -1
-	}
-
-	if guild.GetId() == guild_id || guild.AskLists.HasIndex(player_id) {
-		log.Error("Player[%v] already joined guild[%v], no need to ask join", player_id, guild_id)
-		return -1
-	}
-
-	guild.AskLists.Add(&dbGuildAskListData{
-		PlayerId: player_id,
-	})
-
-	return 1
-}
-
-func (this *GuildManager) AgreeAsk(president_id int32, player_id int32) int32 {
-	guild := this._get_guild(president_id, true)
-	if guild == nil {
-		return -1
-	}
-
-	if guild.Members.HasIndex(player_id) {
-		log.Error("Player[%v] already joined guild[%v], president[%v] no need to add", player_id, guild.GetId(), president_id)
-		return -1
-	}
-
-	guild.AskLists.Remove(player_id)
-
-	guild.Members.Add(&dbGuildMemberData{
-		player_id,
-	})
-
-	return 1
-}
-
-func (this *GuildManager) RemoveAsk(president_id int32, player_id int32) int32 {
-	guild := this._get_guild(president_id, true)
-	if guild == nil {
-		return -1
-	}
-	if !guild.AskLists.HasIndex(player_id) {
-		log.Error("Guild[%v] no player[%v] ask, president[%v] remove failed", guild.GetId(), player_id, president_id)
-		return -1
-	}
-	guild.AskLists.Remove(player_id)
-	return 1
-}
-
-func (this *GuildManager) RemovePlayer(president_id, player_id int32) int32 {
-	guild := this._get_guild(president_id, true)
-	if guild == nil {
-		return -1
-	}
-	if !guild.Members.HasIndex(player_id) {
-		log.Error("Guild[%v] no player[%v], president[%v] remove failed", guild.GetId(), player_id, president_id)
-		return -1
-	}
-	guild.Members.Remove(player_id)
-	return 1
+	return levelup_data.MemberNum
 }
 
 func _format_guild_base_info_to_msg(guild *dbGuildRow) (msg *msg_client_message.GuildBaseInfo) {
 	msg = &msg_client_message.GuildBaseInfo{
-		Id:        guild.GetId(),
-		Name:      guild.GetName(),
-		Level:     guild.GetLevel(),
-		Logo:      guild.GetLogo(),
-		MemberNum: guild.Members.NumAll(),
+		Id:             guild.GetId(),
+		Name:           guild.GetName(),
+		Level:          guild.GetLevel(),
+		Logo:           guild.GetLogo(),
+		MemberNum:      guild.Members.NumAll(),
+		MemberNumLimit: _guild_member_num_limit(guild),
 	}
 	return
 }
@@ -377,6 +340,12 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 	dismiss_remain_seconds = _guild_get_dismiss_remain_seconds(guild)
 	sign_remain_seconds = utils.GetRemainSeconds2NextDayTime(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime)
 	ask_donate_remain_seconds = GetRemainSeconds(this.db.Guild.GetLastAskDonateTime(), global_config.GuildAskDonateCDSecs)
+	president_id := guild.GetPresident()
+	var president_name string
+	president := player_mgr.GetPlayerById(president_id)
+	if president != nil {
+		president_name = president.db.GetName()
+	}
 	msg = &msg_client_message.GuildInfo{
 		Id:                       guild.GetId(),
 		Name:                     guild.GetName(),
@@ -388,6 +357,10 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 		SignRemainSeconds:        sign_remain_seconds,
 		AskDonateRemainSeconds:   ask_donate_remain_seconds,
 		DonateResetRemainSeconds: donate_reset_remain_seconds,
+		President:                president_id,
+		PresidentName:            president_name,
+		MemberNum:                guild.Members.NumAll(),
+		MemberNumLimit:           _guild_member_num_limit(guild),
 	}
 	return
 }
@@ -420,11 +393,6 @@ func (this *Player) send_guild_data() int32 {
 
 // 公会推荐
 func (this *Player) guild_recommend() int32 {
-	if this.db.Guild.GetId() > 0 {
-		log.Error("Player[%v] no need to recommend guild", this.Id)
-		return -1
-	}
-
 	gids := guild_manager.Recommend(this.Id)
 	if gids == nil {
 		return -1
@@ -479,9 +447,17 @@ func (this *Player) guild_create(name string, logo int32) int32 {
 	}
 
 	guild_id := guild_manager.CreateGuild(this.Id, name, logo)
+	if guild_id < 0 {
+		log.Error("Player[%v] create guild failed, err %v", this.Id, guild_id)
+		return guild_id
+	}
+
 	this.add_diamond(-global_config.GuildCreateCostGem)
 
 	guild := guild_manager.GetGuild(guild_id)
+	if guild == nil {
+		return -1
+	}
 	guild_msg := this._format_guild_info_to_msg(guild)
 	response := &msg_client_message.S2CGuildCreateResponse{
 		Info: guild_msg,
@@ -654,6 +630,20 @@ func (this *Player) guild_members_list() int32 {
 
 // 公会申请加入
 func (this *Player) guild_ask_join(guild_id int32) int32 {
+	last_ask_time := this.db.Guild.GetQuitTime()
+	if last_ask_time > 0 {
+		now_time := int32(time.Now().Unix())
+		if now_time-last_ask_time < global_config.GuildQuitAskJoinCDSecs {
+			log.Error("Player[%v] is already in cool down to last quit", this.Id)
+			return -1
+		}
+	}
+
+	if _player_get_guild_id(this.Id) > 0 {
+		log.Error("Player[%v] already joined guild", this.Id)
+		return -1
+	}
+
 	guild := guild_manager.GetGuild(guild_id)
 	if guild == nil {
 		log.Error("Player[%v] ask join guild[%v] not found", this.Id, guild_id)
@@ -692,22 +682,44 @@ func (this *Player) guild_agree_ask(player_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
 
+	// 是否已是其他工会的成员
+	if player.db.Guild.GetId() > 0 {
+		log.Error("Player[%v] already joined other guild", player_id)
+		return -1
+	}
+
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild", this.Id)
 		return -1
 	}
 
+	// 是否已申请
 	if !guild.AskLists.HasIndex(player_id) {
 		log.Error("Player[%v] not found in guild[%v] ask list", player_id, guild.GetId())
 		return -1
 	}
 
+	// 是否已是工会成员
 	if guild.Members.HasIndex(player_id) {
 		log.Error("Player[%v] already joined guild", player_id)
 		return -1
 	}
 
+	// 升级配置数据
+	levelup_data := guild_levelup_table_mgr.Get(guild.GetLevel())
+	if levelup_data == nil {
+		log.Error("Guild level up table data not found with level %v", guild.GetLevel())
+		return -1
+	}
+
+	// 人数限制
+	if levelup_data.MemberNum <= guild.Members.NumAll() {
+		log.Error("Guild %v members num is max, player %v cant agree the player %v join", guild.GetId(), this.Id, player_id)
+		return -1
+	}
+
+	// 职位
 	if this.db.Guild.GetPosition() <= GUILD_POSITION_MEMBER {
 		log.Error("Player[%v] no authority to agree new member join", this.Id)
 		return -1
@@ -716,10 +728,10 @@ func (this *Player) guild_agree_ask(player_id int32) int32 {
 	guild.Members.Add(&dbGuildMemberData{
 		PlayerId: player_id,
 	})
-
 	guild.AskLists.Remove(player_id)
 
 	player.db.Guild.SetId(guild.GetId())
+	player.db.Guild.SetJoinTime(int32(time.Now().Unix()))
 
 	response := &msg_client_message.S2CGuildAgreeAskResponse{
 		PlayerId: player_id,
@@ -727,6 +739,30 @@ func (this *Player) guild_agree_ask(player_id int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_ASK_RESPONSE), response)
 
 	log.Debug("Player[%v] agreed player[%v] join guild %v", this.Id, player_id, guild.GetId())
+
+	return 1
+}
+
+// 公会申请列表
+func (this *Player) guild_ask_list() int32 {
+	guild := guild_manager._get_guild(this.Id, false)
+	if guild == nil {
+		log.Error("Player[%v] cant get guild or guild not found", this.Id)
+		return -1
+	}
+
+	var info_list []*msg_client_message.PlayerInfo
+	ids := guild.AskLists.GetAllIndex()
+	if ids != nil {
+		info_list = _format_players_info(ids)
+	}
+
+	response := &msg_client_message.S2CGuildAskListResponse{
+		AskList: info_list,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_ASK_LIST_RESPONSE), response)
+
+	log.Debug("Player[%v] get ask list %v", this.Id, response)
 
 	return 1
 }
@@ -762,7 +798,7 @@ func (this *Player) guild_quit() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_QUIT_RESPONSE), response)
 
-	log.Debug("Player[%v] quit guild %v, rejoin remain seconds", this.Id, guild.GetId(), response.GetRejoinRemainSeconds())
+	log.Debug("Player[%v] quit guild %v, rejoin remain seconds %v", this.Id, guild.GetId(), response.GetRejoinRemainSeconds())
 
 	return 1
 }
@@ -963,8 +999,8 @@ func (this *Player) guild_kick_member(player_ids []int32) int32 {
 			player_ids[i] = 0
 			continue
 		}
-		player.db.Guild.SetId(0)
 		guild.Members.Remove(player_id)
+		player.clear_guild_data()
 	}
 
 	response := &msg_client_message.S2CGuildKickMemberResponse{
@@ -983,6 +1019,12 @@ func (this *Player) guild_change_president(player_id int32) int32 {
 		return -1
 	}
 
+	player := player_mgr.GetPlayerById(player_id)
+	if player == nil {
+		log.Error("Player[%v] not found", player_id)
+		return -1
+	}
+
 	guild := guild_manager._get_guild(this.Id, true)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
@@ -995,6 +1037,8 @@ func (this *Player) guild_change_president(player_id int32) int32 {
 	}
 
 	guild.SetPresident(player_id)
+	this.db.Guild.SetPosition(GUILD_POSITION_MEMBER)
+	player.db.Guild.SetPosition(GUILD_POSITION_PRESIDENT)
 
 	response := &msg_client_message.S2CGuildChangePresidentResponse{
 		NewPresidentId: player_id,
@@ -1050,31 +1094,7 @@ func (this *Player) guild_recruit(content []byte) int32 {
 	return 1
 }
 
-// 检测捐赠列表
-func guild_check_donate_list(guild *dbGuildRow) {
-	all_ids := guild.AskDonates.GetAllIndex()
-	if all_ids == nil {
-		return
-	}
-	for _, player_id := range all_ids {
-		ask_time, _ := guild.AskDonates.GetAskTime(player_id)
-		// 超时就删除
-		if GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds) <= 1 {
-			guild.AskDonates.Remove(player_id)
-		}
-	}
-}
-
-// 公会捐赠列表
-func (this *Player) guild_donate_list() int32 {
-	guild := guild_manager._get_guild(this.Id, false)
-	if guild == nil {
-		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
-		return -1
-	}
-
-	guild_check_donate_list(guild)
-
+func (this *Player) send_guild_donate_list(guild *dbGuildRow) {
 	var donate_list []*msg_client_message.GuildAskDonateInfo
 	player_ids := guild.AskDonates.GetAllIndex()
 	if player_ids != nil {
@@ -1107,6 +1127,36 @@ func (this *Player) guild_donate_list() int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_LIST_RESPONSE), response)
 
 	log.Debug("Player[%v] get donate list %v", this.Id, response)
+}
+
+// 检测捐赠列表
+func guild_check_donate_list(guild *dbGuildRow) (changed bool) {
+	all_ids := guild.AskDonates.GetAllIndex()
+	if all_ids == nil {
+		return
+	}
+	for _, player_id := range all_ids {
+		ask_time, _ := guild.AskDonates.GetAskTime(player_id)
+		// 超时就删除
+		if GetRemainSeconds(ask_time, global_config.GuildAskDonateExistSeconds) <= 1 {
+			guild.AskDonates.Remove(player_id)
+			changed = true
+		}
+	}
+	return
+}
+
+// 公会捐赠列表
+func (this *Player) guild_donate_list() int32 {
+	guild := guild_manager._get_guild(this.Id, false)
+	if guild == nil {
+		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
+		return -1
+	}
+
+	guild_check_donate_list(guild)
+
+	this.send_guild_donate_list(guild)
 
 	return 1
 }
@@ -1168,6 +1218,8 @@ func (this *Player) guild_donate(player_id int32) int32 {
 		return -1
 	}
 
+	guild_check_donate_list(guild)
+
 	if !guild.AskDonates.HasIndex(player_id) {
 		log.Error("Player[%v] no ask donate, player[%v] cant donate", player_id, this.Id)
 		return -1
@@ -1199,6 +1251,11 @@ func (this *Player) guild_donate(player_id int32) int32 {
 	// 已捐赠的分数
 	this.db.Guild.SetDonateNum(donate_num + item.LimitScore)
 	this.db.Guild.SetLastAskDonateTime(int32(time.Now().Unix()))
+
+	// 奖励
+	if item.DonateRewardItem != nil {
+		this.add_resources(item.DonateRewardItem)
+	}
 
 	response := &msg_client_message.S2CGuildDonateResponse{
 		PlayerId:  player_id,
@@ -1316,6 +1373,16 @@ func C2SGuildAgreeAskHandler(w http.ResponseWriter, r *http.Request, p *Player, 
 		return -1
 	}
 	return p.guild_agree_ask(req.GetPlayerId())
+}
+
+func C2SGuildAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildAskListRequest
+	err := proto.Unmarshal(msg_data, &req)
+	if err != nil {
+		log.Error("Unmarshal msg failed, err(%v)", err.Error())
+		return -1
+	}
+	return p.guild_ask_list()
 }
 
 func C2SGuildQuitHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

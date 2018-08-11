@@ -1460,6 +1460,10 @@ message GuildInfo {
 	int32 DonateResetRemainSeconds			= 10; // 捐赠重置剩余秒数
 	int32 DonateNum							= 11; // 已捐赠数
 	int32 MaxDonateNum						= 12; // 最大捐赠数
+	int32 President							= 13; // 会长
+	string PresidentName					= 14; // 会长名
+	int32 MemberNum							= 15; // 成员数
+	int32 MemberNumLimit					= 16; // 最大成员数
 }
 
 message S2CGuildDataResponse {

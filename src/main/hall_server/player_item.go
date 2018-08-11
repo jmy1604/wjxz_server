@@ -282,6 +282,18 @@ func (this *Player) set_resource(id int32, num int32) int32 {
 	return num
 }
 
+func (this *Player) add_resources(items []int32) {
+	if items == nil {
+		return
+	}
+
+	for i := 0; i < len(items); i++ {
+		item_id := items[2*i]
+		item_num := items[2*i+1]
+		this.add_resource(item_id, item_num)
+	}
+}
+
 func (this *Player) equip(role_id, equip_id int32) int32 {
 	var n int32
 	var o bool

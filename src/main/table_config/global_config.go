@@ -70,6 +70,7 @@ type GlobalConfig struct {
 	GuildSignAddExp                      int32   // 公会签到奖励经验
 	GuildMailSendIntervalSecs            int32   // 公会邮件发送间隔
 	GuildRecruitIntervalSecs             int32   // 公会招募间隔
+	GuildRecruitContentMaxBytes          int32   // 公会招募内容最大长度
 	GuildAskDonateCDSecs                 int32   // 公会请求捐献CD
 	GuildQuitAskJoinCDSecs               int32   // 公会退出再加入的CD
 	GuildDonateLimitDay                  int32   // 公会每天捐献上限

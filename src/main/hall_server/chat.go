@@ -211,9 +211,15 @@ func (this *Player) chat(channel int32, content []byte) int32 {
 		max_bytes = global_config.WorldChatMsgMaxBytes
 		chat_mgr = &world_chat_mgr
 	} else if channel == CHAT_CHANNEL_GUILD {
+		max_bytes = global_config.WorldChatMsgMaxBytes
 		guild_id := this.db.Guild.GetId()
 		chat_mgr = guild_manager.GetChatMgr(guild_id)
+		if chat_mgr == nil {
+			log.Error("Player[%v] no guild chat channel", this.Id)
+			return -1
+		}
 	} else if channel == CHAT_CHANNEL_RECRUIT {
+		max_bytes = global_config.GuildRecruitContentMaxBytes
 		chat_mgr = &recruit_chat_mgr
 	} else {
 		return -1
@@ -230,14 +236,21 @@ func (this *Player) chat(channel int32, content []byte) int32 {
 	}
 
 	var extra_value int32
-	if channel == CHAT_CHANNEL_GUILD {
+	if channel == CHAT_CHANNEL_RECRUIT {
 		extra_value = this.db.Guild.GetId()
 	}
 	if !chat_mgr.push_chat_msg(content, extra_value, this.Id, this.db.Info.GetLvl(), this.db.GetName(), this.db.Info.GetHead()) {
 		return int32(msg_client_message.E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE)
 	}
 
-	this.db.Chats.SetLastChatTime(channel, now_time)
+	if !this.db.Chats.HasIndex(channel) {
+		this.db.Chats.Add(&dbPlayerChatData{
+			Channel:      channel,
+			LastChatTime: now_time,
+		})
+	} else {
+		this.db.Chats.SetLastChatTime(channel, now_time)
+	}
 
 	response := &msg_client_message.S2CChatResponse{
 		Channel: channel,
@@ -274,14 +287,24 @@ func (this *Player) pull_chat(channel int32) int32 {
 	}
 
 	msgs := chat_mgr.pull_chat(this)
-	this.db.Chats.SetLastPullTime(channel, now_time)
+	if msgs != nil && len(msgs) > 0 {
+		if !this.db.Chats.HasIndex(channel) {
+			this.db.Chats.Add(&dbPlayerChatData{
+				Channel:      channel,
+				LastPullTime: now_time,
+			})
+		} else {
+			this.db.Chats.SetLastPullTime(channel, now_time)
+		}
+	}
 
 	response := &msg_client_message.S2CChatMsgPullResponse{
-		Items: msgs,
+		Channel: channel,
+		Items:   msgs,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_CHAT_MSG_PULL_RESPONSE), response)
 
-	log.Debug("Player[%v] pulled world chat msgs", this.Id)
+	log.Debug("Player[%v] pulled chat channel %v msgs %v", this.Id, channel, response)
 
 	return 1
 }
