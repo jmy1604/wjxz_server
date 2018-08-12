@@ -675,7 +675,7 @@ func (this *Player) guild_ask_join(guild_id int32) int32 {
 }
 
 // 公会同意申请加入
-func (this *Player) guild_agree_ask(player_id int32) int32 {
+func (this *Player) guild_agree_join(player_id int32) int32 {
 	player := player_mgr.GetPlayerById(player_id)
 	if player == nil {
 		log.Error("Player[%v] not found", player_id)
@@ -733,10 +733,16 @@ func (this *Player) guild_agree_ask(player_id int32) int32 {
 	player.db.Guild.SetId(guild.GetId())
 	player.db.Guild.SetJoinTime(int32(time.Now().Unix()))
 
-	response := &msg_client_message.S2CGuildAgreeAskResponse{
+	response := &msg_client_message.S2CGuildAgreeJoinResponse{
 		PlayerId: player_id,
 	}
-	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_ASK_RESPONSE), response)
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_RESPONSE), response)
+
+	// 通知加入的成员
+	notify := &msg_client_message.S2CGuildAgreeJoinNotify{
+		GuildId: guild.GetId(),
+	}
+	player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
 
 	log.Debug("Player[%v] agreed player[%v] join guild %v", this.Id, player_id, guild.GetId())
 
@@ -1365,14 +1371,14 @@ func C2SGuildAskJoinHandler(w http.ResponseWriter, r *http.Request, p *Player, m
 	return p.guild_ask_join(req.GetGuildId())
 }
 
-func C2SGuildAgreeAskHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
-	var req msg_client_message.C2SGuildAgreeAskRequest
+func C2SGuildAgreeJoinHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
+	var req msg_client_message.C2SGuildAgreeJoinRequest
 	err := proto.Unmarshal(msg_data, &req)
 	if err != nil {
 		log.Error("Unmarshal msg failed, err(%v)", err.Error())
 		return -1
 	}
-	return p.guild_agree_ask(req.GetPlayerId())
+	return p.guild_agree_join(req.GetPlayerId())
 }
 
 func C2SGuildAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

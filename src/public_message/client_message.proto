@@ -1584,12 +1584,17 @@ message S2CGuildAskJoinResponse {
 }
 
 // 同意加入公会
-message C2SGuildAgreeAskRequest {
+message C2SGuildAgreeJoinRequest {
 	int32 PlayerId							= 1; // 玩家ID
 }
 
-message S2CGuildAgreeAskResponse {
+message S2CGuildAgreeJoinResponse {
 	int32 PlayerId							= 1; // 玩家ID
+}
+
+// 公会同意加入通知
+message S2CGuildAgreeJoinNotify {
+	int32 GuildId							= 1; // 公会ID
 }
 
 // 主动退出公会
@@ -1640,6 +1645,12 @@ message S2CGuildSetOfficerResponse {
 	int32 Position							= 3; // 职位
 }
 
+// 公会任命罢免通知本人
+message S2CGuildSetOfficerNotify {
+	int32 SetType							= 1; // 1 任命  2 罢免
+	int32 NewPosition						= 2; // 新职位
+}
+
 // 公会驱逐会员
 message C2SGuildKickMemberRequest {
 	repeated int32 PlayerIds				= 1; // 玩家ID
@@ -1649,6 +1660,10 @@ message S2CGuildKickMemberResponse {
 	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
+// 公会驱逐会员通知本人
+message S2CGuildKickMemberNotify {
+}
+
 // 公会转让会长
 message C2SGuildChangePresidentRequest {
 	int32 NewPresidentId					= 1; // 新会长ID
@@ -1656,6 +1671,10 @@ message C2SGuildChangePresidentRequest {
 
 message S2CGuildChangePresidentResponse {
 	int32 NewPresidentId					= 1; // 新会长ID
+}
+
+// 公会转让会长通知本人
+message S2CGuildChangePresidentNotify {
 }
 
 // 公会招募
