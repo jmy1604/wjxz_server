@@ -73,23 +73,24 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 }
 
 func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (remain_secs int32, cost_res []int32) {
-	now_time := int32(time.Now().Unix())
-	last_refresh, _ := this.db.Shops.GetLastFreeRefreshTime(shop.Id)
-	if shop.AutoRefreshTime == "" {
-		if last_refresh == 0 {
-			this._refresh_shop(shop)
-			//this.db.Shops.SetLastFreeRefreshTime(shop.Id, now_time)
-		}
+	if shop.FreeRefreshTime <= 0 {
+		remain_secs = -1
+		return
 	}
 
-	if shop.FreeRefreshTime > 0 {
-		remain_secs = shop.FreeRefreshTime - (now_time - last_refresh)
-		if remain_secs < 0 {
-			remain_secs = 0
-		}
-	} else {
-		remain_secs = -1
+	now_time := int32(time.Now().Unix())
+	last_refresh, _ := this.db.Shops.GetLastFreeRefreshTime(shop.Id)
+	if last_refresh == 0 {
+		this._refresh_shop(shop)
+		// 确保每次进商店只刷一次
+		this.db.Shops.SetLastFreeRefreshTime(shop.Id, 1)
 	}
+
+	remain_secs = shop.FreeRefreshTime - (now_time - last_refresh)
+	if remain_secs < 0 {
+		remain_secs = 0
+	}
+
 	cost_res = shop.RefreshRes
 	return
 }
@@ -97,6 +98,11 @@ func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (
 func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs int32) int32 {
 	var shop_items []*msg_client_message.ShopItem
 	item_ids := this.db.ShopItems.GetAllIndex()
+	if (item_ids == nil || len(item_ids) == 0) && shop.AutoRefreshTime == "" && shop.FreeRefreshTime == 0 {
+		this._refresh_shop(shop)
+		item_ids = this.db.ShopItems.GetAllIndex()
+	}
+
 	for _, id := range item_ids {
 		if id/10000 != shop.Id {
 			continue
