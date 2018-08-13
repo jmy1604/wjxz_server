@@ -22,7 +22,7 @@
 	"PlayerBattleRecordMaxCount":10,
 	
 	"TowerKeyMax": 10,
-	"TowerKeyGetInterval": 1800,
+	"TowerKeyGetInterval": 60,
 	"TowerKeyId": 8,
 	
 	"ItemLeftSlotOpenLevel": 1,
@@ -57,7 +57,7 @@
 	"FriendBossAttackCostStamina": 1,
 	"FriendBossAttackCooldown": 3600,
 	"FriendRefreshTime": "00:00:00",
-	"FriendSearchBossRefreshHours": 8,
+	"FriendSearchBossRefreshHours": 1,
 	"FriendAssistPointsGet": 10,
 	"FriendPointsGetLimitDay": 100,
 	
@@ -94,7 +94,6 @@
 	"GuildSignAddExp": 1,
 	"GuildMailSendIntervalSecs": 30,
 	"GuildRecruitIntervalSecs": 5,
-	"GuildRecruitContentMaxBytes": 50,
 	"GuildAskDonateCDSecs": 25200,
 	"GuildQuitAskJoinCDSecs": 25200,
 	"GuildDonateLimitDay": 180,
