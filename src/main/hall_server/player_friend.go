@@ -613,7 +613,7 @@ func (this *Player) friend_search_boss() int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_DATA_NOT_FOUND)
 	}
 
-	var stage_id int32
+	var boss_id int32
 	var items []*msg_client_message.ItemInfo
 	r := rand.Int31n(10000)
 	if r >= friend_boss_tdata.SearchBossChance {
@@ -625,7 +625,7 @@ func (this *Player) friend_search_boss() int32 {
 		}
 		items = []*msg_client_message.ItemInfo{item}
 	} else {
-		stage_id = friend_boss_tdata.BossStageID
+		stage_id := friend_boss_tdata.BossStageID
 		stage := stage_table_mgr.Get(stage_id)
 		if stage == nil {
 			log.Error("Stage[%v] table data not found in friend boss", stage_id)
@@ -644,19 +644,20 @@ func (this *Player) friend_search_boss() int32 {
 				MonsterId:  stage.Monsters[i].MonsterID,
 			})
 		}
+		boss_id = friend_boss_tdata.Id
 	}
 
 	this.db.FriendCommon.SetLastBossRefreshTime(now_time)
 	this.db.FriendCommon.SetAttackBossPlayerList(nil)
 
 	response := &msg_client_message.S2CFriendSearchBossResponse{
-		FriendBossTableId: friend_boss_tdata.Id,
+		FriendBossTableId: boss_id,
 		Items:             items,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_FRIEND_SEARCH_BOSS_RESPONSE), response)
 
-	if stage_id > 0 {
-		log.Debug("Player[%v] search friend boss get stage_id %v", this.Id, stage_id)
+	if boss_id > 0 {
+		log.Debug("Player[%v] search friend boss %v", this.Id, boss_id)
 	} else {
 		log.Debug("Player[%v] search friend boss get items %v", this.Id, items)
 	}
