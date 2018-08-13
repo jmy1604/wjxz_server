@@ -1112,6 +1112,7 @@
 					"Preload":true,
 					"Map":false,
 					"AutoIndex":false,
+					"DefaultValue":0,
 					"Fields":[]
 				},
 				{

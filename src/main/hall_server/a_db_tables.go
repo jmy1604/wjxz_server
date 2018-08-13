@@ -14114,7 +14114,7 @@ func (this *dbGuildTable) check_create_table() (err error) {
 	}
 	_, hasLastRecruitTime := columns["LastRecruitTime"]
 	if !hasLastRecruitTime {
-		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN LastRecruitTime int(11)")
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN LastRecruitTime int(11) DEFAULT 0")
 		if err != nil {
 			log.Error("ADD COLUMN LastRecruitTime failed")
 			return

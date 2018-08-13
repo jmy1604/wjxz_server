@@ -792,7 +792,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	if friend_boss_table_id == 0 {
 		p.cancel_friend_boss_fight()
 		log.Error("Player[%v] fight friend[%v] boss is finished or not refreshed", this.Id, friend_id)
-		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_IS_FIGHTING)
+		return int32(msg_client_message.E_ERR_PLAYER_FRIEND_BOSS_NOT_FOUND)
 	}
 
 	friend_boss_tdata := friend_boss_table_mgr.Get(friend_boss_table_id)
