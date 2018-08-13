@@ -340,6 +340,7 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 	dismiss_remain_seconds = _guild_get_dismiss_remain_seconds(guild)
 	sign_remain_seconds = utils.GetRemainSeconds2NextDayTime(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime)
 	ask_donate_remain_seconds = GetRemainSeconds(this.db.Guild.GetLastAskDonateTime(), global_config.GuildAskDonateCDSecs)
+	donate_reset_remain_seconds = utils.GetRemainSeconds2NextDayTime(guild.GetLastDonateRefreshTime(), global_config.GuildDonateRefreshTime)
 	president_id := guild.GetPresident()
 	var president_name string
 	president := player_mgr.GetPlayerById(president_id)
@@ -1152,6 +1153,21 @@ func guild_check_donate_list(guild *dbGuildRow) (changed bool) {
 	return
 }
 
+// 公会捐赠刷新
+func (this *Player) guild_check_donate_refresh() bool {
+	guild := guild_manager._get_guild(this.Id, false)
+	if guild == nil {
+		return false
+	}
+	last_refresh_time := guild.GetLastDonateRefreshTime()
+	if !utils.CheckDayTimeArrival(last_refresh_time, global_config.GuildDonateRefreshTime) {
+		return false
+	}
+	this.db.Guild.SetDonateNum(0)
+	this.send_guild_data()
+	return true
+}
+
 // 公会捐赠列表
 func (this *Player) guild_donate_list() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
@@ -1182,6 +1198,7 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 	}
 
 	guild_check_donate_list(guild)
+	this.guild_check_donate_refresh()
 
 	if guild.AskDonates.HasIndex(this.Id) {
 		log.Error("Player[%v] already asked donate", this.Id)

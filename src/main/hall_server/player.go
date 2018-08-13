@@ -568,10 +568,12 @@ func (this *Player) CancelDefensing() bool {
 }
 
 func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
-	matched_player_id := this.db.Arena.GetMatchedPlayerId()
-	if matched_player_id > 0 && player_id != matched_player_id {
-		log.Error("Player[%v] only fight to matched player[%v], not player[%v]", this.Id, matched_player_id, player_id)
-		return int32(msg_client_message.E_ERR_PLAYER_ARENA_ONLY_FIGHT_MATCHED_PLAYER)
+	if battle_type == 1 {
+		matched_player_id := this.db.Arena.GetMatchedPlayerId()
+		if matched_player_id > 0 && player_id != matched_player_id {
+			log.Error("Player[%v] only fight to matched player[%v], not player[%v]", this.Id, matched_player_id, player_id)
+			return int32(msg_client_message.E_ERR_PLAYER_ARENA_ONLY_FIGHT_MATCHED_PLAYER)
+		}
 	}
 
 	var robot *ArenaRobot
@@ -584,9 +586,11 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	}
 
 	// 赛季是否开始
-	if !arena_season_mgr.IsSeasonStart() {
-		log.Error("Arena Season is not start, wait a while")
-		return int32(msg_client_message.E_ERR_PLAYER_ARENA_SEASON_IS_RESETING)
+	if battle_type == 1 {
+		if !arena_season_mgr.IsSeasonStart() {
+			log.Error("Arena Season is not start, wait a while")
+			return int32(msg_client_message.E_ERR_PLAYER_ARENA_SEASON_IS_RESETING)
+		}
 	}
 
 	// 设置正在防守
@@ -645,16 +649,11 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		p.CancelDefensing()
 	}
 
-	this.db.Arena.SetMatchedPlayerId(0)
-
-	// 竞技场加分
-	_, add_score := this.UpdateArenaScore(is_win)
-
-	if enter_reports == nil {
-		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
-	}
-	if rounds == nil {
-		rounds = make([]*msg_client_message.BattleRoundReports, 0)
+	var add_score int32
+	if battle_type == 1 {
+		this.db.Arena.SetMatchedPlayerId(0)
+		// 竞技场加分
+		_, add_score = this.UpdateArenaScore(is_win)
 	}
 
 	members_damage := this.attack_team.common_data.members_damage
@@ -669,7 +668,7 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 		TargetMemberDamages: members_damage[target_team.side],
 		MyMemberCures:       members_cure[this.attack_team.side],
 		TargetMemberCures:   members_cure[target_team.side],
-		BattleType:          1,
+		BattleType:          battle_type,
 		BattleParam:         player_id,
 	}
 	d := this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
@@ -684,9 +683,11 @@ func (this *Player) Fight2Player(battle_type, player_id int32) int32 {
 	}
 
 	// 更新任务
-	this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_FIGHT_NUM, false, 0, 1)
-	if is_win {
-		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_WIN_NUM, false, 0, 1)
+	if battle_type == 1 {
+		this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_FIGHT_NUM, false, 0, 1)
+		if is_win {
+			this.TaskUpdate(table_config.TASK_COMPLETE_TYPE_ARENA_WIN_NUM, false, 0, 1)
+		}
 	}
 
 	Output_S2CBattleResult(this, response)

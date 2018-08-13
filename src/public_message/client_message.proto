@@ -1724,6 +1724,7 @@ message GuildAskDonateInfo {
 	int32 ItemId							= 5; // 捐赠物品ID
 	int32 ItemNum							= 6; // 已接受捐赠数
 	int32 AskTime							= 7; // 请求时间 可以用于排序
+	int32 RemainExistSeconds				= 8; // 剩余存在时间
 }
 
 message S2CGuildDonateListResponse {
