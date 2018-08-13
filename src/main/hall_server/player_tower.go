@@ -18,13 +18,9 @@ func get_tower_fight_id(tower_id, i int32) int32 {
 }
 
 func (this *Player) send_tower_data(check bool) int32 {
+	var tower_keys, remain_seconds int32
 	if check {
-		this.check_tower_keys()
-	}
-	tower_keys := this.get_resource(global_config.TowerKeyId)
-	remain_seconds := global_config.TowerKeyGetInterval - (int32(time.Now().Unix()) - this.db.TowerCommon.GetLastGetNewKeyTime())
-	if remain_seconds < 0 {
-		remain_seconds = 0
+		_, tower_keys, remain_seconds = this.check_tower_keys()
 	}
 	response := &msg_client_message.S2CTowerDataResponse{
 		CurrTowerId:   this.db.TowerCommon.GetCurrId(),
@@ -32,10 +28,11 @@ func (this *Player) send_tower_data(check bool) int32 {
 		RemainSeconds: remain_seconds,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TOWER_DATA_RESPONSE), response)
+	log.Debug("Player[%v] tower data %v", this.Id, response)
 	return 1
 }
 
-func (this *Player) check_tower_keys() (is_update bool, keys int32) {
+func (this *Player) check_tower_keys() (is_update bool, keys int32, next_remain_seconds int32) {
 	tower_key_max := global_config.TowerKeyMax
 	tower_key_get_interval := global_config.TowerKeyGetInterval
 	//keys = this.db.TowerCommon.GetKeys()
@@ -46,28 +43,32 @@ func (this *Player) check_tower_keys() (is_update bool, keys int32) {
 	now_time := int32(time.Now().Unix())
 	last_time := this.db.TowerCommon.GetLastGetNewKeyTime()
 	if last_time == 0 {
-		this.set_resource(global_config.TowerKeyId, global_config.TowerKeyMax)
+		keys = global_config.TowerKeyMax
+		this.set_resource(global_config.TowerKeyId, keys)
 		last_time = now_time
 		this.db.TowerCommon.SetLastGetNewKeyTime(now_time)
+		next_remain_seconds = global_config.TowerKeyGetInterval
+	} else {
+		keys_num := (now_time - last_time) / tower_key_get_interval
+		y := (now_time - last_time) % tower_key_get_interval
+		if keys_num > 0 {
+			keys += keys_num
+		}
+
+		if keys > tower_key_max {
+			keys = tower_key_max
+		} else if keys < tower_key_max {
+			next_remain_seconds = global_config.TowerKeyGetInterval - y
+		}
+		this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
 	}
-	keys_num := (now_time - last_time) / tower_key_get_interval
-	y := (now_time - last_time) % tower_key_get_interval
-	if keys_num == 0 {
-		return
-	}
-	keys += keys_num
-	if keys > tower_key_max {
-		keys = tower_key_max
-	}
-	//this.db.TowerCommon.SetKeys(keys)
 	this.set_resource(global_config.TowerKeyId, keys)
-	this.db.TowerCommon.SetLastGetNewKeyTime(now_time - y)
 	is_update = true
 	return
 }
 
 func (this *Player) check_and_send_tower_data() {
-	is_update, _ := this.check_tower_keys()
+	is_update, _, _ := this.check_tower_keys()
 	if is_update {
 		this.send_tower_data(false)
 	}
@@ -107,7 +108,7 @@ func (this *Player) fight_tower(tower_id int32) int32 {
 		log.Error("Tower[%v] stage[%v] not found", tower_id, stage_id)
 		return int32(msg_client_message.E_ERR_PLAYER_TOWER_NOT_FOUND)
 	}
-	_, keys := this.check_tower_keys()
+	_, keys, _ := this.check_tower_keys()
 	if keys <= 0 {
 		log.Error("Player[%v] fight tower not enough key", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_TOWER_NOT_ENOUGH_STAMINA)

@@ -89,7 +89,7 @@ func (this *FriendRecommendMgr) Run() {
 		}
 	}()
 
-	last_check_remove_time := int32(time.Now().Unix())
+	var last_check_remove_time int32
 	for {
 		if atomic.LoadInt32(&this.to_end) > 0 {
 			break
