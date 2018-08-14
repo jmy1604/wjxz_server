@@ -703,13 +703,12 @@ func (this *Player) guild_ask_join(guild_id int32) int32 {
 	}
 
 	if guild.AskLists.HasIndex(this.Id) {
-		log.Error("Player[%v] already asked join guild %v", this.Id, guild_id)
-		return -1
+		log.Warn("Player[%v] already asked join guild %v", this.Id, guild_id)
+	} else {
+		guild.AskLists.Add(&dbGuildAskListData{
+			PlayerId: this.Id,
+		})
 	}
-
-	guild.AskLists.Add(&dbGuildAskListData{
-		PlayerId: this.Id,
-	})
 
 	response := &msg_client_message.S2CGuildAskJoinResponse{
 		GuildId: guild_id,
