@@ -418,6 +418,10 @@ message PlayerGuild{
 	optional int32 LastAskDonateTime=7;
 }
 
+message PlayerGuildStage{
+	optional int32 RespawnNum=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }
@@ -471,5 +475,20 @@ message GuildAskDonate{
 
 message GuildAskDonateList{
 	repeated GuildAskDonate List=1;
+}
+
+message GuildStage{
+	optional int32 BossId=1;
+	optional int32 State=2;
+	optional int32 HpPercent=3;
+}
+
+message GuildStageAttackLog{
+	optional int32 AttackerId=1;
+	optional int32 Damage=2;
+}
+
+message GuildStageAttackLogList{
+	repeated GuildStageAttackLog List=1;
 }
 

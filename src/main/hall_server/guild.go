@@ -33,6 +33,17 @@ const (
 	GUILD_POSITION_OFFICER   = 2    // 官员
 )
 
+const (
+	GUILD_LOG_TYPE_NONE             = iota
+	GUILD_LOG_TYPE_CREATE           = 1
+	GUILD_LOG_TYPE_MEMBER_JOIN      = 2
+	GUILD_LOG_TYPE_MEMBER_QUIT      = 3
+	GUILD_LOG_TYPE_MEMBER_KICK      = 4
+	GUILD_LOG_TYPE_MEMBER_APPOINT   = 5
+	GUILD_LOG_TYPE_OFFICER_DISMISS  = 6
+	GUILD_LOG_TYPE_PRESIDENT_CHANGE = 7
+)
+
 func _player_get_guild_id(player_id int32) int32 {
 	player := player_mgr.GetPlayerById(player_id)
 	if player == nil {
@@ -335,7 +346,39 @@ func _guild_get_exist_type(guild *dbGuildRow) int32 {
 	return guild.GetExistType()
 }
 
+// 公会日志
+func push_new_guild_log(guild *dbGuildRow, log_type, player_id int32) {
+	player := player_mgr.GetPlayerById(player_id)
+	if player == nil {
+		return
+	}
+
+	var min_id int32
+	ids := guild.Logs.GetAllIndex()
+	if ids != nil && len(ids) >= int(GUILD_LOG_MAX_NUM) {
+		for _, id := range ids {
+			if min_id == 0 || id < min_id {
+				min_id = id
+			}
+		}
+		if min_id > 0 {
+			guild.Logs.Remove(min_id)
+		}
+	}
+
+	guild.Logs.Add(&dbGuildLogData{
+		Time:     int32(time.Now().Unix()),
+		LogType:  log_type,
+		PlayerId: player_id,
+	})
+}
+
 func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_client_message.GuildInfo) {
+	level := guild.GetLevel()
+	if level <= 0 {
+		level = 1
+		guild.SetLevel(level)
+	}
 	var dismiss_remain_seconds, sign_remain_seconds, ask_donate_remain_seconds, donate_reset_remain_seconds int32
 	dismiss_remain_seconds = _guild_get_dismiss_remain_seconds(guild)
 	sign_remain_seconds = utils.GetRemainSeconds2NextDayTime(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime)
@@ -350,7 +393,7 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 	msg = &msg_client_message.GuildInfo{
 		Id:                       guild.GetId(),
 		Name:                     guild.GetName(),
-		Level:                    guild.GetLevel(),
+		Level:                    level,
 		Exp:                      guild.GetExp(),
 		Logo:                     guild.GetLogo(),
 		Anouncement:              guild.GetAnouncement(),
@@ -464,6 +507,9 @@ func (this *Player) guild_create(name string, logo int32) int32 {
 		Info: guild_msg,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_CREATE_RESPONSE), response)
+
+	// 日志
+	push_new_guild_log(guild, GUILD_LOG_TYPE_CREATE, this.Id)
 
 	log.Debug("Player[%v] created guild %v", this.Id, response)
 
@@ -741,9 +787,13 @@ func (this *Player) guild_agree_join(player_id int32) int32 {
 
 	// 通知加入的成员
 	notify := &msg_client_message.S2CGuildAgreeJoinNotify{
-		GuildId: guild.GetId(),
+		NewMemberId: player_id,
+		GuildId:     guild.GetId(),
 	}
 	player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
+
+	// 日志
+	push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_JOIN, player_id)
 
 	log.Debug("Player[%v] agreed player[%v] join guild %v", this.Id, player_id, guild.GetId())
 
@@ -805,6 +855,9 @@ func (this *Player) guild_quit() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_QUIT_RESPONSE), response)
 
+	// 日志
+	push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_QUIT, this.Id)
+
 	log.Debug("Player[%v] quit guild %v, rejoin remain seconds %v", this.Id, guild.GetId(), response.GetRejoinRemainSeconds())
 
 	return 1
@@ -845,7 +898,7 @@ func (this *Player) guild_logs() int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_LOGS_RESPONSE), response)
 
-	log.Debug("Player[%v] get guild logs %v", response)
+	log.Debug("Player[%v] get guild logs %v", this.Id, response)
 
 	return 1
 }
@@ -917,6 +970,7 @@ func (this *Player) guild_sign_in() int32 {
 		GuildLevel:              level,
 		GuildExp:                exp,
 		IsLevelup:               is_levelup,
+		MemberNumLimit:          guild_levelup_table_mgr.GetMemberNumLimit(level),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_SIGN_IN_RESPONSE), response)
 
@@ -969,6 +1023,27 @@ func (this *Player) guild_set_officer(player_ids []int32, set_type int32) int32 
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_SET_OFFICER_RESPONSE), response)
 
+	// 通知被任免成员
+	notify := &msg_client_message.S2CGuildSetOfficerNotify{
+		SetType:     set_type,
+		NewPosition: position,
+	}
+	for _, player_id := range player_ids {
+		player := player_mgr.GetPlayerById(player_id)
+		if player == nil {
+			continue
+		}
+		notify.MemberId = player_id
+		player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_SET_OFFICER_NOTIFY), notify)
+
+		// 日志
+		if set_type == 1 {
+			push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_APPOINT, player_id)
+		} else if set_type == 2 {
+			push_new_guild_log(guild, GUILD_LOG_TYPE_OFFICER_DISMISS, player_id)
+		}
+	}
+
 	log.Debug("Player[%v] set officer %v in guild %v", this.Id, response, guild.GetId())
 
 	return 1
@@ -1015,6 +1090,20 @@ func (this *Player) guild_kick_member(player_ids []int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_KICK_MEMBER_RESPONSE), response)
 
+	// 通知被驱逐成员
+	notify := &msg_client_message.S2CGuildKickMemberNotify{}
+	for _, player_id := range player_ids {
+		player := player_mgr.GetPlayerById(player_id)
+		if player == nil {
+			continue
+		}
+		notify.MemberId = player_id
+		player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_KICK_MEMBER_NOTIFY), notify)
+
+		// 日志
+		push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_KICK, player_id)
+	}
+
 	log.Debug("Player[%v] kick members %v from guild %v", this.Id, player_ids, guild.GetId())
 
 	return 1
@@ -1051,6 +1140,16 @@ func (this *Player) guild_change_president(player_id int32) int32 {
 		NewPresidentId: player_id,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_CHANGE_PRESIDENT_RESPONSE), response)
+
+	// 通知新会长
+	notify := &msg_client_message.S2CGuildChangePresidentNotify{
+		OldPresidentId: this.Id,
+		NewPresidentId: player_id,
+	}
+	player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_CHANGE_PRESIDENT_NOTIFY), notify)
+
+	// 日志
+	push_new_guild_log(guild, GUILD_LOG_TYPE_PRESIDENT_CHANGE, player_id)
 
 	log.Debug("Player[%v] change guild %v president to %v", this.Id, guild.GetId(), player_id)
 
@@ -1115,14 +1214,16 @@ func (this *Player) send_guild_donate_list(guild *dbGuildRow) {
 			item_num, _ := guild.AskDonates.GetItemNum(player_id)
 			ask_time, _ := guild.AskDonates.GetAskTime(player_id)
 			name, level, head := GetPlayerBaseInfo(player_id)
+			remain_exist_seconds := GetRemainSeconds(ask_time, global_config.GuildAskDonateCDSecs)
 			donate_item := &msg_client_message.GuildAskDonateInfo{
-				PlayerId:    player_id,
-				PlayerName:  name,
-				PlayerHead:  head,
-				PlayerLevel: level,
-				ItemId:      item_id,
-				ItemNum:     item_num,
-				AskTime:     ask_time,
+				PlayerId:           player_id,
+				PlayerName:         name,
+				PlayerHead:         head,
+				PlayerLevel:        level,
+				ItemId:             item_id,
+				ItemNum:            item_num,
+				AskTime:            ask_time,
+				RemainExistSeconds: remain_exist_seconds,
 			}
 			donate_list = append(donate_list, donate_item)
 		}
@@ -1262,11 +1363,12 @@ func (this *Player) guild_donate(player_id int32) int32 {
 		return -1
 	}
 
+	var donate_over bool
 	item_num, _ := guild.AskDonates.GetItemNum(player_id)
 	if item_num+1 >= item.RequestNum {
-		player.add_resource(item_id, item.RequestNum)
+		player.add_resource(item_id, 1)
 		guild.AskDonates.Remove(player_id)
-		// 通知该玩家
+		donate_over = true
 	} else {
 		guild.AskDonates.SetItemNum(player_id, item_num+1)
 	}
@@ -1287,6 +1389,16 @@ func (this *Player) guild_donate(player_id int32) int32 {
 		DonateNum: donate_num + item.LimitScore,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_RESPONSE), response)
+
+	// 通知被捐赠者
+	notify := &msg_client_message.S2CGuildDonateItemNotify{
+		DonatePlayerId: this.Id,
+		DonateNum:      response.GetDonateNum(),
+		ItemId:         item_id,
+		ItemNum:        response.GetItemNum(),
+		DonateOver:     donate_over,
+	}
+	player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_DONATE_ITEM_NOTIFY), notify)
 
 	log.Debug("Player[%v] donate to player[%v] result %v", this.Id, player_id, response)
 

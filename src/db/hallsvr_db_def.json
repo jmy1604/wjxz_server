@@ -705,6 +705,17 @@
 						{"Type":"int32","Index":6,"Name":"DonateNum"},
 						{"Type":"int32","Index":7,"Name":"LastAskDonateTime"}
 					]
+				},
+				{
+					"DBColumnName":"GuildStage",
+					"InUse":true,
+					"ColumnName":"GuildStage",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"RespawnNum","Incby":true},
+					]
 				}
 			]
 		},
@@ -1129,6 +1140,47 @@
 						{"Type":"int32","Index":2,"Name":"ItemId"},
 						{"Type":"int32","Index":3,"Name":"ItemNum"},
 						{"Type":"int32","Index":4,"Name":"AskTime"}
+					]
+				},
+				{
+					"ColumnName":"Stage",
+					"DBColumnName":"Stage",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"BossId"},
+						{"Type":"int32","Index":2,"Name":"State"},
+						{"Type":"int32","Index":3,"Name":"HpPercent"}
+					]
+				},
+				{
+					"ColumnName":"LastStageRefreshTime",
+					"DBColumnName":"LastStageRefreshTime",
+					"InUse":true,
+					"Simple":true,
+					"SimpleType":"int32",
+					"Preload":true,
+					"Map":false,
+					"AutoIndex":false,
+					"DefaultValue":"0",
+					"Fields":[]
+				},
+				{
+					"ColumnName":"StageAttackLog",
+					"DBColumnName":"StageAttackLog",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","Index":1,"Name":"AttackerId"},
+						{"Type":"int32","Index":2,"Name":"Damage"}
 					]
 				}
 			]

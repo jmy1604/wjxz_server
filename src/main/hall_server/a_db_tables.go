@@ -1769,6 +1769,25 @@ func (this* dbPlayerGuildData)clone_to(d *dbPlayerGuildData){
 	d.LastAskDonateTime = this.LastAskDonateTime
 	return
 }
+type dbPlayerGuildStageData struct{
+	RespawnNum int32
+}
+func (this* dbPlayerGuildStageData)from_pb(pb *db.PlayerGuildStage){
+	if pb == nil {
+		return
+	}
+	this.RespawnNum = pb.GetRespawnNum()
+	return
+}
+func (this* dbPlayerGuildStageData)to_pb()(pb *db.PlayerGuildStage){
+	pb = &db.PlayerGuildStage{}
+	pb.RespawnNum = proto.Int32(this.RespawnNum)
+	return
+}
+func (this* dbPlayerGuildStageData)clone_to(d *dbPlayerGuildStageData){
+	d.RespawnNum = this.RespawnNum
+	return
+}
 type dbBattleSaveDataData struct{
 	Data []byte
 }
@@ -1963,6 +1982,56 @@ func (this* dbGuildAskDonateData)clone_to(d *dbGuildAskDonateData){
 	d.ItemId = this.ItemId
 	d.ItemNum = this.ItemNum
 	d.AskTime = this.AskTime
+	return
+}
+type dbGuildStageData struct{
+	BossId int32
+	State int32
+	HpPercent int32
+}
+func (this* dbGuildStageData)from_pb(pb *db.GuildStage){
+	if pb == nil {
+		return
+	}
+	this.BossId = pb.GetBossId()
+	this.State = pb.GetState()
+	this.HpPercent = pb.GetHpPercent()
+	return
+}
+func (this* dbGuildStageData)to_pb()(pb *db.GuildStage){
+	pb = &db.GuildStage{}
+	pb.BossId = proto.Int32(this.BossId)
+	pb.State = proto.Int32(this.State)
+	pb.HpPercent = proto.Int32(this.HpPercent)
+	return
+}
+func (this* dbGuildStageData)clone_to(d *dbGuildStageData){
+	d.BossId = this.BossId
+	d.State = this.State
+	d.HpPercent = this.HpPercent
+	return
+}
+type dbGuildStageAttackLogData struct{
+	AttackerId int32
+	Damage int32
+}
+func (this* dbGuildStageAttackLogData)from_pb(pb *db.GuildStageAttackLog){
+	if pb == nil {
+		return
+	}
+	this.AttackerId = pb.GetAttackerId()
+	this.Damage = pb.GetDamage()
+	return
+}
+func (this* dbGuildStageAttackLogData)to_pb()(pb *db.GuildStageAttackLog){
+	pb = &db.GuildStageAttackLog{}
+	pb.AttackerId = proto.Int32(this.AttackerId)
+	pb.Damage = proto.Int32(this.Damage)
+	return
+}
+func (this* dbGuildStageAttackLogData)clone_to(d *dbGuildStageAttackLogData){
+	d.AttackerId = this.AttackerId
+	d.Damage = this.Damage
 	return
 }
 
@@ -9156,6 +9225,73 @@ func (this *dbPlayerGuildColumn)SetLastAskDonateTime(v int32){
 	this.m_changed = true
 	return
 }
+type dbPlayerGuildStageColumn struct{
+	m_row *dbPlayerRow
+	m_data *dbPlayerGuildStageData
+	m_changed bool
+}
+func (this *dbPlayerGuildStageColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbPlayerGuildStageData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.PlayerGuildStage{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_data = &dbPlayerGuildStageData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerGuildStageColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetPlayerId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbPlayerGuildStageColumn)Get( )(v *dbPlayerGuildStageData ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerGuildStageColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbPlayerGuildStageData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbPlayerGuildStageColumn)Set(v dbPlayerGuildStageData ){
+	this.m_row.m_lock.UnSafeLock("dbPlayerGuildStageColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbPlayerGuildStageData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbPlayerGuildStageColumn)GetRespawnNum( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbPlayerGuildStageColumn.GetRespawnNum")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.RespawnNum
+	return
+}
+func (this *dbPlayerGuildStageColumn)SetRespawnNum(v int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerGuildStageColumn.SetRespawnNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.RespawnNum = v
+	this.m_changed = true
+	return
+}
+func (this *dbPlayerGuildStageColumn)IncbyRespawnNum(v int32)(r int32){
+	this.m_row.m_lock.UnSafeLock("dbPlayerGuildStageColumn.IncbyRespawnNum")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.RespawnNum += v
+	this.m_changed = true
+	return this.m_data.RespawnNum
+}
 type dbPlayerRow struct {
 	m_table *dbPlayerTable
 	m_lock       *RWMutex
@@ -9219,6 +9355,7 @@ type dbPlayerRow struct {
 	Anouncement dbPlayerAnouncementColumn
 	FirstDrawCards dbPlayerFirstDrawCardColumn
 	Guild dbPlayerGuildColumn
+	GuildStage dbPlayerGuildStageColumn
 }
 func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this := &dbPlayerRow{}
@@ -9319,6 +9456,8 @@ func new_dbPlayerRow(table *dbPlayerTable, PlayerId int32) (r *dbPlayerRow) {
 	this.FirstDrawCards.m_data=make(map[int32]*dbPlayerFirstDrawCardData)
 	this.Guild.m_row=this
 	this.Guild.m_data=&dbPlayerGuildData{}
+	this.GuildStage.m_row=this
+	this.GuildStage.m_data=&dbPlayerGuildStageData{}
 	return this
 }
 func (this *dbPlayerRow) GetPlayerId() (r int32) {
@@ -9328,7 +9467,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.m_lock.UnSafeLock("dbPlayerRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(50)
+		db_args:=new_db_args(51)
 		db_args.Push(this.m_PlayerId)
 		db_args.Push(this.m_Account)
 		db_args.Push(this.m_Name)
@@ -9604,12 +9743,18 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dGuild)
+		dGuildStage,db_err:=this.GuildStage.save()
+		if db_err!=nil{
+			log.Error("insert save GuildStage failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dGuildStage)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed{
+		if this.m_Account_changed||this.m_Name_changed||this.m_Token_changed||this.m_CurrReplyMsgNum_changed||this.Info.m_changed||this.Global.m_changed||this.Items.m_changed||this.Roles.m_changed||this.RoleHandbook.m_changed||this.BattleTeam.m_changed||this.CampaignCommon.m_changed||this.Campaigns.m_changed||this.CampaignStaticIncomes.m_changed||this.CampaignRandomIncomes.m_changed||this.NotifyStates.m_changed||this.MailCommon.m_changed||this.Mails.m_changed||this.BattleSaves.m_changed||this.Talents.m_changed||this.TowerCommon.m_changed||this.Towers.m_changed||this.Draws.m_changed||this.GoldHand.m_changed||this.Shops.m_changed||this.ShopItems.m_changed||this.Arena.m_changed||this.Equip.m_changed||this.ActiveStageCommon.m_changed||this.ActiveStages.m_changed||this.FriendCommon.m_changed||this.Friends.m_changed||this.FriendRecommends.m_changed||this.FriendAsks.m_changed||this.FriendBosss.m_changed||this.TaskCommon.m_changed||this.Tasks.m_changed||this.FinishedTasks.m_changed||this.DailyTaskAllDailys.m_changed||this.ExploreCommon.m_changed||this.Explores.m_changed||this.ExploreStorys.m_changed||this.FriendChatUnreadIds.m_changed||this.FriendChatUnreadMessages.m_changed||this.HeadItems.m_changed||this.SuitAwards.m_changed||this.Chats.m_changed||this.Anouncement.m_changed||this.FirstDrawCards.m_changed||this.Guild.m_changed||this.GuildStage.m_changed{
 			update_string = "UPDATE Players SET "
-			db_args:=new_db_args(50)
+			db_args:=new_db_args(51)
 			if this.m_Account_changed{
 				update_string+="Account=?,"
 				db_args.Push(this.m_Account)
@@ -10031,6 +10176,15 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 				}
 				db_args.Push(dGuild)
 			}
+			if this.GuildStage.m_changed{
+				update_string+="GuildStage=?,"
+				dGuildStage,err:=this.GuildStage.save()
+				if err!=nil{
+					log.Error("update save GuildStage failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dGuildStage)
+			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE PlayerId=?"
 			db_args.Push(this.m_PlayerId)
@@ -10088,6 +10242,7 @@ func (this *dbPlayerRow) save_data(release bool) (err error, released bool, stat
 	this.Anouncement.m_changed = false
 	this.FirstDrawCards.m_changed = false
 	this.Guild.m_changed = false
+	this.GuildStage.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -10579,10 +10734,18 @@ func (this *dbPlayerTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasGuildStage := columns["GuildStage"]
+	if !hasGuildStage {
+		_, err = this.m_dbc.Exec("ALTER TABLE Players ADD COLUMN GuildStage LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN GuildStage failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild FROM Players")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage FROM Players")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -10590,7 +10753,7 @@ func (this *dbPlayerTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbPlayerTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Players (PlayerId,Account,Name,Token,CurrReplyMsgNum,Info,Global,Items,Roles,RoleHandbook,BattleTeam,CampaignCommon,Campaigns,CampaignStaticIncomes,CampaignRandomIncomes,NotifyStates,MailCommon,Mails,BattleSaves,Talents,TowerCommon,Towers,Draws,GoldHand,Shops,ShopItems,Arena,Equip,ActiveStageCommon,ActiveStages,FriendCommon,Friends,FriendRecommends,FriendAsks,FriendBosss,TaskCommon,Tasks,FinishedTasks,DailyTaskAllDailys,ExploreCommon,Explores,ExploreStorys,FriendChatUnreadIds,FriendChatUnreadMessages,HeadItems,SuitAwards,Chats,Anouncement,FirstDrawCards,Guild,GuildStage) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -10684,9 +10847,10 @@ func (this *dbPlayerTable) Preload() (err error) {
 	var dAnouncement []byte
 	var dFirstDrawCards []byte
 	var dGuild []byte
+	var dGuildStage []byte
 		this.m_preload_max_id = 0
 	for r.Next() {
-		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild)
+		err = r.Scan(&PlayerId,&dAccount,&dName,&dToken,&dCurrReplyMsgNum,&dInfo,&dGlobal,&dItems,&dRoles,&dRoleHandbook,&dBattleTeam,&dCampaignCommon,&dCampaigns,&dCampaignStaticIncomes,&dCampaignRandomIncomes,&dNotifyStates,&dMailCommon,&dMails,&dBattleSaves,&dTalents,&dTowerCommon,&dTowers,&dDraws,&dGoldHand,&dShops,&dShopItems,&dArena,&dEquip,&dActiveStageCommon,&dActiveStages,&dFriendCommon,&dFriends,&dFriendRecommends,&dFriendAsks,&dFriendBosss,&dTaskCommon,&dTasks,&dFinishedTasks,&dDailyTaskAllDailys,&dExploreCommon,&dExplores,&dExploreStorys,&dFriendChatUnreadIds,&dFriendChatUnreadMessages,&dHeadItems,&dSuitAwards,&dChats,&dAnouncement,&dFirstDrawCards,&dGuild,&dGuildStage)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -10922,6 +11086,11 @@ func (this *dbPlayerTable) Preload() (err error) {
 		err = row.Guild.load(dGuild)
 		if err != nil {
 			log.Error("Guild %v", PlayerId)
+			return
+		}
+		err = row.GuildStage.load(dGuildStage)
+		if err != nil {
+			log.Error("GuildStage %v", PlayerId)
 			return
 		}
 		row.m_Account_changed=false
@@ -13625,6 +13794,253 @@ func (this *dbGuildAskDonateColumn)SetAskTime(id int32,v int32)(has bool){
 	this.m_changed = true
 	return true
 }
+type dbGuildStageColumn struct{
+	m_row *dbGuildRow
+	m_data *dbGuildStageData
+	m_changed bool
+}
+func (this *dbGuildStageColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_data = &dbGuildStageData{}
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.GuildStage{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetId())
+		return
+	}
+	this.m_data = &dbGuildStageData{}
+	this.m_data.from_pb(pb)
+	this.m_changed = false
+	return
+}
+func (this *dbGuildStageColumn)save( )(data []byte,err error){
+	pb:=this.m_data.to_pb()
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbGuildStageColumn)Get( )(v *dbGuildStageData ){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v=&dbGuildStageData{}
+	this.m_data.clone_to(v)
+	return
+}
+func (this *dbGuildStageColumn)Set(v dbGuildStageData ){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=&dbGuildStageData{}
+	v.clone_to(this.m_data)
+	this.m_changed=true
+	return
+}
+func (this *dbGuildStageColumn)GetBossId( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageColumn.GetBossId")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.BossId
+	return
+}
+func (this *dbGuildStageColumn)SetBossId(v int32){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageColumn.SetBossId")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.BossId = v
+	this.m_changed = true
+	return
+}
+func (this *dbGuildStageColumn)GetState( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageColumn.GetState")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.State
+	return
+}
+func (this *dbGuildStageColumn)SetState(v int32){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageColumn.SetState")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.State = v
+	this.m_changed = true
+	return
+}
+func (this *dbGuildStageColumn)GetHpPercent( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageColumn.GetHpPercent")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	v = this.m_data.HpPercent
+	return
+}
+func (this *dbGuildStageColumn)SetHpPercent(v int32){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageColumn.SetHpPercent")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data.HpPercent = v
+	this.m_changed = true
+	return
+}
+func (this *dbGuildRow)GetLastStageRefreshTime( )(r int32 ){
+	this.m_lock.UnSafeRLock("dbGuildRow.GetdbGuildLastStageRefreshTimeColumn")
+	defer this.m_lock.UnSafeRUnlock()
+	return int32(this.m_LastStageRefreshTime)
+}
+func (this *dbGuildRow)SetLastStageRefreshTime(v int32){
+	this.m_lock.UnSafeLock("dbGuildRow.SetdbGuildLastStageRefreshTimeColumn")
+	defer this.m_lock.UnSafeUnlock()
+	this.m_LastStageRefreshTime=int32(v)
+	this.m_LastStageRefreshTime_changed=true
+	return
+}
+type dbGuildStageAttackLogColumn struct{
+	m_row *dbGuildRow
+	m_data map[int32]*dbGuildStageAttackLogData
+	m_changed bool
+}
+func (this *dbGuildStageAttackLogColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.GuildStageAttackLogList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbGuildStageAttackLogData{}
+		d.from_pb(v)
+		this.m_data[int32(d.AttackerId)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbGuildStageAttackLogColumn)save( )(data []byte,err error){
+	pb := &db.GuildStageAttackLogList{}
+	pb.List=make([]*db.GuildStageAttackLog,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbGuildStageAttackLogColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageAttackLogColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbGuildStageAttackLogColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageAttackLogColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbGuildStageAttackLogColumn)GetAll()(list []dbGuildStageAttackLogData){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageAttackLogColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbGuildStageAttackLogData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbGuildStageAttackLogColumn)Get(id int32)(v *dbGuildStageAttackLogData){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageAttackLogColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbGuildStageAttackLogData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbGuildStageAttackLogColumn)Set(v dbGuildStageAttackLogData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageAttackLogColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.AttackerId)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetId(), v.AttackerId)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbGuildStageAttackLogColumn)Add(v *dbGuildStageAttackLogData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageAttackLogColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.AttackerId)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetId(), v.AttackerId)
+		return false
+	}
+	d:=&dbGuildStageAttackLogData{}
+	v.clone_to(d)
+	this.m_data[int32(v.AttackerId)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbGuildStageAttackLogColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageAttackLogColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbGuildStageAttackLogColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageAttackLogColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbGuildStageAttackLogData)
+	this.m_changed = true
+	return
+}
+func (this *dbGuildStageAttackLogColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageAttackLogColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbGuildStageAttackLogColumn)GetDamage(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageAttackLogColumn.GetDamage")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Damage
+	return v,true
+}
+func (this *dbGuildStageAttackLogColumn)SetDamage(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageAttackLogColumn.SetDamage")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetId(), id)
+		return
+	}
+	d.Damage = v
+	this.m_changed = true
+	return true
+}
 type dbGuildRow struct {
 	m_table *dbGuildTable
 	m_lock       *RWMutex
@@ -13665,6 +14081,10 @@ type dbGuildRow struct {
 	m_LastRecruitTime_changed bool
 	m_LastRecruitTime int32
 	AskDonates dbGuildAskDonateColumn
+	Stage dbGuildStageColumn
+	m_LastStageRefreshTime_changed bool
+	m_LastStageRefreshTime int32
+	StageAttackLogs dbGuildStageAttackLogColumn
 }
 func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this := &dbGuildRow{}
@@ -13684,6 +14104,7 @@ func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this.m_LastDonateRefreshTime_changed=true
 	this.m_CurrLogId_changed=true
 	this.m_LastRecruitTime_changed=true
+	this.m_LastStageRefreshTime_changed=true
 	this.Members.m_row=this
 	this.Members.m_data=make(map[int32]*dbGuildMemberData)
 	this.AskLists.m_row=this
@@ -13692,6 +14113,10 @@ func new_dbGuildRow(table *dbGuildTable, Id int32) (r *dbGuildRow) {
 	this.Logs.m_data=make(map[int32]*dbGuildLogData)
 	this.AskDonates.m_row=this
 	this.AskDonates.m_data=make(map[int32]*dbGuildAskDonateData)
+	this.Stage.m_row=this
+	this.Stage.m_data=&dbGuildStageData{}
+	this.StageAttackLogs.m_row=this
+	this.StageAttackLogs.m_data=make(map[int32]*dbGuildStageAttackLogData)
 	return this
 }
 func (this *dbGuildRow) GetId() (r int32) {
@@ -13701,7 +14126,7 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 	this.m_lock.UnSafeLock("dbGuildRow.save_data")
 	defer this.m_lock.UnSafeUnlock()
 	if this.m_new {
-		db_args:=new_db_args(19)
+		db_args:=new_db_args(22)
 		db_args.Push(this.m_Id)
 		db_args.Push(this.m_Name)
 		db_args.Push(this.m_Creater)
@@ -13741,12 +14166,25 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 			return db_err,false,0,"",nil
 		}
 		db_args.Push(dAskDonates)
+		dStage,db_err:=this.Stage.save()
+		if db_err!=nil{
+			log.Error("insert save Stage failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dStage)
+		db_args.Push(this.m_LastStageRefreshTime)
+		dStageAttackLogs,db_err:=this.StageAttackLogs.save()
+		if db_err!=nil{
+			log.Error("insert save StageAttackLog failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dStageAttackLogs)
 		args=db_args.GetArgs()
 		state = 1
 	} else {
-		if this.m_Name_changed||this.m_Creater_changed||this.m_CreateTime_changed||this.m_DismissTime_changed||this.m_Logo_changed||this.m_Level_changed||this.m_Exp_changed||this.m_ExistType_changed||this.m_Anouncement_changed||this.m_President_changed||this.Members.m_changed||this.AskLists.m_changed||this.m_LastDonateRefreshTime_changed||this.m_CurrLogId_changed||this.Logs.m_changed||this.m_LastRecruitTime_changed||this.AskDonates.m_changed{
+		if this.m_Name_changed||this.m_Creater_changed||this.m_CreateTime_changed||this.m_DismissTime_changed||this.m_Logo_changed||this.m_Level_changed||this.m_Exp_changed||this.m_ExistType_changed||this.m_Anouncement_changed||this.m_President_changed||this.Members.m_changed||this.AskLists.m_changed||this.m_LastDonateRefreshTime_changed||this.m_CurrLogId_changed||this.Logs.m_changed||this.m_LastRecruitTime_changed||this.AskDonates.m_changed||this.Stage.m_changed||this.m_LastStageRefreshTime_changed||this.StageAttackLogs.m_changed{
 			update_string = "UPDATE Guilds SET "
-			db_args:=new_db_args(19)
+			db_args:=new_db_args(22)
 			if this.m_Name_changed{
 				update_string+="Name=?,"
 				db_args.Push(this.m_Name)
@@ -13837,6 +14275,28 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 				}
 				db_args.Push(dAskDonates)
 			}
+			if this.Stage.m_changed{
+				update_string+="Stage=?,"
+				dStage,err:=this.Stage.save()
+				if err!=nil{
+					log.Error("update save Stage failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dStage)
+			}
+			if this.m_LastStageRefreshTime_changed{
+				update_string+="LastStageRefreshTime=?,"
+				db_args.Push(this.m_LastStageRefreshTime)
+			}
+			if this.StageAttackLogs.m_changed{
+				update_string+="StageAttackLogs=?,"
+				dStageAttackLogs,err:=this.StageAttackLogs.save()
+				if err!=nil{
+					log.Error("insert save StageAttackLog failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dStageAttackLogs)
+			}
 			update_string = strings.TrimRight(update_string, ", ")
 			update_string+=" WHERE Id=?"
 			db_args.Push(this.m_Id)
@@ -13862,6 +14322,9 @@ func (this *dbGuildRow) save_data(release bool) (err error, released bool, state
 	this.Logs.m_changed = false
 	this.m_LastRecruitTime_changed = false
 	this.AskDonates.m_changed = false
+	this.Stage.m_changed = false
+	this.m_LastStageRefreshTime_changed = false
+	this.StageAttackLogs.m_changed = false
 	if release && this.m_loaded {
 		atomic.AddInt32(&this.m_table.m_gc_n, -1)
 		this.m_loaded = false
@@ -14128,10 +14591,34 @@ func (this *dbGuildTable) check_create_table() (err error) {
 			return
 		}
 	}
+	_, hasStage := columns["Stage"]
+	if !hasStage {
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN Stage LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN Stage failed")
+			return
+		}
+	}
+	_, hasLastStageRefreshTime := columns["LastStageRefreshTime"]
+	if !hasLastStageRefreshTime {
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN LastStageRefreshTime int(11) DEFAULT 0")
+		if err != nil {
+			log.Error("ADD COLUMN LastStageRefreshTime failed")
+			return
+		}
+	}
+	_, hasStageAttackLog := columns["StageAttackLogs"]
+	if !hasStageAttackLog {
+		_, err = this.m_dbc.Exec("ALTER TABLE Guilds ADD COLUMN StageAttackLogs LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN StageAttackLogs failed")
+			return
+		}
+	}
 	return
 }
 func (this *dbGuildTable) prepare_preload_select_stmt() (err error) {
-	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Name,Creater,CreateTime,DismissTime,Logo,Level,Exp,ExistType,Anouncement,President,Members,AskLists,LastDonateRefreshTime,CurrLogId,MaxLogId,Logs,LastRecruitTime,AskDonates FROM Guilds")
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,Name,Creater,CreateTime,DismissTime,Logo,Level,Exp,ExistType,Anouncement,President,Members,AskLists,LastDonateRefreshTime,CurrLogId,MaxLogId,Logs,LastRecruitTime,AskDonates,Stage,LastStageRefreshTime,StageAttackLogs FROM Guilds")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -14139,7 +14626,7 @@ func (this *dbGuildTable) prepare_preload_select_stmt() (err error) {
 	return
 }
 func (this *dbGuildTable) prepare_save_insert_stmt()(err error){
-	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Guilds (Id,Name,Creater,CreateTime,DismissTime,Logo,Level,Exp,ExistType,Anouncement,President,Members,AskLists,LastDonateRefreshTime,CurrLogId,MaxLogId,Logs,LastRecruitTime,AskDonates) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO Guilds (Id,Name,Creater,CreateTime,DismissTime,Logo,Level,Exp,ExistType,Anouncement,President,Members,AskLists,LastDonateRefreshTime,CurrLogId,MaxLogId,Logs,LastRecruitTime,AskDonates,Stage,LastStageRefreshTime,StageAttackLogs) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err!=nil{
 		log.Error("prepare failed")
 		return
@@ -14210,8 +14697,11 @@ func (this *dbGuildTable) Preload() (err error) {
 	var dLogs []byte
 	var dLastRecruitTime int32
 	var dAskDonates []byte
+	var dStage []byte
+	var dLastStageRefreshTime int32
+	var dStageAttackLogs []byte
 	for r.Next() {
-		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dDismissTime,&dLogo,&dLevel,&dExp,&dExistType,&dAnouncement,&dPresident,&dMembers,&dAskLists,&dLastDonateRefreshTime,&dCurrLogId,&dMaxLogId,&dLogs,&dLastRecruitTime,&dAskDonates)
+		err = r.Scan(&Id,&dName,&dCreater,&dCreateTime,&dDismissTime,&dLogo,&dLevel,&dExp,&dExistType,&dAnouncement,&dPresident,&dMembers,&dAskLists,&dLastDonateRefreshTime,&dCurrLogId,&dMaxLogId,&dLogs,&dLastRecruitTime,&dAskDonates,&dStage,&dLastStageRefreshTime,&dStageAttackLogs)
 		if err != nil {
 			log.Error("Scan err[%v]", err.Error())
 			return
@@ -14255,6 +14745,17 @@ func (this *dbGuildTable) Preload() (err error) {
 			log.Error("AskDonates %v", Id)
 			return
 		}
+		err = row.Stage.load(dStage)
+		if err != nil {
+			log.Error("Stage %v", Id)
+			return
+		}
+		row.m_LastStageRefreshTime=dLastStageRefreshTime
+		err = row.StageAttackLogs.load(dStageAttackLogs)
+		if err != nil {
+			log.Error("StageAttackLogs %v", Id)
+			return
+		}
 		row.m_Name_changed=false
 		row.m_Creater_changed=false
 		row.m_CreateTime_changed=false
@@ -14268,6 +14769,7 @@ func (this *dbGuildTable) Preload() (err error) {
 		row.m_LastDonateRefreshTime_changed=false
 		row.m_CurrLogId_changed=false
 		row.m_LastRecruitTime_changed=false
+		row.m_LastStageRefreshTime_changed=false
 		row.m_valid = true
 		this.m_rows[Id]=row
 	}

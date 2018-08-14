@@ -936,12 +936,6 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 
 	if team_members != nil && len(team_members) > 0 {
 		if battle_type == 1 || battle_type == 8 {
-			/*res := this.SetAttackTeam(team_members)
-			if res < 0 {
-				this.assist_friend = nil
-				log.Error("Player[%v] set attack members[%v] failed", this.Id, team_members)
-				return res
-			}*/
 			res := this.SetTeam(BATTLE_ATTACK_TEAM, team_members)
 			if res < 0 {
 				this.assist_friend = nil

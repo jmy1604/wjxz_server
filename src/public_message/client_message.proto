@@ -307,6 +307,7 @@ message S2CPlayerInfoResponse {
 	int32 VipLevel					= 6; // VIP等级
 	string Name						= 7; // 昵称
 	int32 SysTime					= 8; // 系统时间
+	int32 GuildId					= 9; // 公会ID
 }
 
 //----------------------------------- 战斗 -----------------------------------
@@ -1500,6 +1501,7 @@ message S2CGuildRecommendResponse {
 message C2SGuildCreateRequest {
 	string GuildName						= 1; // 名称
 	int32 GuildLogo							= 2; // 标志
+	bytes Anouncement						= 3; // 公告
 }
 
 message S2CGuildCreateResponse {
@@ -1594,7 +1596,8 @@ message S2CGuildAgreeJoinResponse {
 
 // 公会同意加入通知
 message S2CGuildAgreeJoinNotify {
-	int32 GuildId							= 1; // 公会ID
+	int32 NewMemberId						= 1; // 新会员
+	int32 GuildId							= 2; // 公会ID
 }
 
 // 主动退出公会
@@ -1631,6 +1634,7 @@ message S2CGuildSignInResponse {
 	int32 GuildLevel						= 3; // 公会等级
 	int32 GuildExp							= 4; // 公会经验
 	bool IsLevelup							= 5; // 是否升级
+	int32 MemberNumLimit					= 6; // 公会最大人数
 }
 
 // 公会任命或罢免官员
@@ -1645,10 +1649,11 @@ message S2CGuildSetOfficerResponse {
 	int32 Position							= 3; // 职位
 }
 
-// 公会任命罢免通知本人
+// 公会任命罢免通知
 message S2CGuildSetOfficerNotify {
-	int32 SetType							= 1; // 1 任命  2 罢免
-	int32 NewPosition						= 2; // 新职位
+	int32 MemberId							= 1; // 会员
+	int32 SetType							= 2; // 1 任命  2 罢免
+	int32 NewPosition						= 3; // 新职位
 }
 
 // 公会驱逐会员
@@ -1660,8 +1665,9 @@ message S2CGuildKickMemberResponse {
 	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
-// 公会驱逐会员通知本人
+// 公会驱逐会员通知
 message S2CGuildKickMemberNotify {
+	int32 MemberId							= 1; // 被驱逐会员
 }
 
 // 公会转让会长
@@ -1673,8 +1679,10 @@ message S2CGuildChangePresidentResponse {
 	int32 NewPresidentId					= 1; // 新会长ID
 }
 
-// 公会转让会长通知本人
+// 公会转让会长通知
 message S2CGuildChangePresidentNotify {
+	int32 OldPresidentId					= 1; // 原会长
+	int32 NewPresidentId					= 2; // 新会长
 }
 
 // 公会招募
@@ -1711,6 +1719,15 @@ message S2CGuildDonateResponse {
 	int32 DonateNum							= 4; // 已捐赠数
 }
 
+// 公会通知请求捐赠成员物品更新
+message S2CGuildDonateItemNotify {
+	int32 DonatePlayerId					= 1; // 捐赠玩家
+	int32 DonateNum							= 2; // 捐赠数
+	int32 ItemId							= 3; // 物品ID
+	int32 ItemNum							= 4; // 物品总数
+	bool  DonateOver						= 5; // 是否捐赠完毕
+}
+
 // 公会捐赠列表
 message C2SGuildDonateListRequest {
 }
@@ -1733,4 +1750,23 @@ message S2CGuildDonateListResponse {
 
 // 公会聊天协议与世界聊天通用
 
-// 
+// 公会副本数据
+message C2SGuildStageDataRequest {
+}
+
+// 公会副本伤害列表项
+message GuildStageDamageItem {
+	int32 MemberId							= 1; // 成员ID
+	int32 MemberName						= 2; // 成员名称
+	int32 Level								= 3; // 等级
+	int32 Head								= 4; // 头像
+	int32 Damage							= 5; // 伤害
+}
+
+message S2CGuildStageDataResponse {
+	int32 CurrBossId						= 1; // 当前公会副本
+	int32 HpPercent							= 2; // 副本BOSS血量百分比
+	int32 RespawnNum						= 3; // 复活次数
+	int32 RefreshRemainSeconds				= 4; // 刷新剩余时间
+	repeated GuildStageDamageItem DmgList	= 5; // 伤害列表
+}

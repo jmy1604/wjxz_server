@@ -287,7 +287,7 @@ func (this *Player) add_resources(items []int32) {
 		return
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := 0; i < len(items)/2; i++ {
 		item_id := items[2*i]
 		item_num := items[2*i+1]
 		this.add_resource(item_id, item_num)

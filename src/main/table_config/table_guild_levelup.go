@@ -65,3 +65,11 @@ func (this *GuildLevelUpTableMgr) Load() bool {
 func (this *GuildLevelUpTableMgr) Get(level int32) *XmlGuildLevelUpItem {
 	return this.Map[level]
 }
+
+func (this *GuildLevelUpTableMgr) GetMemberNumLimit(level int32) int32 {
+	m := this.Get(level)
+	if m == nil {
+		return 0
+	}
+	return m.MemberNum
+}

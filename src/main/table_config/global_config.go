@@ -80,6 +80,7 @@ type GlobalConfig struct {
 	GuildSignRefreshTime                 string  // 公会签到刷新时间点
 	GuildAskDonateExistSeconds           int32   // 公会请求捐赠存在秒数
 	GuildDonateRefreshTime               string  // 公会捐赠重置时间点
+	GuildStageRefreshTime                string  // 公会副本重置时间点
 
 	GooglePayUrl       string
 	FaceBookPayUrl     string
