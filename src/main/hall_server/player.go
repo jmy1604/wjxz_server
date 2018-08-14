@@ -96,6 +96,7 @@ type Player struct {
 	active_stage_team      *BattleTeam                           // PVE活动进攻阵容
 	friend_boss_team       *BattleTeam                           // PVE好友BOSS进攻阵容
 	explore_team           *BattleTeam                           // PVE探索任务进攻阵容
+	guild_stage_team       *BattleTeam                           // PVE公会副本进攻阵容
 	fighing_friend_boss    int32                                 // 是否有好友正在挑战
 	defense_team           *BattleTeam                           // PVP防守阵型
 	use_defense            int32                                 // 是否正在使用防守阵型

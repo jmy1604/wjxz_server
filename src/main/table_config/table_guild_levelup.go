@@ -17,8 +17,10 @@ type XmlGuildLevelUpConfig struct {
 }
 
 type GuildLevelUpTableMgr struct {
-	Map   map[int32]*XmlGuildLevelUpItem
-	Array []*XmlGuildLevelUpItem
+	Map          map[int32]*XmlGuildLevelUpItem
+	Array        []*XmlGuildLevelUpItem
+	MaxLevel     int32
+	MaxMemberNum int32
 }
 
 func (this *GuildLevelUpTableMgr) Init() bool {
@@ -57,6 +59,13 @@ func (this *GuildLevelUpTableMgr) Load() bool {
 
 		this.Map[tmp_item.Level] = tmp_item
 		this.Array = append(this.Array, tmp_item)
+
+		if this.MaxLevel == 0 || this.MaxLevel < tmp_item.Level {
+			this.MaxLevel = tmp_item.Level
+		}
+		if this.MaxMemberNum == 0 || this.MaxMemberNum < tmp_item.MemberNum {
+			this.MaxMemberNum = tmp_item.MemberNum
+		}
 	}
 
 	return true
@@ -72,4 +81,12 @@ func (this *GuildLevelUpTableMgr) GetMemberNumLimit(level int32) int32 {
 		return 0
 	}
 	return m.MemberNum
+}
+
+func (this *GuildLevelUpTableMgr) GetMaxLevel() int32 {
+	return this.MaxLevel
+}
+
+func (this *GuildLevelUpTableMgr) GetMaxMemberNum() int32 {
+	return this.MaxMemberNum
 }

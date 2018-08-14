@@ -61,13 +61,14 @@ func _remove_guild(guild *dbGuildRow) {
 }
 
 type GuildManager struct {
-	guilds           *dbGuildTable
-	guild_ids        []int32
-	guild_num        int32
-	guild_id_map     map[int32]int32
-	guild_name_map   map[string]int32
-	guild_ids_locker *sync.RWMutex
-	guild_chat_map   map[int32]*ChatMgr
+	guilds                      *dbGuildTable
+	guild_ids                   []int32
+	guild_num                   int32
+	guild_id_map                map[int32]int32
+	guild_name_map              map[string]int32
+	guild_chat_map              map[int32]*ChatMgr
+	guild_stage_damage_list_map map[int32]map[int32]*utils.ShortRankList
+	guild_ids_locker            *sync.RWMutex
 }
 
 var guild_manager GuildManager
@@ -90,6 +91,14 @@ func (this *GuildManager) _add_guild(guild_id int32, guild_name string) bool {
 	chat_mgr := &ChatMgr{}
 	chat_mgr.Init(CHAT_CHANNEL_GUILD)
 	this.guild_chat_map[guild_id] = chat_mgr
+
+	damage_list_map := make(map[int32]*utils.ShortRankList)
+	for i := 0; i < len(guild_boss_table_mgr.Array); i++ {
+		rank_list := &utils.ShortRankList{}
+		rank_list.Init(guild_levelup_table_mgr.GetMaxMemberNum())
+		damage_list_map[guild_boss_table_mgr.Array[i].Id] = rank_list
+	}
+	this.guild_stage_damage_list_map[guild_id] = damage_list_map
 
 	return true
 }
@@ -114,6 +123,12 @@ func (this *GuildManager) _remove_guild(guild_id int32, guild_name string) bool 
 	delete(this.guild_id_map, guild_id)
 	delete(this.guild_name_map, guild_name)
 	delete(this.guild_chat_map, guild_id)
+	damage_list_map := this.guild_stage_damage_list_map[guild_id]
+	if damage_list_map != nil {
+		damage_list_map = nil
+	}
+	delete(this.guild_stage_damage_list_map, guild_id)
+
 	return true
 }
 
@@ -123,6 +138,7 @@ func (this *GuildManager) Init() {
 	this.guild_id_map = make(map[int32]int32)
 	this.guild_name_map = make(map[string]int32)
 	this.guild_chat_map = make(map[int32]*ChatMgr)
+	this.guild_stage_damage_list_map = make(map[int32]map[int32]*utils.ShortRankList)
 	this.guild_ids_locker = &sync.RWMutex{}
 	for gid, guild := range this.guilds.m_rows {
 		if _guild_get_exist_type(guild) == GUILD_EXIST_TYPE_DELETED {
@@ -185,6 +201,18 @@ func (this *GuildManager) GetChatMgr(guild_id int32) *ChatMgr {
 	defer this.guild_ids_locker.RUnlock()
 
 	return this.guild_chat_map[guild_id]
+}
+
+func (this *GuildManager) GetStageDamageList(guild_id, boss_id int32) *utils.ShortRankList {
+	this.guild_ids_locker.RLock()
+	defer this.guild_ids_locker.RUnlock()
+
+	damage_list_map := this.guild_stage_damage_list_map[guild_id]
+	if damage_list_map == nil {
+		return nil
+	}
+
+	return damage_list_map[boss_id]
 }
 
 func (this *GuildManager) Recommend(player_id int32) (guild_ids []int32) {

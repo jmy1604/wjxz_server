@@ -86,6 +86,7 @@ const (
 	BATTLE_ACTIVE_STAGE_TEAM = 5 // active stage
 	BATTLE_FRIEND_BOSS_TEAM  = 6 // friend boss
 	BATTLE_EXPLORE_TEAM      = 7 // explore
+	BATTLE_GUILD_STAGE_TEAM  = 8 // guild stage
 	BATTLE_MAX_TEAM          = 100
 )
 

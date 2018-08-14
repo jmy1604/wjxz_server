@@ -3,20 +3,18 @@
 	"SubVersion":0,
 	"Namespace":"db",
 	"Structs":[
-		{	
-			"Name":"SmallRankRecord",
-			"Fields":[
-				{"Type":"int32","Index":1,"Name":"Rank"},
-				{"Type":"int32","Index":2,"Name":"Id"},
-				{"Type":"int32","Index":3,"Name":"Val"},
-				{"Type":"string","Index":4,"Name":"Name"}
-			]
-		},
 		{
 			"Name":"LimitShopItem",
 			"Fields":[
 				{"Type":"int32","Index":1,"Name":"CommodityId"},
 				{"Type":"int32","Index":2,"Name":"LeftNum"}
+			]
+		},
+		{
+			"Name":"GuildStageDamageItem",
+			"Fields":[
+				{"Type":"int32","Index":1,"Name":"AttackerId"},
+				{"Type":"int32","Index":2,"Name":"Damage"}
 			]
 		}
 	],
@@ -715,6 +713,7 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"RespawnNum","Incby":true},
+						{"Type":"int32","Index":2,"Name":"RespawnState"}
 					]
 				}
 			]
@@ -1087,18 +1086,6 @@
 					"Fields":[]
 				},
 				{
-					"ColumnName":"CurrLogId",
-					"DBColumnName":"CurrLogId",
-					"InUse":true,
-					"Simple":true,
-					"SimpleType":"int32",
-					"Preload":true,
-					"Map":false,
-					"AutoIndex":false,
-					"DefaultValue":0,
-					"Fields":[]
-				},
-				{
 					"ColumnName":"Log",
 					"DBColumnName":"Log",
 					"InUse":true,
@@ -1154,7 +1141,9 @@
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"BossId"},
 						{"Type":"int32","Index":2,"Name":"State"},
-						{"Type":"int32","Index":3,"Name":"HpPercent"}
+						{"Type":"int32","Index":3,"Name":"HpPercent"},
+						{"Type":"int32","Index":4,"Name":"BossPos"},
+						{"Type":"int32","Index":5,"Name":"BosHP"}
 					]
 				},
 				{
@@ -1179,8 +1168,8 @@
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","Index":1,"Name":"AttackerId"},
-						{"Type":"int32","Index":2,"Name":"Damage"}
+						{"Type":"int32","Index":1,"Name":"BossId"},
+						{"Type":"GuildStageDamageItem","Index":2,"Name":"DamageList","Repeated":true}
 					]
 				}
 			]

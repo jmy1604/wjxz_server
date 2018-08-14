@@ -267,6 +267,13 @@ enum MSGID {
 	S2C_GUILD_DONATE_ITEM_NOTIFY			= 11847; // 公会通知请求捐赠物品变化 S2CGuildDonateItemNotify
 	C2S_GUILD_DONATE_LIST_REQUEST			= 11848; // 公会捐赠列表 C2SGuildDonateListRequest
 	S2C_GUILD_DONATE_LIST_RESPONSE			= 11849; // 公会捐赠列表 S2CGuildDonateListResponse
-	C2S_GUILD_STAGE_DATA_REQUEST			= 11850; // 公会副本数据 C2SGuildStageDataRequest
-	S2C_GUILD_STAGE_DATA_RESPONSE			= 11851; // 公会副本数据返回 S2CGuildStageDataResponse
+	
+	C2S_GUILD_STAGE_DATA_REQUEST			= 11900; // 公会副本数据 C2SGuildStageDataRequest
+	S2C_GUILD_STAGE_DATA_RESPONSE			= 11901; // 公会副本数据返回 S2CGuildStageDataResponse
+	C2S_GUILD_STAGE_RANK_LIST_REQUEST		= 11902; // 公会副本排行榜 C2SGuildStageRankListRequest
+	S2C_GUILD_STAGE_RANK_LIST_RESPONSE		= 11903; // 公会副本排行榜返回 S2CGuildStageRankListResponse
+	C2S_GUILD_STAGE_PLAYER_RESPAWN_REQUEST  = 11904; // 公会副本玩家复活 C2SGuildStagePlayerRespawnRequest
+	S2C_GUILD_STAGE_PLAYER_RESPAWN_RESPONSE = 11905; // 公会副本玩家复活返回 S2CGuildStagePlayerRespawnResponse
+	C2S_GUILD_STAGE_RESET_REQUEST			= 11906; // 公会副本重置 C2SGuildStageResetRequest
+	S2C_GUILD_STAGE_RESET_RESPONSE			= 11907; // 公会副本重置返回 S2CGuildStageResetResponse
 }

@@ -190,22 +190,25 @@ func (this *Player) LoadCampaignRankData() {
 	this._update_campaign_rank_data(campaign_id, sid)
 }
 
-func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player) (err int32, is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
+func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassItem, friend *Player, guild *dbGuildRow) (err int32, is_win bool, my_team, target_team []*msg_client_message.BattleMemberItem, enter_reports []*msg_client_message.BattleReportItem, rounds []*msg_client_message.BattleRoundReports, has_next_wave bool) {
 	var attack_team *BattleTeam
 	var team_type int32
 	if stage_type == 1 {
+		// PVP竞技场
 		if this.attack_team == nil {
 			this.attack_team = &BattleTeam{}
 		}
 		attack_team = this.attack_team
 		team_type = BATTLE_ATTACK_TEAM
 	} else if stage_type == 2 {
+		// PVE战役
 		if this.campaign_team == nil {
 			this.campaign_team = &BattleTeam{}
 		}
 		attack_team = this.campaign_team
 		team_type = BATTLE_CAMPAIN_TEAM
 	} else if stage_type == 3 {
+		// 爬塔
 		if this.tower_team == nil {
 			this.tower_team = &BattleTeam{}
 		}
@@ -219,17 +222,26 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		attack_team = this.active_stage_team
 		team_type = BATTLE_ACTIVE_STAGE_TEAM
 	} else if stage_type == 5 {
+		// 好友BOSS
 		if this.friend_boss_team == nil {
 			this.friend_boss_team = &BattleTeam{}
 		}
 		attack_team = this.friend_boss_team
 		team_type = BATTLE_FRIEND_BOSS_TEAM
 	} else if stage_type == 6 || stage_type == 7 {
+		// 探索副本
 		if this.explore_team == nil {
 			this.explore_team = &BattleTeam{}
 		}
 		attack_team = this.explore_team
 		team_type = BATTLE_EXPLORE_TEAM
+	} else if stage_type == 9 {
+		// 公会副本
+		if this.guild_stage_team == nil {
+			this.guild_stage_team = &BattleTeam{}
+		}
+		attack_team = this.guild_stage_team
+		team_type = BATTLE_GUILD_STAGE_TEAM
 	} else {
 		err = int32(msg_client_message.E_ERR_PLAYER_TEAM_TYPE_INVALID)
 		log.Error("Stage type %v invalid", stage_type)
@@ -258,7 +270,7 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		}
 	}
 
-	if !this.target_stage_team.InitWithStage(1, stage.Id, this.stage_wave, friend) {
+	if !this.target_stage_team.InitWithStage(1, stage.Id, this.stage_wave, friend, guild) {
 		err = -1
 		log.Error("Player[%v] init stage[%v] wave[%v] team failed", this.Id, stage.Id, this.stage_wave)
 		return
@@ -324,7 +336,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_CAMPAIGN_MUST_PlAY_NEXT)
 	}
 
-	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage, nil)
+	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage, nil, nil)
 	if err < 0 {
 		log.Error("Player[%v] fight campaign %v failed, team is empty")
 		return err
@@ -344,13 +356,6 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 		}
 	} else {
 		this.db.CampaignCommon.SetCurrentCampaignId(campaign_id)
-	}
-
-	if enter_reports == nil {
-		enter_reports = make([]*msg_client_message.BattleReportItem, 0)
-	}
-	if rounds == nil {
-		rounds = make([]*msg_client_message.BattleRoundReports, 0)
 	}
 
 	member_damages := this.campaign_team.common_data.members_damage

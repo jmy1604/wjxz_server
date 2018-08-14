@@ -985,7 +985,7 @@ func (this *Player) explore_fight(id int32, is_story bool) int32 {
 	} else {
 		battle_type = 6
 	}
-	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(battle_type, stage, nil)
+	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(battle_type, stage, nil, nil)
 	if err < 0 {
 		log.Error("Player[%v] fight explore task %v failed, team is empty")
 		return err

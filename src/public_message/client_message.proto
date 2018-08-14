@@ -391,8 +391,8 @@ message C2SBattleResultRequest {
 	repeated int32 AttackMembers 			= 1; // 阵型
 	int32 FightPlayerId						= 2; // 对方玩家ID
 	int32 CampaignId						= 3; // 战役ID
-	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务    8 好友切磋
-	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID    探索剧情任务ID    好友ID   
+	int32 BattleType						= 4; // 战斗类型   1 PVP     2 战役    3 爬塔    4 活动副本     5 好友BOSS   6 探索任务    7 探索剧情任务    8 好友切磋     9 公会副本
+	int32 BattleParam						= 5; // 战斗参数     玩家ID    战役ID    塔层ID    活动副本ID     好友ID       探索任务ID    探索剧情任务ID    好友ID         公会副本ID
 	int32 AssistFriendId					= 6; // 助战好友ID
 	int32 AssistRoleId					 	= 7; // 助战角色ID
 	int32 AssistPos							= 8; // 助战角色阵型位置
@@ -416,7 +416,7 @@ message S2CBattleResultResponse {
 	int32 AssistRoleId					 	= 15; // 助战角色ID
 	int32 AssistPos							= 16; // 助战角色阵型位置
 	int32 SweepNum							= 17; // 扫荡次数
-	int32 ExtraValue						= 18; // 额外的数据      如果是打好友BOSS, 该值就是BOSS血量百分比
+	int32 ExtraValue						= 18; // 额外的数据       类型 5 该值就是好友BOSS血量百分比   类型 9 公会副本时为副本可挑战状态
 }
 
 // 请求录像列表
@@ -487,7 +487,7 @@ message C2SCampaignHangupIncomeRequest {
 
 // 关卡战斗结果奖励
 message S2CCampaignHangupIncomeResponse {
-	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战役奖励  3 爬塔奖励  4 活动副本奖励  5 挑战好友BOSS  6 探索任务
+	int32 IncomeType						= 1; // 收益类型  0 挂机固定收益  1 挂机随机收益  2 战役奖励  3 爬塔奖励  4 活动副本奖励  5 挑战好友BOSS  6 探索任务  7 公会副本
 	repeated ItemInfo Rewards				= 2; // 奖励
 }
 
@@ -1465,6 +1465,7 @@ message GuildInfo {
 	string PresidentName					= 14; // 会长名
 	int32 MemberNum							= 15; // 成员数
 	int32 MemberNumLimit					= 16; // 最大成员数
+	int32 Position							= 17; // 职位
 }
 
 message S2CGuildDataResponse {
@@ -1754,19 +1755,50 @@ message S2CGuildDonateListResponse {
 message C2SGuildStageDataRequest {
 }
 
-// 公会副本伤害列表项
-message GuildStageDamageItem {
-	int32 MemberId							= 1; // 成员ID
-	int32 MemberName						= 2; // 成员名称
-	int32 Level								= 3; // 等级
-	int32 Head								= 4; // 头像
-	int32 Damage							= 5; // 伤害
-}
-
 message S2CGuildStageDataResponse {
 	int32 CurrBossId						= 1; // 当前公会副本
 	int32 HpPercent							= 2; // 副本BOSS血量百分比
 	int32 RespawnNum						= 3; // 复活次数
 	int32 RefreshRemainSeconds				= 4; // 刷新剩余时间
-	repeated GuildStageDamageItem DmgList	= 5; // 伤害列表
+	int32 StageState						= 5; // 挑战状态            0 可挑战  1 等待复活  2 可复活
+	repeated int32 RespawnNeedCost			= 6; // 复活需要钻石数
+}
+
+// 公会副本排行榜
+message C2SGuildStageRankListRequest {
+	int32 BossId							= 1; // 公会副本ID
+}
+
+// 公会副本伤害列表项
+message GuildStageDamageItem {
+	int32 Rank								= 1; // 排名
+	int32 MemberId							= 2; // 成员ID
+	string MemberName						= 3; // 成员名称
+	int32 Level								= 4; // 等级
+	int32 Head								= 5; // 头像
+	int32 Damage							= 6; // 伤害
+}
+
+message S2CGuildStageRankListResponse {
+	repeated GuildStageDamageItem DmgList	= 1; // 伤害列表
+}
+
+// 公会副本玩家复活
+message C2SGuildStagePlayerRespawnRequest {
+}
+
+message S2CGuildStagePlayerRespawnResponse{
+	int32 RemainRespawnNum 					= 1;
+	int32 CostDiamond						= 2;
+}
+
+// 公会副本重置
+message C2SGuildStageResetRequest {
+}
+
+message S2CGuildStageResetResponse {
+}
+
+// 公会副本重置通知
+message S2CGuildStageResetNotify {
 }

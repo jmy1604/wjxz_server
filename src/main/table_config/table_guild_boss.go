@@ -152,3 +152,16 @@ func (this *GuildBossTableMgr) Load() bool {
 func (this *GuildBossTableMgr) Get(id int32) *XmlGuildBossItem {
 	return this.Map[id]
 }
+
+func (this *GuildBossTableMgr) GetNext(id int32) (next_item *XmlGuildBossItem) {
+	for i, item := range this.Array {
+		if item.Id == id {
+			if i+1 >= len(this.Array) {
+				return
+			}
+			next_item = this.Array[i+1]
+			break
+		}
+	}
+	return
+}

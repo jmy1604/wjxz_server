@@ -2,16 +2,14 @@ syntax = "proto2";
 package db;
 
 
-message SmallRankRecord{
-	optional int32 Rank=1;
-	optional int32 Id=2;
-	optional int32 Val=3;
-	optional string Name=4;
-}
-
 message LimitShopItem{
 	optional int32 CommodityId=1;
 	optional int32 LeftNum=2;
+}
+
+message GuildStageDamageItem{
+	optional int32 AttackerId=1;
+	optional int32 Damage=2;
 }
 
 message PlayerInfo{
@@ -420,6 +418,7 @@ message PlayerGuild{
 
 message PlayerGuildStage{
 	optional int32 RespawnNum=1;
+	optional int32 RespawnState=2;
 }
 
 message BattleSaveData{
@@ -481,11 +480,13 @@ message GuildStage{
 	optional int32 BossId=1;
 	optional int32 State=2;
 	optional int32 HpPercent=3;
+	optional int32 BossPos=4;
+	optional int32 BosHP=5;
 }
 
 message GuildStageAttackLog{
-	optional int32 AttackerId=1;
-	optional int32 Damage=2;
+	optional int32 BossId=1;
+	repeated GuildStageDamageItem DamageList=2;
 }
 
 message GuildStageAttackLogList{

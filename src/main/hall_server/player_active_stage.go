@@ -202,7 +202,7 @@ func (this *Player) fight_active_stage(active_stage_id int32) int32 {
 		return -1
 	}
 
-	err, is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(4, stage, nil)
+	err, is_win, my_team, target_team, enter_reports, rounds, _ := this.FightInStage(4, stage, nil, nil)
 	if err < 0 {
 		log.Error("Player[%v] fight active stage %v failed", this.Id, active_stage_id)
 		return err

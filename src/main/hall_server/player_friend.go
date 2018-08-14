@@ -836,7 +836,7 @@ func (this *Player) friend_boss_challenge(friend_id int32) int32 {
 	var rounds []*msg_client_message.BattleRoundReports
 	var reward_items map[int32]int32
 	for ; n < fight_num; n++ {
-		err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave = this.FightInStage(5, stage, p)
+		err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave = this.FightInStage(5, stage, p, nil)
 		if err < 0 {
 			p.cancel_friend_boss_fight()
 			log.Error("Player[%v] fight friend %v boss %v failed, team is empty", this.Id, friend_id, friend_boss_table_id)

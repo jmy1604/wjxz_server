@@ -149,6 +149,7 @@ type BattleTeam struct {
 	members      []*TeamMember     // 成员
 	common_data  *BattleCommonData // 每回合战报
 	friend       *Player           // 用于好友BOSS
+	guild        *dbGuildRow       // 用于公会副本
 }
 
 // 利用玩家初始化
@@ -217,7 +218,7 @@ func (this *BattleTeam) Init(p *Player, team_id int32, side int32) int32 {
 }
 
 // init with stage
-func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave int32, friend *Player) bool {
+func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave int32, friend *Player, guild *dbGuildRow) bool {
 	stage := stage_table_mgr.Get(stage_id)
 	if stage == nil {
 		log.Warn("Cant found stage %v", stage_id)
@@ -251,6 +252,10 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 			}
 
 			if friend != nil && !friend.db.FriendBosss.HasIndex(pos) {
+				// 好友BOSS
+				continue
+			} else if guild != nil && guild.Stage.GetBossPos() != pos {
+				// 公会副本
 				continue
 			}
 
@@ -264,11 +269,19 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 
 			m.init_all(this, 0, monster.Level, role_card, pos, monster.EquipID)
 
+			// 好友BOSS
 			if friend != nil {
 				hp, _ := friend.db.FriendBosss.GetMonsterHp(pos)
 				if hp > 0 {
 					m.attrs[ATTR_HP] = hp
 					m.hp = m.attrs[ATTR_HP]
+				}
+			} else if guild != nil {
+				// 公会副本
+				boss_hp := guild.Stage.GetBosHP()
+				if boss_hp > 0 {
+					m.attrs[ATTR_HP] = boss_hp
+					m.hp = boss_hp
 				}
 			}
 
@@ -710,6 +723,29 @@ func (this *BattleTeam) IsSweep() bool {
 		return true
 	}
 	return false
+}
+
+// 公会副本BOSS血量更新
+func (this *BattleTeam) UpdateGuildStageBossHP() {
+	if this.guild == nil {
+		return
+	}
+
+	pos := this.guild.Stage.GetBossPos()
+	if pos < 0 || pos >= BATTLE_TEAM_MEMBER_MAX_NUM {
+		return
+	}
+	boss := this.members[pos]
+	if boss == nil {
+		return
+	}
+	this.guild.Stage.SetBosHP(boss.hp)
+	percent := int32(100 * boss.hp / boss.attrs[ATTR_HP_MAX])
+	if percent <= 0 {
+		percent = 1
+	}
+	this.guild.Stage.SetHpPercent(percent)
+	log.Debug("!!!!!!!!!!!!!!!!!!!!!!!! Update guild[%v] stage boss hp percent %v", this.guild.GetId(), percent)
 }
 
 // 开打

@@ -323,7 +323,7 @@ func fight_stage_cmd(p *Player, args []string) int32 {
 		stage_type = 1
 	}
 
-	err_code, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage, nil)
+	err_code, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := p.FightInStage(int32(stage_type), stage, nil, nil)
 	if err_code < 0 {
 		log.Error("Player[%v] fight stage %v, team is empty", p.Id, stage_id)
 		return err_code
@@ -1915,6 +1915,26 @@ func pull_chat_cmd(p *Player, args []string) int32 {
 	return p.pull_chat(int32(channel))
 }
 
+func guild_stage_data_cmd(p *Player, args []string) int32 {
+	return p.send_guild_stage_data()
+}
+
+func guild_stage_ranklist_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var boss_id int
+	var err error
+	boss_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.guild_stage_rank_list(int32(boss_id))
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2034,6 +2054,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"guild_donate":           guild_donate_cmd,
 	"chat":                   chat_cmd,
 	"pull_chat":              pull_chat_cmd,
+	"guild_stage_data":       guild_stage_data_cmd,
+	"guild_stage_ranklist":   guild_stage_ranklist_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {
