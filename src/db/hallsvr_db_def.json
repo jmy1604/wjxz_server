@@ -1175,6 +1175,31 @@
 			]
 		},
 		{
+			"TableName":"GuildStage",
+			"DBTableName":"GuildStage",
+			"SingleRow":false,
+			"AutoPrimaryKey":false,
+			"PrimaryKeyName":"Id",
+			"PrimaryKeyType":"int64",
+			"PrimaryKeySize":20,
+			"Columns":[
+				{
+					"ColumnName":"DamageLog",
+					"DBColumnName":"DamageLog",
+					"InUse":true,
+					"Simple":false,
+					"SimpleType":"",
+					"Preload":true,
+					"Map":true,
+					"AutoIndex":false,
+					"Fields":[
+						{"Type":"int32","index":1,"Name":"AttackerId"},
+						{"Type":"int32","index":2,"Name":"Damage"}
+					]
+				}
+			]
+		},
+		{
 			"TableName":"GooglePayRecord",
 			"DBTableName":"GooglePayRecord",
 			"SingleRow":false,

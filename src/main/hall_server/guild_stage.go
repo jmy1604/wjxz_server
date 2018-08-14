@@ -54,6 +54,16 @@ func (this *dbGuildStageDamageItemData) Assign(item utils.ShortRankItem) {
 	this.Damage = it.Damage
 }
 
+func (this *dbGuildStageDamageItemData) Add(item utils.ShortRankItem) {
+	it := item.(*dbGuildStageDamageItemData)
+	if it == nil {
+		return
+	}
+	if this.AttackerId == it.AttackerId {
+		this.Damage += it.Damage
+	}
+}
+
 // ----------------------------------------------------------------------------
 
 func (this *dbGuildStageAttackLogColumn) GetDamageList2(id int32) (v []dbGuildStageDamageItemData, has bool) {
@@ -197,18 +207,6 @@ const (
 )
 
 func (this *Player) guild_stage_fight(boss_id int32) int32 {
-	guild := guild_manager._get_guild(this.Id, false)
-	if guild == nil {
-		log.Error("Player[%v] get guild failed or guild not found", this.Id)
-		return -1
-	}
-
-	curr_boss_id := guild.Stage.GetBossId()
-	if boss_id != curr_boss_id {
-		// 返回排行榜
-		return this.guild_stage_rank_list(boss_id)
-	}
-
 	stage_state := this.db.GuildStage.GetRespawnState()
 	if stage_state == GUILD_STAGE_STATE_WAIT_RESPAWN {
 		log.Error("Player[%v] waiting to respawn for guild stage", this.Id)
@@ -232,7 +230,34 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		return -1
 	}
 
+	guild := guild_manager._get_guild(this.Id, false)
+	if guild == nil {
+		log.Error("Player[%v] get guild failed or guild not found", this.Id)
+		return -1
+	}
+
+	guild_ex := guild_manager.GetGuildEx(guild.GetId())
+	if guild_ex == nil {
+		log.Error("Cant get guild ex by id %v", guild.GetId())
+		return -1
+	}
+
+	if !guild_ex.CanStageFight() {
+		log.Error("Player[%v] cant fight guild stage %v, there is other player fighting", this.Id, guild.GetId())
+		return -1
+	}
+
+	curr_boss_id := guild.Stage.GetBossId()
+	if boss_id != curr_boss_id {
+		guild_ex.CancelStageFight()
+		// 返回排行榜
+		return this.guild_stage_rank_list(boss_id)
+	}
+
 	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(9, stage, nil, guild)
+
+	guild_ex.CancelStageFight()
+
 	if err < 0 {
 		log.Error("Player[%v] fight guild stage %v failed, team is empty", this.Id, boss_id)
 		return err
@@ -276,6 +301,19 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	if is_win && !has_next_wave {
 		// 关卡奖励
 		this.send_stage_reward(stage, 7)
+	}
+
+	// 更新伤害排行榜
+	damage_list := guild_manager.GetStageDamageList(guild.GetId(), boss_id)
+	if damage_list != nil {
+		var this_fight_damage int32
+		for _, dmg := range member_damages[this.guild_stage_team.side] {
+			this_fight_damage += dmg
+		}
+		damage_list.Update(&dbGuildStageDamageItemData{
+			AttackerId: this.Id,
+			Damage:     this_fight_damage,
+		}, true)
 	}
 
 	Output_S2CBattleResult(this, response)

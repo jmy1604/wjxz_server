@@ -289,9 +289,8 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 		}
 	}
 
-	if friend != nil {
-		this.friend = friend
-	}
+	this.friend = friend
+	this.guild = guild
 
 	return true
 }
@@ -817,8 +816,15 @@ func (this *BattleTeam) Fight(target_team *BattleTeam, end_type int32, end_param
 	this.OnFinish()
 	target_team.OnFinish()
 
-	if !is_win && target_team.friend != nil {
-		target_team.UpdateFriendBossHP()
+	if !is_win {
+		// 好友BOSS血量更新
+		if target_team.friend != nil {
+			target_team.UpdateFriendBossHP()
+		}
+		// 公会副本BOSS血量更新
+		if target_team.guild != nil {
+			target_team.UpdateGuildStageBossHP()
+		}
 	}
 
 	// 扫荡

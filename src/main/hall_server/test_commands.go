@@ -1935,6 +1935,26 @@ func guild_stage_ranklist_cmd(p *Player, args []string) int32 {
 	return p.guild_stage_rank_list(int32(boss_id))
 }
 
+func guild_stage_fight_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var boss_id int
+	var err error
+	boss_id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.guild_stage_fight(int32(boss_id))
+}
+
+func guild_stage_reset_cmd(p *Player, args []string) int32 {
+	return p.guild_stage_reset()
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2056,6 +2076,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"pull_chat":              pull_chat_cmd,
 	"guild_stage_data":       guild_stage_data_cmd,
 	"guild_stage_ranklist":   guild_stage_ranklist_cmd,
+	"guild_stage_fight":      guild_stage_fight_cmd,
+	"guild_stage_reset":      guild_stage_reset_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

@@ -15,6 +15,7 @@ type ShortRankItem interface {
 	GetKey() interface{}
 	GetValue() interface{}
 	Assign(item ShortRankItem)
+	Add(item ShortRankItem)
 }
 
 type ShortRankList struct {
@@ -43,7 +44,7 @@ func (this *ShortRankList) GetLength() int32 {
 	return this.curr_num
 }
 
-func (this *ShortRankList) Update(item ShortRankItem) bool {
+func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 	this.locker.Lock()
 	defer this.locker.Unlock()
 
@@ -72,6 +73,9 @@ func (this *ShortRankList) Update(item ShortRankItem) bool {
 		this.keys_map[item.GetKey()] = this.curr_num
 		this.curr_num += 1
 	} else {
+		if add {
+			item.Add(this.items[idx])
+		}
 		var i, b, e int32
 		if item.Greater(this.items[idx]) {
 			i = idx - 1
