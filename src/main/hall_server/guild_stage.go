@@ -3,14 +3,13 @@ package main
 import (
 	"libs/log"
 	"libs/utils"
-	_ "main/table_config"
 	_ "math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
-	_ "strconv"
+	"strconv"
 	_ "sync"
-	_ "time"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -83,7 +82,8 @@ func (this *GuildStageManager) Init() {
 	this.stages = dbc.GuildStages
 }
 
-func (this *GuildStageManager) Get(id int64) *dbGuildStageRow {
+func (this *GuildStageManager) Get(guild_id, boss_id int32) *dbGuildStageRow {
+	id := utils.Int64From2Int32(guild_id, boss_id)
 	row := this.stages.GetRow(id)
 	if row == nil {
 		row = this.stages.AddRow(id)
@@ -92,7 +92,7 @@ func (this *GuildStageManager) Get(id int64) *dbGuildStageRow {
 }
 
 func (this *GuildStageManager) SaveDamageLog(guild_id, boss_id, attacker_id, damage int32) {
-	row := this.Get(utils.Int64From2Int32(guild_id, boss_id))
+	row := this.Get(guild_id, boss_id)
 	if !row.DamageLogs.HasIndex(attacker_id) {
 		row.DamageLogs.Add(&dbGuildStageDamageLogData{
 			AttackerId: attacker_id,
@@ -109,7 +109,7 @@ func (this *GuildStageManager) LoadDB2RankList(guild_id, boss_id int32, rank_lis
 	if rank_list == nil {
 		rank_list = guild_manager.GetStageDamageList(guild_id, boss_id)
 	}
-	row := this.Get(utils.Int64From2Int32(guild_id, boss_id))
+	row := this.Get(guild_id, boss_id)
 	ids := row.DamageLogs.GetAllIndex()
 	if ids != nil {
 		var item GuildStageDamageItem
@@ -117,6 +117,56 @@ func (this *GuildStageManager) LoadDB2RankList(guild_id, boss_id int32, rank_lis
 			item.AttackerId = id
 			item.Damage, _ = row.DamageLogs.GetDamage(id)
 			rank_list.Update(&item, false)
+		}
+	}
+}
+
+func (this *GuildStageManager) RankListReward(guild_id, boss_id int32) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Stack(err)
+		}
+	}()
+
+	guild_stage := guild_boss_table_mgr.Get(boss_id)
+	if guild_stage == nil {
+		return
+	}
+
+	rank_list := guild_manager.GetStageDamageList(guild_id, boss_id)
+	if rank_list == nil {
+		return
+	}
+
+	var ranks [][]int32 = [][]int32{
+		guild_stage.RankReward1Cond,
+		guild_stage.RankReward2Cond,
+		guild_stage.RankReward3Cond,
+		guild_stage.RankReward4Cond,
+		guild_stage.RankReward5Cond,
+	}
+	var rewards [][]int32 = [][]int32{
+		guild_stage.RankReward1,
+		guild_stage.RankReward2,
+		guild_stage.RankReward3,
+		guild_stage.RankReward4,
+		guild_stage.RankReward5,
+	}
+
+	for i := 0; i < len(ranks); i++ {
+		rank_range := ranks[i]
+		if rank_range == nil {
+			continue
+		}
+		for r := rank_range[0]; r <= rank_range[1]; r++ {
+			if rewards[i] != nil {
+				key, _ := rank_list.GetByRank(r)
+				pid := key.(int32)
+				if pid <= 0 {
+					continue
+				}
+				SendMail2(nil, pid, MAIL_TYPE_GUILD, "Guild Stage Rank List Reward", "Guild Stage Rank List Reward for rank "+strconv.Itoa(int(r)), rewards[i])
+			}
 		}
 	}
 }
@@ -131,11 +181,6 @@ func guild_stage_damage_list(guild_id, boss_id int32) (damage_list_msg []*msg_cl
 	if damage_list == nil {
 		return
 	}
-
-	// 是否未载入DB数据
-	/*if damage_list.GetLength() == 0 {
-		guild_stage_manager.LoadDB2RankList(guild_id, boss_id, damage_list)
-	}*/
 
 	length := damage_list.GetLength()
 	if length > 0 {
@@ -195,6 +240,9 @@ func (this *Player) send_guild_stage_data() int32 {
 		log.Error("Player[%v] get guild failed or guild not found", this.Id)
 		return -1
 	}
+
+	this.guild_stage_check_refresh(false)
+
 	boss_id := guild.Stage.GetBossId()
 	if boss_id == 0 {
 		boss_id = guild_boss_table_mgr.Array[0].Id
@@ -208,7 +256,8 @@ func (this *Player) send_guild_stage_data() int32 {
 		CurrBossId:           boss_id,
 		HpPercent:            guild.Stage.GetHpPercent(),
 		RespawnNum:           this.db.GuildStage.GetRespawnNum(),
-		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(guild.GetLastStageRefreshTime(), global_config.GuildStageRefreshTime),
+		TotalRespawnNum:      _get_total_guild_stage_respawn_num(),
+		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(this.db.GuildStage.GetLastRefreshTime(), global_config.GuildStageRefreshTime),
 		StageState:           this.db.GuildStage.GetRespawnState(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_DATA_RESPONSE), response)
@@ -237,16 +286,8 @@ const (
 	GUILD_STAGE_STATE_DEAD      = 1
 )
 
+// 公会副本挑战
 func (this *Player) guild_stage_fight(boss_id int32) int32 {
-	stage_state := this.db.GuildStage.GetRespawnState()
-	if stage_state == GUILD_STAGE_STATE_DEAD {
-		log.Error("Player[%v] waiting to respawn for guild stage", this.Id)
-		return -1
-	} else if stage_state != GUILD_STAGE_STATE_CAN_FIGHT {
-		log.Error("Player[%v] guild stage state %v invalid", stage_state)
-		return -1
-	}
-
 	guild_stage := guild_boss_table_mgr.Get(boss_id)
 	if guild_stage == nil {
 		log.Error("guild stage %v table data not found", boss_id)
@@ -258,11 +299,22 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		return -1
 	}
 
+	stage_state := this.db.GuildStage.GetRespawnState()
+	if stage_state == GUILD_STAGE_STATE_DEAD {
+		log.Error("Player[%v] waiting to respawn for guild stage", this.Id)
+		return -1
+	} else if stage_state != GUILD_STAGE_STATE_CAN_FIGHT {
+		log.Error("Player[%v] guild stage state %v invalid", stage_state)
+		return -1
+	}
+
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] get guild failed or guild not found", this.Id)
 		return -1
 	}
+
+	this.guild_stage_check_refresh(false)
 
 	guild_ex := guild_manager.GetGuildEx(guild.GetId())
 	if guild_ex == nil {
@@ -326,9 +378,13 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 
+	// 挑战奖励
+	this.add_resources(guild_stage.BattleReward)
 	if is_win && !has_next_wave {
 		// 关卡奖励
 		this.send_stage_reward(stage, 7)
+		// 排名奖励
+		guild_stage_manager.RankListReward(guild.GetId(), boss_id)
 	}
 
 	// 更新伤害排行榜
@@ -354,6 +410,37 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	return 1
 }
 
+func _get_total_guild_stage_respawn_num() int32 {
+	var total_respawn_num int32
+	if global_config.GuildStageResurrectionGem != nil {
+		total_respawn_num = int32(len(global_config.GuildStageResurrectionGem))
+	}
+	return total_respawn_num
+}
+
+// 公会副本自动刷新
+func (this *Player) guild_stage_check_refresh(is_notify bool) bool {
+	last_refresh := this.db.GuildStage.GetLastRefreshTime()
+	if !utils.CheckDayTimeArrival(last_refresh, global_config.GuildStageRefreshTime) {
+		return false
+	}
+
+	this.db.GuildStage.SetRespawnNum(0)
+	this.db.GuildStage.SetLastRefreshTime(int32(time.Now().Unix()))
+
+	if is_notify {
+		this.send_guild_stage_data()
+
+		var notify msg_client_message.S2CGuildStageAutoRefreshNotify
+		notify.NextRefreshRemainSeconds = utils.GetRemainSeconds2NextDayTime(int32(time.Now().Unix()), global_config.GuildStageRefreshTime)
+		this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_AUTO_REFRESH_NOTIFY), &notify)
+	}
+
+	log.Debug("Player[%v] guild stage auto refreshed", this.Id)
+
+	return true
+}
+
 // 公会副本玩家复活
 func (this *Player) guild_stage_player_respawn() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
@@ -362,17 +449,16 @@ func (this *Player) guild_stage_player_respawn() int32 {
 		return -1
 	}
 
+	this.guild_stage_check_refresh(true)
+
 	if this.db.GuildStage.GetRespawnState() != GUILD_STAGE_STATE_DEAD {
 		log.Error("Player[%v] is no dead in guild stage, cant respawn", this.Id)
 		return -1
 	}
 
 	respawn_num := this.db.GuildStage.GetRespawnNum()
-	var total_respawn_num int32
-	if global_config.GuildStageResurrectionGem != nil {
-		total_respawn_num = int32(len(global_config.GuildStageResurrectionGem))
-	}
 
+	total_respawn_num := _get_total_guild_stage_respawn_num()
 	if respawn_num >= total_respawn_num {
 		log.Error("Player[%v] respawn num %v is max", this.Id, respawn_num)
 		return -1
@@ -400,6 +486,61 @@ func (this *Player) guild_stage_player_respawn() int32 {
 
 // 公会副本重置
 func (this *Player) guild_stage_reset() int32 {
+	guild := guild_manager._get_guild(this.Id, true)
+	if guild == nil {
+		log.Error("Player[%v] cant get guild or no guild", this.Id)
+		return -1
+	}
+
+	last_reset_time := guild.GetLastStageResetTime()
+	now_time := int32(time.Now().Unix())
+	if now_time-last_reset_time < global_config.GuildStageResetCDSecs {
+		log.Error("Player[%v] guild stage reset is cooldown", this.Id)
+		return -1
+	}
+
+	guild.Stage.SetBossId(0)
+	guild.Stage.SetBosHP(0)
+	guild.Stage.SetBossPos(0)
+	guild.Stage.SetHpPercent(0)
+	guild.SetLastStageResetTime(now_time)
+
+	// 清空副本排名数据
+	stage_array := guild_boss_table_mgr.Array
+	for i := 0; i < len(stage_array); i++ {
+		damage_list := guild_manager.GetStageDamageList(guild.GetId(), stage_array[i].Id)
+		if damage_list != nil {
+			damage_list.Clear()
+		}
+
+		row := guild_stage_manager.Get(guild.GetId(), stage_array[i].Id)
+		if row != nil {
+			row.DamageLogs.Clear()
+		}
+	}
+
+	response := &msg_client_message.S2CGuildStageResetResponse{}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_RESET_RESPONSE), response)
+
+	ids := guild.Members.GetAllIndex()
+	if ids != nil {
+		var notify msg_client_message.S2CGuildStageResetNotify
+		notify.NextResetRemainSeconds = global_config.GuildStageResetCDSecs
+		for _, id := range ids {
+			if id == this.Id {
+				continue
+			}
+			player := player_mgr.GetPlayerById(id)
+			if player == nil {
+				continue
+			}
+			player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_RESET_NOTIFY), &notify)
+			log.Debug("Notify player[%v] guild stage reset", id)
+		}
+	}
+
+	log.Debug("Player[%v] reset guild stage", this.Id)
+
 	return 1
 }
 

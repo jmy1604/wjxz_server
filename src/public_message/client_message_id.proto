@@ -276,4 +276,6 @@ enum MSGID {
 	S2C_GUILD_STAGE_PLAYER_RESPAWN_RESPONSE = 11905; // 公会副本玩家复活返回 S2CGuildStagePlayerRespawnResponse
 	C2S_GUILD_STAGE_RESET_REQUEST			= 11906; // 公会副本重置 C2SGuildStageResetRequest
 	S2C_GUILD_STAGE_RESET_RESPONSE			= 11907; // 公会副本重置返回 S2CGuildStageResetResponse
+	S2C_GUILD_STAGE_RESET_NOTIFY			= 11908; // 公会副本数据重置通知 S2CGuildStageResetNotify
+	S2C_GUILD_STAGE_AUTO_REFRESH_NOTIFY		= 11909; // 公会副本数据自动刷新通知 S2CGuildStageAutoRefreshNotify
 }

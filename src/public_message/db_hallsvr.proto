@@ -419,6 +419,7 @@ message PlayerGuild{
 message PlayerGuildStage{
 	optional int32 RespawnNum=1;
 	optional int32 RespawnState=2;
+	optional int32 LastRefreshTime=3;
 }
 
 message BattleSaveData{
@@ -478,19 +479,9 @@ message GuildAskDonateList{
 
 message GuildStage{
 	optional int32 BossId=1;
-	optional int32 State=2;
 	optional int32 HpPercent=3;
 	optional int32 BossPos=4;
 	optional int32 BosHP=5;
-}
-
-message GuildStageAttackLog{
-	optional int32 BossId=1;
-	repeated GuildStageDamageItem DamageList=2;
-}
-
-message GuildStageAttackLogList{
-	repeated GuildStageAttackLog List=1;
 }
 
 message GuildStageDamageLog{

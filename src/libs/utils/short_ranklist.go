@@ -134,6 +134,18 @@ func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 	return true
 }
 
+func (this *ShortRankList) Clear() {
+	this.locker.Lock()
+	defer this.locker.Unlock()
+
+	for i := int32(0); i < this.max_num; i++ {
+		this.items[i] = nil
+	}
+
+	this.curr_num = 0
+	this.keys_map = make(map[interface{}]int32)
+}
+
 func (this *ShortRankList) GetRank(key interface{}) (rank int32) {
 	this.locker.RLock()
 	defer this.locker.RUnlock()

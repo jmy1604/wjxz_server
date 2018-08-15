@@ -1590,10 +1590,12 @@ message S2CGuildAskJoinResponse {
 // 同意加入公会
 message C2SGuildAgreeJoinRequest {
 	repeated int32 PlayerIds				= 1; // 玩家ID
+	bool IsRefuse							= 2; // 是否拒绝
 }
 
 message S2CGuildAgreeJoinResponse {
 	repeated int32 PlayerIds				= 1; // 玩家ID
+	bool IsRefuse							= 2; // 是否拒绝
 }
 
 // 公会同意加入通知
@@ -1790,8 +1792,8 @@ message C2SGuildStagePlayerRespawnRequest {
 }
 
 message S2CGuildStagePlayerRespawnResponse{
-	int32 RemainRespawnNum 					= 1;
-	int32 CostDiamond						= 2;
+	int32 RemainRespawnNum 					= 1; // 剩余复活次数
+	int32 CostDiamond						= 2; // 花费钻石
 }
 
 // 公会副本重置
@@ -1799,8 +1801,15 @@ message C2SGuildStageResetRequest {
 }
 
 message S2CGuildStageResetResponse {
+	int32 NextResetRemainSeconds			= 1; // 下一次重置剩余秒数
 }
 
 // 公会副本重置通知
 message S2CGuildStageResetNotify {
+	int32 NextResetRemainSeconds			= 1; // 下一次重置剩余秒数
+}
+
+// 公会副本数据自动刷新
+message S2CGuildStageAutoRefreshNotify {
+	int32 NextRefreshRemainSeconds			= 1; // 下一次自动刷新剩余秒数
 }

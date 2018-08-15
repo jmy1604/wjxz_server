@@ -97,7 +97,7 @@
 	"GuildAskDonateCDSecs": 25200,
 	"GuildQuitAskJoinCDSecs": 25200,
 	"GuildDonateLimitDay": 180,
-	"GuildStageResetCDSecs": 17800,
+	"GuildStageResetCDSecs": 172800,
 	"GuildStageResurrectionGem": [0,100,200],
 	"GuildDismissWaitingSeconds": 7200,
 	"GuildSignRefreshTime":"00:00:00",

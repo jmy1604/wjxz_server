@@ -713,7 +713,8 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"RespawnNum","Incby":true},
-						{"Type":"int32","Index":2,"Name":"RespawnState"}
+						{"Type":"int32","Index":2,"Name":"RespawnState"},
+						{"Type":"int32","Index":3,"Name":"LastRefreshTime"}
 					]
 				}
 			]
@@ -1140,15 +1141,14 @@
 					"AutoIndex":false,
 					"Fields":[
 						{"Type":"int32","Index":1,"Name":"BossId"},
-						{"Type":"int32","Index":2,"Name":"State"},
 						{"Type":"int32","Index":3,"Name":"HpPercent"},
 						{"Type":"int32","Index":4,"Name":"BossPos"},
 						{"Type":"int32","Index":5,"Name":"BosHP"}
 					]
 				},
 				{
-					"ColumnName":"LastStageRefreshTime",
-					"DBColumnName":"LastStageRefreshTime",
+					"ColumnName":"LastStageResetTime",
+					"DBColumnName":"LastStageResetTime",
 					"InUse":true,
 					"Simple":true,
 					"SimpleType":"int32",
@@ -1157,20 +1157,6 @@
 					"AutoIndex":false,
 					"DefaultValue":"0",
 					"Fields":[]
-				},
-				{
-					"ColumnName":"StageAttackLog",
-					"DBColumnName":"StageAttackLog",
-					"InUse":true,
-					"Simple":false,
-					"SimpleType":"",
-					"Preload":true,
-					"Map":true,
-					"AutoIndex":false,
-					"Fields":[
-						{"Type":"int32","Index":1,"Name":"BossId"},
-						{"Type":"GuildStageDamageItem","Index":2,"Name":"DamageList","Repeated":true}
-					]
 				}
 			]
 		},
