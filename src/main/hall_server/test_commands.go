@@ -1765,7 +1765,20 @@ func guild_agree_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.guild_agree_join([]int32{int32(player_id)})
+	var is_refuse int
+	if len(args) > 1 {
+		is_refuse, err = strconv.Atoi(args[1])
+		if err != nil {
+			return -1
+		}
+	}
+
+	return p.guild_agree_join([]int32{int32(player_id)}, func() bool {
+		if is_refuse > 0 {
+			return true
+		}
+		return false
+	}())
 }
 
 func guild_ask_list_cmd(p *Player, args []string) int32 {

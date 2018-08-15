@@ -329,6 +329,11 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 
 	curr_boss_id := guild.Stage.GetBossId()
 	if boss_id != curr_boss_id {
+		if boss_id > curr_boss_id {
+			log.Error("Player[%v] cant fight guild stage %v", this.Id, boss_id)
+			return -1
+		}
+
 		guild_ex.CancelStageFight()
 		// 返回排行榜
 		return this.guild_stage_rank_list(boss_id)

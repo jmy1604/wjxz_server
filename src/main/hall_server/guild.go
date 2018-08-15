@@ -809,7 +809,7 @@ func (this *Player) guild_ask_join(guild_id int32) int32 {
 }
 
 // 公会同意申请加入
-func (this *Player) guild_agree_join(player_ids []int32) int32 {
+func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 	if player_ids == nil || len(player_ids) == 0 {
 		return -1
 	}
@@ -820,17 +820,19 @@ func (this *Player) guild_agree_join(player_ids []int32) int32 {
 		return -1
 	}
 
-	// 升级配置数据
-	levelup_data := guild_levelup_table_mgr.Get(guild.GetLevel())
-	if levelup_data == nil {
-		log.Error("Guild level up table data not found with level %v", guild.GetLevel())
-		return -1
-	}
+	if !is_refuse {
+		// 升级配置数据
+		levelup_data := guild_levelup_table_mgr.Get(guild.GetLevel())
+		if levelup_data == nil {
+			log.Error("Guild level up table data not found with level %v", guild.GetLevel())
+			return -1
+		}
 
-	// 人数限制
-	if levelup_data.MemberNum <= guild.Members.NumAll() {
-		log.Error("Guild %v members num is max, player %v cant agree the players %v join", guild.GetId(), this.Id, player_ids)
-		return -1
+		// 人数限制
+		if levelup_data.MemberNum <= guild.Members.NumAll() {
+			log.Error("Guild %v members num is max, player %v cant agree the players %v join", guild.GetId(), this.Id, player_ids)
+			return -1
+		}
 	}
 
 	// 职位
@@ -868,38 +870,47 @@ func (this *Player) guild_agree_join(player_ids []int32) int32 {
 			continue
 		}
 
-		guild.Members.Add(&dbGuildMemberData{
-			PlayerId: player_id,
-		})
-		guild.AskLists.Remove(player_id)
+		if !is_refuse {
+			guild.Members.Add(&dbGuildMemberData{
+				PlayerId: player_id,
+			})
+			player.db.Guild.SetId(guild.GetId())
+			player.db.Guild.SetJoinTime(int32(time.Now().Unix()))
+		}
 
-		player.db.Guild.SetId(guild.GetId())
-		player.db.Guild.SetJoinTime(int32(time.Now().Unix()))
+		guild.AskLists.Remove(player_id)
 	}
 
 	response := &msg_client_message.S2CGuildAgreeJoinResponse{
 		PlayerIds: player_ids,
+		IsRefuse:  is_refuse,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_RESPONSE), response)
 
-	// 通知加入的成员
-	for _, player_id := range player_ids {
-		player := player_mgr.GetPlayerById(player_id)
-		if player == nil {
-			continue
-		}
+	if !is_refuse {
+		// 通知加入的成员
+		for _, player_id := range player_ids {
+			player := player_mgr.GetPlayerById(player_id)
+			if player == nil {
+				continue
+			}
 
-		notify := &msg_client_message.S2CGuildAgreeJoinNotify{
-			NewMemberId: player_id,
-			GuildId:     guild.GetId(),
-		}
-		player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
+			notify := &msg_client_message.S2CGuildAgreeJoinNotify{
+				NewMemberId: player_id,
+				GuildId:     guild.GetId(),
+			}
+			player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
 
-		// 日志
-		push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_JOIN, player_id)
+			// 日志
+			push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_JOIN, player_id)
+		}
 	}
 
-	log.Debug("Player[%v] agreed players %v join guild %v", this.Id, player_ids, guild.GetId())
+	if !is_refuse {
+		log.Debug("Player[%v] agreed players %v join guild %v", this.Id, player_ids, guild.GetId())
+	} else {
+		log.Debug("Player[%v] refused players %v ask to join guild %v", this.Id, player_ids, guild.GetId())
+	}
 
 	return 1
 }
@@ -1611,7 +1622,7 @@ func C2SGuildAgreeJoinHandler(w http.ResponseWriter, r *http.Request, p *Player,
 		log.Error("Unmarshal msg failed, err(%v)", err.Error())
 		return -1
 	}
-	return p.guild_agree_join(req.GetPlayerIds())
+	return p.guild_agree_join(req.GetPlayerIds(), req.GetIsRefuse())
 }
 
 func C2SGuildAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {
