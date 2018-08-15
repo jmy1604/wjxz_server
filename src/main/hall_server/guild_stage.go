@@ -15,6 +15,24 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+type GuildStageManager struct {
+	stages *dbGuildStageTable
+}
+
+var guild_stage_manager GuildStageManager
+
+func (this *GuildStageManager) Init() {
+	this.stages = dbc.GuildStages
+}
+
+func (this *GuildStageManager) Get(id int64) *dbGuildStageRow {
+	row := this.stages.GetRow(id)
+	if row == nil {
+		row = this.stages.AddRow(id)
+	}
+	return row
+}
+
 func (this *dbGuildStageDamageItemData) Less(item utils.ShortRankItem) bool {
 	it := item.(*dbGuildStageDamageItemData)
 	if it == nil {

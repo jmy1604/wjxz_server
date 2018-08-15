@@ -1193,8 +1193,8 @@
 					"Map":true,
 					"AutoIndex":false,
 					"Fields":[
-						{"Type":"int32","index":1,"Name":"AttackerId"},
-						{"Type":"int32","index":2,"Name":"Damage"}
+						{"Type":"int32","Index":1,"Name":"AttackerId"},
+						{"Type":"int32","Index":2,"Name":"Damage"}
 					]
 				}
 			]

@@ -64,6 +64,8 @@ func (this *HallServer) Init() (ok bool) {
 	tower_ranking_list.LoadDB()
 	// 公会
 	guild_manager.Init()
+	// 公会副本
+	guild_stage_manager.Init()
 
 	err := this.OnInit()
 	if err != nil {

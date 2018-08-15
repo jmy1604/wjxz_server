@@ -1765,7 +1765,7 @@ func guild_agree_cmd(p *Player, args []string) int32 {
 		return -1
 	}
 
-	return p.guild_agree_join(int32(player_id))
+	return p.guild_agree_join([]int32{int32(player_id)})
 }
 
 func guild_ask_list_cmd(p *Player, args []string) int32 {

@@ -2048,6 +2048,29 @@ func (this* dbGuildStageAttackLogData)clone_to(d *dbGuildStageAttackLogData){
 	}
 	return
 }
+type dbGuildStageDamageLogData struct{
+	AttackerId int32
+	Damage int32
+}
+func (this* dbGuildStageDamageLogData)from_pb(pb *db.GuildStageDamageLog){
+	if pb == nil {
+		return
+	}
+	this.AttackerId = pb.GetAttackerId()
+	this.Damage = pb.GetDamage()
+	return
+}
+func (this* dbGuildStageDamageLogData)to_pb()(pb *db.GuildStageDamageLog){
+	pb = &db.GuildStageDamageLog{}
+	pb.AttackerId = proto.Int32(this.AttackerId)
+	pb.Damage = proto.Int32(this.Damage)
+	return
+}
+func (this* dbGuildStageDamageLogData)clone_to(d *dbGuildStageDamageLogData){
+	d.AttackerId = this.AttackerId
+	d.Damage = this.Damage
+	return
+}
 
 func (this *dbGlobalRow)GetCurrentPlayerId( )(r int32 ){
 	this.m_lock.UnSafeRLock("dbGlobalRow.GetdbGlobalCurrentPlayerIdColumn")
@@ -14933,6 +14956,527 @@ func (this *dbGuildTable) GetRow(Id int32) (row *dbGuildRow) {
 	}
 	return row
 }
+type dbGuildStageDamageLogColumn struct{
+	m_row *dbGuildStageRow
+	m_data map[int32]*dbGuildStageDamageLogData
+	m_changed bool
+}
+func (this *dbGuildStageDamageLogColumn)load(data []byte)(err error){
+	if data == nil || len(data) == 0 {
+		this.m_changed = false
+		return nil
+	}
+	pb := &db.GuildStageDamageLogList{}
+	err = proto.Unmarshal(data, pb)
+	if err != nil {
+		log.Error("Unmarshal %v", this.m_row.GetId())
+		return
+	}
+	for _, v := range pb.List {
+		d := &dbGuildStageDamageLogData{}
+		d.from_pb(v)
+		this.m_data[int32(d.AttackerId)] = d
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbGuildStageDamageLogColumn)save( )(data []byte,err error){
+	pb := &db.GuildStageDamageLogList{}
+	pb.List=make([]*db.GuildStageDamageLog,len(this.m_data))
+	i:=0
+	for _, v := range this.m_data {
+		pb.List[i] = v.to_pb()
+		i++
+	}
+	data, err = proto.Marshal(pb)
+	if err != nil {
+		log.Error("Marshal %v", this.m_row.GetId())
+		return
+	}
+	this.m_changed = false
+	return
+}
+func (this *dbGuildStageDamageLogColumn)HasIndex(id int32)(has bool){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageDamageLogColumn.HasIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	_, has = this.m_data[id]
+	return
+}
+func (this *dbGuildStageDamageLogColumn)GetAllIndex()(list []int32){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageDamageLogColumn.GetAllIndex")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]int32, len(this.m_data))
+	i := 0
+	for k, _ := range this.m_data {
+		list[i] = k
+		i++
+	}
+	return
+}
+func (this *dbGuildStageDamageLogColumn)GetAll()(list []dbGuildStageDamageLogData){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageDamageLogColumn.GetAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	list = make([]dbGuildStageDamageLogData, len(this.m_data))
+	i := 0
+	for _, v := range this.m_data {
+		v.clone_to(&list[i])
+		i++
+	}
+	return
+}
+func (this *dbGuildStageDamageLogColumn)Get(id int32)(v *dbGuildStageDamageLogData){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageDamageLogColumn.Get")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return nil
+	}
+	v=&dbGuildStageDamageLogData{}
+	d.clone_to(v)
+	return
+}
+func (this *dbGuildStageDamageLogColumn)Set(v dbGuildStageDamageLogData)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageDamageLogColumn.Set")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[int32(v.AttackerId)]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetId(), v.AttackerId)
+		return false
+	}
+	v.clone_to(d)
+	this.m_changed = true
+	return true
+}
+func (this *dbGuildStageDamageLogColumn)Add(v *dbGuildStageDamageLogData)(ok bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageDamageLogColumn.Add")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[int32(v.AttackerId)]
+	if has {
+		log.Error("already added %v %v",this.m_row.GetId(), v.AttackerId)
+		return false
+	}
+	d:=&dbGuildStageDamageLogData{}
+	v.clone_to(d)
+	this.m_data[int32(v.AttackerId)]=d
+	this.m_changed = true
+	return true
+}
+func (this *dbGuildStageDamageLogColumn)Remove(id int32){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageDamageLogColumn.Remove")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	_, has := this.m_data[id]
+	if has {
+		delete(this.m_data,id)
+	}
+	this.m_changed = true
+	return
+}
+func (this *dbGuildStageDamageLogColumn)Clear(){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageDamageLogColumn.Clear")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	this.m_data=make(map[int32]*dbGuildStageDamageLogData)
+	this.m_changed = true
+	return
+}
+func (this *dbGuildStageDamageLogColumn)NumAll()(n int32){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageDamageLogColumn.NumAll")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	return int32(len(this.m_data))
+}
+func (this *dbGuildStageDamageLogColumn)GetDamage(id int32)(v int32 ,has bool){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageDamageLogColumn.GetDamage")
+	defer this.m_row.m_lock.UnSafeRUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		return
+	}
+	v = d.Damage
+	return v,true
+}
+func (this *dbGuildStageDamageLogColumn)SetDamage(id int32,v int32)(has bool){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageDamageLogColumn.SetDamage")
+	defer this.m_row.m_lock.UnSafeUnlock()
+	d := this.m_data[id]
+	if d==nil{
+		log.Error("not exist %v %v",this.m_row.GetId(), id)
+		return
+	}
+	d.Damage = v
+	this.m_changed = true
+	return true
+}
+type dbGuildStageRow struct {
+	m_table *dbGuildStageTable
+	m_lock       *RWMutex
+	m_loaded  bool
+	m_new     bool
+	m_remove  bool
+	m_touch      int32
+	m_releasable bool
+	m_valid   bool
+	m_Id        int64
+	DamageLogs dbGuildStageDamageLogColumn
+}
+func new_dbGuildStageRow(table *dbGuildStageTable, Id int64) (r *dbGuildStageRow) {
+	this := &dbGuildStageRow{}
+	this.m_table = table
+	this.m_Id = Id
+	this.m_lock = NewRWMutex()
+	this.DamageLogs.m_row=this
+	this.DamageLogs.m_data=make(map[int32]*dbGuildStageDamageLogData)
+	return this
+}
+func (this *dbGuildStageRow) GetId() (r int64) {
+	return this.m_Id
+}
+func (this *dbGuildStageRow) save_data(release bool) (err error, released bool, state int32, update_string string, args []interface{}) {
+	this.m_lock.UnSafeLock("dbGuildStageRow.save_data")
+	defer this.m_lock.UnSafeUnlock()
+	if this.m_new {
+		db_args:=new_db_args(2)
+		db_args.Push(this.m_Id)
+		dDamageLogs,db_err:=this.DamageLogs.save()
+		if db_err!=nil{
+			log.Error("insert save DamageLog failed")
+			return db_err,false,0,"",nil
+		}
+		db_args.Push(dDamageLogs)
+		args=db_args.GetArgs()
+		state = 1
+	} else {
+		if this.DamageLogs.m_changed{
+			update_string = "UPDATE GuildStages SET "
+			db_args:=new_db_args(2)
+			if this.DamageLogs.m_changed{
+				update_string+="DamageLogs=?,"
+				dDamageLogs,err:=this.DamageLogs.save()
+				if err!=nil{
+					log.Error("insert save DamageLog failed")
+					return err,false,0,"",nil
+				}
+				db_args.Push(dDamageLogs)
+			}
+			update_string = strings.TrimRight(update_string, ", ")
+			update_string+=" WHERE Id=?"
+			db_args.Push(this.m_Id)
+			args=db_args.GetArgs()
+			state = 2
+		}
+	}
+	this.m_new = false
+	this.DamageLogs.m_changed = false
+	if release && this.m_loaded {
+		atomic.AddInt32(&this.m_table.m_gc_n, -1)
+		this.m_loaded = false
+		released = true
+	}
+	return nil,released,state,update_string,args
+}
+func (this *dbGuildStageRow) Save(release bool) (err error, d bool, released bool) {
+	err,released, state, update_string, args := this.save_data(release)
+	if err != nil {
+		log.Error("save data failed")
+		return err, false, false
+	}
+	if state == 0 {
+		d = false
+	} else if state == 1 {
+		_, err = this.m_table.m_dbc.StmtExec(this.m_table.m_save_insert_stmt, args...)
+		if err != nil {
+			log.Error("INSERT GuildStages exec failed %v ", this.m_Id)
+			return err, false, released
+		}
+		d = true
+	} else if state == 2 {
+		_, err = this.m_table.m_dbc.Exec(update_string, args...)
+		if err != nil {
+			log.Error("UPDATE GuildStages exec failed %v", this.m_Id)
+			return err, false, released
+		}
+		d = true
+	}
+	return nil, d, released
+}
+func (this *dbGuildStageRow) Touch(releasable bool) {
+	this.m_touch = int32(time.Now().Unix())
+	this.m_releasable = releasable
+}
+type dbGuildStageRowSort struct {
+	rows []*dbGuildStageRow
+}
+func (this *dbGuildStageRowSort) Len() (length int) {
+	return len(this.rows)
+}
+func (this *dbGuildStageRowSort) Less(i int, j int) (less bool) {
+	return this.rows[i].m_touch < this.rows[j].m_touch
+}
+func (this *dbGuildStageRowSort) Swap(i int, j int) {
+	temp := this.rows[i]
+	this.rows[i] = this.rows[j]
+	this.rows[j] = temp
+}
+type dbGuildStageTable struct{
+	m_dbc *DBC
+	m_lock *RWMutex
+	m_rows map[int64]*dbGuildStageRow
+	m_new_rows map[int64]*dbGuildStageRow
+	m_removed_rows map[int64]*dbGuildStageRow
+	m_gc_n int32
+	m_gcing int32
+	m_pool_size int32
+	m_preload_select_stmt *sql.Stmt
+	m_preload_max_id int64
+	m_save_insert_stmt *sql.Stmt
+	m_delete_stmt *sql.Stmt
+}
+func new_dbGuildStageTable(dbc *DBC) (this *dbGuildStageTable) {
+	this = &dbGuildStageTable{}
+	this.m_dbc = dbc
+	this.m_lock = NewRWMutex()
+	this.m_rows = make(map[int64]*dbGuildStageRow)
+	this.m_new_rows = make(map[int64]*dbGuildStageRow)
+	this.m_removed_rows = make(map[int64]*dbGuildStageRow)
+	return this
+}
+func (this *dbGuildStageTable) check_create_table() (err error) {
+	_, err = this.m_dbc.Exec("CREATE TABLE IF NOT EXISTS GuildStages(Id bigint(20),PRIMARY KEY (Id))ENGINE=InnoDB ROW_FORMAT=DYNAMIC")
+	if err != nil {
+		log.Error("CREATE TABLE IF NOT EXISTS GuildStages failed")
+		return
+	}
+	rows, err := this.m_dbc.Query("SELECT COLUMN_NAME,ORDINAL_POSITION FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=? AND TABLE_NAME='GuildStages'", this.m_dbc.m_db_name)
+	if err != nil {
+		log.Error("SELECT information_schema failed")
+		return
+	}
+	columns := make(map[string]int32)
+	for rows.Next() {
+		var column_name string
+		var ordinal_position int32
+		err = rows.Scan(&column_name, &ordinal_position)
+		if err != nil {
+			log.Error("scan information_schema row failed")
+			return
+		}
+		if ordinal_position < 1 {
+			log.Error("col ordinal out of range")
+			continue
+		}
+		columns[column_name] = ordinal_position
+	}
+	_, hasDamageLog := columns["DamageLogs"]
+	if !hasDamageLog {
+		_, err = this.m_dbc.Exec("ALTER TABLE GuildStages ADD COLUMN DamageLogs LONGBLOB")
+		if err != nil {
+			log.Error("ADD COLUMN DamageLogs failed")
+			return
+		}
+	}
+	return
+}
+func (this *dbGuildStageTable) prepare_preload_select_stmt() (err error) {
+	this.m_preload_select_stmt,err=this.m_dbc.StmtPrepare("SELECT Id,DamageLogs FROM GuildStages")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbGuildStageTable) prepare_save_insert_stmt()(err error){
+	this.m_save_insert_stmt,err=this.m_dbc.StmtPrepare("INSERT INTO GuildStages (Id,DamageLogs) VALUES (?,?)")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbGuildStageTable) prepare_delete_stmt() (err error) {
+	this.m_delete_stmt,err=this.m_dbc.StmtPrepare("DELETE FROM GuildStages WHERE Id=?")
+	if err!=nil{
+		log.Error("prepare failed")
+		return
+	}
+	return
+}
+func (this *dbGuildStageTable) Init() (err error) {
+	err=this.check_create_table()
+	if err!=nil{
+		log.Error("check_create_table failed")
+		return
+	}
+	err=this.prepare_preload_select_stmt()
+	if err!=nil{
+		log.Error("prepare_preload_select_stmt failed")
+		return
+	}
+	err=this.prepare_save_insert_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	err=this.prepare_delete_stmt()
+	if err!=nil{
+		log.Error("prepare_save_insert_stmt failed")
+		return
+	}
+	return
+}
+func (this *dbGuildStageTable) Preload() (err error) {
+	r, err := this.m_dbc.StmtQuery(this.m_preload_select_stmt)
+	if err != nil {
+		log.Error("SELECT")
+		return
+	}
+	var Id int64
+	var dDamageLogs []byte
+		this.m_preload_max_id = 0
+	for r.Next() {
+		err = r.Scan(&Id,&dDamageLogs)
+		if err != nil {
+			log.Error("Scan err[%v]", err.Error())
+			return
+		}
+		if Id>this.m_preload_max_id{
+			this.m_preload_max_id =Id
+		}
+		row := new_dbGuildStageRow(this,Id)
+		err = row.DamageLogs.load(dDamageLogs)
+		if err != nil {
+			log.Error("DamageLogs %v", Id)
+			return
+		}
+		row.m_valid = true
+		this.m_rows[Id]=row
+	}
+	return
+}
+func (this *dbGuildStageTable) GetPreloadedMaxId() (max_id int64) {
+	return this.m_preload_max_id
+}
+func (this *dbGuildStageTable) fetch_rows(rows map[int64]*dbGuildStageRow) (r map[int64]*dbGuildStageRow) {
+	this.m_lock.UnSafeLock("dbGuildStageTable.fetch_rows")
+	defer this.m_lock.UnSafeUnlock()
+	r = make(map[int64]*dbGuildStageRow)
+	for i, v := range rows {
+		r[i] = v
+	}
+	return r
+}
+func (this *dbGuildStageTable) fetch_new_rows() (new_rows map[int64]*dbGuildStageRow) {
+	this.m_lock.UnSafeLock("dbGuildStageTable.fetch_new_rows")
+	defer this.m_lock.UnSafeUnlock()
+	new_rows = make(map[int64]*dbGuildStageRow)
+	for i, v := range this.m_new_rows {
+		_, has := this.m_rows[i]
+		if has {
+			log.Error("rows already has new rows %v", i)
+			continue
+		}
+		this.m_rows[i] = v
+		new_rows[i] = v
+	}
+	for i, _ := range new_rows {
+		delete(this.m_new_rows, i)
+	}
+	return
+}
+func (this *dbGuildStageTable) save_rows(rows map[int64]*dbGuildStageRow, quick bool) {
+	for _, v := range rows {
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		err, delay, _ := v.Save(false)
+		if err != nil {
+			log.Error("save failed %v", err)
+		}
+		if this.m_dbc.m_quit && !quick {
+			return
+		}
+		if delay&&!quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+}
+func (this *dbGuildStageTable) Save(quick bool) (err error){
+	removed_rows := this.fetch_rows(this.m_removed_rows)
+	for _, v := range removed_rows {
+		_, err := this.m_dbc.StmtExec(this.m_delete_stmt, v.GetId())
+		if err != nil {
+			log.Error("exec delete stmt failed %v", err)
+		}
+		v.m_valid = false
+		if !quick {
+			time.Sleep(time.Millisecond * 5)
+		}
+	}
+	this.m_removed_rows = make(map[int64]*dbGuildStageRow)
+	rows := this.fetch_rows(this.m_rows)
+	this.save_rows(rows, quick)
+	new_rows := this.fetch_new_rows()
+	this.save_rows(new_rows, quick)
+	return
+}
+func (this *dbGuildStageTable) AddRow(Id int64) (row *dbGuildStageRow) {
+	this.m_lock.UnSafeLock("dbGuildStageTable.AddRow")
+	defer this.m_lock.UnSafeUnlock()
+	row = new_dbGuildStageRow(this,Id)
+	row.m_new = true
+	row.m_loaded = true
+	row.m_valid = true
+	_, has := this.m_new_rows[Id]
+	if has{
+		log.Error("已经存在 %v", Id)
+		return nil
+	}
+	this.m_new_rows[Id] = row
+	atomic.AddInt32(&this.m_gc_n,1)
+	return row
+}
+func (this *dbGuildStageTable) RemoveRow(Id int64) {
+	this.m_lock.UnSafeLock("dbGuildStageTable.RemoveRow")
+	defer this.m_lock.UnSafeUnlock()
+	row := this.m_rows[Id]
+	if row != nil {
+		row.m_remove = true
+		delete(this.m_rows, Id)
+		rm_row := this.m_removed_rows[Id]
+		if rm_row != nil {
+			log.Error("rows and removed rows both has %v", Id)
+		}
+		this.m_removed_rows[Id] = row
+		_, has_new := this.m_new_rows[Id]
+		if has_new {
+			delete(this.m_new_rows, Id)
+			log.Error("rows and new_rows both has %v", Id)
+		}
+	} else {
+		row = this.m_removed_rows[Id]
+		if row == nil {
+			_, has_new := this.m_new_rows[Id]
+			if has_new {
+				delete(this.m_new_rows, Id)
+			} else {
+				log.Error("row not exist %v", Id)
+			}
+		} else {
+			log.Error("already removed %v", Id)
+			_, has_new := this.m_new_rows[Id]
+			if has_new {
+				delete(this.m_new_rows, Id)
+				log.Error("removed rows and new_rows both has %v", Id)
+			}
+		}
+	}
+}
+func (this *dbGuildStageTable) GetRow(Id int64) (row *dbGuildStageRow) {
+	this.m_lock.UnSafeRLock("dbGuildStageTable.GetRow")
+	defer this.m_lock.UnSafeRUnlock()
+	row = this.m_rows[Id]
+	if row == nil {
+		row = this.m_new_rows[Id]
+	}
+	return row
+}
 func (this *dbGooglePayRecordRow)GetSn( )(r string ){
 	this.m_lock.UnSafeRLock("dbGooglePayRecordRow.GetdbGooglePayRecordSnColumn")
 	defer this.m_lock.UnSafeRUnlock()
@@ -17900,6 +18444,7 @@ type DBC struct {
 	TowerRankingList *dbTowerRankingListTable
 	ArenaSeason *dbArenaSeasonTable
 	Guilds *dbGuildTable
+	GuildStages *dbGuildStageTable
 	GooglePayRecords *dbGooglePayRecordTable
 	ApplePayRecords *dbApplePayRecordTable
 	FaceBPayRecords *dbFaceBPayRecordTable
@@ -17948,6 +18493,12 @@ func (this *DBC)init_tables()(err error){
 	err = this.Guilds.Init()
 	if err != nil {
 		log.Error("init Guilds table failed")
+		return
+	}
+	this.GuildStages = new_dbGuildStageTable(this)
+	err = this.GuildStages.Init()
+	if err != nil {
+		log.Error("init GuildStages table failed")
 		return
 	}
 	this.GooglePayRecords = new_dbGooglePayRecordTable(this)
@@ -18038,6 +18589,13 @@ func (this *DBC)Preload()(err error){
 	}else{
 		log.Info("preload Guilds table succeed !")
 	}
+	err = this.GuildStages.Preload()
+	if err != nil {
+		log.Error("preload GuildStages table failed")
+		return
+	}else{
+		log.Info("preload GuildStages table succeed !")
+	}
 	err = this.GooglePayRecords.Preload()
 	if err != nil {
 		log.Error("preload GooglePayRecords table failed")
@@ -18126,6 +18684,11 @@ func (this *DBC)Save(quick bool)(err error){
 	err = this.Guilds.Save(quick)
 	if err != nil {
 		log.Error("save Guilds table failed")
+		return
+	}
+	err = this.GuildStages.Save(quick)
+	if err != nil {
+		log.Error("save GuildStages table failed")
 		return
 	}
 	err = this.GooglePayRecords.Save(quick)

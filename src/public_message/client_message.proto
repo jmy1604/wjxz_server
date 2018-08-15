@@ -1563,6 +1563,7 @@ message GuildMember {
 	int32 Position							= 5; // 职位类型  1 会长   2 官员   0 会员
 	int32 LastOnlineTime					= 6; // 最近在线时间距离当前时间  0 表示在线
 	int32 NextSignRemainSeconds				= 7; // 下次签到剩余时间
+	int32 JoinTime							= 8; // 加入时间
 }
 
 message S2CGuildMemebersResponse {
@@ -1588,11 +1589,11 @@ message S2CGuildAskJoinResponse {
 
 // 同意加入公会
 message C2SGuildAgreeJoinRequest {
-	int32 PlayerId							= 1; // 玩家ID
+	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
 message S2CGuildAgreeJoinResponse {
-	int32 PlayerId							= 1; // 玩家ID
+	repeated int32 PlayerIds				= 1; // 玩家ID
 }
 
 // 公会同意加入通知

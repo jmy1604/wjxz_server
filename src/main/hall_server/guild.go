@@ -741,6 +741,7 @@ func (this *Player) _format_guild_member_to_msg() (msg *msg_client_message.Guild
 		Position:              this.db.Guild.GetPosition(),
 		LastOnlineTime:        last_online_time,
 		NextSignRemainSeconds: next_sign_remain_seconds,
+		JoinTime:              this.db.Guild.GetJoinTime(),
 	}
 	return
 }
@@ -823,34 +824,14 @@ func (this *Player) guild_ask_join(guild_id int32) int32 {
 }
 
 // 公会同意申请加入
-func (this *Player) guild_agree_join(player_id int32) int32 {
-	player := player_mgr.GetPlayerById(player_id)
-	if player == nil {
-		log.Error("Player[%v] not found", player_id)
-		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
-	}
-
-	// 是否已是其他工会的成员
-	if player.db.Guild.GetId() > 0 {
-		log.Error("Player[%v] already joined other guild", player_id)
+func (this *Player) guild_agree_join(player_ids []int32) int32 {
+	if player_ids == nil || len(player_ids) == 0 {
 		return -1
 	}
 
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild", this.Id)
-		return -1
-	}
-
-	// 是否已申请
-	if !guild.AskLists.HasIndex(player_id) {
-		log.Error("Player[%v] not found in guild[%v] ask list", player_id, guild.GetId())
-		return -1
-	}
-
-	// 是否已是工会成员
-	if guild.Members.HasIndex(player_id) {
-		log.Error("Player[%v] already joined guild", player_id)
 		return -1
 	}
 
@@ -863,7 +844,7 @@ func (this *Player) guild_agree_join(player_id int32) int32 {
 
 	// 人数限制
 	if levelup_data.MemberNum <= guild.Members.NumAll() {
-		log.Error("Guild %v members num is max, player %v cant agree the player %v join", guild.GetId(), this.Id, player_id)
+		log.Error("Guild %v members num is max, player %v cant agree the players %v join", guild.GetId(), this.Id, player_ids)
 		return -1
 	}
 
@@ -873,30 +854,67 @@ func (this *Player) guild_agree_join(player_id int32) int32 {
 		return -1
 	}
 
-	guild.Members.Add(&dbGuildMemberData{
-		PlayerId: player_id,
-	})
-	guild.AskLists.Remove(player_id)
+	for i, player_id := range player_ids {
+		player := player_mgr.GetPlayerById(player_id)
+		if player == nil {
+			player_ids[i] = 0
+			log.Error("Player[%v] not found", player_id)
+			continue
+		}
 
-	player.db.Guild.SetId(guild.GetId())
-	player.db.Guild.SetJoinTime(int32(time.Now().Unix()))
+		// 是否已是其他工会的成员
+		if player.db.Guild.GetId() > 0 {
+			player_ids[i] = 0
+			log.Error("Player[%v] already joined other guild", player_id)
+			continue
+		}
+
+		// 是否已申请
+		if !guild.AskLists.HasIndex(player_id) {
+			player_ids[i] = 0
+			log.Error("Player[%v] not found in guild[%v] ask list", player_id, guild.GetId())
+			continue
+		}
+
+		// 是否已是工会成员
+		if guild.Members.HasIndex(player_id) {
+			player_ids[i] = 0
+			log.Error("Player[%v] already joined guild", player_id)
+			continue
+		}
+
+		guild.Members.Add(&dbGuildMemberData{
+			PlayerId: player_id,
+		})
+		guild.AskLists.Remove(player_id)
+
+		player.db.Guild.SetId(guild.GetId())
+		player.db.Guild.SetJoinTime(int32(time.Now().Unix()))
+	}
 
 	response := &msg_client_message.S2CGuildAgreeJoinResponse{
-		PlayerId: player_id,
+		PlayerIds: player_ids,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_RESPONSE), response)
 
 	// 通知加入的成员
-	notify := &msg_client_message.S2CGuildAgreeJoinNotify{
-		NewMemberId: player_id,
-		GuildId:     guild.GetId(),
+	for _, player_id := range player_ids {
+		player := player_mgr.GetPlayerById(player_id)
+		if player == nil {
+			continue
+		}
+
+		notify := &msg_client_message.S2CGuildAgreeJoinNotify{
+			NewMemberId: player_id,
+			GuildId:     guild.GetId(),
+		}
+		player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
+
+		// 日志
+		push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_JOIN, player_id)
 	}
-	player.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_AGREE_JOIN_NOTIFY), notify)
 
-	// 日志
-	push_new_guild_log(guild, GUILD_LOG_TYPE_MEMBER_JOIN, player_id)
-
-	log.Debug("Player[%v] agreed player[%v] join guild %v", this.Id, player_id, guild.GetId())
+	log.Debug("Player[%v] agreed players %v join guild %v", this.Id, player_ids, guild.GetId())
 
 	return 1
 }
@@ -1608,7 +1626,7 @@ func C2SGuildAgreeJoinHandler(w http.ResponseWriter, r *http.Request, p *Player,
 		log.Error("Unmarshal msg failed, err(%v)", err.Error())
 		return -1
 	}
-	return p.guild_agree_join(req.GetPlayerId())
+	return p.guild_agree_join(req.GetPlayerIds())
 }
 
 func C2SGuildAskListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

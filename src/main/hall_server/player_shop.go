@@ -98,7 +98,17 @@ func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (
 func (this *Player) _send_shop(shop *table_config.XmlShopItem, free_remain_secs int32) int32 {
 	var shop_items []*msg_client_message.ShopItem
 	item_ids := this.db.ShopItems.GetAllIndex()
-	if (item_ids == nil || len(item_ids) == 0) && shop.AutoRefreshTime == "" && shop.FreeRefreshTime == 0 {
+
+	var has_item bool
+	for _, id := range item_ids {
+		if id/10000 != shop.Id {
+			continue
+		}
+		has_item = true
+		break
+	}
+
+	if !has_item && shop.AutoRefreshTime == "" && shop.FreeRefreshTime == 0 {
 		this._refresh_shop(shop)
 		item_ids = this.db.ShopItems.GetAllIndex()
 	}

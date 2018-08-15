@@ -493,3 +493,12 @@ message GuildStageAttackLogList{
 	repeated GuildStageAttackLog List=1;
 }
 
+message GuildStageDamageLog{
+	optional int32 AttackerId=1;
+	optional int32 Damage=2;
+}
+
+message GuildStageDamageLogList{
+	repeated GuildStageDamageLog List=1;
+}
+
