@@ -1759,10 +1759,11 @@ message C2SGuildStageDataRequest {
 message S2CGuildStageDataResponse {
 	int32 CurrBossId						= 1; // 当前公会副本
 	int32 HpPercent							= 2; // 副本BOSS血量百分比
-	int32 RespawnNum						= 3; // 复活次数
-	int32 RefreshRemainSeconds				= 4; // 刷新剩余时间
-	int32 StageState						= 5; // 挑战状态            0 可挑战  1 等待复活  2 可复活
-	repeated int32 RespawnNeedCost			= 6; // 复活需要钻石数
+	int32 RespawnNum						= 3; // 已复活次数
+	int32 TotalRespawnNum					= 4; // 总复活次数
+	int32 RefreshRemainSeconds				= 5; // 刷新剩余时间
+	int32 StageState						= 6; // 挑战状态            0 可挑战  1 等待复活
+	repeated int32 RespawnNeedCost			= 7; // 复活需要钻石数
 }
 
 // 公会副本排行榜

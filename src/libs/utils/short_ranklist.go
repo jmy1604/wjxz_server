@@ -16,6 +16,7 @@ type ShortRankItem interface {
 	GetValue() interface{}
 	Assign(item ShortRankItem)
 	Add(item ShortRankItem)
+	New() ShortRankItem
 }
 
 type ShortRankList struct {
@@ -55,28 +56,33 @@ func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 	}
 
 	if !o {
-		i := this.curr_num
+		new_item := item.New()
+		new_item.Assign(item)
+		this.items[this.curr_num] = new_item
+		this.keys_map[item.GetKey()] = this.curr_num
+
+		i := this.curr_num - 1
 		for ; i >= 0; i-- {
 			if !item.Greater(this.items[i]) {
 				break
 			}
 		}
-		if i >= 0 {
-			for n := this.curr_num - 1; n >= i; n-- {
+
+		if i+1 != this.curr_num {
+			for n := this.curr_num - 1; n >= i+1; n-- {
 				this.items[n+1] = this.items[n]
-				this.keys_map[this.items[n+1]] = n + 1
+				this.keys_map[this.items[n+1].GetKey()] = n + 1
 			}
-			this.items[i] = item
-		} else {
-			this.items[this.curr_num] = item
+			this.items[i+1] = new_item
+			this.keys_map[item.GetKey()] = i + 1
 		}
-		this.keys_map[item.GetKey()] = this.curr_num
+
 		this.curr_num += 1
 	} else {
 		if add {
 			item.Add(this.items[idx])
 		}
-		var i, b, e int32
+		var i, b, e, pos int32
 		if item.Greater(this.items[idx]) {
 			i = idx - 1
 			for ; i >= 0; i-- {
@@ -84,8 +90,9 @@ func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 					break
 				}
 			}
-			b = i
+			b = i + 1
 			e = idx - 1
+			pos = b
 		} else if item.Less(this.items[idx]) {
 			i = idx + 1
 			for ; i < this.curr_num; i++ {
@@ -94,16 +101,34 @@ func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 				}
 			}
 			b = idx + 1
-			e = i
+			e = i - 1
+			pos = e
 		} else {
 			return false
 		}
 
-		for i = e; i >= b; i-- {
-			this.items[i+1] = this.items[i]
-		}
+		log.Debug("@@@@@@@@@@@@@@@ pos %v    idx %v    begin %v    end %v", pos, idx, b, e)
 
-		this.items[i].Assign(item)
+		var the_item ShortRankItem
+		if pos != idx {
+			the_item = this.items[idx]
+			if pos < idx {
+				for i = e; i >= b; i-- {
+					this.items[i+1] = this.items[i]
+					this.keys_map[this.items[i+1].GetKey()] = i + 1
+				}
+			} else {
+				for i = b; i <= e; i++ {
+					this.items[i-1] = this.items[i]
+					this.keys_map[this.items[i-1].GetKey()] = i - 1
+				}
+			}
+		}
+		if the_item != nil {
+			this.items[pos] = the_item
+		}
+		this.items[pos].Assign(item)
+		this.keys_map[this.items[pos].GetKey()] = pos
 	}
 
 	return true
@@ -132,4 +157,76 @@ func (this *ShortRankList) GetByRank(rank int32) (key interface{}, value interfa
 	key = item.GetKey()
 	value = item.GetValue()
 	return
+}
+
+func (this *ShortRankList) GetIndex(rank int32) int32 {
+	this.locker.RLock()
+	defer this.locker.RUnlock()
+
+	if this.curr_num < rank {
+		return -1
+	}
+	item := this.items[rank-1]
+	if item == nil {
+		return -1
+	}
+	return this.keys_map[item.GetKey()]
+}
+
+type TestShortRankItem struct {
+	Id    int32
+	Value int32
+}
+
+func (this *TestShortRankItem) Less(item ShortRankItem) bool {
+	it := item.(*TestShortRankItem)
+	if it == nil {
+		return false
+	}
+	if this.Value < it.Value {
+		return true
+	}
+	return false
+}
+
+func (this *TestShortRankItem) Greater(item ShortRankItem) bool {
+	it := item.(*TestShortRankItem)
+	if it == nil {
+		return false
+	}
+	if this.Value > it.Value {
+		return true
+	}
+	return false
+}
+
+func (this *TestShortRankItem) GetKey() interface{} {
+	return this.Id
+}
+
+func (this *TestShortRankItem) GetValue() interface{} {
+	return this.Value
+}
+
+func (this *TestShortRankItem) Assign(item ShortRankItem) {
+	it := item.(*TestShortRankItem)
+	if it == nil {
+		return
+	}
+	this.Id = it.Id
+	this.Value = it.Value
+}
+
+func (this *TestShortRankItem) Add(item ShortRankItem) {
+	it := item.(*TestShortRankItem)
+	if it == nil {
+		return
+	}
+	if this.Id == it.Id {
+		this.Value += it.Value
+	}
+}
+
+func (this *TestShortRankItem) New() ShortRankItem {
+	return &TestShortRankItem{}
 }

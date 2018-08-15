@@ -120,21 +120,6 @@ func (this *GuildManager) _add_guild(guild_id int32, guild_name string) bool {
 	this.guild_id_map[guild_id] = guild_id
 	this.guild_name_map[guild_name] = guild_id
 
-	/*chat_mgr := &ChatMgr{}
-	chat_mgr.Init(CHAT_CHANNEL_GUILD)
-	this.guild_chat_map[guild_id] = chat_mgr
-
-	damage_list_map := make(map[int32]*utils.ShortRankList)
-	for i := 0; i < len(guild_boss_table_mgr.Array); i++ {
-		rank_list := &utils.ShortRankList{}
-		rank_list.Init(guild_levelup_table_mgr.GetMaxMemberNum())
-		boss_id := guild_boss_table_mgr.Array[i].Id
-		// 伤害列表
-		damage_list_map[boss_id] = rank_list
-		// 副本是否正在战斗
-		this.guild_stage_fight_state[boss_id] = 0
-	}
-	this.guild_stage_damage_list_map[guild_id] = damage_list_map*/
 	guild_ex := &Guild{}
 	guild_ex.Init(guild_id, guild_name)
 	this.guilds_ex_map[guild_id] = guild_ex
@@ -161,12 +146,6 @@ func (this *GuildManager) _remove_guild(guild_id int32, guild_name string) bool 
 	}
 	delete(this.guild_id_map, guild_id)
 	delete(this.guild_name_map, guild_name)
-	/*delete(this.guild_chat_map, guild_id)
-	damage_list_map := this.guild_stage_damage_list_map[guild_id]
-	if damage_list_map != nil {
-		damage_list_map = nil
-	}
-	delete(this.guild_stage_damage_list_map, guild_id)*/
 	delete(this.guilds_ex_map, guild_id)
 
 	return true
@@ -177,9 +156,6 @@ func (this *GuildManager) Init() {
 	this.guild_ids = make([]int32, GUILD_MAX_NUM)
 	this.guild_id_map = make(map[int32]int32)
 	this.guild_name_map = make(map[string]int32)
-	/*this.guild_chat_map = make(map[int32]*ChatMgr)
-	this.guild_stage_damage_list_map = make(map[int32]map[int32]*utils.ShortRankList)
-	this.guild_stage_fight_state = make(map[int32]int32)*/
 	this.guilds_ex_map = make(map[int32]*Guild)
 	this.guild_ids_locker = &sync.RWMutex{}
 	for gid, guild := range this.guilds.m_rows {
@@ -187,6 +163,14 @@ func (this *GuildManager) Init() {
 			continue
 		}
 		this._add_guild(gid, guild.GetName())
+	}
+}
+
+func (this *GuildManager) LoadDB4StageDamageList() {
+	for guild_id, guild_ex_map := range this.guilds_ex_map {
+		for boss_id, rank_list := range guild_ex_map.stage_damage_list_map {
+			guild_stage_manager.LoadDB2RankList(guild_id, boss_id, rank_list)
+		}
 	}
 }
 
@@ -507,6 +491,7 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 		PresidentName:            president_name,
 		MemberNum:                guild.Members.NumAll(),
 		MemberNumLimit:           _guild_member_num_limit(guild),
+		Position:                 this.db.Guild.GetPosition(),
 	}
 	return
 }

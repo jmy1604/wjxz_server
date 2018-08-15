@@ -15,6 +15,64 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+type GuildStageDamageItem struct {
+	AttackerId int32
+	Damage     int32
+}
+
+func (this *GuildStageDamageItem) Less(item utils.ShortRankItem) bool {
+	it := item.(*GuildStageDamageItem)
+	if it == nil {
+		return false
+	}
+	if this.Damage < it.Damage {
+		return true
+	}
+	return false
+}
+
+func (this *GuildStageDamageItem) Greater(item utils.ShortRankItem) bool {
+	it := item.(*GuildStageDamageItem)
+	if it == nil {
+		return false
+	}
+	if this.Damage > it.Damage {
+		return true
+	}
+	return false
+}
+
+func (this *GuildStageDamageItem) GetKey() interface{} {
+	return this.AttackerId
+}
+
+func (this *GuildStageDamageItem) GetValue() interface{} {
+	return this.Damage
+}
+
+func (this *GuildStageDamageItem) Assign(item utils.ShortRankItem) {
+	it := item.(*GuildStageDamageItem)
+	if it == nil {
+		return
+	}
+	this.AttackerId = it.AttackerId
+	this.Damage = it.Damage
+}
+
+func (this *GuildStageDamageItem) Add(item utils.ShortRankItem) {
+	it := item.(*GuildStageDamageItem)
+	if it == nil {
+		return
+	}
+	if this.AttackerId == it.AttackerId {
+		this.Damage += it.Damage
+	}
+}
+
+func (this *GuildStageDamageItem) New() utils.ShortRankItem {
+	return &GuildStageDamageItem{}
+}
+
 type GuildStageManager struct {
 	stages *dbGuildStageTable
 }
@@ -33,87 +91,37 @@ func (this *GuildStageManager) Get(id int64) *dbGuildStageRow {
 	return row
 }
 
-func (this *dbGuildStageDamageItemData) Less(item utils.ShortRankItem) bool {
-	it := item.(*dbGuildStageDamageItemData)
-	if it == nil {
-		return false
+func (this *GuildStageManager) SaveDamageLog(guild_id, boss_id, attacker_id, damage int32) {
+	row := this.Get(utils.Int64From2Int32(guild_id, boss_id))
+	if !row.DamageLogs.HasIndex(attacker_id) {
+		row.DamageLogs.Add(&dbGuildStageDamageLogData{
+			AttackerId: attacker_id,
+			Damage:     damage,
+		})
+	} else {
+		row.DamageLogs.SetDamage(attacker_id, damage)
 	}
-	if this.Damage < it.Damage {
-		return true
-	}
-	return false
+
+	log.Debug("Saved guild %v stage %v attacker %v damage %v", guild_id, boss_id, attacker_id, damage)
 }
 
-func (this *dbGuildStageDamageItemData) Greater(item utils.ShortRankItem) bool {
-	it := item.(*dbGuildStageDamageItemData)
-	if it == nil {
-		return false
+func (this *GuildStageManager) LoadDB2RankList(guild_id, boss_id int32, rank_list *utils.ShortRankList) {
+	if rank_list == nil {
+		rank_list = guild_manager.GetStageDamageList(guild_id, boss_id)
 	}
-	if this.Damage > it.Damage {
-		return true
-	}
-	return false
-}
-
-func (this *dbGuildStageDamageItemData) GetKey() interface{} {
-	return this.AttackerId
-}
-
-func (this *dbGuildStageDamageItemData) GetValue() interface{} {
-	return this.Damage
-}
-
-func (this *dbGuildStageDamageItemData) Assign(item utils.ShortRankItem) {
-	it := item.(*dbGuildStageDamageItemData)
-	if it == nil {
-		return
-	}
-	this.AttackerId = it.AttackerId
-	this.Damage = it.Damage
-}
-
-func (this *dbGuildStageDamageItemData) Add(item utils.ShortRankItem) {
-	it := item.(*dbGuildStageDamageItemData)
-	if it == nil {
-		return
-	}
-	if this.AttackerId == it.AttackerId {
-		this.Damage += it.Damage
+	row := this.Get(utils.Int64From2Int32(guild_id, boss_id))
+	ids := row.DamageLogs.GetAllIndex()
+	if ids != nil {
+		var item GuildStageDamageItem
+		for _, id := range ids {
+			item.AttackerId = id
+			item.Damage, _ = row.DamageLogs.GetDamage(id)
+			rank_list.Update(&item, false)
+		}
 	}
 }
 
 // ----------------------------------------------------------------------------
-
-func (this *dbGuildStageAttackLogColumn) GetDamageList2(id int32) (v []dbGuildStageDamageItemData, has bool) {
-	this.m_row.m_lock.UnSafeRLock("dbGuildStageAttackLogColumn.GetDamageList")
-	defer this.m_row.m_lock.UnSafeRUnlock()
-
-	d := this.m_data[id]
-	if d == nil {
-		return
-	}
-	v = make([]dbGuildStageDamageItemData, len(d.DamageList))
-	for _ii, _vv := range d.DamageList {
-		_vv.clone_to(&v[_ii])
-	}
-	return v, true
-}
-
-func (this *dbGuildStageAttackLogColumn) SetDamageList2(id int32, v []*dbGuildStageDamageItemData) (has bool) {
-	this.m_row.m_lock.UnSafeLock("dbGuildStageAttackLogColumn.SetDamageList")
-	defer this.m_row.m_lock.UnSafeUnlock()
-	d := this.m_data[id]
-	if d == nil {
-		log.Error("not exist %v %v", this.m_row.GetId(), id)
-		return
-	}
-	d.DamageList = make([]dbGuildStageDamageItemData, len(v))
-	for _ii, _vv := range v {
-		_vv.clone_to(&d.DamageList[_ii])
-	}
-	this.m_changed = true
-	return true
-}
 
 // ----------------------------------------------------------------------------
 
@@ -123,6 +131,12 @@ func guild_stage_damage_list(guild_id, boss_id int32) (damage_list_msg []*msg_cl
 	if damage_list == nil {
 		return
 	}
+
+	// 是否未载入DB数据
+	/*if damage_list.GetLength() == 0 {
+		guild_stage_manager.LoadDB2RankList(guild_id, boss_id, damage_list)
+	}*/
+
 	length := damage_list.GetLength()
 	if length > 0 {
 		for r := int32(1); r <= length; r++ {
@@ -219,21 +233,17 @@ func (this *Player) guild_stage_rank_list(boss_id int32) int32 {
 }
 
 const (
-	GUILD_STAGE_STATE_CAN_FIGHT    = iota
-	GUILD_STAGE_STATE_WAIT_RESPAWN = 1
-	GUILD_STAGE_STATE_CAN_RESPAWN  = 2
+	GUILD_STAGE_STATE_CAN_FIGHT = iota
+	GUILD_STAGE_STATE_DEAD      = 1
 )
 
 func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	stage_state := this.db.GuildStage.GetRespawnState()
-	if stage_state == GUILD_STAGE_STATE_WAIT_RESPAWN {
+	if stage_state == GUILD_STAGE_STATE_DEAD {
 		log.Error("Player[%v] waiting to respawn for guild stage", this.Id)
 		return -1
-	} else if stage_state == GUILD_STAGE_STATE_CAN_RESPAWN {
-		log.Error("Player[%v] can respawn for guild stage", this.Id)
-		return -1
 	} else if stage_state != GUILD_STAGE_STATE_CAN_FIGHT {
-		log.Error("Player[%v] guild stage stage %v invalid", this.Id, stage_state)
+		log.Error("Player[%v] guild stage state %v invalid", stage_state)
 		return -1
 	}
 
@@ -293,7 +303,7 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		}
 	} else {
 		// 状态置成等待复活
-		stage_state = GUILD_STAGE_STATE_WAIT_RESPAWN
+		stage_state = GUILD_STAGE_STATE_DEAD
 		this.db.GuildStage.SetRespawnState(stage_state)
 	}
 
@@ -328,10 +338,15 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		for _, dmg := range member_damages[this.guild_stage_team.side] {
 			this_fight_damage += dmg
 		}
-		damage_list.Update(&dbGuildStageDamageItemData{
+
+		var damage_item GuildStageDamageItem = GuildStageDamageItem{
 			AttackerId: this.Id,
 			Damage:     this_fight_damage,
-		}, true)
+		}
+		damage_list.Update(&damage_item, true)
+
+		// 保存
+		guild_stage_manager.SaveDamageLog(guild.GetId(), boss_id, this.Id, this_fight_damage)
 	}
 
 	Output_S2CBattleResult(this, response)
@@ -341,6 +356,45 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 
 // 公会副本玩家复活
 func (this *Player) guild_stage_player_respawn() int32 {
+	guild := guild_manager._get_guild(this.Id, false)
+	if guild == nil {
+		log.Error("Player[%v] get guild failed or guild not found", this.Id)
+		return -1
+	}
+
+	if this.db.GuildStage.GetRespawnState() != GUILD_STAGE_STATE_DEAD {
+		log.Error("Player[%v] is no dead in guild stage, cant respawn", this.Id)
+		return -1
+	}
+
+	respawn_num := this.db.GuildStage.GetRespawnNum()
+	var total_respawn_num int32
+	if global_config.GuildStageResurrectionGem != nil {
+		total_respawn_num = int32(len(global_config.GuildStageResurrectionGem))
+	}
+
+	if respawn_num >= total_respawn_num {
+		log.Error("Player[%v] respawn num %v is max", this.Id, respawn_num)
+		return -1
+	}
+
+	need_diamond := global_config.GuildStageResurrectionGem[respawn_num]
+	if this.get_diamond() < need_diamond {
+		log.Error("Player[%v] respawn in guild stage not enough diamond", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
+	}
+
+	this.db.GuildStage.SetRespawnState(GUILD_STAGE_STATE_CAN_FIGHT)
+	remain_num := this.db.GuildStage.IncbyRespawnNum(1)
+	this.add_diamond(-need_diamond)
+
+	response := &msg_client_message.S2CGuildStagePlayerRespawnResponse{
+		RemainRespawnNum: total_respawn_num - remain_num,
+		CostDiamond:      need_diamond,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_PLAYER_RESPAWN_RESPONSE), response)
+	log.Debug("Player[%v] respawn in guild stage %v", this.Id, response)
+
 	return 1
 }
 

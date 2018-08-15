@@ -1955,6 +1955,50 @@ func guild_stage_reset_cmd(p *Player, args []string) int32 {
 	return p.guild_stage_reset()
 }
 
+func guild_stage_respawn_cmd(p *Player, args []string) int32 {
+	return p.guild_stage_player_respawn()
+}
+
+func test_short_rank_cmd(p *Player, args []string) int32 {
+	var items []*utils.TestShortRankItem = []*utils.TestShortRankItem{
+		{Id: 1, Value: 1},
+		{Id: 2, Value: 2},
+		{Id: 3, Value: 3},
+		{Id: 4, Value: 4},
+		{Id: 5, Value: 5},
+		{Id: 6, Value: 6},
+		{Id: 7, Value: 7},
+		{Id: 8, Value: 8},
+		{Id: 9, Value: 9},
+		{Id: 10, Value: 10},
+		{Id: 11, Value: 11},
+		{Id: 12, Value: 12},
+		{Id: 1, Value: 11},
+		{Id: 3, Value: 33},
+		{Id: 9, Value: 99},
+		{Id: 3, Value: 3},
+		{Id: 1, Value: 2},
+		{Id: 4, Value: -1},
+		{Id: 4, Value: 3},
+		{Id: 8, Value: 8},
+	}
+
+	var rank_list utils.ShortRankList
+	rank_list.Init(10)
+	for _, item := range items {
+		rank_list.Update(item, true)
+	}
+
+	log.Debug("Test Short Rank Item List:")
+	for r := int32(1); r <= rank_list.GetLength(); r++ {
+		k, v := rank_list.GetByRank(r)
+		idx := rank_list.GetIndex(r)
+		log.Debug("    rank: %v,  key[%v] value[%v] index[%v]", r, k, v, idx)
+	}
+
+	return 1
+}
+
 type test_cmd_func func(*Player, []string) int32
 
 var test_cmd2funcs = map[string]test_cmd_func{
@@ -2078,6 +2122,8 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"guild_stage_ranklist":   guild_stage_ranklist_cmd,
 	"guild_stage_fight":      guild_stage_fight_cmd,
 	"guild_stage_reset":      guild_stage_reset_cmd,
+	"guild_stage_respawn":    guild_stage_respawn_cmd,
+	"test_short_rank":        test_short_rank_cmd,
 }
 
 func C2STestCommandHandler(w http.ResponseWriter, r *http.Request, p *Player /*msg proto.Message*/, msg_data []byte) int32 {

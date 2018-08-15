@@ -52,6 +52,12 @@ func (this *HallServer) Init() (ok bool) {
 		return
 	}
 
+	err := this.OnInit()
+	if err != nil {
+		log.Error("服务器初始化失败[%s]", err.Error())
+		return
+	}
+
 	// 世界频道
 	world_chat_mgr.Init(CHAT_CHANNEL_WORLD)
 	// 招募频道
@@ -66,12 +72,8 @@ func (this *HallServer) Init() (ok bool) {
 	guild_manager.Init()
 	// 公会副本
 	guild_stage_manager.Init()
-
-	err := this.OnInit()
-	if err != nil {
-		log.Error("服务器初始化失败[%s]", err.Error())
-		return
-	}
+	// 载入公会副本伤害列表
+	guild_manager.LoadDB4StageDamageList()
 
 	this.initialized = true
 
