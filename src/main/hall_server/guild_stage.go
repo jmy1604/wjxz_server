@@ -210,22 +210,22 @@ func guild_stage_data_init(guild *dbGuildRow, boss_id int32) int32 {
 	guild_stage := guild_boss_table_mgr.Get(boss_id)
 	if guild_stage == nil {
 		log.Error("guild stage %v not found", boss_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 	stage_id := guild_boss_table_mgr.Array[0].StageId
 	stage := stage_table_mgr.Get(stage_id)
 	if stage == nil {
 		log.Error("Stage %v table data not found", stage_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 	if stage.Monsters == nil || len(stage.Monsters) == 0 {
 		log.Error("Stage[%v] monster list is empty", stage_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_INVALID)
 	}
 	monster := stage.Monsters[0]
 	if monster.Slot < 1 || monster.Slot > BATTLE_TEAM_MEMBER_MAX_NUM {
 		log.Error("Stage[%v] monster[%v] pos %v invalid", stage_id, monster.MonsterID, monster.Slot)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_INVALID)
 	}
 	guild.Stage.SetBossId(boss_id)
 	guild.Stage.SetBossPos(monster.Slot - 1)
@@ -238,7 +238,7 @@ func (this *Player) send_guild_stage_data() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] get guild failed or guild not found", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	this.guild_stage_check_refresh(false)
@@ -270,7 +270,7 @@ func (this *Player) guild_stage_rank_list(boss_id int32) int32 {
 	guild_id := this.db.Guild.GetId()
 	if guild_id <= 0 {
 		log.Error("Player[%v] no joined one guild")
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_JOINED)
 	}
 	damage_list := guild_stage_damage_list(guild_id, boss_id)
 	response := &msg_client_message.S2CGuildStageRankListResponse{
@@ -291,18 +291,18 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	guild_stage := guild_boss_table_mgr.Get(boss_id)
 	if guild_stage == nil {
 		log.Error("guild stage %v table data not found", boss_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_TABLE_DATA_NOT_FOUND)
 	}
 	stage := stage_table_mgr.Get(guild_stage.StageId)
 	if stage == nil {
 		log.Error("stage %v table data not found", guild_stage.StageId)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_STAGE_TABLE_DATA_INVALID)
 	}
 
 	stage_state := this.db.GuildStage.GetRespawnState()
 	if stage_state == GUILD_STAGE_STATE_DEAD {
 		log.Error("Player[%v] waiting to respawn for guild stage", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_STATE_IS_DEAD)
 	} else if stage_state != GUILD_STAGE_STATE_CAN_FIGHT {
 		log.Error("Player[%v] guild stage state %v invalid", stage_state)
 		return -1
@@ -311,7 +311,7 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] get guild failed or guild not found", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	this.guild_stage_check_refresh(false)
@@ -319,22 +319,23 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	guild_ex := guild_manager.GetGuildEx(guild.GetId())
 	if guild_ex == nil {
 		log.Error("Cant get guild ex by id %v", guild.GetId())
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_EX_DATA_NOT_FOUND)
 	}
 
 	if !guild_ex.CanStageFight() {
 		log.Error("Player[%v] cant fight guild stage %v, there is other player fighting", this.Id, guild.GetId())
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_IS_FIGHTING)
 	}
 
 	curr_boss_id := guild.Stage.GetBossId()
 	if boss_id != curr_boss_id {
 		if boss_id > curr_boss_id {
 			log.Error("Player[%v] cant fight guild stage %v", this.Id, boss_id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_CANT_FIGHTING)
 		}
 
 		guild_ex.CancelStageFight()
+
 		// 返回排行榜
 		return this.guild_stage_rank_list(boss_id)
 	}
@@ -451,14 +452,14 @@ func (this *Player) guild_stage_player_respawn() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] get guild failed or guild not found", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	this.guild_stage_check_refresh(true)
 
 	if this.db.GuildStage.GetRespawnState() != GUILD_STAGE_STATE_DEAD {
 		log.Error("Player[%v] is no dead in guild stage, cant respawn", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_CANT_RESPAWN_NO_DEAD)
 	}
 
 	respawn_num := this.db.GuildStage.GetRespawnNum()
@@ -466,7 +467,7 @@ func (this *Player) guild_stage_player_respawn() int32 {
 	total_respawn_num := _get_total_guild_stage_respawn_num()
 	if respawn_num >= total_respawn_num {
 		log.Error("Player[%v] respawn num %v is max", this.Id, respawn_num)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_RESPAWN_NUM_USED_OUT)
 	}
 
 	need_diamond := global_config.GuildStageResurrectionGem[respawn_num]
@@ -494,14 +495,14 @@ func (this *Player) guild_stage_reset() int32 {
 	guild := guild_manager._get_guild(this.Id, true)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or no guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	last_reset_time := guild.GetLastStageResetTime()
 	now_time := int32(time.Now().Unix())
 	if now_time-last_reset_time < global_config.GuildStageResetCDSecs {
 		log.Error("Player[%v] guild stage reset is cooldown", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_RESET_IS_COOLDOWN)
 	}
 
 	guild.Stage.SetBossId(0)

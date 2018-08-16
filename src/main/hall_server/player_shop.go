@@ -73,6 +73,7 @@ func (this *Player) _refresh_shop(shop *table_config.XmlShopItem) int32 {
 }
 
 func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (remain_secs int32, cost_res []int32) {
+	cost_res = shop.RefreshRes
 	if shop.FreeRefreshTime <= 0 {
 		remain_secs = -1
 		return
@@ -91,7 +92,6 @@ func (this *Player) get_shop_free_refresh_info(shop *table_config.XmlShopItem) (
 		remain_secs = 0
 	}
 
-	cost_res = shop.RefreshRes
 	return
 }
 
@@ -361,6 +361,7 @@ func (this *Player) shop_refresh(shop_id int32) int32 {
 		IsFreeRefresh: is_free,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_SHOP_REFRESH_RESPONSE), response)
+	log.Debug("Player[%v] refresh shop %v", this.Id, response)
 	return 1
 }
 

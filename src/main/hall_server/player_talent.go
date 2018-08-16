@@ -37,6 +37,17 @@ func (this *Player) up_talent(talent_id int32) int32 {
 		return int32(msg_client_message.E_ERR_PLAYER_TALENT_NOT_FOUND)
 	}
 
+	if talent.CanLearn <= 0 {
+		log.Error("talent[%v] cant learn", talent_id)
+		return -1
+	}
+
+	prev_level, o := this.db.Talents.GetLevel(talent.PrevSkillCond)
+	if !o || prev_level < talent.PreSkillLevCond {
+		log.Error("Player[%v] up talent %v need prev talent[%v] level[%v]", this.Id, talent_id, talent.PrevSkillCond, talent.PreSkillLevCond)
+		return int32(msg_client_message.E_ERR_PLAYER_TALENT_UP_NEED_PREV_TALENT)
+	}
+
 	// check cost
 	for i := 0; i < len(talent.Next.UpgradeCost)/2; i++ {
 		rid := talent.Next.UpgradeCost[2*i]
@@ -71,6 +82,55 @@ func (this *Player) up_talent(talent_id int32) int32 {
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_UP_RESPONSE), response)
 
+	return 1
+}
+
+func (this *Player) talent_reset(tag int32) int32 {
+	if this.db.Talents.NumAll() <= 0 {
+		return -1
+	}
+
+	if this.get_diamond() < global_config.TalentResetCostDiamond {
+		log.Error("Player[%v] reset talent need diamond not enough", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
+	}
+
+	return_items := make(map[int32]int32)
+	talent_ids := this.db.Talents.GetAllIndex()
+	for i := 0; i < len(talent_ids); i++ {
+		talent_id := talent_ids[i]
+		talent := talent_table_mgr.Get(talent_id)
+		if talent == nil {
+			continue
+		}
+		if talent.Tag != tag {
+			continue
+		}
+		level, _ := this.db.Talents.GetLevel(talent_id)
+		for l := int32(1); l <= level; l++ {
+			t := talent_table_mgr.GetByIdLevel(talent_id, l)
+			if t == nil {
+				continue
+			}
+			for n := 0; n < len(t.UpgradeCost)/2; n++ {
+				return_items[t.UpgradeCost[2*n]] += t.UpgradeCost[2*n+1]
+			}
+		}
+		this.db.Talents.Remove(talent_id)
+	}
+
+	this.add_diamond(-global_config.TalentResetCostDiamond)
+
+	var items []int32
+	for k, v := range return_items {
+		items = append(items, []int32{k, v}...)
+	}
+	response := &msg_client_message.S2CTalentResetResponse{
+		Tag:         tag,
+		ReturnItems: items,
+		CostDiamond: global_config.TalentResetCostDiamond,
+	}
+	this.Send(uint16(msg_client_message_id.MSGID_S2C_TALENT_RESET_RESPONSE), response)
 	return 1
 }
 

@@ -228,11 +228,11 @@ func (this *Player) chat(channel int32, content []byte) int32 {
 	last_chat_time, _ = this.db.Chats.GetLastChatTime(channel)
 	if now_time-last_chat_time < cooldown_seconds {
 		log.Error("Player[%v] channel[%v] chat is cooling down !", channel, this.Id)
-		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_COOLING_DOWN)
+		return int32(msg_client_message.E_ERR_CHAT_SEND_MSG_COOLING_DOWN)
 	}
 	if int32(len(content)) > max_bytes {
 		log.Error("Player[%v] channel[%v] chat content length is too long !", channel, this.Id)
-		return int32(msg_client_message.E_ERR_WORLDCHAT_SEND_MSG_BYTES_TOO_LONG)
+		return int32(msg_client_message.E_ERR_CHAT_SEND_MSG_BYTES_TOO_LONG)
 	}
 
 	var extra_value int32
@@ -240,7 +240,7 @@ func (this *Player) chat(channel int32, content []byte) int32 {
 		extra_value = this.db.Guild.GetId()
 	}
 	if !chat_mgr.push_chat_msg(content, extra_value, this.Id, this.db.Info.GetLvl(), this.db.GetName(), this.db.Info.GetHead()) {
-		return int32(msg_client_message.E_ERR_WORLDCHAT_CANT_SEND_WITH_NO_FREE)
+		return int32(msg_client_message.E_ERR_CHAT_CANT_SEND_WITH_NO_FREE)
 	}
 
 	if !this.db.Chats.HasIndex(channel) {

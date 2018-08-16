@@ -73,6 +73,7 @@ enum E_ERR {
 	PLAYER_CAMPAIGN_MUST_PlAY_NEXT			= -13002; // 只能打下一战役
 	PLAYER_NOT_FOUND_CAMPAIGN_TABLE_DATA	= -13003; // 没有战役数据
 	PLAYER_CANT_FIGHT_THE_CAMPAIGN			= -13004; // 不能打该战役
+	PLAYER_STAGE_TABLE_DATA_INVALID			= -13005; // 关卡数据错误
 	
 	// 邮件
 	PLAYER_MAIL_OVER_MAX_COUNT				= -14000; // 超出邮件最大数量
@@ -88,6 +89,7 @@ enum E_ERR {
 	PLAYER_TALENT_NOT_FOUND					= -15000; // 没有该天赋
 	PLAYER_TALENT_LEVEL_IS_MAX				= -15001; // 天赋等级已满
 	PLAYER_TALENT_UP_NOT_ENOUGH_RESOURCE	= -15002; // 天赋升级没有足够资源
+	PLAYER_TALENT_UP_NEED_PREV_TALENT		= -15003; // 天赋升级需要前置天赋
 	
 	// 爬塔
 	PLAYER_TOWER_ALREADY_FIGHTED			= -16000; // 已经打过塔层
@@ -160,6 +162,48 @@ enum E_ERR {
 	PLAYER_EXPLORE_NO_FIGHT_BOSS_STATE		= -23010; // 探索任务的状态不能击打BOSS
 	PLAYER_EXPLORE_STATE_NOT_STARTED		= -23011; // 探索任务不是进行状态
 	
+	// 公会
+	PLAYER_GUILD_ALREADY_CREATED_OR_JOINED	= -24000; // 玩家已经创建或加入公会
+	PLAYER_GUILD_CREATED_DB_ERROR			= -24001; // 创建公会数据库错误
+	PLAYER_GUILD_NOT_ENOUGH_LEVEL_TO_OPEN	= -24002; // 没有足够的等级开启
+	PLAYER_GUILD_NOT_JOINED					= -24003; // 玩家还未加入公会
+	PLAYER_GUILD_DATA_NOT_FOUND				= -24004; // 玩家公会数据未找到
+	PLAYER_GUILD_NO_GUILDS_TO_RECOMMEND		= -24005; // 无公会可推荐
+	PLAYER_GUILD_CANT_GET_WITH_AUTHORITY	= -24006; // 公会操作权限不足
+	PLAYER_GUILD_STATE_IS_DELETED_OR_DELETING = -24007; // 公会处于已解散或正在解散状态
+	PLAYER_GUILD_STATE_IS_NOT_DELETING		= -24008; // 公会不处于正在解散状态
+	PLAYER_GUILD_JOIN_NEED_COOLDOWN			= -24009; // 加入公会需要等待离开上个公会的CD时间
+	PLAYER_GUILD_IS_ALREADY_MEMBER			= -24010; // 已经是公会成员
+	PLAYER_GUILD_MEMBER_NUM_LIMITED			= -24011; // 公会人数限制
+	PLAYER_GUILD_LEVELUP_TABLE_DATA_NOT_FOUND = -24012; // 公会升级配置数据找不到
+	PLAYER_GUILD_PRESIDENT_CANT_QUIT		= -24013; // 会长不能退出公会
+	PLAYER_GUILD_SIGN_IN_IS_COOLDOWN		= -24014; // 签名还在冷却中
+	PLAYER_GUILD_SET_OFFICER_ONLY_PRESIDENT = -24015; // 只有会长有权限任免官员
+	PLAYER_GUILD_CANT_CHANGE_PRESIDENT_SELF = -24016; // 不能对自己转让会长
+	PLAYER_GUILD_RECRUIT_IS_COOLDOWN		= -24017; // 公会招募正在冷却
+	PLAYER_GUILD_DONATE_TABLE_DAT_NOT_FOUND = -24018; // 公会捐赠配置数据找不到
+	PLAYER_GUILD_ALREADY_ASKED_DONATE		= -24019; // 公会已经请求过捐赠
+	PLAYER_GUILD_CANT_ASK_DONATE_TO_SELF	= -24020; // 不能对自己请求捐赠
+	PLAYER_GUILD_NOT_ASK_DONATE				= -24021; // 公会玩家未请求过捐赠
+	PLAYER_GUILD_NOT_ENOUGH_DONATE_SCORE    = -24022; // 公会捐赠没有足够积分
+	
+	// 公会副本
+	PLAYER_GUILD_STAGE_TABLE_DATA_NOT_FOUND = -25000; // 公会副本数据找不到
+	PLAYER_GUILD_STAGE_STATE_IS_DEAD		= -25001; // 公会副本玩家已是死亡状态
+	PLAYER_GUILD_STAGE_EX_DATA_NOT_FOUND	= -25002; // 公会额外数据找不到
+	PLAYER_GUILD_STAGE_IS_FIGHTING			= -25003; // 公会副本有玩家正在挑战
+	PLAYER_GUILD_STAGE_CANT_FIGHTING		= -25004; // 公会副本不能挑战
+	PLAYER_GUILD_STAGE_CANT_RESPAWN_NO_DEAD = -25005; // 公会副本没死亡不能复活
+	PLAYER_GUILD_STAGE_RESPAWN_NUM_USED_OUT = -25006; // 公会副本复活次数已用满
+	PLAYER_GUILD_STAGE_RESET_IS_COOLDOWN	= -25007; // 公会副本重置冷却中
+	
+	// 聊天
+	CHAT_SEND_MSG_COOLING_DOWN   			= -26000; // 聊天发送消息还在冷却中
+	CHAT_SEND_MSG_BYTES_TOO_LONG 			= -26001; // 聊天消息超长
+	CHAT_CANT_SEND_WITH_NO_FREE				= -26002; // 聊天内部错误没有空闲的节点
+	CHAT_PULL_COOLING_DOWN       			= -26003; // 聊天拉取消息还在冷却中
+	
+	
 	// 充值
 	CHARGE_ORDER_DATA_EMPTY                 = -200000;
 	CHARGE_ORDER_DATA_INVALID				= -200001;
@@ -167,14 +211,6 @@ enum E_ERR {
 	CHARGE_ORDER_SN_EMPTY					= -200003;
 	CHARGE_ORDER_SN_ALREDY_USED				= -200004;
 	CHARGE_ORDER_VERIFY_FAILED				= -200005;
-	
-	
-	// 世界聊天
-	WORLDCHAT_SEND_MSG_COOLING_DOWN   		= -102300; // 世界聊天发送消息还在冷却中
-	WORLDCHAT_SEND_MSG_BYTES_TOO_LONG 		= -102301; // 世界聊天消息超长
-	WORLDCHAT_CANT_SEND_WITH_NO_FREE		= -102302; // 世界聊天内部错误没有空闲的节点
-	WORLDCHAT_PULL_COOLING_DOWN       		= -102303; // 世界聊天拉取消息还在冷却中
-	WORLDCHAT_SEND_MSG_BE_FORBIDEN   		= -102304; // 你被禁言了
 }
 
 // 红点状态
@@ -801,25 +837,36 @@ message S2CMailsNewNotify {
 	repeated MailBasicData Mails            = 1; // 新邮件基本数据
 }
 
-// --------------------------------- 玩家 -------------------------------------
+// --------------------------------- 天赋 -------------------------------------
 // 天赋升级
 message C2STalentUpRequest {
-	int32 TalentId 							= 1;	
+	int32 TalentId 							= 1; // 天赋基础ID
 }
 message S2CTalentUpResponse {
-	int32 TalentId							= 1;
-	int32 Level								= 2;
+	int32 TalentId							= 1; // 天赋基础ID
+	int32 Level								= 2; // 等级
 }
 
 // 请求天赋列表
 message C2STalentListRequest {
 }
 message TalentInfo {
-	int32 Id								= 1;
-	int32 Level								= 2;
+	int32 Id								= 1; // 天赋基础ID
+	int32 Level								= 2; // 等级
 }
 message S2CTalentListResponse {
-	repeated TalentInfo Talents				= 1;
+	repeated TalentInfo Talents				= 1; // 天赋列表
+}
+
+// 天赋重置
+message C2STalentResetRequest {
+	int32 Tag                               = 1; // 页签
+}
+
+message S2CTalentResetResponse {
+	int32 Tag 								= 1; // 页签
+	int32 CostDiamond						= 2; // 消耗的物品
+	repeated int32 ReturnItems				= 3; // 返还的物品
 }
 
 // --------------------------------- 爬塔 ------------------------------------

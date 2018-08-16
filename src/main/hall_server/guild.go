@@ -182,13 +182,13 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 	guild_id := player.db.Guild.GetId()
 	if guild_id > 0 && this.GetGuild(guild_id) != nil {
 		log.Error("Player[%v] already create guild[%v|%v]", player_id, guild_name, guild_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_CREATED_OR_JOINED)
 	}
 
 	row := this.guilds.AddRow()
 	if row == nil {
 		log.Error("Player[%v] create guild add db row failed", player_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CREATED_DB_ERROR)
 	}
 
 	row.SetName(guild_name)
@@ -273,9 +273,10 @@ func (this *GuildManager) CancelStageFight(guild_id int32) bool {
 	return guild_ex.CancelStageFight()
 }
 
-func (this *GuildManager) Recommend(player_id int32) (guild_ids []int32) {
+func (this *GuildManager) Recommend(player_id int32) (err int32, guild_ids []int32) {
 	guild_id := _player_get_guild_id(player_id)
 	if guild_id > 0 && this.GetGuild(guild_id) != nil {
+		err = int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_CREATED_OR_JOINED)
 		log.Error("Player[%v] already joined one guild", player_id)
 		return
 	}
@@ -284,6 +285,7 @@ func (this *GuildManager) Recommend(player_id int32) (guild_ids []int32) {
 	defer this.guild_ids_locker.RUnlock()
 
 	if this.guild_num == 0 {
+		err = int32(msg_client_message.E_ERR_PLAYER_GUILD_NO_GUILDS_TO_RECOMMEND)
 		log.Error("No guild to recommend")
 		return
 	}
@@ -308,6 +310,7 @@ func (this *GuildManager) Recommend(player_id int32) (guild_ids []int32) {
 			}
 			sr = (sr + 1) % this.guild_num
 			if sr == r {
+				err = 1
 				log.Info("GuildManager Recommend guild count[%v] not enough to random for recommend", this.guild_num)
 				return
 			}
@@ -318,6 +321,7 @@ func (this *GuildManager) Recommend(player_id int32) (guild_ids []int32) {
 		}
 		guild_ids = append(guild_ids, guild_id)
 	}
+	err = 1
 	return
 }
 
@@ -500,16 +504,16 @@ func (this *Player) _format_guild_info_to_msg(guild *dbGuildRow) (msg *msg_clien
 func (this *Player) send_guild_data() int32 {
 	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
 		log.Error("Player[%v] level not enough to open guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ENOUGH_LEVEL_TO_OPEN)
 	}
 	guild_id := this.db.Guild.GetId()
 	if guild_id <= 0 {
 		log.Error("Player[%v] no guild data", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_JOINED)
 	}
 	guild := guild_manager.GetGuild(guild_id)
 	if guild == nil {
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	response := &msg_client_message.S2CGuildDataResponse{
@@ -524,9 +528,9 @@ func (this *Player) send_guild_data() int32 {
 
 // 公会推荐
 func (this *Player) guild_recommend() int32 {
-	gids := guild_manager.Recommend(this.Id)
-	if gids == nil {
-		return -1
+	err, gids := guild_manager.Recommend(this.Id)
+	if err < 0 {
+		return err
 	}
 
 	guilds_msg := _format_guilds_base_info_to_msg(gids)
@@ -569,12 +573,12 @@ func (this *Player) guild_search(key string) int32 {
 func (this *Player) guild_create(name string, logo int32) int32 {
 	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
 		log.Error("Player[%v] cant create guild because level not enough", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ENOUGH_LEVEL_TO_OPEN)
 	}
 
 	if this.get_diamond() < global_config.GuildCreateCostGem {
 		log.Error("Player[%v] create guild need diamond %v, but only %v", this.Id, global_config.GuildCreateCostGem, this.get_diamond())
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
 	}
 
 	guild_id := guild_manager.CreateGuild(this.Id, name, logo)
@@ -587,7 +591,7 @@ func (this *Player) guild_create(name string, logo int32) int32 {
 
 	guild := guild_manager.GetGuild(guild_id)
 	if guild == nil {
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 	guild_msg := this._format_guild_info_to_msg(guild)
 	response := &msg_client_message.S2CGuildCreateResponse{
@@ -615,12 +619,12 @@ func (this *Player) get_guild() (guild *dbGuildRow) {
 func (this *Player) guild_dismiss() int32 {
 	guild := guild_manager._get_guild(this.Id, true)
 	if guild == nil {
-		log.Error("Player[%v] cant dismiss guild", this.Id)
-		return -1
+		log.Error("Player[%v] cant dismiss guild because cant get guild", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 	if guild.GetExistType() != GUILD_EXIST_TYPE_NONE {
 		log.Error("Player[%v] cant dismiss guild because guild exist type is %v", this.Id, guild.GetExistType())
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STATE_IS_DELETED_OR_DELETING)
 	}
 	guild.SetDismissTime(int32(time.Now().Unix()))
 	guild.SetExistType(GUILD_EXIST_TYPE_WILL_DELETE)
@@ -639,11 +643,11 @@ func (this *Player) guild_cancel_dismiss() int32 {
 	guild := guild_manager._get_guild(this.Id, true)
 	if guild == nil {
 		log.Error("Player[%v] cant cancel dismissing guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 	if guild.GetExistType() != GUILD_EXIST_TYPE_WILL_DELETE {
 		log.Error("Player[%v] cant cancel dismissing guild because guild exit type is %v", this.Id, guild.GetExistType())
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STATE_IS_NOT_DELETING)
 	}
 	guild.SetDismissTime(0)
 	guild.SetExistType(GUILD_EXIST_TYPE_NONE)
@@ -660,14 +664,14 @@ func (this *Player) guild_info_modify(name string, logo int32) int32 {
 	guild := guild_manager._get_guild(this.Id, true)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 
 	var cost_diamond int32
 	if name != "" {
 		if this.get_diamond() < global_config.GuildChangeNameCostGem {
 			log.Error("Player[%v] diamond not enough, change name failed", this.Id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
 		}
 		guild.SetName(name)
 		cost_diamond = global_config.GuildChangeNameCostGem
@@ -695,7 +699,7 @@ func (this *Player) guild_anouncement(content string) int32 {
 	guild := guild_manager._get_guild(this.Id, true)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 
 	guild.SetAnouncement(content)
@@ -736,7 +740,7 @@ func (this *Player) guild_members_list() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] no guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	var members_msg []*msg_client_message.GuildMember
@@ -765,29 +769,29 @@ func (this *Player) guild_members_list() int32 {
 
 // 公会申请加入
 func (this *Player) guild_ask_join(guild_id int32) int32 {
-	last_ask_time := this.db.Guild.GetQuitTime()
-	if last_ask_time > 0 {
+	last_quit_time := this.db.Guild.GetQuitTime()
+	if last_quit_time > 0 {
 		now_time := int32(time.Now().Unix())
-		if now_time-last_ask_time < global_config.GuildQuitAskJoinCDSecs {
+		if now_time-last_quit_time < global_config.GuildQuitAskJoinCDSecs {
 			log.Error("Player[%v] is already in cool down to last quit", this.Id)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_GUILD_JOIN_NEED_COOLDOWN)
 		}
 	}
 
 	if _player_get_guild_id(this.Id) > 0 {
 		log.Error("Player[%v] already joined guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_CREATED_OR_JOINED)
 	}
 
 	guild := guild_manager.GetGuild(guild_id)
 	if guild == nil {
 		log.Error("Player[%v] ask join guild[%v] not found", this.Id, guild_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	if guild.Members.HasIndex(this.Id) {
 		log.Error("Player[%v] already joined guild %v", this.Id, guild_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_IS_ALREADY_MEMBER)
 	}
 
 	if guild.AskLists.HasIndex(this.Id) {
@@ -817,7 +821,7 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	if !is_refuse {
@@ -825,20 +829,20 @@ func (this *Player) guild_agree_join(player_ids []int32, is_refuse bool) int32 {
 		levelup_data := guild_levelup_table_mgr.Get(guild.GetLevel())
 		if levelup_data == nil {
 			log.Error("Guild level up table data not found with level %v", guild.GetLevel())
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_GUILD_LEVELUP_TABLE_DATA_NOT_FOUND)
 		}
 
 		// 人数限制
 		if levelup_data.MemberNum <= guild.Members.NumAll() {
 			log.Error("Guild %v members num is max, player %v cant agree the players %v join", guild.GetId(), this.Id, player_ids)
-			return -1
+			return int32(msg_client_message.E_ERR_PLAYER_GUILD_MEMBER_NUM_LIMITED)
 		}
 	}
 
 	// 职位
 	if this.db.Guild.GetPosition() <= GUILD_POSITION_MEMBER {
 		log.Error("Player[%v] no authority to agree new member join", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 
 	for i, player_id := range player_ids {
@@ -920,7 +924,12 @@ func (this *Player) guild_ask_list() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not found", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
+	}
+
+	if this.db.Guild.GetPosition() <= GUILD_POSITION_MEMBER {
+		log.Error("Player[%v] no authority to get ask list", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 
 	var info_list []*msg_client_message.PlayerInfo
@@ -954,12 +963,12 @@ func (this *Player) guild_quit() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not found", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	if guild.GetPresident() == this.Id {
 		log.Error("Player[%v] is president, cant quit guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_PRESIDENT_CANT_QUIT)
 	}
 
 	guild.Members.Remove(this.Id)
@@ -983,7 +992,7 @@ func (this *Player) guild_logs() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not found", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	var logs []*msg_client_message.GuildLog
@@ -1057,12 +1066,12 @@ func (this *Player) guild_sign_in() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	if !utils.CheckDayTimeArrival(this.db.Guild.GetSignTime(), global_config.GuildSignRefreshTime) {
 		log.Error("Player[%v] cant sign in guild, time not arrival", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_SIGN_IN_IS_COOLDOWN)
 	}
 
 	now_time := int32(time.Now().Unix())
@@ -1097,10 +1106,10 @@ func (this *Player) guild_sign_in() int32 {
 // 公会任免官员
 func (this *Player) guild_set_officer(player_ids []int32, set_type int32) int32 {
 	// 只有会长有权限
-	guild := guild_manager._get_guild(this.Id, false)
+	guild := guild_manager._get_guild(this.Id, true)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_SET_OFFICER_ONLY_PRESIDENT)
 	}
 
 	var position int32
@@ -1169,12 +1178,12 @@ func (this *Player) guild_kick_member(player_ids []int32) int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	if this.db.Guild.GetPosition() <= GUILD_POSITION_MEMBER {
 		log.Error("Player[%v] position %v no authority to kick member", this.Id, this.db.Guild.GetPosition())
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 
 	for i, player_id := range player_ids {
@@ -1227,24 +1236,24 @@ func (this *Player) guild_kick_member(player_ids []int32) int32 {
 // 公会转让会长
 func (this *Player) guild_change_president(player_id int32) int32 {
 	if player_id == this.Id {
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_CHANGE_PRESIDENT_SELF)
 	}
 
 	player := player_mgr.GetPlayerById(player_id)
 	if player == nil {
 		log.Error("Player[%v] not found", player_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
 
 	guild := guild_manager._get_guild(this.Id, true)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 
 	if !guild.Members.HasIndex(player_id) {
 		log.Error("Guild %v no member %v, cant change president", guild.GetId(), player_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_JOINED)
 	}
 
 	guild.SetPresident(player_id)
@@ -1276,26 +1285,26 @@ func (this *Player) guild_recruit(content []byte) int32 {
 	guild_id := this.db.Guild.GetId()
 	if guild_id <= 0 {
 		log.Error("Player[%v] no join in guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_JOINED)
 	}
 
 	position := this.db.Guild.GetPosition()
 	if position <= GUILD_POSITION_MEMBER {
 		log.Error("Player[%v] recruit in guild %v failed, position %v not enough", this.Id, guild_id, position)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_GET_WITH_AUTHORITY)
 	}
 
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	now_time := int32(time.Now().Unix())
 	last_recruit_time := guild.GetLastRecruitTime()
 	if (now_time - last_recruit_time) < global_config.GuildRecruitIntervalSecs {
 		log.Error("Player[%v] recruit too frequently", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_RECRUIT_IS_COOLDOWN)
 	}
 
 	res := this.chat(CHAT_CHANNEL_RECRUIT, content)
@@ -1389,7 +1398,7 @@ func (this *Player) guild_donate_list() int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	guild_check_donate_list(guild)
@@ -1404,13 +1413,13 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 	item := guild_donate_table_mgr.Get(item_id)
 	if item == nil {
 		log.Error("Guild Donate item table not found %v", item_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DONATE_TABLE_DAT_NOT_FOUND)
 	}
 
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	guild_check_donate_list(guild)
@@ -1418,7 +1427,7 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 
 	if guild.AskDonates.HasIndex(this.Id) {
 		log.Error("Player[%v] already asked donate", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_ALREADY_ASKED_DONATE)
 	}
 
 	guild.AskDonates.Add(&dbGuildAskDonateData{
@@ -1442,7 +1451,7 @@ func (this *Player) guild_ask_donate(item_id int32) int32 {
 // 公会捐赠
 func (this *Player) guild_donate(player_id int32) int32 {
 	if this.Id == player_id {
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_CANT_ASK_DONATE_TO_SELF)
 	}
 
 	player := player_mgr.GetPlayerById(player_id)
@@ -1454,28 +1463,28 @@ func (this *Player) guild_donate(player_id int32) int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] cant get guild or guild not exist", this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
 	guild_check_donate_list(guild)
 
 	if !guild.AskDonates.HasIndex(player_id) {
 		log.Error("Player[%v] no ask donate, player[%v] cant donate", player_id, this.Id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ASK_DONATE)
 	}
 
 	item_id, _ := guild.AskDonates.GetItemId(player_id)
 	item := guild_donate_table_mgr.Get(item_id)
 	if item == nil {
 		log.Error("Guild Donate item table not found %v", item_id)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DONATE_TABLE_DAT_NOT_FOUND)
 	}
 
 	// 捐献次数（分数）
 	donate_num := this.db.Guild.GetDonateNum()
 	if donate_num+item.LimitScore > global_config.GuildDonateLimitDay {
 		log.Error("Player[%v] left donate score %v not enough to donate", this.Id, global_config.GuildDonateLimitDay-donate_num)
-		return -1
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ENOUGH_DONATE_SCORE)
 	}
 
 	var donate_over bool

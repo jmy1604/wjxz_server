@@ -103,5 +103,7 @@
 	"GuildSignRefreshTime":"00:00:00",
 	"GuildAskDonateExistSeconds": 36000,
 	"GuildDonateRefreshTime":"00:00:00",
-	"GuildStageRefreshTime":"00:00:00"
+	"GuildStageRefreshTime":"00:00:00",
+	
+	"TalentResetCostDiamond": 10000
 }

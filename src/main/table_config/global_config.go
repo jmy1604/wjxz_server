@@ -81,6 +81,7 @@ type GlobalConfig struct {
 	GuildAskDonateExistSeconds           int32   // 公会请求捐赠存在秒数
 	GuildDonateRefreshTime               string  // 公会捐赠重置时间点
 	GuildStageRefreshTime                string  // 公会副本重置时间点
+	TalentResetCostDiamond               int32   // 重置天赋花费钻石
 
 	GooglePayUrl       string
 	FaceBookPayUrl     string

@@ -104,6 +104,8 @@ enum MSGID {
 	S2C_TALENT_UP_RESPONSE					= 10601; // 天赋升级返回 S2CTalentUpResponse
 	C2S_TALENT_LIST_REQUEST					= 10602; // 请求天赋列表 C2STalentListRequest
 	S2C_TALENT_LIST_RESPONSE				= 10603; // 天赋列表返回 S2CTalentListResponse
+	C2S_TALENT_RESET_REQUEST				= 10604; // 天赋重置 C2STalentResetRequest
+	S2C_TALENT_RESET_RESPONSE				= 10605; // 天赋重置返回 S2CTalentResetResponse
 	
 	C2S_TOWER_DATA_REQUEST					= 10700; // 爬塔数据请求 C2STowerDataRequest
 	S2C_TOWER_DATA_RESPONSE					= 10701; // 爬塔数据返回 S2CTowerDataResponse

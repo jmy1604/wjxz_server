@@ -704,6 +704,13 @@ func delete_mail_cmd(p *Player, args []string) int32 {
 	return p.DeleteMails(mail_ids)
 }
 
+func talent_data_cmd(p *Player, args []string) int32 {
+	if p.get_talent_list() == nil {
+		return -1
+	}
+	return 1
+}
+
 func up_talent_cmd(p *Player, args []string) int32 {
 	if len(args) < 1 {
 		log.Error("参数[%v]不够", len(args))
@@ -719,6 +726,22 @@ func up_talent_cmd(p *Player, args []string) int32 {
 	}
 
 	return p.up_talent(int32(talent_id))
+}
+
+func talent_reset_cmd(p *Player, args []string) int32 {
+	if len(args) < 1 {
+		log.Error("参数[%v]不够", len(args))
+		return -1
+	}
+
+	var tag int
+	var err error
+	tag, err = strconv.Atoi(args[0])
+	if err != nil {
+		return -1
+	}
+
+	return p.talent_reset(int32(tag))
 }
 
 func tower_data_cmd(p *Player, args []string) int32 {
@@ -2045,7 +2068,9 @@ var test_cmd2funcs = map[string]test_cmd_func{
 	"mail_detail":            mail_detail_cmd,
 	"mail_items":             mail_items_cmd,
 	"delete_mail":            delete_mail_cmd,
-	"up_talent":              up_talent_cmd,
+	"talent_data":            talent_data_cmd,
+	"talent_up":              up_talent_cmd,
+	"talent_reset":           talent_reset_cmd,
 	"tower_data":             tower_data_cmd,
 	"get_tower_key":          get_tower_key_cmd,
 	"fight_tower":            fight_tower_cmd,

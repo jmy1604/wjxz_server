@@ -10,14 +10,20 @@ type XmlTalentItem struct {
 	Id                  int32  `xml:"TalentID,attr"`
 	LevelId             int32  `xml:"TalentBaseID,attr"`
 	Level               int32  `xml:"Level,attr"`
+	CanLearn            int32  `xml:"CanLearn,attr"`
 	UpgradeCostStr      string `xml:"UpgradeCost,attr"`
 	UpgradeCost         []int32
+	PrevSkillCond       int32  `xml:"PreSkillCond,attr"`
+	PreSkillLevCond     int32  `xml:"PreSkillLevCond,attr"`
+	TeamSpeedBonus      int32  `xml:"TeamSpeedBonus,attr"`
 	TalentEffectCondStr string `xml:"TalentEffectCond,attr"`
 	TalentEffectCond    []int32
 	TalentAttrStr       string `xml:"TalentAttr,attr"`
 	TalentAttr          []int32
 	TalentSkillListStr  string `xml:"TalentSkillList,attr"`
 	TalentSkillList     []int32
+	Tag                 int32 `xml:"PageLabel,attr"`
+	Prev                *XmlTalentItem
 	Next                *XmlTalentItem
 }
 
@@ -94,6 +100,7 @@ func (this *TalentTableMgr) Load() bool {
 
 		if prev != nil && prev.LevelId == tmp_item.LevelId && prev.Level+1 == tmp_item.Level {
 			prev.Next = tmp_item
+			tmp_item.Prev = prev
 		}
 
 		prev = tmp_item
