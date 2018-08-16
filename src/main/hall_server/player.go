@@ -112,6 +112,7 @@ type Player struct {
 	tmp_cache_items        map[int32]int32                       // 用于临时缓存物品
 	is_handbook_adds       bool                                  // 是否新增角色图鉴
 	states_changed         map[int32]int32                       // 提示状态变化
+	receive_mail_locker    *sync.Mutex                           // 接收邮件锁
 	new_mail_list_locker   *sync.Mutex                           // 新邮件列表锁
 	new_mail_ids           []int32                               // 新邮件ID列表
 	tmp_left_slot_equip_id int32                                 // 左槽升级临时保存
@@ -132,6 +133,17 @@ type Player struct {
 	curr_sweep             int32                                 // 已扫荡次数
 }
 
+func (this *Player) _init() {
+	this.max_msg_items_len = INIT_PLAYER_MSG_NUM
+	this.msg_items_lock = &sync.Mutex{}
+	this.msg_items = make([]*PlayerMsgItem, this.max_msg_items_len)
+
+	this.receive_mail_locker = &sync.Mutex{}
+	this.new_mail_list_locker = &sync.Mutex{}
+	this.friend_ask_add_locker = &sync.Mutex{}
+	this.friend_add_locker = &sync.Mutex{}
+}
+
 func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
 	ret_p := &Player{}
 	ret_p.Id = id
@@ -141,13 +153,7 @@ func new_player(id int32, account, token string, db *dbPlayerRow) *Player {
 	ret_p.ol_array_idx = -1
 	ret_p.all_array_idx = -1
 
-	ret_p.max_msg_items_len = INIT_PLAYER_MSG_NUM
-	ret_p.msg_items_lock = &sync.Mutex{}
-	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
-
-	ret_p.new_mail_list_locker = &sync.Mutex{}
-	ret_p.friend_ask_add_locker = &sync.Mutex{}
-	ret_p.friend_add_locker = &sync.Mutex{}
+	ret_p._init()
 
 	return ret_p
 }
@@ -165,13 +171,7 @@ func new_player_with_db(id int32, db *dbPlayerRow) *Player {
 	ret_p.all_array_idx = -1
 	ret_p.Account = db.GetAccount()
 
-	ret_p.max_msg_items_len = INIT_PLAYER_MSG_NUM
-	ret_p.msg_items_lock = &sync.Mutex{}
-	ret_p.msg_items = make([]*PlayerMsgItem, ret_p.max_msg_items_len)
-
-	ret_p.new_mail_list_locker = &sync.Mutex{}
-	ret_p.friend_ask_add_locker = &sync.Mutex{}
-	ret_p.friend_add_locker = &sync.Mutex{}
+	ret_p._init()
 
 	// 载入竞技场排名
 	ret_p.LoadArenaScore()

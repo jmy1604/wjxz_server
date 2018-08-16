@@ -134,31 +134,6 @@ func (this *Player) IsPrevAchieveReward(task *table_config.XmlTaskItem) bool {
 	return true
 }
 
-/*func (this *Player) UpdateNewTasks(level int32, send_msg bool) int32 {
-	tasks := task_table_mgr.GetLevelTasks(level)
-	if tasks == nil {
-		return 0
-	}
-
-	notify := &msg_client_message.S2CTaskValueNotify{}
-	for _, task := range tasks {
-		if this.db.Tasks.HasIndex(task.Id) {
-			continue
-		}
-
-		if !this.db.FinishedTasks.HasIndex(task.Id) && this.IsPrevAchieveReward(task) {
-			var data dbPlayerTaskData
-			data.Id = task.Id
-			this.db.Tasks.Add(&data)
-
-			if send_msg {
-				this.NotifyTaskValue(notify, data.Id, data.Value, 0)
-			}
-		}
-	}
-	return 1
-}*/
-
 func (this *Player) check_add_next_task(task *table_config.XmlTaskItem, add_val int32) {
 	if task.Next <= 0 {
 		return
@@ -170,9 +145,6 @@ func (this *Player) check_add_next_task(task *table_config.XmlTaskItem, add_val 
 	if this.db.Tasks.HasIndex(task.Next) {
 		return
 	}
-	/*if next_task.MinLevel > this.db.Info.GetLvl() {
-		return
-	}*/
 
 	if next_task.EventId != task.EventId || task.EventId == table_config.TASK_COMPLETE_TYPE_PASS_CAMPAIGN {
 		add_val = 0
@@ -361,16 +333,6 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 		if this.IsTaskComplete(tmp_taskcfg) {
 			continue
 		}
-
-		// 前置任务未完成
-		if !this.IsPrevTaskComplete(tmp_taskcfg) {
-			continue
-		}
-
-		// 等级不满足
-		/*if tmp_taskcfg.MinLevel > this.db.Info.GetLvl() || tmp_taskcfg.MaxLevel < this.db.Info.GetLvl() {
-			continue
-		}*/
 
 		// 事件参数
 		if event_param > 0 {
