@@ -96,7 +96,7 @@ func (this *dbPlayerMailColumn) GetMailListByIds(mail_ids []int32) (mails []*msg
 			is_get_attached = true
 		}
 		has_attached := false
-		if md.AttachItemIds != nil || len(md.AttachItemIds) == 0 {
+		if md.AttachItemIds != nil || len(md.AttachItemIds) > 0 {
 			has_attached = true
 		}
 		d := &msg_client_message.MailBasicData{
