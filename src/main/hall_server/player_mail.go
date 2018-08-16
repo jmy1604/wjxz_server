@@ -252,7 +252,29 @@ func SendMail(sender *Player, receiver_id, mail_type int32, title string, conten
 		}
 	}
 
-	return SendMail2(sender, receiver_id, mail_type, title, content, items)
+	var err int32
+	if mail_type == MAIL_TYPE_GUILD {
+		guild := guild_manager._get_guild(sender.Id, false)
+		if guild == nil {
+			log.Error("Player[%v] not join one guild, cant send guild mail", sender.Id)
+			return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)
+		}
+		if sender.db.Guild.GetPosition() <= GUILD_POSITION_MEMBER {
+			log.Error("Only president or officer send guild mail, player %v is not", sender.Id)
+			return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)
+		}
+		ids := guild.Members.GetAllIndex()
+		for _, id := range ids {
+			err = SendMail2(sender, id, mail_type, title, content, items)
+			if err < 0 {
+				break
+			}
+		}
+	} else {
+		err = SendMail2(sender, receiver_id, mail_type, title, content, items)
+	}
+
+	return err
 }
 
 func SendMail2(sender *Player, receiver_id, mail_type int32, title string, content string, items []int32) int32 {
@@ -284,6 +306,7 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 			return int32(msg_client_message.E_ERR_PLAYER_MAIL_PLAYER_IS_COOLDOWN)
 		}
 	}
+
 	receiver := player_mgr.GetPlayerById(receiver_id)
 	if receiver == nil {
 		log.Error("Mail receiver[%v] not found", receiver_id)
@@ -296,8 +319,13 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 		sender_id = sender.Id
 		sender_name = sender.db.GetName()
 	}
+
+	// 锁住保证新邮件生成的原子性
+	receiver.receive_mail_locker.Lock()
+
 	mail_id := receiver.new_mail(mail_type, sender_id, sender_name, title, content)
 	if mail_id <= 0 {
+		receiver.receive_mail_locker.Unlock()
 		log.Error("new mail create failed")
 		return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)
 	}
@@ -309,12 +337,14 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 			item_num := items[2*i+1]
 			if sender != nil {
 				if sender.get_item(item_id) < item_num {
+					receiver.receive_mail_locker.Unlock()
 					log.Error("Player[%v] item[%v] not enough", sender.Id, item_id)
 					return int32(msg_client_message.E_ERR_PLAYER_MAIL_SEND_FAILED)
 				}
 			}
 			res := receiver.attach_mail_item(mail_id, item_id, item_num)
 			if res < 0 {
+				receiver.receive_mail_locker.Unlock()
 				return res
 			}
 		}
@@ -325,11 +355,6 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 		}
 	}
 
-	// 个人邮件发送时间点保存
-	if mail_type == MAIL_TYPE_PLAYER && sender != nil {
-		sender.db.MailCommon.SetLastSendPlayerMailTime(now_time)
-	}
-
 	if !receiver.db.NotifyStates.HasIndex(int32(msg_client_message.MODULE_STATE_NEW_MAIL)) {
 		receiver.db.NotifyStates.Add(&dbPlayerNotifyStateData{
 			ModuleType: int32(msg_client_message.MODULE_STATE_NEW_MAIL),
@@ -337,7 +362,16 @@ func SendMail2(sender *Player, receiver_id, mail_type int32, title string, conte
 		receiver.notify_state_changed(int32(msg_client_message.MODULE_STATE_NEW_MAIL), 1)
 	}
 
+	// 解锁
+	receiver.receive_mail_locker.Unlock()
+
+	// 缓存新邮件ID
 	receiver.cache_new_mail(mail_id)
+
+	// 个人邮件发送时间点保存
+	if mail_type == MAIL_TYPE_PLAYER && sender != nil {
+		sender.db.MailCommon.SetLastSendPlayerMailTime(now_time)
+	}
 
 	if sender != nil {
 		log.Debug("Player[%v] send mail[%v] type[%v] title[%v] content[%v]", sender.Id, mail_id, mail_type, title, content)

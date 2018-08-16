@@ -335,7 +335,7 @@ func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_para
 		}
 
 		// 事件参数
-		if event_param > 0 {
+		if tmp_taskcfg.EventParam > 0 {
 			if if_not_less {
 				if event_param < tmp_taskcfg.EventParam {
 					continue
