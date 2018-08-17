@@ -158,7 +158,13 @@ func (this *GuildStageManager) RankListReward(guild_id, boss_id int32) {
 		if rank_range == nil {
 			continue
 		}
+
+		b := false
 		for r := rank_range[0]; r <= rank_range[1]; r++ {
+			if r > rank_list.GetLength() {
+				b = true
+				break
+			}
 			if rewards[i] != nil {
 				key, _ := rank_list.GetByRank(r)
 				pid := key.(int32)
@@ -167,6 +173,9 @@ func (this *GuildStageManager) RankListReward(guild_id, boss_id int32) {
 				}
 				SendMail2(nil, pid, MAIL_TYPE_GUILD, "Guild Stage Rank List Reward", "Guild Stage Rank List Reward for rank "+strconv.Itoa(int(r)), rewards[i])
 			}
+		}
+		if b {
+			break
 		}
 	}
 }
@@ -272,6 +281,16 @@ func (this *Player) guild_stage_rank_list(boss_id int32) int32 {
 		log.Error("Player[%v] no joined one guild")
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_JOINED)
 	}
+	guild := guild_manager._get_guild(this.Id, false)
+	if guild == nil {
+		log.Error("Player[%v] cant get guild data", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
+	}
+
+	if guild.Stage.GetBossId() < boss_id {
+		log.Error("Player[%v] cant get guild stage %v rank list", this.Id, boss_id)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_CANT_GET_DMG_RANKLIST)
+	}
 	damage_list := guild_stage_damage_list(guild_id, boss_id)
 	response := &msg_client_message.S2CGuildStageRankListResponse{
 		DmgList: damage_list,
@@ -323,19 +342,17 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 	}
 
 	if !guild_ex.CanStageFight() {
-		log.Error("Player[%v] cant fight guild stage %v, there is other player fighting", this.Id, guild.GetId())
+		log.Error("Player[%v] cant fight guild %v stage %v, there is other player fighting", this.Id, guild.GetId(), boss_id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_IS_FIGHTING)
 	}
 
 	curr_boss_id := guild.Stage.GetBossId()
 	if boss_id != curr_boss_id {
+		guild_ex.CancelStageFight()
 		if boss_id > curr_boss_id {
 			log.Error("Player[%v] cant fight guild stage %v", this.Id, boss_id)
 			return int32(msg_client_message.E_ERR_PLAYER_GUILD_STAGE_CANT_FIGHTING)
 		}
-
-		guild_ex.CancelStageFight()
-
 		// 返回排行榜
 		return this.guild_stage_rank_list(boss_id)
 	}

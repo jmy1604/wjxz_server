@@ -270,6 +270,12 @@ func (this *Player) FightInStage(stage_type int32, stage *table_config.XmlPassIt
 		}
 	}
 
+	if stage.PlayerCardMax > 0 && attack_team.MembersNum() > stage.PlayerCardMax {
+		log.Error("Player[%v] fight stage %v is limited with member num", this.Id, stage.Id)
+		err = int32(msg_client_message.E_ERR_PLAYER_STAGE_ROLE_NUM_LIMITED)
+		return
+	}
+
 	if !this.target_stage_team.InitWithStage(1, stage.Id, this.stage_wave, friend, guild) {
 		err = -1
 		log.Error("Player[%v] init stage[%v] wave[%v] team failed", this.Id, stage.Id, this.stage_wave)
