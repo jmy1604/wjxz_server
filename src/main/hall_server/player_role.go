@@ -121,6 +121,9 @@ func (this *Player) new_role(role_id int32, rank int32, level int32) int32 {
 
 	log.Debug("Player[%v] create new role[%v] table_id[%v]", this.Id, role.Id, role_id)
 
+	// 更新排行榜
+	this.UpdateRolePowerRank(role.Id)
+
 	return role.Id
 }
 
@@ -169,6 +172,9 @@ func (this *Player) rand_role() int32 {
 
 		this.roles_id_change_info.id_add(id)
 		log.Debug("Player[%v] rand role[%v]", this.Id, table_id)
+
+		// 更新排行榜
+		this.UpdateRolePowerRank(id)
 	}
 
 	return id
@@ -244,6 +250,10 @@ func (this *Player) delete_role(role_id int32) bool {
 		}
 	}
 	this.roles_id_change_info.id_remove(role_id)
+
+	// 更新排行榜
+	this.DeleteRolePowerRank(role_id)
+
 	return true
 }
 
@@ -490,6 +500,9 @@ func (this *Player) levelup_role(role_id, up_num int32) int32 {
 
 	log.Debug("Player[%v] role[%v] up to level[%v]", this.Id, role_id, lvl+up_num)
 
+	// 更新排行榜
+	this.UpdateRolePowerRank(role_id)
+
 	return lvl
 }
 
@@ -559,6 +572,9 @@ func (this *Player) rankup_role(role_id int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_RANKUP_RESPONSE), response)
 
 	log.Debug("Player[%v] role[%v] up rank[%v]", this.Id, role_id, rank)
+
+	// 更新排行榜
+	this.UpdateRolePowerRank(role_id)
 
 	return rank
 }
@@ -882,6 +898,8 @@ func (this *Player) fusion_role(fusion_id, main_role_id int32, cost_role_ids [][
 		new_role_id = main_role_id
 		this.db.Roles.SetTableId(main_role_id, item.ItemCfgId)
 		this.roles_id_change_info.id_update(main_role_id)
+		// 排行榜更新
+		this.UpdateRolePowerRank(main_role_id)
 	} else {
 		new_role_id = this.new_role(item.ItemCfgId, 1, 1)
 	}
@@ -967,6 +985,9 @@ func (this *Player) role_open_left_slot(role_id int32) int32 {
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_LEFTSLOT_OPEN_RESPONSE), response)
 
 	log.Debug("Player[%v] opened left slot for role[%v] with equip[%v]", this.Id, role_id, equips[EQUIP_TYPE_LEFT_SLOT])
+
+	// 更新排行榜
+	this.UpdateRolePowerRank(role_id)
 
 	return 1
 }
@@ -1094,6 +1115,9 @@ func (this *Player) role_one_key_equip(role_id int32, equips []int32) int32 {
 
 	log.Debug("Player[%v] role[%v] one key equips[%v]", this.Id, role_id, equips)
 
+	// 更新排行榜
+	this.UpdateRolePowerRank(role_id)
+
 	return 1
 }
 
@@ -1123,6 +1147,10 @@ func (this *Player) role_one_key_unequip(role_id int32) int32 {
 		Equips: equips,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_ROLE_ONEKEY_UNEQUIP_RESPONSE), response)
+
+	// 更新排行榜
+	this.UpdateRolePowerRank(role_id)
+
 	return 1
 }
 
@@ -1175,46 +1203,45 @@ func (this *Player) role_update_suit_attr_power(role_id int32, get_suit_attr, ge
 		level, _ = this.assist_friend.db.Roles.GetLevel(this.assist_role_id)
 	}
 
-	if equips == nil {
-		return -1
-	}
-
 	role_tdata := card_table_mgr.GetRankCard(table_id, rank)
 	if role_tdata == nil {
+		log.Error("Player[%v] get role[%v] card[%v] rank[%v] not found", this.Id, role_id, table_id, rank)
 		return -1
 	}
 
 	power := calc_power_by_card(role_tdata, level)
 	suits := make(map[*table_config.XmlSuitItem]int32)
-	for _, e := range equips {
-		if e <= 0 {
-			continue
-		}
-		equip := item_table_mgr.Get(e)
-		if equip == nil {
-			log.Warn("Player[%v] role[%v] equip[%v] table data not found", this.Id, role_id, e)
-			continue
-		}
+	if equips != nil {
+		for _, e := range equips {
+			if e <= 0 {
+				continue
+			}
+			equip := item_table_mgr.Get(e)
+			if equip == nil {
+				log.Warn("Player[%v] role[%v] equip[%v] table data not found", this.Id, role_id, e)
+				continue
+			}
 
-		if get_power {
-			power += equip.BattlePower
-		}
+			if get_power {
+				power += equip.BattlePower
+			}
 
-		if equip.SuitId <= 0 {
-			continue
-		}
+			if equip.SuitId <= 0 {
+				continue
+			}
 
-		suit_data := suit_table_mgr.Get(equip.SuitId)
-		if suit_data == nil {
-			log.Warn("Suit id[%v] not found", equip.SuitId)
-			continue
-		}
+			suit_data := suit_table_mgr.Get(equip.SuitId)
+			if suit_data == nil {
+				log.Warn("Suit id[%v] not found", equip.SuitId)
+				continue
+			}
 
-		sn := suits[suit_data]
-		if sn == 0 {
-			suits[suit_data] = 1
-		} else {
-			suits[suit_data] = sn + 1
+			sn := suits[suit_data]
+			if sn == 0 {
+				suits[suit_data] = 1
+			} else {
+				suits[suit_data] = sn + 1
+			}
 		}
 	}
 

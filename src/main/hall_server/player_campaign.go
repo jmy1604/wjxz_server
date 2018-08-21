@@ -344,7 +344,7 @@ func (this *Player) FightInCampaign(campaign_id int32) int32 {
 
 	err, is_win, my_team, target_team, enter_reports, rounds, has_next_wave := this.FightInStage(2, stage, nil, nil)
 	if err < 0 {
-		log.Error("Player[%v] fight campaign %v failed, team is empty")
+		log.Error("Player[%v] fight campaign %v failed, err %v", this.Id, campaign_id, err)
 		return err
 	}
 

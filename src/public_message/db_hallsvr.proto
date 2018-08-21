@@ -422,6 +422,10 @@ message PlayerGuildStage{
 	optional int32 LastRefreshTime=3;
 }
 
+message PlayerRoleMaxPower{
+	repeated int32 RoleIds=1;
+}
+
 message BattleSaveData{
 	optional bytes Data=1;
 }

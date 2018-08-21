@@ -1015,10 +1015,11 @@ message RankItemInfo {
 	string PlayerName						= 3; // 玩家昵称
 	int32 PlayerLevel						= 4; // 玩家等级
 	int32 PlayerHead						= 5; // 玩家头像
-	int32 PlayerArenaScore					= 6; // 玩家竞技场积分
-	int32 PlayerArenaGrade					= 7; // 玩家竞技场段位
-	int32 PlayerPower						= 8; // 玩家战力
-	int32 PlayerPassedCampaignId			= 9; // 玩家最新通关ID
+	int32 PlayerArenaScore					= 6; // 玩家竞技场积分	   用于竞技场排行榜
+	int32 PlayerArenaGrade					= 7; // 玩家竞技场段位     用于竞技场排行榜
+	int32 PlayerPower						= 8; // 玩家战力           用于竞技场排行榜
+	int32 PlayerPassedCampaignId			= 9; // 玩家最新通关ID     用于战役排行榜
+	int32 PlayerRolesPower					= 10; // 玩家角色战力      用于角色战力排行榜
 }
 
 // 请求排行榜

@@ -156,7 +156,7 @@ func (this *TaskTableMgr) LoadTask() bool {
 			this.finish_tasks[tmp_item.EventId].array = make([]*XmlTaskItem, 0, this.finish_tasks[tmp_item.EventId].count)
 		}
 		this.finish_tasks[tmp_item.EventId].array = append(this.finish_tasks[tmp_item.EventId].array, tmp_item)
-		log.Info("finish type(%v) task %v, tasks count %v", tmp_item.EventId, *tmp_item, this.finish_tasks[tmp_item.EventId].count)
+		//log.Info("finish type(%v) task %v, tasks count %v", tmp_item.EventId, *tmp_item, this.finish_tasks[tmp_item.EventId].count)
 	}
 
 	this.task_array_len = int32(len(this.task_array))

@@ -3,22 +3,20 @@ package main
 import (
 	"libs/log"
 	"libs/utils"
-	_ "main/table_config"
-	_ "math/rand"
 	"net/http"
 	"public_message/gen_go/client_message"
 	"public_message/gen_go/client_message_id"
 	"sync"
-	_ "time"
 
 	"github.com/golang/protobuf/proto"
 )
 
 const (
-	RANK_LIST_TYPE_NONE     = iota
-	RANK_LIST_TYPE_ARENA    = 1
-	RANK_LIST_TYPE_CAMPAIGN = 2
-	RANK_LIST_TYPE_MAX      = 16
+	RANK_LIST_TYPE_NONE       = iota
+	RANK_LIST_TYPE_ARENA      = 1
+	RANK_LIST_TYPE_CAMPAIGN   = 2
+	RANK_LIST_TYPE_ROLE_POWER = 3
+	RANK_LIST_TYPE_MAX        = 16
 )
 
 type RankList struct {
@@ -109,6 +107,7 @@ var root_rank_item []utils.SkiplistNode = []utils.SkiplistNode{
 	nil,
 	&ArenaRankItem{},
 	&CampaignRankItem{},
+	&RolesPowerRankItem{},
 }
 
 type RankListManager struct {
@@ -316,6 +315,23 @@ func transfer_nodes_to_rank_items(rank_type int32, start_rank int32, items []uti
 			}
 			rank_items = append(rank_items, rank_item)
 		}
+	} else if rank_type == RANK_LIST_TYPE_ROLE_POWER {
+		for i := int32(0); i < int32(len(items)); i++ {
+			item := (items[i]).(*RolesPowerRankItem)
+			if item == nil {
+				continue
+			}
+			name, level, head := GetPlayerBaseInfo(item.PlayerId)
+			rank_item := &msg_client_message.RankItemInfo{
+				Rank:             start_rank + i,
+				PlayerId:         item.PlayerId,
+				PlayerName:       name,
+				PlayerLevel:      level,
+				PlayerHead:       head,
+				PlayerRolesPower: item.Power,
+			}
+			rank_items = append(rank_items, rank_item)
+		}
 	} else {
 		log.Error("invalid rank type[%v] transfer nodes to rank items", rank_type)
 	}
@@ -337,6 +353,13 @@ func (this *Player) get_rank_list_items(rank_type, start_rank, num int32) int32 
 		self_value = this.db.Arena.GetScore()
 	} else if rank_type == RANK_LIST_TYPE_CAMPAIGN {
 		self_value = this.db.CampaignCommon.GetLastestPassedCampaignId()
+	} else if rank_type == RANK_LIST_TYPE_ROLE_POWER {
+		ids := this.db.RoleMaxPower.GetRoleIds()
+		if ids != nil {
+			for _, id := range ids {
+				self_value += this.get_role_power(id)
+			}
+		}
 	}
 	rank_items := transfer_nodes_to_rank_items(rank_type, start_rank, items)
 	response := &msg_client_message.S2CRankListResponse{

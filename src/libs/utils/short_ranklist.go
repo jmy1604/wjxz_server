@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	SHORT_RANK_ITEM_MAX_NUM = 100
+	SHORT_RANK_ITEM_MAX_NUM = 500
 )
 
 type ShortRankItem interface {
@@ -130,6 +130,27 @@ func (this *ShortRankList) Update(item ShortRankItem, add bool) bool {
 		this.items[pos].Assign(item)
 		this.keys_map[this.items[pos].GetKey()] = pos
 	}
+
+	return true
+}
+
+func (this *ShortRankList) Delete(key interface{}) bool {
+	this.locker.Lock()
+	defer this.locker.Unlock()
+
+	idx, o := this.keys_map[key]
+	if !o {
+		return false
+	}
+
+	for i := idx; i < this.GetLength(); i++ {
+		this.items[i] = this.items[i+1]
+	}
+	this.items[this.curr_num-1] = nil
+
+	delete(this.keys_map, key)
+
+	this.curr_num -= 1
 
 	return true
 }
