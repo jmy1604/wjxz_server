@@ -1833,7 +1833,8 @@ message GuildStageDamageItem {
 }
 
 message S2CGuildStageRankListResponse {
-	repeated GuildStageDamageItem DmgList	= 1; // 伤害列表
+	int32 BossId							= 1; // 公会副本ID
+	repeated GuildStageDamageItem DmgList	= 2; // 伤害列表
 }
 
 // 公会副本玩家复活

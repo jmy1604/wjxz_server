@@ -293,6 +293,7 @@ func (this *Player) guild_stage_rank_list(boss_id int32) int32 {
 	}
 	damage_list := guild_stage_damage_list(guild_id, boss_id)
 	response := &msg_client_message.S2CGuildStageRankListResponse{
+		BossId:  boss_id,
 		DmgList: damage_list,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_RANK_LIST_RESPONSE), response)
