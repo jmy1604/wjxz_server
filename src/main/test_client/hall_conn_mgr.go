@@ -43,19 +43,11 @@ func (this *HallConnMgr) RemoveHallConnByAcc(acc string) {
 	}
 	delete(this.acc2hconn, acc)
 	if this.acc_arr != nil {
-		n := -1
 		for i := 0; i < len(this.acc_arr); i++ {
 			if this.acc_arr[i] == conn {
-				n = i
+				this.acc_arr[i] = nil
 				break
 			}
-		}
-		if n >= 0 {
-			l := len(this.acc_arr)
-			for i := n; i < l-1; i++ {
-				this.acc_arr[i] = this.acc_arr[i+1]
-			}
-			this.acc_arr = this.acc_arr[:l-1]
 		}
 	}
 }

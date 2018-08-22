@@ -18,17 +18,6 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-const (
-	TONG_MEMBER_MENBER  = 0 // 帮会成员
-	TONG_MEMBER_CAPTAIN = 1 // 帮会帮主
-
-	TONG_JOIN_TYPE_EVERYONE = 0 // 任何人都可以加入
-	TONG_JOIN_TYPE_NOONE    = 1 // 不允许任何人加入
-	TONG_JOIN_TYPE_NEED_CHK = 2 // 需要确认
-
-	TONG_AGREE_AVI_SEC = 5 // 同意占位有效时间
-)
-
 type TestClient struct {
 	start_time         time.Time
 	quit               bool
@@ -37,6 +26,7 @@ type TestClient struct {
 	ticker             *timer.TickTimer
 	initialized        bool
 	last_heartbeat     int32
+	cmd_chan           chan *msg_client_message.C2S_TEST_COMMAND
 }
 
 var test_client TestClient
@@ -44,6 +34,7 @@ var test_client TestClient
 func (this *TestClient) Init() (ok bool) {
 	this.start_time = time.Now()
 	this.shutdown_lock = &sync.Mutex{}
+	this.cmd_chan = make(chan *msg_client_message.C2S_TEST_COMMAND)
 	this.initialized = true
 
 	return true
@@ -72,7 +63,7 @@ func (this *TestClient) Run() {
 	this.ticker.Start()
 	defer this.ticker.Stop()
 
-	go this.Heartbeat()
+	go this.SendCmd()
 
 	for {
 		select {
@@ -86,6 +77,12 @@ func (this *TestClient) Run() {
 			}
 		}
 	}
+
+	/*var t timer.TickTime
+	for {
+		this.OnTick(t)
+		time.Sleep(time.Millisecond * 1)
+	}*/
 }
 
 func (this *TestClient) Shutdown() {
@@ -307,13 +304,6 @@ func (this *TestClient) cmd_login(use_https bool) {
 var is_test bool
 
 func (this *TestClient) OnTick(t timer.TickTime) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Stack(err)
-		}
-
-		this.shutdown_completed = true
-	}()
 	if !is_test {
 		fmt.Printf("请输入命令:\n")
 		var cmd_str string
@@ -357,63 +347,96 @@ func (this *TestClient) OnTick(t timer.TickTime) {
 					} else {
 						req.Args = make([]string, 0)
 					}
-					if config.AccountNum > 1 {
-						log.Debug("############## hall conns length %v, config.AccountNum %v", len(hall_conn_mgr.acc_arr), config.AccountNum)
-						for i := int32(0); i < config.AccountNum; i++ {
-							log.Debug("@@@@@@@@@@@@@ index i=%v", i)
-							c := hall_conn_mgr.acc_arr[i]
-							go func(conn *HallConnection) {
-								defer func() {
-									if err := recover(); err != nil {
-										log.Stack(err)
-									}
-
-									this.shutdown_completed = true
-								}()
-								conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)
-							}(c)
-						}
-					} else {
-						if cur_hall_conn == nil {
-							log.Error("hall connection is not estabulished")
-							break
-						}
-						cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), req)
-					}
+					this.cmd_chan <- req
 				}
 			}
 		}
 	}
+	this._heartbeat()
 }
 
-// 心跳
-func (this *TestClient) Heartbeat() {
+func (this *TestClient) _heartbeat() {
+	now_time := int32(time.Now().Unix())
+	if this.last_heartbeat == 0 {
+		this.last_heartbeat = now_time
+	}
+	if now_time-this.last_heartbeat >= 50 {
+		var heartbeat msg_client_message.C2SHeartbeat
+		if config.AccountNum > 1 {
+			for i := int32(0); i < config.AccountNum; i++ {
+				if hall_conn_mgr.acc_arr == nil || len(hall_conn_mgr.acc_arr) < int(i)+1 {
+					break
+				}
+				c := hall_conn_mgr.acc_arr[i]
+				if c != nil {
+					c.Send(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), &heartbeat)
+				}
+			}
+		} else {
+			if cur_hall_conn != nil {
+				cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), &heartbeat)
+			}
+		}
+		this.last_heartbeat = now_time
+	}
+}
+
+func (this *TestClient) _cmd(cmd *msg_client_message.C2S_TEST_COMMAND) {
+	if config.AccountNum > 1 {
+		log.Debug("############## hall conns length %v, config.AccountNum %v", len(hall_conn_mgr.acc_arr), config.AccountNum)
+		for i := int32(0); i < config.AccountNum; i++ {
+			log.Debug("@@@@@@@@@@@@@ index i=%v", i)
+			c := hall_conn_mgr.acc_arr[i]
+			if c == nil {
+				continue
+			}
+			go func(conn *HallConnection) {
+				defer func() {
+					if err := recover(); err != nil {
+						log.Stack(err)
+					}
+
+					this.shutdown_completed = true
+				}()
+				conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), cmd)
+			}(c)
+		}
+	} else {
+		if cur_hall_conn == nil {
+			log.Error("hall connection is not estabulished")
+			return
+		}
+		cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_TEST_COMMAND), cmd)
+	}
+}
+
+// 发送消息
+func (this *TestClient) SendCmd() {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Stack(err)
 		}
 	}()
 	for {
-		now_time := int32(time.Now().Unix())
-		if this.last_heartbeat == 0 {
-			this.last_heartbeat = now_time
-		}
-		if now_time-this.last_heartbeat >= 50 {
-			var heartbeat msg_client_message.C2SHeartbeat
-			if config.AccountNum > 1 {
-				for i := int32(0); i < config.AccountNum; i++ {
-					c := hall_conn_mgr.acc_arr[i]
-					if c != nil {
-						c.Send(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), &heartbeat)
+		is_break := false
+		for !is_break {
+			select {
+			case cmd, ok := <-this.cmd_chan:
+				{
+					if !ok {
+						log.Error("cmd chan receive invalid !!!!!")
+						return
 					}
+					this._cmd(cmd)
 				}
-			} else {
-				if cur_hall_conn != nil {
-					cur_hall_conn.Send(uint16(msg_client_message_id.MSGID_C2S_HEARTBEAT), &heartbeat)
+			default:
+				{
+					is_break = true
 				}
 			}
-			this.last_heartbeat = now_time
 		}
+
+		this._heartbeat()
 		time.Sleep(time.Second * 1)
 	}
 }
