@@ -308,6 +308,13 @@ const (
 
 // 公会副本挑战
 func (this *Player) guild_stage_fight(boss_id int32) int32 {
+	if this.db.GuildStage.GetRespawnState() == GUILD_STAGE_STATE_DEAD {
+		res := this.guild_stage_player_respawn()
+		if res < 0 {
+			return res
+		}
+	}
+
 	guild_stage := guild_boss_table_mgr.Get(boss_id)
 	if guild_stage == nil {
 		log.Error("guild stage %v table data not found", boss_id)
@@ -398,7 +405,7 @@ func (this *Player) guild_stage_fight(boss_id int32) int32 {
 		HasNextWave:         has_next_wave,
 		BattleType:          9,
 		BattleParam:         boss_id,
-		ExtraValue:          stage_state,
+		ExtraValue:          guild.Stage.GetHpPercent(),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_BATTLE_RESULT_RESPONSE), response)
 

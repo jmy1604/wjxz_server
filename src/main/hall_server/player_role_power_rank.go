@@ -224,7 +224,7 @@ func (this *Player) LoadRolesPowerRankData() {
 	for _, id := range ids {
 		this.role_update_suit_attr_power(id, false, true)
 		power := this.get_role_power(id)
-		log.Debug("Player[%v] role[%v] power[%v]", this.Id, id, power)
+		//log.Debug("Player[%v] role[%v] power[%v]", this.Id, id, power)
 		this._update_role_power_rank_info(id, power)
 	}
 
