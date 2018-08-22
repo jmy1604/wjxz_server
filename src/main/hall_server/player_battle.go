@@ -1003,9 +1003,12 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 			} else if battle_type == 5 {
 				// 好友BOSS
 				team_type = BATTLE_FRIEND_BOSS_TEAM
-			} else if battle_type == 6 {
+			} else if battle_type == 6 || battle_type == 7 {
 				// 探索任务
 				team_type = BATTLE_EXPLORE_TEAM
+			} else if battle_type == 9 {
+				// 公会副本
+				team_type = BATTLE_GUILD_STAGE_TEAM
 			} else {
 				this.assist_friend = nil
 				log.Error("Player[%v] set team[%v] invalid", this.Id, team_type)
@@ -1037,7 +1040,7 @@ func (this *Player) fight(team_members []int32, battle_type, battle_param, assis
 	} else if battle_type == 7 {
 		res = this.explore_fight(battle_param, true)
 	} else if battle_type == 9 {
-
+		res = this.guild_stage_fight(battle_param)
 	} else {
 		res = -1
 	}
