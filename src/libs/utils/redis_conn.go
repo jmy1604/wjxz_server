@@ -191,7 +191,7 @@ func (this *RedisConn) Run(interval_ms int) {
 		err := this.ping()
 		if err != nil {
 			rec = true
-			fmt.Printf("redis连接已断开，准备重连 ...\n")
+			log.Info("redis连接已断开，准备重连 ...")
 		}
 
 		time.Sleep(time.Millisecond * time.Duration(interval_ms))
