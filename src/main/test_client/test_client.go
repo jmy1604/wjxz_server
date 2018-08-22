@@ -385,7 +385,6 @@ func (this *TestClient) _cmd(cmd *msg_client_message.C2S_TEST_COMMAND) {
 	if config.AccountNum > 1 {
 		log.Debug("############## hall conns length %v, config.AccountNum %v", len(hall_conn_mgr.acc_arr), config.AccountNum)
 		for i := int32(0); i < config.AccountNum; i++ {
-			log.Debug("@@@@@@@@@@@@@ index i=%v", i)
 			c := hall_conn_mgr.acc_arr[i]
 			if c == nil {
 				continue

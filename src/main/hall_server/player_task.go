@@ -310,7 +310,7 @@ func (this *Player) WholeDailyTaskUpdate(daily_task *table_config.XmlTaskItem, n
 
 // 任务更新
 func (this *Player) TaskUpdate(complete_type int32, if_not_less bool, event_param int32, value int32) {
-	log.Info("complete_type[%d] event_param[%v] aval[%d]", complete_type, event_param, value)
+	//log.Info("complete_type[%d] event_param[%v] aval[%d]", complete_type, event_param, value)
 	var idx int32
 	var cur_val, cur_state int32
 
