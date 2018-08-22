@@ -495,12 +495,17 @@ func (this *Player) guild_stage_player_respawn() int32 {
 	}
 
 	this.db.GuildStage.SetRespawnState(GUILD_STAGE_STATE_CAN_FIGHT)
-	remain_num := this.db.GuildStage.IncbyRespawnNum(1)
+	respawn_num = this.db.GuildStage.IncbyRespawnNum(1)
 	this.add_diamond(-need_diamond)
 
+	var next_cost int32
+	if respawn_num < total_respawn_num {
+		next_cost = global_config.GuildStageResurrectionGem[respawn_num]
+	}
 	response := &msg_client_message.S2CGuildStagePlayerRespawnResponse{
-		RemainRespawnNum: total_respawn_num - remain_num,
+		RemainRespawnNum: total_respawn_num - respawn_num,
 		CostDiamond:      need_diamond,
+		NextCost:         next_cost,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_PLAYER_RESPAWN_RESPONSE), response)
 	log.Debug("Player[%v] respawn in guild stage %v", this.Id, response)

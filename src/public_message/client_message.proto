@@ -1845,6 +1845,7 @@ message C2SGuildStagePlayerRespawnRequest {
 message S2CGuildStagePlayerRespawnResponse{
 	int32 RemainRespawnNum 					= 1; // 剩余复活次数
 	int32 CostDiamond						= 2; // 花费钻石
+	int32 NextCost						 	= 3; // 下一次花费
 }
 
 // 公会副本重置
