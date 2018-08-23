@@ -278,14 +278,20 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 				}
 			} else if guild != nil {
 				// 公会副本
-				boss_hp := guild.Stage.GetBosHP()
-				if boss_hp > 0 {
-					m.attrs[ATTR_HP] = boss_hp
-					m.hp = boss_hp
-				} else {
-					hp_percent := guild.Stage.GetHpPercent()
-					m.attrs[ATTR_HP] = m.attrs[ATTR_HP_MAX] * hp_percent
+				hp_percent := guild.Stage.GetHpPercent()
+				if hp_percent == 100 {
+					m.attrs[ATTR_HP] = m.attrs[ATTR_HP_MAX] * hp_percent / 100
 					m.hp = m.attrs[ATTR_HP]
+				} else {
+					boss_hp := guild.Stage.GetBosHP()
+					if boss_hp > 0 {
+						m.attrs[ATTR_HP] = boss_hp
+						m.hp = boss_hp
+					} else {
+						boss_hp = m.attrs[ATTR_HP_MAX] * hp_percent / 100
+						m.attrs[ATTR_HP] = boss_hp
+						m.hp = boss_hp
+					}
 				}
 			}
 
