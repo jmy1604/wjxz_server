@@ -244,14 +244,16 @@ func guild_stage_data_init(guild *dbGuildRow, boss_id int32) int32 {
 }
 
 // 公会副本数据
-func (this *Player) send_guild_stage_data() int32 {
+func (this *Player) send_guild_stage_data(check_refresh bool) int32 {
 	guild := guild_manager._get_guild(this.Id, false)
 	if guild == nil {
 		log.Error("Player[%v] get guild failed or guild not found", this.Id)
 		return int32(msg_client_message.E_ERR_PLAYER_GUILD_DATA_NOT_FOUND)
 	}
 
-	this.guild_stage_check_refresh(false)
+	if check_refresh {
+		this.guild_stage_check_refresh(false)
+	}
 
 	boss_id := guild.Stage.GetBossId()
 	if boss_id == 0 {
@@ -263,13 +265,14 @@ func (this *Player) send_guild_stage_data() int32 {
 	}
 
 	response := &msg_client_message.S2CGuildStageDataResponse{
-		CurrBossId:           boss_id,
-		HpPercent:            guild.Stage.GetHpPercent(),
-		RespawnNum:           this.db.GuildStage.GetRespawnNum(),
-		TotalRespawnNum:      _get_total_guild_stage_respawn_num(),
-		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(this.db.GuildStage.GetLastRefreshTime(), global_config.GuildStageRefreshTime),
-		StageState:           this.db.GuildStage.GetRespawnState(),
-		RespawnNeedCost:      global_config.GuildStageResurrectionGem,
+		CurrBossId:            boss_id,
+		HpPercent:             guild.Stage.GetHpPercent(),
+		RespawnNum:            this.db.GuildStage.GetRespawnNum(),
+		TotalRespawnNum:       _get_total_guild_stage_respawn_num(),
+		RefreshRemainSeconds:  utils.GetRemainSeconds2NextDayTime(this.db.GuildStage.GetLastRefreshTime(), global_config.GuildStageRefreshTime),
+		StageState:            this.db.GuildStage.GetRespawnState(),
+		RespawnNeedCost:       global_config.GuildStageResurrectionGem,
+		CanResetRemainSeconds: GetRemainSeconds(guild.GetLastStageResetTime(), global_config.GuildStageResetCDSecs),
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_DATA_RESPONSE), response)
 	log.Debug("Player[%v] send guild data %v", this.Id, response)
@@ -463,7 +466,7 @@ func (this *Player) guild_stage_check_refresh(is_notify bool) bool {
 	this.db.GuildStage.SetRespawnState(GUILD_STAGE_STATE_CAN_FIGHT)
 
 	if is_notify {
-		this.send_guild_stage_data()
+		this.send_guild_stage_data(false)
 
 		var notify msg_client_message.S2CGuildStageAutoRefreshNotify
 		notify.NextRefreshRemainSeconds = utils.GetRemainSeconds2NextDayTime(int32(time.Now().Unix()), global_config.GuildStageRefreshTime)
@@ -596,7 +599,7 @@ func C2SGuildStageDataHandler(w http.ResponseWriter, r *http.Request, p *Player,
 		log.Error("Unmarshal msg failed err(%s)", err.Error())
 		return -1
 	}
-	return p.send_guild_stage_data()
+	return p.send_guild_stage_data(true)
 }
 
 func C2SGuildStageRankListHandler(w http.ResponseWriter, r *http.Request, p *Player, msg_data []byte) int32 {

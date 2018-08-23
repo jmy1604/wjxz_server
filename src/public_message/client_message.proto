@@ -1817,6 +1817,7 @@ message S2CGuildStageDataResponse {
 	int32 RefreshRemainSeconds				= 5; // 刷新剩余时间
 	int32 StageState						= 6; // 挑战状态            0 可挑战  1 等待复活
 	repeated int32 RespawnNeedCost			= 7; // 复活需要钻石数
+	int32 CanResetRemainSeconds				= 8; // 可重置剩余时间
 }
 
 // 公会副本排行榜

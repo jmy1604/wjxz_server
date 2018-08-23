@@ -1952,7 +1952,7 @@ func pull_chat_cmd(p *Player, args []string) int32 {
 }
 
 func guild_stage_data_cmd(p *Player, args []string) int32 {
-	return p.send_guild_stage_data()
+	return p.send_guild_stage_data(true)
 }
 
 func guild_stage_ranklist_cmd(p *Player, args []string) int32 {
