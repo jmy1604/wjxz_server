@@ -607,7 +607,7 @@ message C2SItemUpgradeRequest {
 
 message S2CItemUpgradeResponse {
 	int32 RoleId							= 1; // 角色ID
-	repeated int32 NewItemId				= 2; // 新生成的物品ID
+	map<int32,int32> NewItems				= 2; // 新生成的物品
 }
 
 // 物品一键合成装备

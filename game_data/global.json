@@ -80,7 +80,7 @@
 	"WorldChatPullMaxMsgNum": 50,
 	"WorldChatPullMsgCooldown": 3,
 	"WorldChatMsgMaxBytes": 200,
-	"WorldChatMsgExistTime": 10,
+	"WorldChatMsgExistTime": 100,
 	
 	"AnouncementMaxNum": 1000,
 	"AnouncementSendCooldown": 15,

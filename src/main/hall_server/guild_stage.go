@@ -557,7 +557,9 @@ func (this *Player) guild_stage_reset() int32 {
 		}
 	}
 
-	response := &msg_client_message.S2CGuildStageResetResponse{}
+	response := &msg_client_message.S2CGuildStageResetResponse{
+		NextResetRemainSeconds: global_config.GuildStageResetCDSecs,
+	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_RESET_RESPONSE), response)
 
 	ids := guild.Members.GetAllIndex()
