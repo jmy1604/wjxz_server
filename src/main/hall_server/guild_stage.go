@@ -268,6 +268,7 @@ func (this *Player) send_guild_stage_data() int32 {
 		TotalRespawnNum:      _get_total_guild_stage_respawn_num(),
 		RefreshRemainSeconds: utils.GetRemainSeconds2NextDayTime(this.db.GuildStage.GetLastRefreshTime(), global_config.GuildStageRefreshTime),
 		StageState:           this.db.GuildStage.GetRespawnState(),
+		RespawnNeedCost:      global_config.GuildStageResurrectionGem,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_DATA_RESPONSE), response)
 	log.Debug("Player[%v] send guild data %v", this.Id, response)

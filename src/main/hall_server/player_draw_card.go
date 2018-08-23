@@ -70,18 +70,13 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 			}
 
 			item = &msg_client_message.ItemInfo{ItemCfgId: tmp_item.DropItemID, ItemNum: num}
-			/*if !badd && this.tmp_cache_items != nil {
-				n := this.tmp_cache_items[item.ItemCfgId]
-				this.tmp_cache_items[item.ItemCfgId] = n + item.ItemNum
-			}*/
-
 			if used_drop_ids != nil {
 				used_drop_ids[tmp_item.DropItemID] += item.ItemNum
 			}
 			break
-		} else {
-			rand_val -= tmp_item.Weight
 		}
+
+		rand_val -= tmp_item.Weight
 	}
 
 	return
