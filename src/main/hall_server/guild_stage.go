@@ -171,7 +171,7 @@ func (this *GuildStageManager) RankListReward(guild_id, boss_id int32) {
 				if pid <= 0 {
 					continue
 				}
-				SendMail2(nil, pid, MAIL_TYPE_GUILD, "Guild Stage Rank List Reward", "Guild Stage Rank List Reward for rank "+strconv.Itoa(int(r)), rewards[i])
+				SendMail2(nil, pid, MAIL_TYPE_SYSTEM, "Guild Stage Rank List Reward", "Guild Stage Rank List Reward for rank "+strconv.Itoa(int(r)), rewards[i])
 			}
 		}
 		if b {
