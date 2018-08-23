@@ -1645,7 +1645,7 @@ message C2SGuildAgreeJoinRequest {
 }
 
 message S2CGuildAgreeJoinResponse {
-	repeated int32 PlayerIds				= 1; // 玩家ID
+	map<int32,int32> Player2Res				= 1; // key: 玩家ID      value: 结果( >0 成功   <0 错误码)
 	bool IsRefuse							= 2; // 是否拒绝
 }
 
