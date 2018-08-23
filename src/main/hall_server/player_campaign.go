@@ -518,14 +518,14 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 	// 随机掉落
 	rand.Seed(time.Now().Unix())
 	this.tmp_cache_items = make(map[int32]int32)
-	this.used_drop_ids = make(map[int32]int32)
+	//this.used_drop_ids = make(map[int32]int32)
 	n := rt / campaign.RandomDropSec
 	for k := 0; k < int(n); k++ {
 		for i := 0; i < len(campaign.RandomDropIDList)/2; i++ {
 			group_id := campaign.RandomDropIDList[2*i]
 			count := campaign.RandomDropIDList[2*i+1]
 			for j := 0; j < int(count); j++ {
-				if o, _ := this.drop_item_by_id(group_id, false, this.used_drop_ids); !o {
+				if o, _ := this.drop_item_by_id(group_id, false, this.tmp_cache_items /*this.used_drop_ids*/); !o {
 					continue
 				}
 			}
