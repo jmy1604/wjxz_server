@@ -239,7 +239,7 @@ func guild_stage_data_init(guild *dbGuildRow, boss_id int32) int32 {
 	guild.Stage.SetBossId(boss_id)
 	guild.Stage.SetBossPos(monster.Slot - 1)
 	guild.Stage.SetHpPercent(100)
-	guild.Stage.SetBossId(0)
+	guild.Stage.SetBosHP(0)
 	return 1
 }
 
@@ -562,6 +562,10 @@ func (this *Player) guild_stage_reset() int32 {
 		NextResetRemainSeconds: global_config.GuildStageResetCDSecs,
 	}
 	this.Send(uint16(msg_client_message_id.MSGID_S2C_GUILD_STAGE_RESET_RESPONSE), response)
+
+	// 重新初始化
+	first_boss_id := guild_boss_table_mgr.Array[0].Id
+	guild_stage_data_init(guild, first_boss_id)
 
 	ids := guild.Members.GetAllIndex()
 	if ids != nil {
