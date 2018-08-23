@@ -624,6 +624,7 @@ func (this *Player) team_has_role(team_id int32, role_id int32) bool {
 
 func (this *Player) decompose_role(role_ids []int32) int32 {
 	var num int32
+	this.tmp_cache_items = nil
 	for i := 0; i < len(role_ids); i++ {
 		role_id := role_ids[i]
 		level, o := this.db.Roles.GetLevel(role_id)
