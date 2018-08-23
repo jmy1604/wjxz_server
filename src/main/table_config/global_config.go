@@ -64,6 +64,7 @@ type GlobalConfig struct {
 	ExploreTaskRefreshCostDiamond        int32   // 探索任务刷新花费钻石
 	ExploreTaskRefreshTime               string  // 探索任务刷新时间
 	GuildOpenLevel                       int32   // 公会开启等级
+	GuildNameLength                      int32   // 公会名称长度限制
 	GuildCreateCostGem                   int32   // 公会创建消耗钻石
 	GuildChangeNameCostGem               int32   // 公会改名消耗钻石
 	GuildSignReward                      []int32 // 公会签到奖励

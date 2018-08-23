@@ -151,6 +151,42 @@ func (this *GuildManager) _remove_guild(guild_id int32, guild_name string) bool 
 	return true
 }
 
+func (this *GuildManager) _has_guild_by_name(guild_name string) bool {
+	this.guild_ids_locker.RLock()
+	defer this.guild_ids_locker.RUnlock()
+
+	if _, o := this.guild_name_map[guild_name]; o {
+		return true
+	}
+
+	return false
+}
+
+func (this *GuildManager) _change_name(guild_id int32, new_name string) bool {
+	this.guild_ids_locker.Lock()
+	defer this.guild_ids_locker.Unlock()
+
+	row := this.guilds.GetRow(guild_id)
+	if row == nil {
+		return false
+	}
+
+	id, o := this.guild_name_map[row.GetName()]
+	if !o {
+		return false
+	}
+
+	if id == guild_id {
+		delete(this.guild_name_map, row.GetName())
+	}
+
+	this.guild_name_map[new_name] = guild_id
+
+	row.SetName(new_name)
+
+	return true
+}
+
 func (this *GuildManager) Init() {
 	this.guilds = dbc.Guilds
 	this.guild_ids = make([]int32, GUILD_MAX_NUM)
@@ -179,6 +215,16 @@ func (this *GuildManager) CreateGuild(player_id int32, guild_name string, logo i
 	if player == nil {
 		return int32(msg_client_message.E_ERR_PLAYER_NOT_EXIST)
 	}
+
+	if int32(len(guild_name)) > global_config.GuildNameLength {
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NAME_TOO_LONG)
+	}
+
+	if this._has_guild_by_name(guild_name) {
+		log.Error("Player[%v] create guild with name %v is already used", player_id, guild_name)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NAME_IS_USED)
+	}
+
 	guild_id := player.db.Guild.GetId()
 	if guild_id > 0 && this.GetGuild(guild_id) != nil {
 		log.Error("Player[%v] already create guild[%v|%v]", player_id, guild_name, guild_id)
@@ -673,7 +719,10 @@ func (this *Player) guild_info_modify(name string, logo int32) int32 {
 			log.Error("Player[%v] diamond not enough, change name failed", this.Id)
 			return int32(msg_client_message.E_ERR_PLAYER_DIAMOND_NOT_ENOUGH)
 		}
-		guild.SetName(name)
+		if !guild_manager._change_name(guild.GetId(), name) {
+			log.Error("Player[%v] change guild name %v to new %v failed", this.Id, guild.GetName(), name)
+			return int32(msg_client_message.E_ERR_PLAYER_GUILD_CHANGE_NAME_FAILED)
+		}
 		cost_diamond = global_config.GuildChangeNameCostGem
 		this.add_diamond(-cost_diamond)
 	}

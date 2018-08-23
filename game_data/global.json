@@ -88,6 +88,7 @@
 	"AnouncementExistTime": 10,
 	
 	"GuildOpenLevel": 3,
+	"GuildNameLength": 64,
 	"GuildCreateCostGem": 1000,
 	"GuildChangeNameCostGem": 2000,
 	"GuildSignReward": [20,10],
