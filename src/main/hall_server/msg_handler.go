@@ -223,6 +223,11 @@ func client_msg_handler(w http.ResponseWriter, r *http.Request) {
 				p.OnInit()
 				ret_code = handlerinfo.player_msg_handler(w, r, p /*req*/, tmp_msg.GetData())
 				data = p.PopCurMsgData()
+				if USE_CONN_TIMER_WHEEL == 0 {
+					conn_timer_mgr.Insert(p.Id)
+				} else {
+					conn_timer_wheel.Insert(p.Id)
+				}
 				atomic.CompareAndSwapInt32(&p.is_lock, 1, 0)
 			}
 		}

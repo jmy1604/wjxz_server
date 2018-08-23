@@ -328,11 +328,11 @@ func (this *Player) OnInit() {
 
 func (this *Player) OnLogin() {
 	this.OnInit()
-	if USE_CONN_TIMER_WHEEL == 0 {
+	/*if USE_CONN_TIMER_WHEEL == 0 {
 		conn_timer_mgr.Insert(this.Id)
 	} else {
 		conn_timer_wheel.Insert(this.Id)
-	}
+	}*/
 
 	this.ChkPlayerDailyTask()
 	this.db.Info.SetLastLogin(int32(time.Now().Unix()))

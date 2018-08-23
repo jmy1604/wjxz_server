@@ -458,6 +458,7 @@ func (this *Player) guild_stage_check_refresh(is_notify bool) bool {
 
 	this.db.GuildStage.SetRespawnNum(0)
 	this.db.GuildStage.SetLastRefreshTime(int32(time.Now().Unix()))
+	this.db.GuildStage.SetRespawnState(GUILD_STAGE_STATE_CAN_FIGHT)
 
 	if is_notify {
 		this.send_guild_stage_data()
