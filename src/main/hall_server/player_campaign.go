@@ -525,12 +525,14 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 			group_id := campaign.RandomDropIDList[2*i]
 			count := campaign.RandomDropIDList[2*i+1]
 			for j := 0; j < int(count); j++ {
-				if o, _ := this.drop_item_by_id(group_id, false, this.tmp_cache_items /*this.used_drop_ids*/); !o {
+				if o, _ := this.drop_item_by_id(group_id, false, nil); !o {
 					continue
 				}
 			}
 		}
 	}
+
+	log.Debug("now_time: %v   last_time: %v   rt: %v   n: %v   tmp_cache_items: %v", now_time, last_time, rt, n, this.tmp_cache_items)
 
 	if !is_cache {
 		// 缓存的收益
@@ -601,15 +603,19 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 		var cr int32
 		if last_logout == 0 {
 			incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+			log.Info("111111111111111111111111111, incomes %v, cr %v", incomes, cr)
 		} else {
 			if last_logout >= random_income_time {
 				if now_time-last_logout >= 8*3600 {
 					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, last_logout+8*3600, is_cache)
+					log.Info("222222222222222222222222222, incomes %v, cr %v", incomes, cr)
 				} else {
 					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+					log.Info("333333333333333333333333333, incomes %v, cr %v", incomes, cr)
 				}
 			} else {
 				incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
+				log.Info("444444444444444444444444444, incomes %v, cr %v", incomes, cr)
 			}
 		}
 		this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)

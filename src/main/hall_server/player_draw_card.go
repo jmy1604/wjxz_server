@@ -70,8 +70,8 @@ func (this *Player) drop_item(drop_lib *table_config.DropTypeLib, badd bool, use
 			}
 
 			item = &msg_client_message.ItemInfo{ItemCfgId: tmp_item.DropItemID, ItemNum: num}
-			if used_drop_ids != nil {
-				used_drop_ids[tmp_item.DropItemID] += item.ItemNum
+			if this.tmp_cache_items != nil {
+				this.tmp_cache_items[tmp_item.DropItemID] += item.ItemNum
 			}
 			break
 		}

@@ -44,7 +44,7 @@ type CLIENT_MSG_HANDLER func(http.ResponseWriter, *http.Request /*proto.Message*
 
 type CLIENT_PLAYER_MSG_HANDLER func(http.ResponseWriter, *http.Request, *Player /*proto.Message*/, []byte) int32
 
-type MsgHanlderInfo struct {
+type MsgHandlerInfo struct {
 	//typ                reflect.Type
 	msg_handler        CLIENT_MSG_HANDLER
 	player_msg_handler CLIENT_PLAYER_MSG_HANDLER
@@ -54,24 +54,24 @@ type MsgHanlderInfo struct {
 type MsgHandlerMgr struct {
 	msg_http_listener net.Listener
 	login_http_server http.Server
-	msgid2handler     map[int32]*MsgHanlderInfo
+	msgid2handler     map[int32]*MsgHandlerInfo
 }
 
 var msg_handler_mgr MsgHandlerMgr
 
 func (this *MsgHandlerMgr) Init() bool {
-	this.msgid2handler = make(map[int32]*MsgHanlderInfo)
+	this.msgid2handler = make(map[int32]*MsgHandlerInfo)
 	return true
 }
 
 func (this *MsgHandlerMgr) SetMsgHandler(msg_code uint16, msg_handler CLIENT_MSG_HANDLER) {
 	//log.Info("set msg [%d] handler !", msg_code)
-	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ msg_handler: msg_handler, if_player_msg: false}
+	this.msgid2handler[int32(msg_code)] = &MsgHandlerInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ msg_handler: msg_handler, if_player_msg: false}
 }
 
 func (this *MsgHandlerMgr) SetPlayerMsgHandler(msg_code uint16, msg_handler CLIENT_PLAYER_MSG_HANDLER) {
 	//log.Info("set msg [%d] handler !", msg_code)
-	this.msgid2handler[int32(msg_code)] = &MsgHanlderInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ player_msg_handler: msg_handler, if_player_msg: true}
+	this.msgid2handler[int32(msg_code)] = &MsgHandlerInfo{ /*typ: msg_client_message.MessageTypes[msg_code], */ player_msg_handler: msg_handler, if_player_msg: true}
 }
 
 func (this *MsgHandlerMgr) StartHttp() bool {
