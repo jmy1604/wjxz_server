@@ -283,7 +283,7 @@ func (this *BattleTeam) InitWithStage(side int32, stage_id int32, monster_wave i
 					m.attrs[ATTR_HP] = int32(int64(m.attrs[ATTR_HP_MAX])*int64(hp_percent)) / 100
 					m.hp = m.attrs[ATTR_HP]
 				} else {
-					boss_hp := guild.Stage.GetBosHP()
+					boss_hp := guild.Stage.GetBossHP()
 					if boss_hp > 0 {
 						m.attrs[ATTR_HP] = boss_hp
 						m.hp = boss_hp
@@ -748,7 +748,7 @@ func (this *BattleTeam) UpdateGuildStageBossHP() {
 	if boss == nil {
 		return
 	}
-	this.guild.Stage.SetBosHP(boss.hp)
+	this.guild.Stage.SetBossHP(boss.hp)
 	percent := int32(100 * boss.hp / boss.attrs[ATTR_HP_MAX])
 	if percent <= 0 {
 		percent = 1

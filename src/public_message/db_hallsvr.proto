@@ -485,7 +485,7 @@ message GuildStage{
 	optional int32 BossId=1;
 	optional int32 HpPercent=3;
 	optional int32 BossPos=4;
-	optional int32 BosHP=5;
+	optional int32 BossHP=5;
 }
 
 message GuildStageDamageLog{

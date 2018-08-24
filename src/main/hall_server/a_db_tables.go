@@ -2017,7 +2017,7 @@ type dbGuildStageData struct{
 	BossId int32
 	HpPercent int32
 	BossPos int32
-	BosHP int32
+	BossHP int32
 }
 func (this* dbGuildStageData)from_pb(pb *db.GuildStage){
 	if pb == nil {
@@ -2026,7 +2026,7 @@ func (this* dbGuildStageData)from_pb(pb *db.GuildStage){
 	this.BossId = pb.GetBossId()
 	this.HpPercent = pb.GetHpPercent()
 	this.BossPos = pb.GetBossPos()
-	this.BosHP = pb.GetBosHP()
+	this.BossHP = pb.GetBossHP()
 	return
 }
 func (this* dbGuildStageData)to_pb()(pb *db.GuildStage){
@@ -2034,14 +2034,14 @@ func (this* dbGuildStageData)to_pb()(pb *db.GuildStage){
 	pb.BossId = proto.Int32(this.BossId)
 	pb.HpPercent = proto.Int32(this.HpPercent)
 	pb.BossPos = proto.Int32(this.BossPos)
-	pb.BosHP = proto.Int32(this.BosHP)
+	pb.BossHP = proto.Int32(this.BossHP)
 	return
 }
 func (this* dbGuildStageData)clone_to(d *dbGuildStageData){
 	d.BossId = this.BossId
 	d.HpPercent = this.HpPercent
 	d.BossPos = this.BossPos
-	d.BosHP = this.BosHP
+	d.BossHP = this.BossHP
 	return
 }
 type dbGuildStageDamageLogData struct{
@@ -14026,16 +14026,16 @@ func (this *dbGuildStageColumn)SetBossPos(v int32){
 	this.m_changed = true
 	return
 }
-func (this *dbGuildStageColumn)GetBosHP( )(v int32 ){
-	this.m_row.m_lock.UnSafeRLock("dbGuildStageColumn.GetBosHP")
+func (this *dbGuildStageColumn)GetBossHP( )(v int32 ){
+	this.m_row.m_lock.UnSafeRLock("dbGuildStageColumn.GetBossHP")
 	defer this.m_row.m_lock.UnSafeRUnlock()
-	v = this.m_data.BosHP
+	v = this.m_data.BossHP
 	return
 }
-func (this *dbGuildStageColumn)SetBosHP(v int32){
-	this.m_row.m_lock.UnSafeLock("dbGuildStageColumn.SetBosHP")
+func (this *dbGuildStageColumn)SetBossHP(v int32){
+	this.m_row.m_lock.UnSafeLock("dbGuildStageColumn.SetBossHP")
 	defer this.m_row.m_lock.UnSafeUnlock()
-	this.m_data.BosHP = v
+	this.m_data.BossHP = v
 	this.m_changed = true
 	return
 }

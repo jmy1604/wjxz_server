@@ -1156,7 +1156,7 @@
 						{"Type":"int32","Index":1,"Name":"BossId"},
 						{"Type":"int32","Index":3,"Name":"HpPercent"},
 						{"Type":"int32","Index":4,"Name":"BossPos"},
-						{"Type":"int32","Index":5,"Name":"BosHP"}
+						{"Type":"int32","Index":5,"Name":"BossHP"}
 					]
 				},
 				{

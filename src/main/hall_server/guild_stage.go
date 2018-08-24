@@ -239,7 +239,7 @@ func guild_stage_data_init(guild *dbGuildRow, boss_id int32) int32 {
 	guild.Stage.SetBossId(boss_id)
 	guild.Stage.SetBossPos(monster.Slot - 1)
 	guild.Stage.SetHpPercent(100)
-	guild.Stage.SetBosHP(0)
+	guild.Stage.SetBossHP(0)
 	return 1
 }
 
@@ -542,7 +542,7 @@ func (this *Player) guild_stage_reset() int32 {
 	}
 
 	guild.Stage.SetBossId(0)
-	guild.Stage.SetBosHP(0)
+	guild.Stage.SetBossHP(0)
 	guild.Stage.SetBossPos(0)
 	guild.Stage.SetHpPercent(0)
 	guild.SetLastStageResetTime(now_time)
