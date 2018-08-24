@@ -574,6 +574,11 @@ func (this *Player) send_guild_data() int32 {
 
 // 公会推荐
 func (this *Player) guild_recommend() int32 {
+	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
+		log.Error("Player[%v] level not enough to open guild", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ENOUGH_LEVEL_TO_OPEN)
+	}
+
 	err, gids := guild_manager.Recommend(this.Id)
 	if err < 0 {
 		return err
@@ -593,6 +598,11 @@ func (this *Player) guild_recommend() int32 {
 
 // 公会搜索
 func (this *Player) guild_search(key string) int32 {
+	if this.db.Info.GetLvl() < global_config.GuildOpenLevel {
+		log.Error("Player[%v] level not enough to open guild", this.Id)
+		return int32(msg_client_message.E_ERR_PLAYER_GUILD_NOT_ENOUGH_LEVEL_TO_OPEN)
+	}
+
 	if this.db.Guild.GetId() > 0 {
 		log.Error("Player[%v] already joined one guild, cant search", this.Id)
 		return -1
