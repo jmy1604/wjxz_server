@@ -276,10 +276,10 @@ func (this *Player) PopCurMsgData() []byte {
 }
 
 func (this *Player) Send(msg_id uint16, msg proto.Message) (msg_data []byte) {
-	if !this.bhandling {
+	/*if !this.bhandling {
 		log.Error("Player [%d] send msg[%d] no bhandling !", this.Id, msg_id)
 		return
-	}
+	}*/
 
 	//log.Debug("[发送] [玩家%d:%v] [%s] !", this.Id, msg_id, msg.String())
 
