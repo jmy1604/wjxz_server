@@ -555,14 +555,13 @@ func (this *Player) get_campaign_random_income(campaign *table_config.XmlCampaig
 				})
 			}
 		}
-
-		this.tmp_cache_items = nil
 	} else {
 		for k, v := range this.tmp_cache_items {
 			income := this.cache_campaign_random_income(k, v)
 			incomes = append(incomes, income)
 		}
 	}
+	this.tmp_cache_items = nil
 	return
 }
 
@@ -603,19 +602,19 @@ func (this *Player) hangup_income_get(income_type int32, is_cache bool) (incomes
 		var cr int32
 		if last_logout == 0 {
 			incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
-			log.Info("111111111111111111111111111, incomes %v, cr %v", incomes, cr)
+			//log.Info("111111111111111111111111111, incomes %v, cr %v", incomes, cr)
 		} else {
 			if last_logout >= random_income_time {
 				if now_time-last_logout >= 8*3600 {
 					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, last_logout+8*3600, is_cache)
-					log.Info("222222222222222222222222222, incomes %v, cr %v", incomes, cr)
+					//log.Info("222222222222222222222222222, incomes %v, cr %v", incomes, cr)
 				} else {
 					incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
-					log.Info("333333333333333333333333333, incomes %v, cr %v", incomes, cr)
+					//log.Info("333333333333333333333333333, incomes %v, cr %v", incomes, cr)
 				}
 			} else {
 				incomes, cr = this.get_campaign_random_income(campaign, random_income_time, now_time, is_cache)
-				log.Info("444444444444444444444444444, incomes %v, cr %v", incomes, cr)
+				//log.Info("444444444444444444444444444, incomes %v, cr %v", incomes, cr)
 			}
 		}
 		this.db.CampaignCommon.SetHangupLastDropRandomIncomeTime(now_time - cr)
